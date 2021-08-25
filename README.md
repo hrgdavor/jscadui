@@ -20,6 +20,15 @@ To allow fastest response
 
 
 
+Parallelizing background work should be utilized
+
+- Use of TypedArrays where possible is preferred to allow for sending data between thread with no cost
+- sets of boolean operations can be done in background
+- Making long running operations like booleans interruptible would be ideal.
+- calculating operation complexitiy in advance would be useful (based on precision that can affect the expected output size and ammount of calculation)
+
+
+
 Allowing for changes to be localized instead of recalculating everything is crucial here.
 
 - to extent this can be automatic

@@ -19,7 +19,7 @@ those values when there is a shape that uses the geometry but defiens a transfor
 
 ## Optimization: reuse primitives
 
-Currently jscad generated whole new geometry for each call to `sphere`,`cube`,`cylinder`, ...etc but those could be reused (example based on cube)
+Currently jscad generates whole new geometry for each call to `sphere`,`cube`,`cylinder`, ...etc but those could be reused (example based on cube)
 
 - use cube[1,1,1] and any other size coiuld reuse the same cube by using that as basis
 - for cube:[3,4,5] use the bae cube with scale:[3,4,5]

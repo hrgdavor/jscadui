@@ -4,9 +4,9 @@ Alternative jscad UI playground.
 
 The goal is to make UI for jscad development that should be able to visualize the changes in realtime.
 
-- to feel responsive on save, refresh of the preview can even be over 50ms.
+- to feel responsive on script save, refresh of the preview under 50ms is desirable, but can be few times higher
 
-- for responsiveness to on live parameter change it should feel that feels like animation (60fps~16ms, 30fps~32ms)
+- for responsiveness to on live parameter change it should feel like animation (60fps~16ms, 30fps~32ms)
 
 
 

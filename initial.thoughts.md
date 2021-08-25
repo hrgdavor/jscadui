@@ -7,6 +7,7 @@ scene/model/cad graph is much less data than a single simple sphere with many se
 Allow for optimizations to be specific to gain most performance. Some calculations are 
 easy to implement generically, but then difficult/impossible to make as performant as 
 custom functions, that produce calculated values by using knowledge of the shape.
+
  - `boundingBox` - for a sphere with milion points, custom function can trivially calculate
    bounding box, but generic function slows down with sphere precision.
  - `boundingSphere` - same
@@ -16,15 +17,25 @@ custom functions, that produce calculated values by using knowledge of the shape
 Another optimization if to allow for those specific performance enhancing functions to recalculate
 those values when there is a shape that uses the geometry but defiens a transform.
 
+## Optimization: reuse primitives
+
+Currently jscad generated whole new geometry for each call to `sphere`,`cube`,`cylinder`, ...etc but those could be reused (example based on cube)
+
+- use cube[1,1,1] and any other size coiuld reuse the same cube by using that as basis
+- for cube:[3,4,5] use the bae cube with scale:[3,4,5]
+
+This optimization may have less benefit for cuboids as they have small number of vertices, but for sphere or cylinder depending on the precision it can be a huge difference.
+
 ## Optimization: limit transforms to allow for more agressive optimizations
 If transforms are limited to non deforming operations, those optimized calculations can
 be done reliably for transformed objects (just transform center location instead of recalculating)
+
  - scale
  - mirror (scale -x)
  - translate
  - rotate
 
-## Optimization: Loosen requirements on calculated values
+## Optimization: loosen requirements on calculated values
 Loosen requirements on calculated values `boundingBox`, `boundingSphere`,... or define loose
 equivalents: `incBoundingBox`, `incBoundingSphere` that guarantee geometry is inside but not 
 necessarily tight.

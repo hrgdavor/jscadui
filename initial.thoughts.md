@@ -3,26 +3,38 @@
 Start with immutability as those objects can be reused and shared without fear.
 scene/model/cad graph is much less data than a single simple sphere with many segments.
 
+
+
+## Debug info
+
+Mechanism to be included that enables attaching debug info `file:line:col`, `loopindex` if part of a loop and possibly more...
+
+- to every geometry
+- to every transform
+- to every call of builder method
+
+Interpreter based on AST would probably be the best option, and could allow partial changes and apply the result of them immediately without running all of the code. A simple approach could be made that requires little code on interpreter side, but has limitations in the code side ... still could be very useful.
+
 ## Optimizations
 Allow for optimizations to be specific to gain most performance. Some calculations are 
 easy to implement generically, but then difficult/impossible to make as performant as 
 custom functions, that produce calculated values by using knowledge of the shape.
 
- - `boundingBox` - for a sphere with milion points, custom function can trivially calculate
+ - `boundingBox` - for a sphere with million points, custom function can trivially calculate
    bounding box, but generic function slows down with sphere precision.
  - `boundingSphere` - same
  - `center` - same
  - `centerOfMass` - same
 
 Another optimization if to allow for those specific performance enhancing functions to recalculate
-those values when there is a shape that uses the geometry but defiens a transform.
+those values when there is a shape that uses the geometry but defines a transform.
 
 ## Optimization: reuse primitives
 
 Currently jscad generates whole new geometry for each call to `sphere`,`cube`,`cylinder`, ...etc but those could be reused (example based on cube)
 
-- use cube[1,1,1] and any other size coiuld reuse the same cube by using that as basis
-- for cube:[3,4,5] use the bae cube with scale:[3,4,5]
+- cube[1,1,1] could be reused for all other sizes
+- to cerate a cube:[3,4,5] use the base cube[1,1,1] with transform: scale:[3,4,5]
 
 This optimization may have less benefit for cuboids as they have small number of vertices, but for sphere or cylinder depending on the precision it can be a huge difference.
 

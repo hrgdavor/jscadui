@@ -13,8 +13,9 @@ Bring more options for debugging
  - it will also dump it in console, but more importantly also start a parallel instance of jscad that can be used to view
    any model provided via jscadDebugger calls
  - initial `async await` idea was abandoned as it complicates things greatly, and actual debugger in the browser can be used
-   to pause the script and to step through the code. A second instance of jscad can be used to display any shapes needed to be seen while debugging
- - the debbuder instance of jscad can also be further enhanced to inspect the 3d model.
+   to pause the script and to step through the code. 
+ - A second instance of jscad can be used to display any shapes needed to be seen while debugging (original instance can be frozen by debugger)
+ - the debbuger instance of jscad can also be further enhanced to inspect the 3d model
 
 To allow fastest response 
 
@@ -28,6 +29,8 @@ To allow fastest response
 Parallelizing background work should be utilized
 
 - Use of TypedArrays where possible is preferred to allow for sending data between thread with no cost
+- it should be examined if regenerating model in the worker is fast enough, as sending TypedArray out removes access for the sender and coordinating who needs which data can be difficult.
+- consider a hybrid apporach of sending typed arrays data out, to be given back, or regenerated if needed in multiple places
 - sets of boolean operations can be done in background
 - Making long running operations like booleans interruptible would be ideal.
 - calculating operation complexitiy in advance would be useful (based on precision that can affect the expected output size and ammount of calculation)

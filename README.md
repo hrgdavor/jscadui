@@ -8,7 +8,9 @@ The goal is to make UI for jscad development that should be able to visualize th
 
 - for responsiveness to on live parameter change it should feel like animation (60fps~16ms, 30fps~32ms)
 
-
+Bring more options for debugging
+ - `await jscadDebugger(shapes)` - option to pause script and see intermediate results from the script (function that calls it must be async)
+ - option to temporarily disable `jscadDebugger` like you would for normal breakpoints
 
 To allow fastest response 
 
@@ -19,14 +21,12 @@ To allow fastest response
 - progressive enhancement should be stopped and restarted on script or parameter change
 
 
-
 Parallelizing background work should be utilized
 
 - Use of TypedArrays where possible is preferred to allow for sending data between thread with no cost
 - sets of boolean operations can be done in background
 - Making long running operations like booleans interruptible would be ideal.
 - calculating operation complexitiy in advance would be useful (based on precision that can affect the expected output size and ammount of calculation)
-
 
 
 Allowing for changes to be localized instead of recalculating everything is crucial here.

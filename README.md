@@ -9,8 +9,12 @@ The goal is to make UI for jscad development that should be able to visualize th
 - for responsiveness to on live parameter change it should feel like animation (60fps~16ms, 30fps~32ms)
 
 Bring more options for debugging
- - `await jscadDebugger(shapes)` - option to pause script and see intermediate results from the script (function that calls it must be async)
- - option to temporarily disable `jscadDebugger` like you would for normal breakpoints
+ - `jscadDebugger(shapes|object)` - function that can be called at any point to see intermediate results from the script 
+ - it will also dump it in console, but more importantly also start a parallel instance of jscad that can be used to view
+   any model provided via jscadDebugger calls
+ - initial `async await` idea was abandoned as it complicates things greatly, and actual debugger in the browser can be used
+   to pause the script and to step through the code. A second instance of jscad can be used to display any shapes needed to be seen while debugging
+ - the debbuder instance of jscad can also be further enhanced to inspect the 3d model.
 
 To allow fastest response 
 

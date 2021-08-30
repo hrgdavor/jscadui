@@ -52,6 +52,15 @@ Loosen requirements on calculated values `boundingBox`, `boundingSphere`,... or 
 equivalents: `incBoundingBox`, `incBoundingSphere` that guarantee geometry is inside but not 
 necessarily tight.
 
+## Optimization of preview: fake booleans
+just displaying parts of boolean operations is much faster.
+
+ - care must be taken to avoid breaking code that expects to do stuff with booleans output
+ - better to wrap the result in FakeBoolean object, that way when ppl run into the issue, and debug 
+   the result, they will see something is wrong and then ca decide waht to do
+ - needs an easy option to force boolean in the script (maybe user want to skip preview for specific part).
+   That way speed ccan be for many other booleans, but one being tested can be forced to ececute.
+
 ## Geometry 
 
 **Reusable**  basic geometry that can be converted to buffers for rendering or exported.
@@ -71,7 +80,7 @@ necessarily tight.
 
 ## Combined Geometry
 A combination of shapes
- - booelan operations 
+ - boolean operations 
 
 ```js
 {

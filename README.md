@@ -6,7 +6,7 @@ The goal is to make UI for jscad development that should be able to visualize th
 
 - to feel responsive on script save, refresh of the preview under 50ms is desirable, but can be few times higher
 
-- for responsiveness to on live parameter change it should feel like animation (60fps~16ms, 30fps~32ms)
+- for responsiveness to on live parameter change it should feel like animation (60fps\~16ms, 30fps\~32ms)
 
 Bring more options for debugging
  - `jscadDebugger(shapes|object)` - function that can be called at any point to see intermediate results from the script 

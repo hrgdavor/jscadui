@@ -8,7 +8,7 @@ The goal is to make UI for jscad development that should be able to visualize th
 
 - for responsiveness to on live parameter change it should feel like animation (60fps\~16ms, 30fps\~32ms)
 
-Bring more options for debugging
+## Bring more options for debugging
  - `jscadDebugger(shapes|object)` - function that can be called at any point to see intermediate results from the script 
  - it will also dump it in console, but more importantly also start a parallel instance of jscad that can be used to view
    any model provided via jscadDebugger calls
@@ -17,7 +17,7 @@ Bring more options for debugging
  - A second instance of jscad can be used to display any shapes needed to be seen while debugging (original instance can be frozen by debugger)
  - the debbuger instance of jscad can also be further enhanced to inspect the 3d model
 
-To allow fastest response 
+## allow fastest response 
 
 - initial render may be a simple preview with progressive enhancement in background. 
 - global precision should be possible so preview has lower precision
@@ -26,7 +26,7 @@ To allow fastest response
 - progressive enhancement should be stopped and restarted on script or parameter change
 
 
-Parallelizing background work should be utilized
+##  Parallelizing background work 
 
 - Use of TypedArrays where possible is preferred to allow for sending data between thread with no cost
 - it should be examined if regenerating model in the worker is fast enough, as sending TypedArray out removes access for the sender and coordinating who needs which data can be difficult.
@@ -36,7 +36,7 @@ Parallelizing background work should be utilized
 - calculating operation complexitiy in advance would be useful (based on precision that can affect the expected output size and ammount of calculation)
 
 
-Allowing for changes to be localized instead of recalculating everything is crucial here.
+##  Allowing for changes to be localized instead of recalculating everything
 
 - to extent this can be automatic
 - much more is possible if developers are taught some best practices that allow for most performance

@@ -15,10 +15,23 @@ Mechanism to be included that enables attaching debug info `file:line:col`, `loo
 
 Interpreter based on AST would probably be the best option, and could allow partial changes and apply the result of them immediately without running all of the code. A simple approach could be made that requires little code on interpreter side, but has limitations in the code side ... still could be very useful.
 
-## Optimizations
-Allow for optimizations to be specific to gain most performance. Some calculations are 
-easy to implement generically, but then difficult/impossible to make as performant as 
-custom functions, that produce calculated values by using knowledge of the shape.
+## Optimization 1: avoid/reduce using expensive operation in the library
+This one is likely most difficult, and the aim is to reduce need scanning the mesh, even worse if not just scanning,
+but also cross checking (exponential slowdown)
+
+ - retesellate should be optional (it is not always desirable)
+
+### Optimization 1.a: force points reuse
+
+ - no duplicates points in a mesh 
+ - shared normal (will likely give smooth shading)
+ - this avoids the need for snapping polygons (expensive as cross-iterates over mesh exponenital slowdown)
+
+## Optimization: generic calculations and shortcuts for specific optimized versions
+Allow for shortcuts for optimizing calculations to gain most performance. 
+
+Some calculations are easy to implement generically, but then difficult/impossible to make as performant as 
+specialized(per-shape) functions that produce calculated values by using knowledge of the shape.
 
  - `boundingBox` - for a sphere with million points, custom function can trivially calculate
    bounding box, but generic function slows down with sphere precision.
@@ -26,8 +39,8 @@ custom functions, that produce calculated values by using knowledge of the shape
  - `center` - same
  - `centerOfMass` - same
 
-Another optimization if to allow for those specific performance enhancing functions to recalculate
-those values when there is a shape that uses the geometry but defines a transform.
+Another level optimization here is to allow for those specific performance enhancing functions to recalculate
+those values when there is a shape that uses the same parent geometry but defines a transform (basic geometries always start with identity matrix).
 
 ## Optimization: reuse primitives
 

@@ -103,4 +103,17 @@ A combination of shapes
 }
 ```
 
-## Shape
+## sketching
+have a multi-pass stepped approach,  
+ - define inital variables with constraints to be used 
+ - generate rough sketch with helping shapes (lines, arcs, circles) to define maybe more constraints like intersections an offsets
+-  generate the shape, 
+ - then add fillets and maybe some booleans if it is easier than doing sth manually
+
+there would be many shapes and points in there that are not part of the final result, but are needed to reason about the model, and it would be a shame to not be able to visualize them.
+
+a stepped approach like that would enable visualizing each step so it is easier to debug and inspect
+
+an inspector similar like we have for HMTL and css in browser would also be useful where one could change few numbers on the shapes to make better fit, then later update code to get those numbers 
+inspector would at first only know final calculated value, so if changed the final number for better fit, I would have to change the code to match the number I just changed (it is a pattern I often use to test css tweaks).
+Inspector could be made to be smarter by inspecting AST

@@ -13,6 +13,11 @@ Mechanism to be included that enables attaching debug info `file:line:col`, `loo
 - to every transform
 - to every call of builder method
 
+allow debug output a polygon under construction 
+ - must be  made by appending 
+ - only parts added up-to that point are shown
+ - remember length at the time of debug output so single poly can be reused, but viewed how it looks at that point in time
+ 
 Interpreter based on AST would probably be the best option, and could allow partial changes and apply the result of them immediately without running all of the code. A simple approach could be made that requires little code on interpreter side, but has limitations in the code side ... still could be very useful.
 
 ## Optimization 1: avoid/reduce using expensive operation in the library

@@ -1,8 +1,20 @@
 # jscadui
 
-Alternative jscad UI playground.
+Alternative jscad UI playground developed here and meant to be later contributed into jscad. This way this is not limited by jscad release cycle.
 
-The goal is to make UI for jscad development that should be able to visualize the changes in realtime.
+ - support Three.js Babylon.js regl
+ - create nodep pure js parameters
+ - allow to be easily used within React, angula, Vue,Solidj ... or whatever is popular at some point.
+ - simplify integrating worker 
+
+Worker
+- worker that can work with folder projects 
+ - worker for scripts that pull deps from unkpg by simply using import or require
+ - worker that also works with es6 modules
+
+
+
+As proof of concet, the goal is to make UI for jscad development that should be able to visualize the changes in realtime.
 
 - to feel responsive on script save, refresh of the preview under 50ms is desirable, but can be few times higher
 

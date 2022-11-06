@@ -3,7 +3,6 @@
   "display": "JSCAD Themes",
   "extends": "./base.json",
   "compilerOptions": {
-    "baseUrl": "packages/generator/src",
     "lib": ["ESNext"],
     "module": "ESNext",
     "moduleResolution": "node",
@@ -16,5 +15,5 @@
     "target": "es2019"
   },
   "include": ["./**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist"]
 }

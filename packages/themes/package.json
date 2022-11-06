@@ -14,5 +14,5 @@
     "tsconfig": "*",
     "typescript": "4.8.4"
   },
-  "license": "ISC"
+  "license": "MIT"
 }

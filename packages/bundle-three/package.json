@@ -1,0 +1,21 @@
+{
+  "name": "@jscadui/bundle-three",
+  "version": "0.1.0",
+  "description": "Three.js bundle",
+  "main": "index.js",
+  "type":"module",
+  "scripts": {
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "build": "tsc --build"
+  },
+  "devDependencies": {
+    "@types/node": "18.11.9",
+    "@trivago/prettier-plugin-sort-imports": "~3.3.0",
+    "vitest": "0.24.5"
+  },
+  "dependencies": {
+    "three": "0.146.0"
+  },
+  "license": "MIT"
+}

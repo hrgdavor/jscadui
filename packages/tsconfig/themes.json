@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "JSCAD Themes",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "baseUrl": "packages/generator/src",
+    "lib": ["ESNext"],
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": false,
+    "outDir": "dist",
+    "skipDefaultLibCheck": true,
+    "strict": true,
+    "target": "es2019"
+  },
+  "include": ["./**/*.ts"],
+  "exclude": ["node_modules"]
+}

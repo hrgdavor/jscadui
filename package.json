@@ -1,0 +1,41 @@
+{
+  "name": "jscadui",
+  "version": "0.1.0",
+  "description": "JS CAD UI",
+  "main": "index.js",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "dev": "turbo run dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hrgdavor/jscadui.git"
+  },
+  "keywords": [
+    "jscad",
+    "typescript",
+    "javascript",
+    "ui",
+    "web",
+    "regl",
+    "threejs"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hrgdavor/jscadui/issues"
+  },
+  "homepage": "https://github.com/hrgdavor/jscadui#readme",
+  "devDependencies": {
+    "turbo": "1.6.3"
+  }
+}

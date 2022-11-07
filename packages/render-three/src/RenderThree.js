@@ -61,7 +61,6 @@ export function RenderThree(el, { camera = {}, bg } = {}) {
 
     function renderAxisChange(){
       syncCameras(_camera, camera2)
-    //  renderer2.render(scene2, camera2)				
     }
 
     function syncCameras(camera1, camera2){

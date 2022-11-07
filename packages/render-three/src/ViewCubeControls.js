@@ -23,6 +23,7 @@ export const ViewCubeControlsModule = THREE => {
         hoverColor: ACCENTCOLOR,
         outlineColor: OUTLINECOLOR,
       })
+      this._cube.rotateX(Math.PI / 180 * 90)
       this._camera = camera
       this._handleMouseMove = this._handleMouseMove.bind(this)
       this._handleMouseClick = this._handleMouseClick.bind(this)

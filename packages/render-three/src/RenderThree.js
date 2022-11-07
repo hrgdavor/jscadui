@@ -9,10 +9,10 @@ export function RenderThree(el, { camera = {}, bg } = {}) {
   let controls
   let renderer
   let viewCube
-  let cubeRenderer
-  let cubeCamera
-  let cubeScene
-
+  let renderer2
+  let camera2
+  let scene2
+  let CAM_DISTANCE = 70
   const SHADOW = false
   const shouldRender = Date.now()
   const lastRender = true
@@ -30,35 +30,49 @@ export function RenderThree(el, { camera = {}, bg } = {}) {
     _camera.up.set(0, 0, 1)
     _camera.position.set(...cameraPosition)
     _camera.lookAt(...cameraTarget)
-
-    cubeRenderer = new THREE.WebGLRenderer({ alpha: 1 })
-    cubeRenderer.setSize(150, 150)
-    cubeRenderer.setClearColor( 0xffffff, 0 ); 
-    const cubeDomStyle = cubeRenderer.domElement.style
+    renderer2 = new THREE.WebGLRenderer({ alpha: 1 })
+    renderer2.setSize(150, 150)
+    renderer2.setClearColor( 0xffffff, 0 ); 
+    const cubeDomStyle = renderer2.domElement.style
     cubeDomStyle.position = 'absolute'
     cubeDomStyle.top = '0'
     cubeDomStyle.right = '0'
-    canvas.parentNode.appendChild(cubeRenderer.domElement)
+    canvas.parentNode.appendChild(renderer2.domElement)
 
-    cubeScene = new THREE.Scene()
-    cubeCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000)
-    cubeCamera.position.set(0, 0, 70)
-    cubeCamera.lookAt(0, 0, 0)
+    scene2 = new THREE.Scene()
+    camera2 = new THREE.PerspectiveCamera(50, 1, 0.1, 1000)
+    camera2.up.set(0, 0, 1)
+    camera2.position.set(0, 0, CAM_DISTANCE)
+    camera2.lookAt(0, 0, 0)
     
-    viewCube = new ViewCubeControls(cubeCamera, undefined, undefined, cubeRenderer.domElement)
-    cubeScene.background = null
-    cubeScene.add(viewCube.getObject())
+    viewCube = new ViewCubeControls(camera2, undefined, undefined, renderer2.domElement)
+    scene2.background = null
+    scene2.add(viewCube.getObject())
 
-    cubeRenderer.domElement.addEventListener('mouseover',e=>updateView())
-    cubeRenderer.domElement.addEventListener('mousemove',e=>updateView())
-    cubeRenderer.domElement.addEventListener('mousedown',e=>updateView())
-    cubeRenderer.domElement.addEventListener('mouseup',e=>updateView())
+    renderer2.domElement.addEventListener('mouseover',e=>updateView())
+    renderer2.domElement.addEventListener('mousemove',e=>updateView())
+    renderer2.domElement.addEventListener('mousedown',e=>updateView())
+    renderer2.domElement.addEventListener('mouseup',e=>updateView())
 
-    viewCube.addEventListener('angle-change', ({ quaternion }) => {
-      console.log('quaternion',quaternion)
-      _camera.applyQuaternion(quaternion.normalize().invert())
+    viewCube.addEventListener('move-angle', ({ x,y,z }) => {
+      console.log('x,y,z', x,y,z)
       updateView()
     })
+
+    function renderAxisChange(){
+      syncCameras(_camera, camera2)
+    //  renderer2.render(scene2, camera2)				
+    }
+
+    function syncCameras(camera1, camera2){
+      var look = new THREE.Vector3(0,0, 1);
+      look.applyQuaternion(camera1.quaternion);
+      const length = CAM_DISTANCE;
+      camera2.position.copy( camera1.position );
+      camera2.position.setLength( length );
+      camera2.lookAt( look );
+
+    }
 
     _scene = new THREE.Scene()
 
@@ -84,7 +98,12 @@ export function RenderThree(el, { camera = {}, bg } = {}) {
     controls = new THREE.OrbitControls(_camera, canvas)
     controls.target.set(0, 0, 0)
     controls.update()
+    window.camera = _camera
+    window.controls = controls
+
+    renderAxisChange()
     controls.addEventListener('change', function () {
+      renderAxisChange()
       updateView()
     })
   }
@@ -103,11 +122,11 @@ export function RenderThree(el, { camera = {}, bg } = {}) {
 
   function updateAndRender() {
     renderTimer = null
-    console.log('updateAndRender')
-    controls.update()
+    // console.log('updateAndRender')
+//    controls.update()
 
-    const animating = viewCube.update()
-    cubeRenderer.render(cubeScene, cubeCamera)
+    const animating = false; //viewCube.update()
+    renderer2.render(scene2, camera2)
 
     renderer.render(_scene, _camera)
     renderer.autoClear = false // allow to render multiple scenes one over other if needed

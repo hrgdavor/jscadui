@@ -31,4 +31,4 @@ export { EventDispatcher } from 'three/src/core/EventDispatcher.js';
 export { Texture } from 'three/src/textures/Texture.js';
 export * from 'three/src/constants.js';
 
-export * from 'three/examples/jsm/controls/OrbitControls.js';
+export * from './src/OrbitControls.js';

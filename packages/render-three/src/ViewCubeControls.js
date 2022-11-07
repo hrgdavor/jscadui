@@ -24,7 +24,6 @@ export const ViewCubeControlsModule = THREE => {
         outlineColor: OUTLINECOLOR,
       })
       this._camera = camera
-      this._animation = null
       this._handleMouseMove = this._handleMouseMove.bind(this)
       this._handleMouseClick = this._handleMouseClick.bind(this)
       this._listen()
@@ -147,21 +146,10 @@ export const ViewCubeControlsModule = THREE => {
     }
 
     _setCubeAngles(x, y, z) {
-      const base = this._cube.rotation
-      this._animation = {
-        base: {
-          x: base.x,
-          y: base.y,
-          z: base.z,
-        },
-        delta: {
-          x: calculateAngleDelta(base.x, x * toRad),
-          y: calculateAngleDelta(base.y, y * toRad),
-          z: calculateAngleDelta(base.z, z * toRad),
-        },
-        duration: 500,
-        time: Date.now(),
-      }
+      this.dispatchEvent({
+        type: 'move-angle',
+        x,y,z
+      })
     }
 
     _handleMouseMove(event) {
@@ -194,50 +182,6 @@ export const ViewCubeControlsModule = THREE => {
           }
         }
       }
-    }
-
-    update() {
-      return this._animate()
-    }
-
-    _animate() {
-      if (!this._animation) return
-      const now = Date.now()
-      const { duration, time } = this._animation
-      const alpha = Math.min((now - time) / duration, 1)
-      this._animateCubeRotation(this._animation, alpha)
-      if (alpha == 1) this._animation = null
-      this.dispatchEvent({
-        type: 'angle-change',
-        quaternion: this._cube.quaternion.clone(),
-      })
-      return this._animation !== null
-    }
-
-    _animateCubeRotation({ base, delta }, alpha) {
-      const ease = (Math.sin((alpha * 2 - 1) * Math.PI * 0.5) + 1) * 0.5
-      let angleX = -TWOPI + base.x + delta.x * ease
-      let angleY = -TWOPI + base.y + delta.y * ease
-      let angleZ = -TWOPI + base.z + delta.z * ease
-      this._cube.rotation.set(angleX % TWOPI, angleY % TWOPI, angleZ % TWOPI)
-    }
-
-    setQuaternion(quaternion) {
-      this._cube.setRotationFromQuaternion(quaternion)
-      // wip
-      // const base = { x: this._cube.rotation.x, y: this._cube.rotation.y, z: this._cube.rotation.z };
-      // const object = new THREE.Object3D();
-      // object.setRotationFromQuaternion(quaternion);
-      // const delta = {
-      // 	x: calculateAngleDelta(base.x, object.rotation.x),
-      // 	y: calculateAngleDelta(base.y, object.rotation.y),
-      // 	z: calculateAngleDelta(base.z, object.rotation.z)
-      // };
-      // let angleX = -TWOPI + base.x + delta.x;
-      // let angleY = -TWOPI + base.y + delta.y;
-      // let angleZ = -TWOPI + base.z + delta.z;
-      // console.log('camera:', (angleX % TWOPI).toFixed(3), (angleY % TWOPI).toFixed(3), (angleZ % TWOPI).toFixed(3));
-      // this._cube.rotation.set(angleX % TWOPI, angleY % TWOPI, angleZ % TWOPI);
     }
 
     getObject() {

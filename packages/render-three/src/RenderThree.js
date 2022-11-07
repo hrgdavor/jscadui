@@ -32,7 +32,7 @@ export function RenderThree(el, { camera = {}, bg } = {}) {
     _camera.lookAt(...cameraTarget)
     renderer2 = new THREE.WebGLRenderer({ alpha: 1 })
     renderer2.setSize(150, 150)
-    renderer2.setClearColor( 0xffffff, 0 ); 
+    renderer2.setClearColor(0xffffff, 0)
     const cubeDomStyle = renderer2.domElement.style
     cubeDomStyle.position = 'absolute'
     cubeDomStyle.top = '0'
@@ -44,33 +44,103 @@ export function RenderThree(el, { camera = {}, bg } = {}) {
     camera2.up.set(0, 0, 1)
     camera2.position.set(0, 0, CAM_DISTANCE)
     camera2.lookAt(0, 0, 0)
-    
+
     viewCube = new ViewCubeControls(camera2, undefined, undefined, renderer2.domElement)
     scene2.background = null
     scene2.add(viewCube.getObject())
 
-    renderer2.domElement.addEventListener('mouseover',e=>updateView())
-    renderer2.domElement.addEventListener('mousemove',e=>updateView())
-    renderer2.domElement.addEventListener('mousedown',e=>updateView())
-    renderer2.domElement.addEventListener('mouseup',e=>updateView())
+    renderer2.domElement.addEventListener('mouseover', e => updateView())
+    renderer2.domElement.addEventListener('mousemove', e => updateView())
+    renderer2.domElement.addEventListener('mousedown', e => updateView())
+    renderer2.domElement.addEventListener('mouseup', e => updateView())
 
-    viewCube.addEventListener('move-angle', ({ x,y,z }) => {
-      console.log('x,y,z', x,y,z)
+    viewCube.addEventListener('move-angle', ({ x, y, z }) => {
+      console.log('x,y,z', x, y, z)
       updateView()
     })
 
-    function renderAxisChange(){
+    let cssRoot = document.querySelector(':root').style
+    function renderAxisChange() {
+      // var q = _camera.quaternion.clone().normalize()
+      // const eul = new THREE.Euler(0,0,1,'ZYX')
+      // eul.setFromQuaternion(_camera.quaternion.clone().normalize())
+      // cssRoot.setProperty('--cube-rotateX', eul.x.toFixed(6)+'rad');
+      // cssRoot.setProperty('--cube-rotateY', eul.y.toFixed(6)+'rad');
+      // cssRoot.setProperty('--cube-rotateZ', eul.z.toFixed(6)+'rad');
+      const cameraMatrix = _camera.matrixWorldInverse.clone()
+      const matrix = new THREE.Matrix4()
+      const scale = 0.8
+      matrix.extractRotation(cameraMatrix).multiply(new THREE.Matrix4().makeScale(scale, scale, scale))
+      const cssMatrix = getCameraCSSMatrix(matrix)
+
+      cssRoot.setProperty('--cube-transform', cssMatrix)
+      //console.log('cssMatrix',cssMatrix)
+
       syncCameras(_camera, camera2)
     }
 
-    function syncCameras(camera1, camera2){
-      var look = new THREE.Vector3(0,0, 1);
-      look.applyQuaternion(camera1.quaternion);
-      const length = CAM_DISTANCE;
-      camera2.position.copy( camera1.position );
-      camera2.position.setLength( length );
-      camera2.lookAt( look );
+    function epsilon(value) {
+      return Math.abs(value) < 1e-10 ? 0 : value.toFixed(6)
+    }
+    function getCameraCSSMatrix(matrix) {
+      const elements = matrix.elements
+      return (
+        'matrix3d(' +
+        epsilon(elements[0]) +
+        ',' +
+        epsilon(-elements[1]) +
+        ',' +
+        epsilon(elements[2]) +
+        ',' +
+        epsilon(elements[3]) +
+        ',' +
+        epsilon(elements[4]) +
+        ',' +
+        epsilon(-elements[5]) +
+        ',' +
+        epsilon(elements[6]) +
+        ',' +
+        epsilon(elements[7]) +
+        ',' +
+        epsilon(elements[8]) +
+        ',' +
+        epsilon(-elements[9]) +
+        ',' +
+        epsilon(elements[10]) +
+        ',' +
+        epsilon(elements[11]) +
+        ',' +
+        epsilon(elements[12]) +
+        ',' +
+        epsilon(-elements[13]) +
+        ',' +
+        epsilon(elements[14]) +
+        ',' +
+        epsilon(elements[15]) +
+        ')'
+      )
+    }
+    function getAxisAndAngelFromQuaternion(q) {
+      const angle = 2 * Math.acos(q.w)
+      var s
+      if (1 - q.w * q.w < 0.000001) {
+        // test to avoid divide by zero, s is always positive due to sqrt
+        // if s close to zero then direction of axis not important
+        // http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/
+        s = 1
+      } else {
+        s = Math.sqrt(1 - q.w * q.w)
+      }
+      return { axis: new Vector3(q.x / s, q.y / s, q.z / s), angle }
+    }
 
+    function syncCameras(camera1, camera2) {
+      var look = new THREE.Vector3(0, 0, 1)
+      look.applyQuaternion(camera1.quaternion)
+      const length = CAM_DISTANCE
+      camera2.position.copy(camera1.position)
+      camera2.position.setLength(length)
+      camera2.lookAt(look)
     }
 
     _scene = new THREE.Scene()
@@ -122,9 +192,9 @@ export function RenderThree(el, { camera = {}, bg } = {}) {
   function updateAndRender() {
     renderTimer = null
     // console.log('updateAndRender')
-//    controls.update()
+    //    controls.update()
 
-    const animating = false; //viewCube.update()
+    const animating = false //viewCube.update()
     renderer2.render(scene2, camera2)
 
     renderer.render(_scene, _camera)
@@ -136,7 +206,7 @@ export function RenderThree(el, { camera = {}, bg } = {}) {
     // renderer.render(scene2, camera)
     // https://github.com/fennec-hub/ThreeOrbitControlsGizmo
     renderer.autoClear = true
-    if(animating){
+    if (animating) {
       updateView()
       console.log('animating')
     }

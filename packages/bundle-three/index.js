@@ -27,6 +27,7 @@ export { Group } from 'three/src/objects/Group.js';
 export { Line } from 'three/src/objects/Line.js';
 export { Matrix4 } from 'three/src/math/Matrix4.js';
 export { Vector3 } from 'three/src/math/Vector3.js';
+export { Euler } from 'three/src/math/Euler.js';
 export { EventDispatcher } from 'three/src/core/EventDispatcher.js';
 export { Texture } from 'three/src/textures/Texture.js';
 export * from 'three/src/constants.js';

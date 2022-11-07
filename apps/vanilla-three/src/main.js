@@ -24,3 +24,24 @@ viewer.setScene({
     { id: 'grid', items: grid },
   ],
 })
+
+const h = (tag, attr, html) => {
+  const out = document.createElement(tag)
+  if (attr) {
+    for (let aName in attr) out.setAttribute(aName, attr[aName])
+  }
+  if (html) out.innerHTML = html
+  return out
+}
+
+const boxDiv = h('div',{class:'scene'},`<div class="cube">
+    <div class="cube__face cube__face--front">front</div>
+    <div class="cube__face cube__face--back">back</div>
+    <div class="cube__face cube__face--right">right</div>
+    <div class="cube__face cube__face--left">left</div>
+    <div class="cube__face cube__face--top">top</div>
+    <div class="cube__face cube__face--bottom">bottom</div>
+  </div>`)
+
+document.body.appendChild(boxDiv)
+console.log('boxDiv', boxDiv)

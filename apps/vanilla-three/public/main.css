@@ -30,7 +30,6 @@ body {
   top: 0; left:0;
   width: var(--cube-size);
   height: var(--cube-size);
-  border: 1px solid #CCC;
   margin: calc( var(--cube-size) / 4 );
   perspective: 400px;
 }

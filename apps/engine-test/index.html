@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>multi engine test</title>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="src/jscad-regl-renderer.min.js"></script>
+  </head>
+  <body>
+    <div id="root" style="overflow: hidden;">
+      <div class="box" id="box0">
+        <div class="boxInfo"><b>Three.js</b></div>
+      </div>
+      <div class="box" id="box1">
+        <div class="boxInfo"><b>Debug</b></div>
+        <div>
+          <div class="formRow">
+            <label></label>
+            <label>X</label>
+            <label>Y</label>
+            <label>Z</label>
+          </div>
+          <form name="posForm" class="formRow">
+            <label>POS</label>
+            <input name="x" type="number" class="cameraNum" value="180"/>
+            <input name="y" type="number" class="cameraNum" value="-180"/>
+            <input name="z" type="number" class="cameraNum" value="220"/>
+          </form>
+          <form name="rotForm" class="formRow">
+            <label>ROT</label>
+            <input name="rx" type="number" class="cameraNum" value="0" step="0.02"/>
+            <input name="ry" type="number" class="cameraNum" value="0" step="0.02"/>
+            <input name="rz" type="number" class="cameraNum" value="0" step="0.02"/>
+          </form>
+          <form name="lookForm" class="formRow">
+            <label>LOOK</label>
+            <input name="x" type="number" class="cameraNum" value="0"/>
+            <input name="y" type="number" class="cameraNum" value="0"/>
+            <input name="z" type="number" class="cameraNum" value="0"/>
+          </form>
+        </div>
+      </div>
+      <div class="box" id="box2">
+        <div class="boxInfo"><b>Babylon.js</b></div>
+      </div>
+      <div class="box" id="box3">
+        <div class="boxInfo"><b>regl</b></div>
+      </div>
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>

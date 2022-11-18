@@ -1,0 +1,77 @@
+* {
+  box-sizing: border-box;
+}
+body,
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+body {
+  overflow: hidden;
+  display: flex;
+  justify-content: stretch;
+  align-items: stretch;
+}
+#root {
+  flex: 1;
+}
+
+:root {
+  --cube-size: 100px;
+  --cube-rotateX: 0deg;
+  --cube-rotateY: 0deg;
+  --cube-rotateZ: 0deg;
+  --cube-transform: rotateX(0);
+  --cube-transform-common: translateZ(calc( var(--cube-size) / 2 )) rotateX(180deg);
+}
+.scene {
+  position: absolute;
+  top: 0; left:0;
+  width: var(--cube-size);
+  height: var(--cube-size);
+  margin: calc( var(--cube-size) / 4 );
+  perspective: 400px;
+}
+
+.cube {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  width: var(--cube-size);
+  height: var(--cube-size);
+  position: relative;
+  transform-style: preserve-3d;
+  /* transform: translateZ(calc( -1 * var(--cube-size) / 2 )) rotateZ(var(--cube-rotateZ)) rotateX(var(--cube-rotateX)) rotateY(var(--cube-rotateY)); */
+  transform: var(--cube-transform);
+}
+
+.cube__face {
+  position: absolute;
+  width: var(--cube-size);
+  height: var(--cube-size);
+  border: 2px solid black;
+  line-height: var(--cube-size);
+  font-size: calc( var(--cube-size) / 5 );
+  font-weight: bold;
+  color: white;
+  text-align: center;
+}
+.cube__face:hover{
+  background-color: gray;
+}
+
+.cube__face--top  { background: hsla(  0, 100%, 50%, 0.7); }
+.cube__face--right  { background: hsla( 60, 100%, 50%, 0.7); }
+.cube__face--bottom   { background: hsla(120, 100%, 50%, 0.7); }
+.cube__face--left   { background: hsla(180, 100%, 50%, 0.7); }
+.cube__face--front    { background: hsla(240, 100%, 50%, 0.7); }
+.cube__face--back { background: hsla(300, 100%, 50%, 0.7); }
+
+.cube__face--top      { transform: rotateY(  0deg) var(--cube-transform-common);}
+.cube__face--right    { transform: rotateY( 90deg) var(--cube-transform-common) rotateZ(-90deg); }
+.cube__face--bottom   { transform: rotateY(180deg) var(--cube-transform-common) rotateZ(180deg); }
+.cube__face--left     { transform: rotateY(-90deg) var(--cube-transform-common) rotateZ(90deg); }
+.cube__face--front    { transform: rotateX( 90deg) var(--cube-transform-common); }
+.cube__face--back     { transform: rotateX(-90deg) var(--cube-transform-common) rotateZ(180deg); }
+
+label { margin-right: 10px; }

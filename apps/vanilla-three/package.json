@@ -14,8 +14,7 @@
     "@jscadui/render-three": "*",
     "@jscadui/bundle-three": "*",
     "@jscadui/scene": "*",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "gl-matrix": "^3.4.0"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "~3.3.0",

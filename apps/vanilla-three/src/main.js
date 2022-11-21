@@ -3,14 +3,18 @@ import { RenderThree } from '@jscadui/render-three'
 import { makeAxes, makeGrid } from '@jscadui/scene'
 import { light as theme } from '@jscadui/themes'
 import { observeResize } from './observeResize'
+import { Gizmo } from '@jscadui/html-gizmo'
 
 import style from "./main.css";
+
+customElements.define('jscadui-gizmo', Gizmo);
 
 window.THREE = THREE // just so we can play with and inspect THREE in browser console
 const defaultCamera = { position: [180, -180, 220], target: [0, 0, 0] }
 const root = document.getElementById('root')
 const viewer = RenderThree(root, { camera: defaultCamera, bg: theme.bg })
 
+observeResize(root, e=>viewer.resize(e.contentRect))
 
 const axes = [makeAxes(50)]
 const grid = makeGrid({ size: 200, color1: theme.grid1, color2: theme.grid2 })
@@ -31,14 +35,6 @@ const h = (tag, attr, html) => {
   return out
 }
 
-const boxDiv = h('div',{class:'scene'},`<div class="cube">
-    <div class="cube__face cube__face--front">front</div>
-    <div class="cube__face cube__face--back">back</div>
-    <div class="cube__face cube__face--right">right</div>
-    <div class="cube__face cube__face--left">left</div>
-    <div class="cube__face cube__face--top">top</div>
-    <div class="cube__face cube__face--bottom">bottom</div>
-  </div>`)
-
-document.body.appendChild(boxDiv)
-console.log('boxDiv', boxDiv)
+const gizmo = new Gizmo()
+document.body.appendChild(gizmo)
+//gizmo.setSize(200)

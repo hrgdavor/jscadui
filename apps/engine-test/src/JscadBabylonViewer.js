@@ -71,7 +71,6 @@ function sendCmd (cmd) {
 }
 
 return function JscadBabylonViewer (el, { camera: _camera = {}, bg } = {}) {
-  console.log('init Babylon.js viewer')
   canvas = document.createElement('CANVAS')
   canvas.setAttribute('touch-action', 'none')
   el.appendChild(canvas)
@@ -149,7 +148,6 @@ function setScene (scene) {
     item.items.forEach(obj => {
       const obj3d = csgConvert(obj, _scene)
       entities.push(obj3d)
-      console.log('obj3d.babylon', obj3d, obj)
       // group.add(obj3d)
       // _scene.add(obj3d)
     })

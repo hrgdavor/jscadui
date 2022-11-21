@@ -66,3 +66,8 @@ body {
 .cameraNum{
   width: 55px;
 }
+
+jscadui-gizmo{
+  position: absolute;
+  top: 0; right: 0;
+}

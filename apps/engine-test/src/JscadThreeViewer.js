@@ -74,7 +74,6 @@ export function JscadThreeViewerFactory(THREE) {
 
   function updateAndRender() {
     renderTimer = null
-    console.log('updateAndRender')
     controls?.update()
 
     renderer.render(_scene, _camera)

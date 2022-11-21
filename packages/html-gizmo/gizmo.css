@@ -1,0 +1,43 @@
+:host {
+  --cube-size: 100px;
+  width: var(--cube-size);
+  height: var(--cube-size);
+  margin: calc( var(--cube-size) / 4 );
+  perspective: 400px;
+  --cube-transform: scale3d(0.8,0.8,0.8);
+  --cube-transform-common: translateZ(calc( var(--cube-size) / 2 ));
+}
+
+.cube {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  width: var(--cube-size);
+  height: var(--cube-size);
+  position: relative;
+  transform-style: preserve-3d;
+  transform: var(--cube-transform);
+}
+
+.cube__face {
+  cursor: pointer;
+  position: absolute;
+  width: var(--cube-size);
+  height: var(--cube-size);
+  border: 1px solid white;
+  background-color: #ccc;
+  line-height: var(--cube-size);
+  font-size: calc( var(--cube-size) / 5 );
+  font-weight: bold;
+  color: #444;
+  text-align: center;
+  border-radius: 5px;
+}
+.cube__face:hover{
+  background-color: #eee;
+}
+
+.cube__face--top      { transform: rotateY(  0deg) var(--cube-transform-common);}
+.cube__face--right    { transform: rotateY( 90deg) var(--cube-transform-common) rotateZ(-90deg);}
+.cube__face--bottom   { transform: rotateY(180deg) var(--cube-transform-common) rotateZ(180deg);;}
+.cube__face--left     { transform: rotateY(-90deg) var(--cube-transform-common) rotateZ(90deg);}
+.cube__face--back    { transform: rotateX( 90deg) var(--cube-transform-common) rotateZ(180deg);}
+.cube__face--front     { transform: rotateX(-90deg) var(--cube-transform-common);}

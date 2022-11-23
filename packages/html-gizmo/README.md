@@ -172,6 +172,6 @@ With default translations the `e.cam` values will be:
 - `W` - LEFT
 - `E` - RIGHT
 
-The worls sides were chosen for short name because if we just take first letter of the translations o the right we have a conflict with BOTTOM and BACK.
+The world compass sides were chosen for short name because if we just take first letter of the translations on the right we have a conflict with BOTTOM and BACK.
 
 For the sides and corners the `e.cam` returns values like: `TS` `TSE` `TE` `SE` `BNW` ...

@@ -23,8 +23,8 @@ let viewers = (self.viewer = [
   initTestBabylon(BABYLON, byId('box2')),
   initTestRegl(jscadReglRenderer, byId('box3')),
 ])
-const gizmo = new Gizmo()
-document.body.appendChild(gizmo)
+const gizmo = window.gizmo = new Gizmo()
+byId('box1').appendChild(gizmo)
 
 const axes = [makeAxes(50)]
 const grid = makeGrid({ size: 200, color1: theme.grid1, color2: theme.grid2 })
@@ -40,7 +40,7 @@ viewers.forEach(viewer => {
 
 const setViewerCamera = (position, target, calc)=>{
   viewers.forEach(v => v.setCamera({ position, target }))
-  gizmo.rotateYZ(calc.rx,calc.rz)
+  gizmo.rotateXZ(calc.rx,calc.rz)
 }
 
 const updateCamera = e => {
@@ -105,7 +105,7 @@ let rotation = camRotation(cam1)
 fillForm(document.forms.rotForm, rotation)
 
 const ctrl = window.ctrl = new OrbitControl(byId('box1'))
-gizmo.rotateYZ(ctrl.calc.rx, ctrl.calc.rz)
+gizmo.rotateXZ(ctrl.calc.rx, ctrl.calc.rz)
 gizmo.oncam = ({cam})=>ctrl.setCommonCamera(cam)
 ctrl.onchange = ({position, target, rx, rz, len, ...rest}) => {
   fillForm(document.forms.posForm, {x:position[0], y:position[1], z:position[2]})

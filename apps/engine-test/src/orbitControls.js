@@ -42,7 +42,8 @@ export class OrbitState {
     this.calc = camRotation({ target: this.target, position: this.position })
   }
 
-  setRotate(rx = 0, rz = 0) {
+  setRotate(rx = 0, rz = 0, target) {
+    if(target) this.target = target
     this.calc.rx = rx
     this.calc.rz = rz
     this.position = calcCamPos({ ...this.calc, target: this.target })
@@ -51,22 +52,24 @@ export class OrbitState {
 
   rotateBy(rx = 0, rz = 0) {
     this.calc.rx += rx
-    if (this.calc.rx < 0) this.calc.rx = 1.0e-12
+    if (this.calc.rx < 0) this.calc.rx = 1.0e-10
     if (this.calc.rx > PI) this.calc.rx = PI
     this.calc.rz += rz
     this.position = calcCamPos({ ...this.calc, target: this.target })
     this.fireChange()
   }
 
-  panBy(py, pz) {
+  panBy(dx, dy) {
     const { rx, rz } = this.calc
-    let pan = [0, py, -pz]
-    pan = vec3.transformMat4([], pan, fromYZRotation(rx, rz))
+    let pan = [dx, -dy, 0]
+    pan = vec3.transformMat4([], pan, fromXZRotation(rx, rz))
     this.moveBy(pan)
   }
 
   moveBy(vec) {
-    this.set((this.position = vec3.add([], this.position, vec)), (this.target = vec3.add([], this.target, vec)))
+    this.position = vec3.add([], this.position, vec)
+    this.target = vec3.add([], this.target, vec)
+    this.fireChange()
   }
 
   zoomBy(amount) {
@@ -99,20 +102,21 @@ export class OrbitControl extends OrbitState {
 
     let isDown = false
     let isPan = false
+    let isMoving = false
     let lx = 0
     let ly = 0
-
+    
     el.addEventListener('pointerdown', e => {
       lx = e.clientX
       ly = e.clientY
       isDown = true
       isPan = e.shiftKey
-      el.setPointerCapture(e.pointerId)
     })
-
+    
     el.addEventListener('pointerup', e => {
       isDown = false
-      el.releasePointerCapture(e.pointerId)
+      if(isMoving) el.releasePointerCapture(e.pointerId)
+      isMoving = false
     })
 
     el.addEventListener('wheel', e => {
@@ -122,6 +126,13 @@ export class OrbitControl extends OrbitState {
 
     el.addEventListener('pointermove', e => {
       if (!isDown) return
+
+      if(!isMoving){
+        // pointer capture inside pointerdown caused clicking to not work
+        // it is better to capture pointer only on pointer down + first movement
+        el.setPointerCapture(e.pointerId)
+        isMoving = true
+      }
 
       let dx = lx - e.clientX
       let dy = ly - e.clientY
@@ -138,58 +149,57 @@ export class OrbitControl extends OrbitState {
     })
   }
   setCommonCamera(name) {
-    this.setRotate(...getCommonRotCombined(name))
+    this.setRotate(...getCommonRotCombined(name), [0,0,0])
   }
 }
 
 export const getCommonRotCombined = name => {
-  if (typeof name === 'string' && name.includes(',')) name = name.split(',')
-  if (name instanceof Array && name.length === 1) name = name[0]
-
-  console.log('name', name)
-  if (name instanceof Array) {
-    let offset = 0
-    let rx = 0
-    if (name[0] === 'top') {
-      rx = PI / 4
-      offset = 1
-    } else if (name[0] === 'bottom') {
-      rx = PI * 0.75
-      offset = 1
+  name = name.toUpperCase()
+  let rx = PId2
+  let rz = 0
+  let rz1
+  let rz2
+  let topOrBottom
+  for (let i = 0; i < name.length; i++) {
+    const ch = name[i]
+    const rot = getCommonRotByName(ch)
+    if (ch === 'T' || ch === 'B') {
+      rx = rot[0]
+      topOrBottom = ch
     } else {
-      rx = PId2
+      if (rz1 === undefined) rz1 = rot[1]
+      else rz2 = rot[1]
     }
-    let rz = getCommonRotByName(name[offset])[1]
-    if (name.length > offset + 1) {
-      let other = getCommonRotByName(name[offset + 1])[1]
-      if(other < rz){
-        const tmp = other
-        other = rz
-        rz = tmp
-      }
-      if(rz === 0 && other >= PI*1.5) other = -PId2
-      rz = rz + other 
-      rz = rz/ 2
-    }
-    console.log('[rx,rz]', [rx/PI, rz/PI])
-    return [rx, rz]
-  } else {
-    return getCommonRotByName(name)
   }
+  if (rz1 !== undefined) {
+    if (topOrBottom) rx = topOrBottom === 'T' ? PI / 4 : PI * 0.75
+    if (rz2 !== undefined) {
+      if (rz2 < rz1) {
+        const tmp = rz2
+        rz2 = rz1
+        rz1 = tmp
+      }
+      // edge case fix so my fancy math works
+      if (rz1 === 0 && rz2 >= PI * 1.5) rz2 = -PId2
+      rz = (rz1 + rz2) / 2
+    } else {
+      rz = rz1
+    }
+  }
+  return [rx, rz]
 }
 
 export const getCommonRotByName = name => {
-  console.log(name, commonCameras[name][1]/PI)
   return commonCameras[name] || commonCameras.top
 }
 
 export const commonCameras = {
-  top: [1e-12, 0],
-  bottom: [PI, 0],
-  front: [PId2, 0],
-  right: [PId2, PId2],
-  back: [PId2, PI],
-  left: [PId2, PI*1.5],
+  T: [1e-10, 0],
+  B: [PI, 0],
+  S: [PId2, 0],
+  N: [PId2, PI],
+  W: [PId2, PI * 1.5],
+  E: [PId2, PId2],
 }
 
 /**
@@ -204,22 +214,22 @@ export const camRotation = ({ position, target }) => {
   let lenXY = hypot(x, y)
   let rz = lenXY == 0 ? 0 : acos(x / lenXY)
   let rx = lenXY == 0 ? 0 : acos(lenXY / len)
-  // my brain does not work, so I can not explain why it works with z>0 instead z<0
-  // maybe one day I will realize, for now, who cares, it works
   if (z < 0) rx *= -1 // negative side is lost during sqr/sqrt hypot
+  // my brain does not work right now, so I can not explain why it works with y>0 instead y<0
+  // maybe one day I will realize, for now, who cares, it works
   if (y > 0) rz *= -1 // negative side is lost during sqr/sqrt hypot
 
   return { rx, rz, lenXY, len, vec }
 }
 
 export const calcCamPos = ({ target, len = 1, rz = 0, rx = 0 }) => {
-  let rot = mat4.fromXRotation([], rx)
-  const rot2 = mat4.fromZRotation([], rz)
-  const rot3 = mat4.multiply([], rot2, rot)
-  const out = vec3.transformMat4([], [0, 0, len], rot3)
+  // let rot = mat4.fromXRotation([], rx)
+  // const rot2 = mat4.fromZRotation([], rz)
+  // const rot3 = mat4.multiply([], rot2, rot)
+  const out = vec3.transformMat4([], [0, 0, len], fromXZRotation(rx, rz))
   return target ? vec3.add([], out, target) : out
 }
 
-export const fromYZRotation = (rx, rz) => {
-  return mat4.multiply([], mat4.fromZRotation([], rz), mat4.fromYRotation([], rx))
+export const fromXZRotation = (rx, rz) => {
+  return mat4.multiply([], mat4.fromZRotation([], rz), mat4.fromXRotation([], rx))
 }

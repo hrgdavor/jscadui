@@ -70,4 +70,18 @@ body {
 jscadui-gizmo{
   position: absolute;
   top: 0; right: 0;
+  --cube-size: 100px;
+/*  --cube-line-color: #666;
+  --cube-z-color: #00a;
+  --cube-x-color: #900;
+  --cube-y-color: #090;
+  --cube-bg: #222;
+  --cube-fg: #aaa;
+  --cube-bg-hover: #444;
+  --cube-fg-hover: #aaa;
+  --cube-corner-radius: 5px;*/
+}
+
+jscadui-gizmo::part(face){
+  font-size: 36px;
 }

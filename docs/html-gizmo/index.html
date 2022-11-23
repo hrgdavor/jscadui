@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gizmo test</title>
+    <style>
+      body,
+      html {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+      }
+      .description{
+        padding: 20px;
+        max-width: 300px;
+      }
+      .demo-light, .demo-dark{
+        border: solid 1px #eee;
+        padding: 30px;
+      }
+      .demo-dark{
+        background-color: black;
+      }
+      jscadui-gizmo.color-axes {
+        --cube-z-color: #00f;
+        --cube-x-color: #f00;
+        --cube-y-color: #0f0;
+      }
+      jscadui-gizmo.dark {
+        --cube-line-color: #666;
+        --cube-bg: #222;
+        --cube-fg: #aaa;
+        --cube-bg-hover: #4449;
+        --cube-fg-hover: #aaa;
+      }
+      jscadui-gizmo.dark.color-axes {
+        --cube-z-color: rgb(24, 65, 153);
+        --cube-x-color: #900;
+        --cube-y-color: #090;
+      }
+      jscadui-gizmo.custom-names::part(face) {
+        font-size: 36px;
+      }
+    </style>
+    <script type="module" src="index.demo.js"></script>
+  </head>
+  <body>
+
+    <table class="main">
+      <tr>
+        <td class="description">
+          Example gizmo light(default) and dark theme
+        </td>
+        <td class="demo-light"><jscadui-gizmo/></td>
+        <td class="demo-dark"><jscadui-gizmo class="dark"/></td>
+      </tr>
+      <tr>
+        <td class="description">
+          Example gizmo light(default) and dark theme with axes colors
+        </td>
+        <td class="demo-light"><jscadui-gizmo class="color-axes"/></td>
+        <td class="demo-dark"><jscadui-gizmo class="dark color-axes"/></td>
+      </tr>
+      <tr>
+        <td class="description">
+          Example gizmo light(default) and dark theme with axes colors and custom names
+        </td>
+        <td class="demo-light"><jscadui-gizmo class="color-axes custom-names"/></td>
+        <td class="demo-dark"><jscadui-gizmo class="dark color-axes custom-names"/></td>
+      </tr>
+    </table>
+
+  </body>
+</html>

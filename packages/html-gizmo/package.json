@@ -1,0 +1,19 @@
+{
+  "name": "@jscadui/html-gizmo",
+  "version": "0.1.0",
+  "description": "cube camera gizmo based on HTML and CSS 3D transform",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "build": "tsc --build"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "~3.3.0",
+    "@types/node": "18.11.9",
+    "esbuild": "^0.15.15",
+    "vitest": "0.24.5"
+  },
+  "license": "MIT"
+}

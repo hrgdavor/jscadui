@@ -10,7 +10,7 @@ var xs = Math.sin(rx);
 var xc = Math.cos(rx);
 var out = []
 `
-// wrap in function to allow prettier to ignore formatting here
+// wrap in function to allow prettier to ignore formatting.
 // prettier-ignore
 const [z,x] = (()=>{
   var z = []

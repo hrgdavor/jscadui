@@ -1,9 +1,10 @@
 import * as vec3 from 'gl-matrix/esm/vec3.js'
 import { fromXZRotation } from './fromXZRotation'
+import { OrbitState } from './OrbitState'
 
 /**
  * 
- * @param {CamState} options 
+ * @param {OrbitState} options 
  * @returns 
  */
 export const calcCamPos = ({ target, len = 1, rz = 0, rx = 0 }) => {

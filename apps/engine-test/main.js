@@ -3,7 +3,7 @@ import { light as theme } from '@jscadui/themes'
 
 import style from './main.css'
 import * as THREE from './src/Three.jscad.js'
-import { OrbitCamera, camRotation, calcCamPos, OrbitControl } from './src/orbitControls.js'
+import { camRotation, calcCamPos, OrbitControl } from '@jscadui/orbit'
 import { initTestBabylon } from './testBabylon.js'
 import { initTestRegl } from './testRegl.js'
 import { initTestThree } from './testThree.js'
@@ -38,9 +38,9 @@ viewers.forEach(viewer => {
   })
 })
 
-const setViewerCamera = (position, target, calc)=>{
+const setViewerCamera = ({position, target, rx, rz})=>{
   viewers.forEach(v => v.setCamera({ position, target }))
-  gizmo.rotateXZ(calc.rx,calc.rz)
+  gizmo.rotateXZ(rx,rz)
 }
 
 const updateCamera = e => {
@@ -48,8 +48,8 @@ const updateCamera = e => {
   const lat = formValue(document.forms.lookForm)
   const target = [lat.x,lat.y, lat.z]
   const position = [pos.x,pos.y, pos.z]
-  let rot = camRotation({position, target})
-  setViewerCamera(position, target, rot)
+  let rot = camRotation({},position, target)
+  setViewerCamera(rot)
   fillForm(document.forms.rotForm, rot)
 }
 
@@ -60,15 +60,14 @@ const updateRotation = e => {
   console.log('rot', rot)
   const target = [lat.x,lat.y, lat.z]
   const position = [pos.x,pos.y, pos.z]
-  let cur = camRotation({position, target})
+  let cur = camRotation({},position, target)
   console.log('cur', cur)
-  const { rx, rz, lenXY, len, vec } = cur
-  const camPos = calcCamPos({target, len:rot.len, rx:rot.rx, rz:rot.rz})
+  const camPos  = cur.position = calcCamPos({target, len:rot.len, rx:rot.rx, rz:rot.rz})
   console.log('camPos', camPos)
   pos.x = camPos[0]
   pos.y = camPos[1]
   pos.z = camPos[2]
-  setViewerCamera([pos.x, pos.y, pos.z],[lat.x, lat.y, lat.z], rot)
+  setViewerCamera(cur)
   fillForm(document.forms.posForm, pos)
 }
 
@@ -100,17 +99,23 @@ function fillForm(form, values) {
 
 fillForm(document.forms.rotForm, { x: 1, y: 1 })
 
-let cam1 = new OrbitCamera()
-let rotation = camRotation(cam1)
-fillForm(document.forms.rotForm, rotation)
 
-const ctrl = window.ctrl = new OrbitControl(byId('box1'))
-gizmo.rotateXZ(ctrl.calc.rx, ctrl.calc.rz)
-gizmo.oncam = ({cam})=>ctrl.setCommonCamera(cam)
-ctrl.onchange = ({position, target, rx, rz, len, ...rest}) => {
+const ctrl = window.ctrl = new OrbitControl(byId('box1'),{position: [180, -180, 220]})
+//gizmo.rotateXZ(ctrl.rx, ctrl.rz)
+setViewerCamera(ctrl)
+
+
+const updateFromCtrl = (change) => {
+  // console.log('change', change)
+  const {position, target, rx, rz, len, ...rest} = change
   fillForm(document.forms.posForm, {x:position[0], y:position[1], z:position[2]})
   fillForm(document.forms.lookForm, {x:target[0], y:target[1], z:target[2]})
   fillForm(document.forms.rotForm, {rx, rz, len})
-  setViewerCamera(position, target, {rx,rz})
+  setViewerCamera(change)
 }
+
+updateFromCtrl(ctrl)
+
+ctrl.onchange = updateFromCtrl
+gizmo.oncam = ({cam})=>ctrl.setCommonCamera(cam)
 

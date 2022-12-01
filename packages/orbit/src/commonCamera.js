@@ -1,5 +1,6 @@
 const { PI } = Math
 const PId2 = PI / 2
+export const TAU = PI * 2
 
 export const getCommonRotCombined = name => {
   name = name.toUpperCase()

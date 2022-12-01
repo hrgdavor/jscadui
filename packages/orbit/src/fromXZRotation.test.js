@@ -1,5 +1,5 @@
 import * as mat4 from 'gl-matrix/esm/mat4.js'
-import { describe, expect, it } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { fromXZRotation } from './fromXZRotation'
 
@@ -21,7 +21,7 @@ const fixZero = a => a.map(n => (n === -0 ? 0 : n))
 const doTestAngle = (rx, rz) =>
   expect(fixZero(fromXZRotation(rx, rz))).toEqual(fixZero(fromXZRotationReference(rx, rz)))
 
-it('suite', () => {
+it('anlges', () => {
   doTestAngle(1, 1)
   doTestAngle(0, 0)
   doTestAngle(Math.PI, 0)

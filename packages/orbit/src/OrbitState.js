@@ -1,5 +1,6 @@
 import * as vec3 from 'gl-matrix/esm/vec3.js'
 
+import { calcBetween } from './calcBetween.js'
 import { calcCamPos } from './calcCamPos.js'
 import { camRotation } from './camRotation.js'
 import { fromXZRotation } from './fromXZRotation.js'
@@ -7,6 +8,10 @@ import { fromXZRotation } from './fromXZRotation.js'
 const { PI } = Math
 
 /** Orbit state can be created in 2 ways
+ *
+ * 1) {target, rx, rz, len}
+ * 2) {target, position}
+ *
  *
  */
 export class OrbitState {
@@ -16,7 +21,7 @@ export class OrbitState {
   len
   /** Position is derived value and calculated if not provided. */
   position
-  constructor({ target, rx, rz, len, position }, clone=false){
+  constructor({ target, rx, rz, len, position }, clone = false) {
     this.target = target
     this.rx = rx
     this.rz = rz
@@ -25,10 +30,8 @@ export class OrbitState {
     if (clone) {
       this.position = position
     } else {
-      if(position)
-        camRotation(this, position, target)
-      else
-        this.position = calcCamPos(this)
+      if (position) camRotation(this, position, target)
+      else this.position = calcCamPos(this)
     }
   }
 
@@ -43,12 +46,24 @@ export class OrbitState {
     camRotation(this, this.position, this.target)
   }
 
-  setRotate(rx = 0, rz = 0, target) {
+  calcAnim(newState, percent) {
+    const a1 = this.target
+    const a2 = newState.target
+    const target = []
+    for (let i = 0; i < 3; i++) target[i] = calcBetween(a1[i], a2[i], percent)
+    return {
+      rx: calcBetween(this.rx, newState.rx, percent),
+      rz: calcBetween(this.rz, newState.rz, percent),
+      target,
+    }
+  }
+
+  setRotate(rx = 0, rz = 0, target, fire = true) {
     if (target) this.target = target
     this.rx = rx
     this.rz = rz
     this.position = calcCamPos(this)
-    this.fireChange()
+    if (fire) this.fireChange()
   }
 
   rotateBy(rx = 0, rz = 0) {
@@ -82,9 +97,9 @@ export class OrbitState {
   clone() {
     return new OrbitState(this, true)
   }
-  
-  toJSON(){
-    const {position, ...rest} = this
+
+  toJSON() {
+    const { position, ...rest } = this
     return rest
   }
 

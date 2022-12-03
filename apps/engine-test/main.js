@@ -1,3 +1,4 @@
+import { booleans, primitives, transforms } from '@jscad/modeling'
 import { Gizmo } from '@jscadui/html-gizmo'
 import {
   OrbitControl,
@@ -12,10 +13,14 @@ import { makeAxes, makeGrid } from '@jscadui/scene'
 import { light as theme } from '@jscadui/themes'
 
 import style from './main.css'
+import { CSGToBuffers } from './src/CsgToBuffers'
 import * as THREE from './src/Three.jscad.js'
 import { initTestBabylon } from './testBabylon.js'
 import { initTestRegl } from './testRegl.js'
 import { initTestThree } from './testThree.js'
+
+const { subtract } = booleans
+const { translate } = transforms
 
 export const byId = id => document.getElementById(id)
 
@@ -37,11 +42,20 @@ byId('box1').appendChild(gizmo)
 const axes = [makeAxes(50)]
 const grid = makeGrid({ size: 200, color1: theme.grid1, color2: theme.grid2 })
 
+const modelRadius = 30
+let model = subtract(
+  primitives.sphere({ radius: modelRadius }),
+  translate([modelRadius,0,modelRadius],primitives.cube({ size: modelRadius*2 })),
+)
+
+model = CSGToBuffers(model)
+
 viewers.forEach(viewer => {
   viewer.setScene?.({
     items: [
       { id: 'axes', items: axes },
       { id: 'grid', items: grid },
+      { id: 'model', items: [model] },
     ],
   })
 })

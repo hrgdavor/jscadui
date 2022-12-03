@@ -15,6 +15,7 @@
     "@jscadui/bundle-three": "*",
     "@jscadui/html-gizmo": "*",
     "@jscadui/scene": "*",
+    "@jscad/modeling": "2.11.0",
     "gl-matrix": "^3.4.0"
   },
   "devDependencies": {

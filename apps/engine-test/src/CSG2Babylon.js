@@ -1,11 +1,47 @@
+export const invertIndices = indices => {
+  const li = indices.length
+  const out = new Float32Array(li)
+  for (let i = 0; i < li; i += 3) {
+    out[i] = indices[i + 2]
+    out[i + 1] = indices[i + 1]
+    out[i + 2] = indices[i]
+  }
+  return out
+}
 
-export function CSG2BabylonFactory (Babylon) {
+export const invertNormals = indices => {
+  // return indices
+  const li = indices.length
+  const out = new Float32Array(li)
+  for (let i = 0; i < li; i ++) {
+    out[i] = -indices[i]
+  }
+  return out
+}
+
+export function CSG2BabylonFactory(Babylon) {
   const { Mesh, VertexData, LinesMesh, MeshBuilder, Vector3, Color4, Color3, VertexBuffer } = Babylon
   let SEQ = 0
-  function CSG2Babylon (obj, scene) {
+  function CSG2Babylon(obj, scene) {
     const { vertices, indices = [], normals, color, colors, isTransparent = false, opacity } = obj
     const { transforms } = obj
     const objType = obj.type || 'mesh'
+
+    // TODO sideOrientation = BACKSIDE //causes babylon code to invert  normals and change order of indices links
+
+    /*
+          // indices
+          for (i = 0; i < li; i += 3) {
+              const tmp = indices[i];
+              indices[i] = indices[i + 2];
+              indices[i + 2] = tmp;
+          }
+          // normals
+          for (n = 0; n < ln; n++) {
+              normals[n] = -normals[n];
+          }
+          break;
+    */
 
     // const materialDef = materials[objType]
     // if (!materialDef) { console.error('material not found for type ', objType, obj) }
@@ -32,11 +68,11 @@ export function CSG2BabylonFactory (Babylon) {
     let _colors
     geo.positions = vertices
     if (indices) geo.indices = indices
-    if (normals) geo.normals = normals
+    if (normals) geo.normals = invertNormals(normals)
     if (colors && colors.length) {
       // we require 4 channel vertex colors
       if (colors.length <= vertices.length) {
-        _colors = new Float32Array(Math.ceil(vertices.length / 3 * 4))
+        _colors = new Float32Array(Math.ceil((vertices.length / 3) * 4))
         let idx = 0
         for (let i = 2; i < vertices.length; i += 3) {
           _colors[idx++] = colors[i - 2]
@@ -59,6 +95,7 @@ export function CSG2BabylonFactory (Babylon) {
     let _opacity
     switch (objType) {
       case 'mesh':
+        geo.indices = invertIndices(geo.indices)
         mesh = new Mesh(geo, material)
         geo.applyToMesh(mesh)
         break
@@ -75,12 +112,21 @@ export function CSG2BabylonFactory (Babylon) {
       case 'lines':
         if (!indices.length) {
           const len = vertices.length / 3
-	        for (let i = 0; i < len; i++) {
+          for (let i = 0; i < len; i++) {
             indices.push(i)
           }
         }
         _opacity = (color ? color[3] : 0) || opacity || 1
-        mesh = new LinesMesh('lines', scene, null, undefined, undefined, useVertexColor, useVertexAlpha || _opacity < 1, material)
+        mesh = new LinesMesh(
+          'lines',
+          scene,
+          null,
+          undefined,
+          undefined,
+          useVertexColor,
+          useVertexAlpha || _opacity < 1,
+          material,
+        )
         geo.applyToMesh(mesh)
         if (color) mesh.color = new Color3(color[0], color[1], color[2])
         if (_colors) mesh.setVerticesData(VertexBuffer.ColorKind, _colors)

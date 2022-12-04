@@ -76,7 +76,7 @@ export class OrbitState {
   }
 
   panBy(dx, dy) {
-    const { rx, rz } = this.calc
+    const { rx, rz } = this
     let pan = [dx, -dy, 0]
     pan = vec3.transformMat4([], pan, fromXZRotation(rx, rz))
     this.moveBy(pan)

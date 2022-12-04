@@ -58,7 +58,7 @@ export class OrbitControl extends OrbitState {
       let dy = ly - e.clientY
 
       if (isPan) {
-        const { len } = this.calc
+        const { len } = this
         const ratio = len / 500
         this.panBy(dx * ratio, dy * ratio)
       } else {

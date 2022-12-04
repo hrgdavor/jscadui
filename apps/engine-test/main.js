@@ -1,4 +1,4 @@
-import { booleans, primitives, transforms, colors } from '@jscad/modeling'
+import { booleans, colors, primitives, transforms } from '@jscad/modeling'
 import { Gizmo } from '@jscadui/html-gizmo'
 import {
   OrbitControl,
@@ -44,16 +44,18 @@ const axes = [makeAxes(50)]
 const grid = makeGrid({ size: 200, color1: theme.grid1, color2: theme.grid2 })
 
 const modelRadius = 30
-let model = [subtract(
-  primitives.sphere({ radius: modelRadius, segments: 16 }),
-  translate([modelRadius,0,modelRadius],primitives.sphere({ radius: modelRadius , segments:16})),
-)]
-model.push(colorize([0.7,0,0],translate([60,0,0],primitives.sphere({ radius: 10 }))))
-model.push(colorize([0,0.7,0],translate([0,60,0],primitives.sphere({ radius: 10 }))))
-model.push(colorize([0,0,0.7],translate([0,0,60],primitives.sphere({ radius: 10 }))))
-model.push(colorize([1,0.7,0,0.5],translate([-20,-20,0],primitives.cube({ size: 30 }))))
+let model = [
+  subtract(
+    primitives.sphere({ radius: modelRadius, segments: 16 }),
+    translate([modelRadius, 0, modelRadius], primitives.sphere({ radius: modelRadius, segments: 16 })),
+  ),
+]
+model.push(colorize([0.7, 0, 0], translate([60, 0, 0], primitives.sphere({ radius: 10 }))))
+model.push(colorize([0, 0.7, 0], translate([0, 60, 0], primitives.sphere({ radius: 10 }))))
+model.push(colorize([0, 0, 0.7], translate([0, 0, 60], primitives.sphere({ radius: 10 }))))
+model.push(colorize([1, 0.7, 0, 0.5], translate([-20, -20, 0], primitives.cube({ size: 30 }))))
 
-model = model.map(m=>CSGToBuffers(m))
+model = model.map(m => CSGToBuffers(m))
 console.log(model[1])
 
 viewers.forEach(viewer => {
@@ -127,8 +129,15 @@ function fillForm(form, values) {
 }
 
 fillForm(document.forms.rotForm, { x: 1, y: 1 })
+const stored = localStorage.getItem('camera.location')
+let initialCamera
+try {
+  if (stored) initialCamera = JSON.parse(stored)
+} catch (error) {
+  console.log(error)
+}
 
-const ctrl = (window.ctrl = new OrbitControl(byId('box1'), { position: [180, -180, 220] }))
+const ctrl = (window.ctrl = new OrbitControl(byId('box1'), initialCamera || { position: [180, -180, 220] }))
 //gizmo.rotateXZ(ctrl.rx, ctrl.rz)
 setViewerCamera(ctrl)
 
@@ -143,7 +152,10 @@ const updateFromCtrl = change => {
 
 updateFromCtrl(ctrl)
 
+const saveCamera = cam => localStorage.setItem('camera.location', JSON.stringify(cam))
+
 ctrl.onchange = change => {
+  saveCamera(change)
   stopAnim()
   updateFromCtrl(change)
 }
@@ -151,6 +163,7 @@ ctrl.onchange = change => {
 gizmo.oncam = ({ cam }) => {
   const [rx, rz] = getCommonRotCombined(cam)
   startAnim({ rx, rz, target: [0, 0, 0] })
+  saveCamera(stateEnd)
   //  ctrl.setCommonCamera(cam)
 }
 

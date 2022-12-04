@@ -51,6 +51,8 @@ let model = [subtract(
 model.push(colorize([0.7,0,0],translate([60,0,0],primitives.sphere({ radius: 10 }))))
 model.push(colorize([0,0.7,0],translate([0,60,0],primitives.sphere({ radius: 10 }))))
 model.push(colorize([0,0,0.7],translate([0,0,60],primitives.sphere({ radius: 10 }))))
+model.push(colorize([1,0.7,0,0.5],translate([-20,-20,0],primitives.cube({ size: 30 }))))
+
 model = model.map(m=>CSGToBuffers(m))
 console.log(model[1])
 

@@ -88,8 +88,12 @@ export function CSG2BabylonFactory(Babylon) {
     const useVertexColor = false
     const useVertexAlpha = false
     const material = new StandardMaterial("blue",scene);
-    material.diffuseColor = color ? new Color3(...color):meshColor;
-    material.disableLighting = false
+    if(color){
+      material.diffuseColor = new Color3(...color)
+      if(color.length === 4) material.alpha = color[3]
+    }else{
+      material.diffuseColor = meshColor;
+    }
 
     let myArray
     let myColors

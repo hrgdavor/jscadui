@@ -11,6 +11,7 @@ let canvas
 let engine
 let _scene
 let camera
+let meshColor = new Color3(1,1,1)
 
 const startRenderer = ({
   canvas,
@@ -33,7 +34,8 @@ const startRenderer = ({
   camera.fov = Math.PI / 4
 
   camera.attachControl(canvas, true)
-  const light = new HemisphericLight('light', new Vector3(1, 1, 0))
+  const light = new HemisphericLight('light', new Vector3(-1, -1, -1))
+  light.intensity = 0.8;
   _scene.addLight(light)
 
   handlers.setBg(bg)
@@ -53,9 +55,15 @@ const handlers = {
   entities: ({ entities }) => {
     entities.push()
   },
-  setBg: (bg = [1, 1, 1]) => {
-    _scene.clearColor = new Color3(...bg)
-  }
+  setBg
+}
+
+function setBg (bg = [1, 1, 1]){
+  _scene.clearColor = new Color3(...bg)
+}
+
+const setMeshColor = (color = [1, 1, 1])=>{
+  meshColor = new Color3(...color)
 }
 
 function receiveCmd (cmd) {
@@ -105,7 +113,7 @@ return function JscadBabylonViewer (el, { camera: _camera = {}, bg } = {}) {
     useInstances: false
   })
 
-  return { sendCmd, resize, destroy, getCamera, setCamera, setBg: handlers.setBg, setScene, getViewerEnv }
+  return { sendCmd, resize, destroy, getCamera, setCamera, setBg, setMeshColor, setScene, getViewerEnv }
 }
 
 function setScene (scene) {
@@ -146,7 +154,7 @@ function setScene (scene) {
   scene.items.forEach(item => {
     // const group = new THREE.Group() no grouping in babylon
     item.items.forEach(obj => {
-      const obj3d = csgConvert(obj, _scene)
+      const obj3d = csgConvert(obj, _scene, meshColor)
       entities.push(obj3d)
       // group.add(obj3d)
       // _scene.add(obj3d)

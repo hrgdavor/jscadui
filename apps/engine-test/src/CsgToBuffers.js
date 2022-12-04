@@ -186,6 +186,9 @@ export function CSGToBuffers (csg, transferable, unique, options) {
     }
   }
 
+  if(csg.color) obj.color = csg.color 
+  if(csg.transforms) obj.transforms = csg.transforms 
+
   return obj || { csg, type: 'unknown' }
 }
 
@@ -195,4 +198,3 @@ CSGToBuffers.clearCache = () => {
 }
 
 CSGToBuffers.clearCache()
-

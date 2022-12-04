@@ -20,9 +20,9 @@ export const invertNormals = indices => {
 }
 
 export function CSG2BabylonFactory(Babylon) {
-  const { Mesh, VertexData, LinesMesh, MeshBuilder, Vector3, Color4, Color3, VertexBuffer } = Babylon
+  const { Mesh, VertexData, LinesMesh, MeshBuilder, Vector3, Color4, Color3, VertexBuffer, Matrix, StandardMaterial } = Babylon
   let SEQ = 0
-  function CSG2Babylon(obj, scene) {
+  function CSG2Babylon(obj, scene, meshColor) {
     const { vertices, indices = [], normals, color, colors, isTransparent = false, opacity } = obj
     const { transforms } = obj
     const objType = obj.type || 'mesh'
@@ -87,7 +87,9 @@ export function CSG2BabylonFactory(Babylon) {
 
     const useVertexColor = false
     const useVertexAlpha = false
-    const material = null
+    const material = new StandardMaterial("blue",scene);
+    material.diffuseColor = color ? new Color3(...color):meshColor;
+    material.disableLighting = false
 
     let myArray
     let myColors
@@ -96,8 +98,9 @@ export function CSG2BabylonFactory(Babylon) {
     switch (objType) {
       case 'mesh':
         geo.indices = invertIndices(geo.indices)
-        mesh = new Mesh(geo, material)
+        mesh = new Mesh(geo, scene)
         geo.applyToMesh(mesh)
+        if(material) mesh.material = material
         break
       // case 'instances':
       //   mesh = new InstancedMesh(
@@ -125,7 +128,6 @@ export function CSG2BabylonFactory(Babylon) {
           undefined,
           useVertexColor,
           useVertexAlpha || _opacity < 1,
-          material,
         )
         geo.applyToMesh(mesh)
         if (color) mesh.color = new Color3(color[0], color[1], color[2])
@@ -154,7 +156,7 @@ export function CSG2BabylonFactory(Babylon) {
 
         break
     }
-    //    if (transforms && !isInstanced) mesh.applyMatrix4({ elements: transforms })
+    if (transforms) mesh.getWorldMatrix().copyFrom(Matrix.FromValues(...transforms))
     // console.log('mesh' + (++SEQ), mesh, window['mesh' + SEQ] = mesh)
     return mesh
   }

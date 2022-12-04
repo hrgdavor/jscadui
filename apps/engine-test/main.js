@@ -1,4 +1,4 @@
-import { booleans, primitives, transforms } from '@jscad/modeling'
+import { booleans, primitives, transforms, colors } from '@jscad/modeling'
 import { Gizmo } from '@jscadui/html-gizmo'
 import {
   OrbitControl,
@@ -21,6 +21,7 @@ import { initTestThree } from './testThree.js'
 
 const { subtract } = booleans
 const { translate } = transforms
+const { colorize } = colors
 
 export const byId = id => document.getElementById(id)
 
@@ -43,19 +44,24 @@ const axes = [makeAxes(50)]
 const grid = makeGrid({ size: 200, color1: theme.grid1, color2: theme.grid2 })
 
 const modelRadius = 30
-let model = subtract(
-  primitives.sphere({ radius: modelRadius }),
-  translate([modelRadius,0,modelRadius],primitives.cube({ size: modelRadius*2 })),
-)
-
-model = CSGToBuffers(model)
+let model = [subtract(
+  primitives.sphere({ radius: modelRadius, segments: 16 }),
+  translate([modelRadius,0,modelRadius],primitives.sphere({ radius: modelRadius , segments:16})),
+)]
+model.push(colorize([0.7,0,0],translate([60,0,0],primitives.sphere({ radius: 10 }))))
+model.push(colorize([0,0.7,0],translate([0,60,0],primitives.sphere({ radius: 10 }))))
+model.push(colorize([0,0,0.7],translate([0,0,60],primitives.sphere({ radius: 10 }))))
+model = model.map(m=>CSGToBuffers(m))
+console.log(model[1])
 
 viewers.forEach(viewer => {
+  viewer.setBg(theme.bg)
+  viewer.setMeshColor(theme.color)
   viewer.setScene?.({
     items: [
       { id: 'axes', items: axes },
       { id: 'grid', items: grid },
-      { id: 'model', items: [model] },
+      { id: 'model', items: model },
     ],
   })
 })

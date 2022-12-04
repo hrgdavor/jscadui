@@ -9,6 +9,7 @@ export function CSG2Regl () {
 
     const visuals = {
       show: true,
+      color,
       transparent: isTransparent,
       useVertexColors: !!(colors && colors.length)
     }

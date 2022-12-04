@@ -14,6 +14,7 @@ export function JscadThreeViewerFactory(THREE) {
   const shouldRender = Date.now()
   const lastRender = true
   let renderTimer
+  let meshColor = new THREE.Color(1,1,1)
 
   const entities = []
   const groups = []
@@ -69,6 +70,11 @@ export function JscadThreeViewerFactory(THREE) {
 
   function setBg(bg = [1, 1, 1]) {
     _scene.background = new THREE.Color(...bg)
+    updateView()
+  }
+
+  function setMeshColor(bg = [1, 1, 1]) {
+    meshColor = new THREE.Color(...bg)
     updateView()
   }
 
@@ -145,7 +151,7 @@ export function JscadThreeViewerFactory(THREE) {
       useInstances: false,
     })
 
-    return { sendCmd, resize, destroy, getCamera, setCamera, camera: _camera, setBg: setBg, setScene, getViewerEnv }
+    return { sendCmd, resize, destroy, getCamera, setCamera, camera: _camera, setBg, setMeshColor, setScene, getViewerEnv }
   }
 
   function setScene(scene) {

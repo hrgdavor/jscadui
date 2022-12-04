@@ -12,6 +12,7 @@ export function JscadReglViewerFactory(regl) {
   let panDelta = [0, 0]
   let zoomDelta = 0
   let updateRender = true
+  let meshColor = [1,1,1]
   let orbitControls, renderOptions, renderer
 
   const csgConvert = CSG2Regl()
@@ -144,6 +145,15 @@ export function JscadReglViewerFactory(regl) {
     updateView()
   }
 
+  const setBg = (bg = [1, 1, 1]) => {
+    renderOptions.rendering.background = bg
+    updateView()
+  }
+
+  const setMeshColor = (color = [1, 1, 1])=>{
+    meshColor = color
+  }
+  
   const handlers = {
     pan: ({ dx, dy }) => {
       panDelta[0] += dx
@@ -158,10 +168,6 @@ export function JscadReglViewerFactory(regl) {
     },
     zoom: ({ dy }) => {
       zoomDelta += dy
-      updateView()
-    },
-    setBg: (bg = [1, 1, 1]) => {
-      renderOptions.rendering.background = bg
       updateView()
     },
   }
@@ -270,6 +276,6 @@ export function JscadReglViewerFactory(regl) {
       })
       updateView()
     }
-    return { sendCmd, resize, destroy, state, getCamera, setCamera, setBg: handlers.setBg, getViewerEnv, setScene }
+    return { sendCmd, resize, destroy, state, getCamera, setCamera, setBg, setMeshColor, getViewerEnv, setScene }
   }
 }

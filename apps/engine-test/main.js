@@ -10,7 +10,8 @@ import {
   normalizeAngle,
 } from '@jscadui/orbit'
 import { makeAxes, makeGrid } from '@jscadui/scene'
-import { light as theme } from '@jscadui/themes'
+import * as themes from '@jscadui/themes'
+const theme = themes.light
 
 import style from './main.css'
 import { CSGToBuffers } from './src/CsgToBuffers'
@@ -37,6 +38,7 @@ let viewers = (self.viewer = [
   initTestBabylon(BABYLON, byId('box2')),
   initTestRegl(jscadReglRenderer, byId('box3')),
 ])
+
 const gizmo = (window.gizmo = new Gizmo())
 byId('box1').appendChild(gizmo)
 
@@ -50,6 +52,7 @@ let model = [
     translate([modelRadius, 0, modelRadius], primitives.sphere({ radius: modelRadius, segments: 16 })),
   ),
 ]
+
 model.push(colorize([0.7, 0, 0], translate([60, 0, 0], primitives.sphere({ radius: 10 }))))
 model.push(colorize([0, 0.7, 0], translate([0, 60, 0], primitives.sphere({ radius: 10 }))))
 model.push(colorize([0, 0, 0.7], translate([0, 0, 60], primitives.sphere({ radius: 10 }))))
@@ -58,17 +61,26 @@ model.push(colorize([1, 0.7, 0, 0.5], translate([-20, -20, 0], primitives.cube({
 model = model.map(m => CSGToBuffers(m))
 console.log(model[1])
 
-viewers.forEach(viewer => {
-  viewer.setBg(theme.bg)
-  viewer.setMeshColor(theme.color)
-  viewer.setScene?.({
-    items: [
-      { id: 'axes', items: axes },
-      { id: 'grid', items: grid },
-      { id: 'model', items: model },
-    ],
+function setTheme(theme){
+  viewers.forEach(viewer => {
+    viewer.setBg(theme.bg)
+    viewer.setMeshColor(theme.color)
+  })  
+}
+
+function setScene(){
+  viewers.forEach(viewer => {
+    viewer.setScene?.({
+      items: [
+        { id: 'axes', items: axes },
+        { id: 'grid', items: grid },
+        { id: 'model', items: model },
+      ],
+    })
   })
-})
+}
+setTheme(theme)
+setScene()
 
 const setViewerCamera = ({ position, target, rx, rz }) => {
   viewers.forEach(v => v.setCamera({ position, target }))
@@ -172,7 +184,7 @@ const startAnim = ({ target, rx, rz }) => {
   // rx does not need this fix as it only operates inside one half of a rotation
   ctrl.rz = closerAngle(ctrl.rz, rz)
   stateStart = new OrbitState(ctrl, true)
-  stateEnd = new OrbitState({ target: ctrl.target, rx, rz, len: ctrl.len })
+  stateEnd = new OrbitState({ target: target || ctrl.target, rx, rz, len: ctrl.len })
   animTimer = requestAnimationFrame(doAnim)
 }
 
@@ -193,3 +205,17 @@ const doAnim = () => {
 
 let animDuration = 200
 let animTimer, stateStart, stateEnd, startTime
+
+console.log('themes', themes)
+const sel = byId('themeSelect')
+for(let tn in themes){
+  const tmp = themes[tn]
+  sel.add(new Option(tmp.name, tn))
+}
+sel.value = 'light'
+sel.oninput = e=>{
+  const tmp = themes[sel.value]
+  console.log('theme', sel.value, tmp)
+  setTheme(tmp)
+  setScene()
+}

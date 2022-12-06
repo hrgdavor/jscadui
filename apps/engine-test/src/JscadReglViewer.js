@@ -267,7 +267,7 @@ export function JscadReglViewerFactory(regl) {
       _scene.items.forEach(item => {
         // const group = new THREE.Group() no grouping in babylon
         item.items.forEach(obj => {
-          const entity = csgConvert(obj, _scene)
+          const entity = csgConvert(obj, _scene, meshColor)
           entities.push(entity)
           // group.add(obj3d)
           // _scene.add(obj3d)

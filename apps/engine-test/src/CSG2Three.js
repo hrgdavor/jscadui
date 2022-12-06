@@ -83,6 +83,10 @@ export function CSG2Three (THREE) {
 
   _CSG2Three.makeColor = (c) => new Color(c[0], c[1], c[2])
   _CSG2Three.materials = materials
+  _CSG2Three.setDefColor = (c)=>{
+    console.log('c', c)
+    materials.mesh.def = new MeshPhongMaterial({color:_CSG2Three.makeColor(c), flatShading})
+  }
 
   return _CSG2Three
 }

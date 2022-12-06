@@ -75,6 +75,7 @@ export function JscadThreeViewerFactory(THREE) {
 
   function setMeshColor(bg = [1, 1, 1]) {
     meshColor = new THREE.Color(...bg)
+    csgConvert.setDefColor(bg)
     updateView()
   }
 
@@ -166,7 +167,7 @@ export function JscadThreeViewerFactory(THREE) {
       const group = new THREE.Group()
       groups.push(group)
       item.items.forEach(obj => {
-        const obj3d = csgConvert(obj)
+        const obj3d = csgConvert(obj, scene, meshColor)
         if (obj3d) {
           entities.push(obj3d)
           group.add(obj3d)

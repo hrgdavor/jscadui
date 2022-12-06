@@ -59,7 +59,6 @@ model.push(colorize([0, 0, 0.7], translate([0, 0, 60], primitives.sphere({ radiu
 model.push(colorize([1, 0.7, 0, 0.5], translate([-20, -20, 0], primitives.cube({ size: 30 }))))
 
 model = model.map(m => CSGToBuffers(m))
-console.log(model[1])
 
 function setTheme(theme){
   viewers.forEach(viewer => {
@@ -206,7 +205,6 @@ const doAnim = () => {
 let animDuration = 200
 let animTimer, stateStart, stateEnd, startTime
 
-console.log('themes', themes)
 const sel = byId('themeSelect')
 for(let tn in themes){
   const tmp = themes[tn]
@@ -215,7 +213,6 @@ for(let tn in themes){
 sel.value = 'light'
 sel.oninput = e=>{
   const tmp = themes[sel.value]
-  console.log('theme', sel.value, tmp)
   setTheme(tmp)
   setScene()
 }

@@ -148,7 +148,8 @@ try {
   console.log(error)
 }
 
-const ctrl = (window.ctrl = new OrbitControl(byId('box1'), initialCamera || { position: [180, -180, 220] }))
+const elements = [byId('box0'),byId('box1'),byId('box2'),byId('box3')]
+const ctrl = (window.ctrl = new OrbitControl(elements, initialCamera || { position: [180, -180, 220] }))
 //gizmo.rotateXZ(ctrl.rx, ctrl.rz)
 setViewerCamera(ctrl)
 

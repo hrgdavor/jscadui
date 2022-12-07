@@ -236,10 +236,12 @@ export function JscadReglViewerFactory(regl) {
     try {
       startRenderer({ canvas, cameraPosition: camera.position, cameraTarget: camera.target, bg })
 
-      canvas.onpointermove = moveHandler
-      canvas.onpointerdown = downHandler
-      canvas.onpointerup = upHandler
-      canvas.onwheel = wheelHandler
+      // DISABLED orbit controle in favor of external
+      // TODO make optional
+      // canvas.onpointermove = moveHandler
+      // canvas.onpointerdown = downHandler
+      // canvas.onpointerup = upHandler
+      // canvas.onwheel = wheelHandler
     } catch (error) {
       destroy()
       throw error

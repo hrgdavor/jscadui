@@ -26,47 +26,53 @@ export class OrbitControl extends OrbitState {
     let lx = 0
     let ly = 0
 
-    el.addEventListener('pointerdown', e => {
-      lx = e.clientX
-      ly = e.clientY
-      isDown = true
-      isPan = e.shiftKey
-    })
+    const doListen = el=>{
+      el.addEventListener('pointerdown', e => {
+        lx = e.clientX
+        ly = e.clientY
+        isDown = true
+        isPan = e.shiftKey
+      })
+  
+      el.addEventListener('pointerup', e => {
+        isDown = false
+        if (isMoving) el.releasePointerCapture(e.pointerId)
+        isMoving = false
+      })
+  
+      el.addEventListener('wheel', e => {
+        const dir = Math.sign(e.deltaY)
+        this.zoomBy(dir * zoomRatio)
+      })
+  
+      el.addEventListener('pointermove', e => {
+        if (!isDown) return
+  
+        if (!isMoving) {
+          // pointer capture inside pointerdown caused clicking to not work
+          // it is better to capture pointer only on pointer down + first movement
+          el.setPointerCapture(e.pointerId)
+          isMoving = true
+        }
+  
+        let dx = lx - e.clientX
+        let dy = ly - e.clientY
+  
+        if (isPan) {
+          const { len } = this
+          const ratio = len / 500
+          this.panBy(dx * ratio, dy * ratio)
+        } else {
+          this.rotateBy(dy * this.rxRatio, dx * this.rzRatio)
+        }
+        lx = e.clientX
+        ly = e.clientY
+      })
+    }
 
-    el.addEventListener('pointerup', e => {
-      isDown = false
-      if (isMoving) el.releasePointerCapture(e.pointerId)
-      isMoving = false
-    })
+    if(el instanceof Array) el.forEach(doListen)
+    else doListen(el)
 
-    el.addEventListener('wheel', e => {
-      const dir = Math.sign(e.deltaY)
-      this.zoomBy(dir * zoomRatio)
-    })
-
-    el.addEventListener('pointermove', e => {
-      if (!isDown) return
-
-      if (!isMoving) {
-        // pointer capture inside pointerdown caused clicking to not work
-        // it is better to capture pointer only on pointer down + first movement
-        el.setPointerCapture(e.pointerId)
-        isMoving = true
-      }
-
-      let dx = lx - e.clientX
-      let dy = ly - e.clientY
-
-      if (isPan) {
-        const { len } = this
-        const ratio = len / 500
-        this.panBy(dx * ratio, dy * ratio)
-      } else {
-        this.rotateBy(dy * this.rxRatio, dx * this.rzRatio)
-      }
-      lx = e.clientX
-      ly = e.clientY
-    })
   }
   setCommonCamera(name) {
     this.setRotate(...getCommonRotCombined(name), [0, 0, 0])

@@ -22,7 +22,11 @@ const startRenderer = ({
   bg = [1, 1, 1]
 }) => {
   engine = new Engine(canvas, true)
+  // another compat thing
+  engine.disableContextMenu = false
   _scene = new Scene(engine)
+  // another compat thing
+  _scene.detachControl();
   _scene.clearColor = new Color3(1, 1, 1)
   // COMPAT another thing to be compatible with threejs and regl
   _scene.useRightHandedSystem = true // https://forum.babylonjs.com/t/unexpected-behavior-for-z-up-right-handed-coordinate-system/1090/7
@@ -33,7 +37,9 @@ const startRenderer = ({
   // COMPAT this almost matches what seems as default in threejs and regl
   camera.fov = Math.PI / 4
 
-  camera.attachControl(canvas, true)
+  // DIABLED orbit controle in favor of external
+  // TODO make optional
+  //camera.attachControl(canvas, true)
   const light = new HemisphericLight('light', new Vector3(-1, -1, -1))
   light.intensity = 0.8;
   _scene.addLight(light)

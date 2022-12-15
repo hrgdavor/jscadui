@@ -31,7 +31,7 @@ export class OrbitControl extends OrbitState {
         lx = e.clientX
         ly = e.clientY
         isDown = true
-        isPan = e.shiftKey
+        isPan = e.shiftKey || e.button === 1
       })
   
       el.addEventListener('pointerup', e => {

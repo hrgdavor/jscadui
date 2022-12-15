@@ -73,7 +73,7 @@ function setScene(){
       items: [
         { id: 'axes', items: axes },
         { id: 'grid', items: grid },
-        { id: 'model', items: model },
+        // { id: 'model', items: model },
       ],
     })
   })

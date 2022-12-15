@@ -1,13 +1,23 @@
 {
+  "type":"module",
   "name": "@jscadui/scene",
   "version": "0.1.0",
   "description": "scene utilities like grid and axis",
   "main": "index.js",
-  "type":"module",
+  "unpkg": "cjs/index.js",
+  "module": "./index.js",
+  "files": [
+    "index.js",
+    "src",
+    "esm",
+    "cjs"
+  ],
   "scripts": {
     "test": "vitest",
     "coverage": "vitest run --coverage",
-    "build": "tsc --build"
+    "build": "esbuild index.js --outdir=esm --bundle --sourcemap --minify --loader:.js=jsx --format=esm",
+    "build-cjs": "esbuild index.js --outdir=cjs --bundle --sourcemap --minify --loader:.js=jsx --format=cjs",
+    "prepublishOnly": "npm run build && npm run build-cjs"
   },
   "devDependencies": {
     "@types/node": "18.11.9",

@@ -1,18 +1,28 @@
 {
-  "name": "@jscadui/html-gizmo",
+  "type":"module",
+  "name": "@jscadui/orbit",
   "version": "0.1.0",
-  "description": "cube camera gizmo based on HTML and CSS 3D transform",
+  "description": "JSCAD orbit controls",
   "main": "index.js",
-  "type": "module",
+  "unpkg": "cjs/index.js",
+  "module": "./index.js",
+  "files": [
+    "index.js",
+    "src",
+    "esm",
+    "cjs"
+  ],
   "scripts": {
     "test": "vitest",
     "coverage": "vitest run --coverage",
-    "build": "tsc --build"
+    "build": "esbuild index.js --outdir=esm --bundle --sourcemap --minify --loader:.js=jsx --format=esm",
+    "build-cjs": "esbuild index.js --outdir=cjs --bundle --sourcemap --minify --loader:.js=jsx --format=cjs",
+    "prepublishOnly": "npm run build && npm run build-cjs"
   },
   "devDependencies": {
-    "@trivago/prettier-plugin-sort-imports": "~3.3.0",
+    "esbuild": "^0.16.7",
     "@types/node": "18.11.9",
-    "esbuild": "^0.15.15",
+    "@trivago/prettier-plugin-sort-imports": "~3.3.0",
     "vitest": "0.24.5"
   },
   "license": "MIT"

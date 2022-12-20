@@ -97,10 +97,10 @@ function CSG2LineSegmentsVertices (csg) {
 function CSGCached (func, data, cacheKey, transferable, unique, options) {
   cacheKey = cacheKey || data
 
-  let geo = CSGToBuffers.cache.get(cacheKey)
+  let geo = JscadToCommon.cache.get(cacheKey)
   if (!geo) {
     geo = func(data, options)
-    geo.id = CSGToBuffers.sequence++
+    geo.id = JscadToCommon.sequence++
 
     // fill transferable array for postMessage optimization
     if (transferable) {
@@ -110,7 +110,7 @@ function CSGCached (func, data, cacheKey, transferable, unique, options) {
       if (normals) transferable.push(normals)
     }
 
-    CSGToBuffers.cache.set(cacheKey, geo)
+    JscadToCommon.cache.set(cacheKey, geo)
   }
   // flll unique map for exports that reuse stuff like 3mf
   if (unique) unique.set(geo.id, geo)
@@ -122,7 +122,7 @@ function CSGCached (func, data, cacheKey, transferable, unique, options) {
  *
  * @returns object separating converted geometries by type: line,lines,mesh,instance,unknown
  * */
-CSGToBuffers.prepare = (list, transferable) => {
+JscadToCommon.prepare = (list, transferable) => {
   const map = { line: [], lines: [], mesh: [], instance: [], unknown: [], all: [], unique: new Map() }
 
   const instanceMap = new Map()
@@ -137,7 +137,7 @@ CSGToBuffers.prepare = (list, transferable) => {
       if (csg instanceof Array) {
         extract(csg)
       } else {
-        const obj = CSGToBuffers(csg, transferable, map.unique)
+        const obj = JscadToCommon(csg, transferable, map.unique)
         // transparency in instanced mesh is problematic
         // transparent objects need ordering,  and that breaks thing for rendering instances
         if (obj.type === 'mesh' && (!csg.color || csg.color.length === 3 || csg.color[3] === 1)) {
@@ -167,8 +167,8 @@ CSGToBuffers.prepare = (list, transferable) => {
   return map
 }
 
-export function CSGToBuffers (csg, transferable, unique, options) {
-  if (csg instanceof Array) return csg.map(csg2 => CSGToBuffers(csg2, transferable, unique, options))
+export function JscadToCommon (csg, transferable, unique, options) {
+  if (csg instanceof Array) return csg.map(csg2 => JscadToCommon(csg2, transferable, unique, options))
   let obj
 
   if (csg.polygons) obj = CSGCached(CSG2Vertices, csg, csg.polygons, transferable, unique, options)
@@ -177,8 +177,8 @@ export function CSGToBuffers (csg, transferable, unique, options) {
   if (csg.vertices) { // coer a case where the object already has the format
     obj = csg
     // avoid filling transferable multiple times
-    if (!CSGToBuffers.cache.get(obj)) {
-      CSGToBuffers.cache.set(obj, obj)
+    if (!JscadToCommon.cache.get(obj)) {
+      JscadToCommon.cache.set(obj, obj)
       if (transferable) {
         transferable.push(obj.vertices)
         if (obj.indices) transferable.push(obj.indices)
@@ -192,9 +192,9 @@ export function CSGToBuffers (csg, transferable, unique, options) {
   return obj || { csg, type: 'unknown' }
 }
 
-CSGToBuffers.clearCache = () => {
-  CSGToBuffers.cache = new WeakMap()
-  CSGToBuffers.sequence = 1
+JscadToCommon.clearCache = () => {
+  JscadToCommon.cache = new WeakMap()
+  JscadToCommon.sequence = 1
 }
 
-CSGToBuffers.clearCache()
+JscadToCommon.clearCache()

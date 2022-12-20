@@ -19,7 +19,7 @@ export const invertNormals = indices => {
   return out
 }
 
-export function CSG2BabylonFactory(Babylon) {
+export function CommonToBabylon(Babylon) {
   const { Mesh, VertexData, LinesMesh, MeshBuilder, Vector3, Color4, Color3, VertexBuffer, Matrix, StandardMaterial } = Babylon
   let SEQ = 0
   function CSG2Babylon(obj, scene, meshColor) {

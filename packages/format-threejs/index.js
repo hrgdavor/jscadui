@@ -1,4 +1,4 @@
-export function CSG2Three (THREE) {
+export function CommonToThree (THREE) {
   const {
     MeshPhongMaterial,
     LineBasicMaterial,

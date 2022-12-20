@@ -1,6 +1,6 @@
 // cd C:\hrg\3dp_dev\OpenJSCAD.org\packages\utils\regl-renderer\
 // esbuild src/index.js --outfile=C:/hrg/3dp_dev/OpenJSCAD.org/packages/web2/src/jscad-regl-renderer.min.js --bundle --watch --sourcemap --minify --format=iife --global-name=jscadReglRenderer
-import { CSG2Regl } from './CSG2Regl.js'
+import { CommonToRegl } from '@jscadui/format-regl'
 
 export function JscadReglViewerFactory(regl) {
   const { prepareRender, drawCommands, cameras, controls } = regl
@@ -15,7 +15,7 @@ export function JscadReglViewerFactory(regl) {
   let meshColor = [1,1,1]
   let orbitControls, renderOptions, renderer
 
-  const csgConvert = CSG2Regl()
+  const csgConvert = CommonToRegl()
 
   const entities = []
 

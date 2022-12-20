@@ -11,15 +11,16 @@ import {
 } from '@jscadui/orbit'
 import { makeAxes, makeGrid } from '@jscadui/scene'
 import * as themes from '@jscadui/themes'
-const theme = themes.light
+import { JscadToCommon } from '@jscadui/format-jscad'
 
 import style from './main.css'
-import { CSGToBuffers } from './src/CsgToBuffers'
+
 import * as THREE from './src/Three.jscad.js'
 import { initTestBabylon } from './testBabylon.js'
 import { initTestRegl } from './testRegl.js'
 import { initTestThree } from './testThree.js'
 
+const theme = themes.light
 const { subtract } = booleans
 const { translate } = transforms
 const { colorize } = colors
@@ -58,7 +59,7 @@ model.push(colorize([0, 0.7, 0], translate([0, 60, 0], primitives.sphere({ radiu
 model.push(colorize([0, 0, 0.7], translate([0, 0, 60], primitives.sphere({ radius: 10 }))))
 model.push(colorize([1, 0.7, 0, 0.5], translate([-20, -20, 0], primitives.cube({ size: 30 }))))
 
-model = model.map(m => CSGToBuffers(m))
+model = model.map(m => JscadToCommon(m))
 
 function setTheme(theme){
   viewers.forEach(viewer => {

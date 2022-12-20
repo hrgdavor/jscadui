@@ -15,6 +15,10 @@
     "@jscadui/bundle-three": "*",
     "@jscadui/html-gizmo": "*",
     "@jscadui/scene": "*",
+    "@jscadui/format-jscad": "*",
+    "@jscadui/format-babylonjs": "*",
+    "@jscadui/format-threejs": "*",
+    "@jscadui/format-regl": "*",
     "@jscad/modeling": "2.11.0",
     "gl-matrix": "^3.4.0"
   },

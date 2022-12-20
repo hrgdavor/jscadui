@@ -1,6 +1,6 @@
 
 const white = [1, 1, 1, 1]
-export function CSG2Regl () {
+export function CommonToRegl () {
   let SEQ = 0
   function _CSG2Regl (obj, scene, meshColor) {
     const { vertices, indices = [], normals, color=meshColor, colors, isTransparent = false, opacity } = obj

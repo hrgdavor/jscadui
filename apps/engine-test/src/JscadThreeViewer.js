@@ -1,4 +1,4 @@
-import { CSG2Three } from './CSG2Three.js'
+import { CommonToThree } from '@jscadui/format-threejs'
 
 export function JscadThreeViewerFactory(THREE) {
 
@@ -20,7 +20,7 @@ export function JscadThreeViewerFactory(THREE) {
   const groups = []
   let canvas
 
-  const csgConvert = CSG2Three(THREE)
+  const csgConvert = CommonToThree(THREE)
 
   const startRenderer = ({ canvas, cameraPosition = [180, -180, 220], cameraTarget = [0, 0, 0], bg = [1, 1, 1] }) => {
     _camera = new THREE.PerspectiveCamera(45, 1, 1, 50000)

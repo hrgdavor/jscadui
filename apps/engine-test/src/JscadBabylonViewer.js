@@ -1,10 +1,10 @@
 // cd c:\hrg\3dp_dev\Babylon.js; esbuild src/index.ts --outfile=C:/hrg/3dp_dev/OpenJSCAD.org/packages/web2/src/babylon.js --bundle --watch --sourcemap=external --minify --format=esm
 
-import { CSG2BabylonFactory } from './CSG2Babylon.js'
+import { CommonToBabylon } from '@jscadui/format-babylonjs'
 
 export function JscadBabylonViewerFactory(BABYLON){
 const { GridMaterial, Engine, Scene, HemisphericLight, ArcRotateCamera, Vector3, AxesViewer, MeshBuilder, Mesh, Plane, Color3 } = BABYLON
-const csgConvert = CSG2BabylonFactory(BABYLON)
+const csgConvert = CommonToBabylon(BABYLON)
 
 const entities = []
 let canvas

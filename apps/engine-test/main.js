@@ -15,10 +15,11 @@ import { JscadToCommon } from '@jscadui/format-jscad'
 
 import style from './main.css'
 
-import * as THREE from './src/Three.jscad.js'
-import { initTestBabylon } from './testBabylon.js'
-import { initTestRegl } from './testRegl.js'
-import { initTestThree } from './testThree.js'
+// import * as THREE from './src/Three.jscad.js'
+//import * as THREE from '../../packages/render-threejs/bundle.example.js'
+import { initTestBabylon } from './src/testBabylon.js'
+import { initTestRegl } from './src/testRegl.js'
+import { initTestThree } from './src/testThree.js'
 
 const theme = themes.light
 const { subtract } = booleans
@@ -29,15 +30,15 @@ export const byId = id => document.getElementById(id)
 
 customElements.define('jscadui-gizmo', Gizmo)
 
-window.THREE = THREE // expose for console testing
-// global: jscadReglRenderer
+// global: THREE // expose for console testing
+// global: REGL
 // global: BABYLON
-window.regl = window.jscadReglRenderer
+window.REGL = window.REGL || window.jscadReglRenderer
 
 let viewers = (self.viewer = [
   initTestThree(THREE, byId('box0')),
   initTestBabylon(BABYLON, byId('box2')),
-  initTestRegl(jscadReglRenderer, byId('box3')),
+  initTestRegl(REGL, byId('box3')),
 ])
 
 const gizmo = (window.gizmo = new Gizmo())

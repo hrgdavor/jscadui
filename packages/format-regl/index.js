@@ -3,7 +3,7 @@ const white = [1, 1, 1, 1]
 export function CommonToRegl () {
   let SEQ = 0
   function _CSG2Regl (obj, scene, meshColor) {
-    const { vertices, indices = [], normals, color=meshColor, colors, isTransparent = false, opacity } = obj
+    let { vertices, indices = [], normals, color=meshColor, colors, isTransparent = false, opacity } = obj
     const { transforms } = obj
     const objType = obj.type || 'mesh'
 
@@ -14,7 +14,14 @@ export function CommonToRegl () {
       useVertexColors: !!(colors && colors.length)
     }
 
-    const geometry = { positions: vertices, transforms }
+    // if(!normals) {
+    //   normals = []
+    //   const vertCount = vertices.length
+    //   for(let i=0; i<vertCount; i++){
+    //     normals[i] = 0
+    //   }
+    // }
+    const geometry = { positions: vertices, transforms, normals }
 
     if (indices.length) geometry.indices = indices
     if (indices) geometry.indices = indices
@@ -62,6 +69,7 @@ export function CommonToRegl () {
 
         break
     }
+    console.log('visuals', visuals)
     //    if (transforms && !isInstanced) mesh.applyMatrix4({ elements: transforms })
     return { geometry, visuals }
   }

@@ -5,14 +5,19 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 5178",
+    "dev-init": "npm run bundle-threejs && npm run bundle-regl && npm run bundle-babylonjs",
     "build": "vite build",
+    "bundle-threejs":" esbuild bundle.threejs.js --outdir=build --bundle --sourcemap --minify --format=iife --global-name=THREE",
+    "bundle-regl":" esbuild bundle.regl.js --outdir=build --bundle --sourcemap --minify --format=iife --global-name=REGL",
+    "bundle-babylonjs":" esbuild bundle.babylonjs.js --outdir=build --bundle --sourcemap --minify --format=iife --global-name=BABYLON",
     "preview": "vite preview",
     "test": "vitest"
   },
   "dependencies": {
     "@jscadui/themes": "*",
-    "@jscadui/render-three": "*",
-    "@jscadui/bundle-three": "*",
+    "@jscadui/render-threejs": "*",
+    "@jscadui/render-babylonjs": "*",
+    "@jscadui/render-regl": "*",
     "@jscadui/html-gizmo": "*",
     "@jscadui/scene": "*",
     "@jscadui/format-jscad": "*",
@@ -20,7 +25,10 @@
     "@jscadui/format-threejs": "*",
     "@jscadui/format-regl": "*",
     "@jscad/modeling": "2.11.0",
-    "gl-matrix": "^3.4.0"
+    "gl-matrix": "^3.4.0",
+    "@jscad/regl-renderer": "^2.0.1",
+    "babylonjs": "^5.38.0",
+    "three": "^0.147.0"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "~3.3.0",

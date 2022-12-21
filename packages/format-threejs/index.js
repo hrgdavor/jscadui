@@ -1,15 +1,14 @@
-export function CommonToThree (THREE) {
-  const {
-    MeshPhongMaterial,
-    LineBasicMaterial,
-    BufferGeometry,
-    BufferAttribute,
-    Mesh,
-    InstancedMesh,
-    Line,
-    LineSegments,
-    Color
-  } = THREE
+export function CommonToThree ({
+  MeshPhongMaterial,
+  LineBasicMaterial,
+  BufferGeometry,
+  BufferAttribute,
+  Mesh,
+  InstancedMesh,
+  Line,
+  LineSegments,
+  Color
+}) {
 
   const flatShading = true
   const materials = {
@@ -54,8 +53,8 @@ export function CommonToThree (THREE) {
     const geo = new BufferGeometry()
     geo.setAttribute('position', new BufferAttribute(vertices, 3))
     if (indices) geo.setIndex(new BufferAttribute(indices, 1))
-    if (normals) geo.setAttribute('normal', new THREE.BufferAttribute(normals, 3))
-    if (colors) geo.setAttribute('color', new THREE.BufferAttribute(colors, isTransparent ? 4 : 3))
+    if (normals) geo.setAttribute('normal', new BufferAttribute(normals, 3))
+    if (colors) geo.setAttribute('color', new BufferAttribute(colors, isTransparent ? 4 : 3))
 
     let mesh
     switch (objType) {

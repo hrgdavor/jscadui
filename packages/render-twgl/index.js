@@ -266,22 +266,16 @@ export function RenderRegl(regl) {
 
     function setScene(_scene) {
       entities.length = 0
-      const last = []
       _scene.items.forEach(item => {
         // const group = new THREE.Group() no grouping in babylon
         item.items.forEach(obj => {
           const entity = csgConvert(obj, _scene, meshColor)
-          if(entity.transparent)
-            entities.push(entity)
-          else
-            last.push(entity)
+          entities.push(entity)
           // group.add(obj3d)
           // _scene.add(obj3d)
         })
         // _scene.add(group)
       })
-      last.forEach(e=>entities.push(e))
-      console.log('entities', entities)
       updateView()
     }
     return { sendCmd, resize, destroy, state, getCamera, setCamera, setBg, setMeshColor, getViewerEnv, setScene }

@@ -10,18 +10,19 @@ export function CommonToRegl () {
     const visuals = {
       show: true,
       color,
-      transparent: isTransparent,
+      transparent: isTransparent || (color?.length>3 && color[3] <1),
       useVertexColors: !!(colors && colors.length)
     }
+    // something is messed up with regl, stupidly requires normals even for lines
+    if(!normals) {
+      normals = []
+      const vertCount = vertices.length
+      for(let i=0; i<vertCount; i++){
+        normals[i] = 1
+      }
+    }
 
-    // if(!normals) {
-    //   normals = []
-    //   const vertCount = vertices.length
-    //   for(let i=0; i<vertCount; i++){
-    //     normals[i] = 0
-    //   }
-    // }
-    const geometry = { positions: vertices, transforms, normals }
+    const geometry = { positions: vertices, transforms }
 
     if (indices.length) geometry.indices = indices
     if (indices) geometry.indices = indices
@@ -71,7 +72,7 @@ export function CommonToRegl () {
     }
     console.log('visuals', visuals)
     //    if (transforms && !isInstanced) mesh.applyMatrix4({ elements: transforms })
-    return { geometry, visuals }
+    return { geometry, visuals, transparent:visuals.transparent }
   }
 
   return _CSG2Regl

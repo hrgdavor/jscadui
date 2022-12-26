@@ -2,16 +2,9 @@ import { JscadToCommon } from '@jscadui/format-jscad'
 import { getParameterDefinitionsFromSource, combineParameterDefinitions } from './getParameterDefinitionsFromSource.js'
 import { initMessaging } from '@jscadui/post-message'
 
-/*
-
-You should use event.dataTransfer.files to get the FileList. then you can post that directly to the worker:
-
-var files=e.dataTransfer.files || e.target.files; // Cross browser FileList
-var worker=new Worker(...);
-worker.postMessage({files: files});
-*/
-
-let workerBaseURI, main
+let workerBaseURI
+let main
+self.JSCAD_WORKER_ENV = {}
 
 function require (url) {
   url = require.alias[url] || url
@@ -43,10 +36,17 @@ function requireModule (url, source) {
     const exports = {}
     if (!source) source = requireFile(url)
     const module = { id: url, uri: url, exports: exports, source } // according to node.js modules
-    // fix, add comment to show source on Chrome Dev Tools
-    source = '//@ sourceURL=' + url + '\n' + source
-    // ------
-    const anonFn = new Function('require', 'exports', 'module', source) // create a Fn with module code, and 3 params: require, exports & module
+    //const anonFn = new Function('require', 'exports', 'module', source) // create a Fn with module code, and 3 params: require, exports & module
+    /* damn Function constructor creates function with 2 newlines at the begining before source starts
+    the prefix is: `function anonymous(a,b\n) {\n`
+    
+    it messes up the line numbers for the initial script log lines and stack traces ( they report +2 line numbers).
+
+    that is why we use eval to do the same trick, but prepended a function that has no newlines
+    also https://esbuild.github.io/content-types/#direct-eval
+    */
+    self.eval('function anonFn(require, exports, module){'+source+'}')
+    // console.log('source',anonFn.toString())
     anonFn(require, exports, module) // call the Fn, Execute the module
     return module
   } catch (err) {
@@ -57,60 +57,6 @@ function requireModule (url, source) {
 
 require.cache = {}
 require.alias = {}
-
-function runMain (params = {}, options = {}, id) {
-  const transferable = []
-
-  let time = Date.now()
-  const solids = main(params)
-  const solidsTime = Date.now() - time
-
-  time = Date.now()
-  JscadToCommon.clearCache()
-  const entities = JscadToCommon(solids, transferable, false, options)
-
-  sendCmd('entities',{entities, solidsTime, entitiesTime: Date.now() - time, id, options }, transferable)
-}
-
-let initialized = false
-const fileDropped = ({ dataTransfer }) => {
-  console.log('File(s) dropped ddd', dataTransfer)
-  let file
-  if (dataTransfer.items) {
-    console.log('dataTransfer items', dataTransfer)
-    // Use DataTransferItemList interface to access the file(s)
-    for (let i = 0; i < dataTransfer.items.length; i++) {
-      // If dropped items aren't files, reject them
-      if (dataTransfer.items[i].kind === 'file') {
-        file = dataTransfer.items[i]
-        if (file.webkitGetAsEntry) file = file.webkitGetAsEntry()
-        else if (file.getAsEntry) file = file.getAsEntry()
-        else file = file.webkitGetAsFile()
-        console.log('... webkit file[' + i + '].name = ' + file.name)
-        break
-      }
-    }
-  } else {
-    console.log('dataTransfer files', dataTransfer)
-    // Use DataTransfer interface to access the file(s)
-    for (let i = 0; i < dataTransfer.files.length; i++) {
-      file = dataTransfer.files[i]
-      console.log('... file[' + i + '].name = ' + file.name, file)
-    }
-  }
-}
-
-const runScript = ({ script, url, params = {}, options = {}, id }) => {
-  if (!initialized) {
-    console.log('worker not initialized')
-    return
-  }
-  const scriptModule = requireModule(url, script)
-  main = scriptModule.exports.main
-  const def = combineParameterDefinitions(getParameterDefinitionsFromSource(script), scriptModule.exports.getParameterDefinitions)
-  sendCmd('parameterDefinitions', {def})
-  runMain(params, options, id)
-}
 
 const init = (params) => {
   let { baseURI, alias = [] } = params
@@ -131,12 +77,40 @@ const init = (params) => {
   console.log('@jscad/modeling',require('@jscad/modeling'))
 }
 
-const handlers = {fileDropped, runScript, init,
-  updateParams: ({ params = {}, options = {}, id }) => {
-    runMain(params, options, id)
-  },
+
+function runMain ({params}={}) {
+  const transferable = []
+
+  let time = Date.now()
+  const solids = main(params || {})
+  const solidsTime = Date.now() - time
+
+  time = Date.now()
+  JscadToCommon.clearCache()
+  const entities = JscadToCommon(solids, transferable, false)
+
+  sendNotify('entities',{entities, solidsTime, entitiesTime: Date.now() - time }, transferable)
 }
+
+let initialized = false
+
+const initScript = ({ script, url}) => {
+  if (!initialized) {
+    console.error('worker not initialized')
+    return
+  }
+  
+  const scriptModule = requireModule(url, script)
+  
+  main = scriptModule.exports.main
+
+  const fromSource = getParameterDefinitionsFromSource(script)
+  const def = combineParameterDefinitions(fromSource, scriptModule.exports.getParameterDefinitions)
+  return {def}
+}
+
+const handlers = { initScript, init, runMain}
+
 const { sendCmd, sendNotify } = initMessaging(self, handlers)
 
-sendCmd('loaded').then(resp=>console.log('notify loaded promise returned ', resp))
-self.JSCAD_WORKER_ENV = {}
+sendNotify('loaded')

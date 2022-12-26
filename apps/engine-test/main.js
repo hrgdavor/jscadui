@@ -2,9 +2,9 @@ import { booleans, colors, primitives, transforms } from '@jscad/modeling'
 import { JscadToCommon } from '@jscadui/format-jscad'
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl, OrbitState, closerAngle, getCommonRotCombined } from '@jscadui/orbit'
+import { initMessaging } from '@jscadui/post-message'
 import { makeAxes, makeGrid } from '@jscadui/scene'
 import * as themes from '@jscadui/themes'
-import { initMessaging } from '@jscadui/post-message'
 
 import style from './main.css'
 import { initTestBabylon } from './src/testBabylon.js'
@@ -25,10 +25,10 @@ customElements.define('jscadui-gizmo', Gizmo)
 // global: BABYLON
 window.REGL = window.REGL || window.jscadReglRenderer
 
-let viewers = self.viewer = []
-if(typeof THREE != 'undefined') viewers.push(initTestThree(THREE, byId('box0')))
-if(typeof BABYLON != 'undefined') viewers.push(initTestBabylon(BABYLON, byId('box2')))
-if(typeof REGL != 'undefined') viewers.push(initTestRegl(REGL, byId('box3')))
+let viewers = (self.viewer = [])
+if (typeof THREE != 'undefined') viewers.push(initTestThree(THREE, byId('box0')))
+if (typeof BABYLON != 'undefined') viewers.push(initTestBabylon(BABYLON, byId('box2')))
+if (typeof REGL != 'undefined') viewers.push(initTestRegl(REGL, byId('box3')))
 
 const gizmo = (window.gizmo = new Gizmo())
 byId('box1').appendChild(gizmo)
@@ -58,7 +58,7 @@ function setTheme(theme) {
   })
 }
 
-function setScene() {
+function setScene(model) {
   viewers.forEach(viewer => {
     viewer.setScene?.({
       items: [
@@ -70,7 +70,7 @@ function setScene() {
   })
 }
 setTheme(theme)
-setScene()
+setScene(model)
 
 const setViewerCamera = ({ position, target, rx, rz }) => {
   viewers.forEach(v => v.setCamera({ position, target }))
@@ -154,24 +154,28 @@ sel.oninput = e => {
 
 let checkChange_timer
 let fileToWatch
+let lastModified
 
-function checkChange(){
-  if(!fileToWatch) return
+function checkChange() {
+  if (!fileToWatch) return
 
   clearTimeout(checkChange_timer)
-  fileToWatch.file(f=>{
-    console.log('lastModified::',f.lastModified, f)
+  fileToWatch.file(f => {
+    if (f.lastModified != lastModified) {
+      initScript(f)
+      lastModified = f.lastModified
+      console.log('lastModified::', f.lastModified, f)
+    }
   })
-  checkChange_timer = setTimeout(checkChange,1000)
+  checkChange_timer = setTimeout(checkChange, 300)
 }
-  
-function fileDropped (ev){
-  let dataTransfer = {files:ev.dataTransfer.files}
+
+function fileDropped(ev) {
+  let dataTransfer = { files: ev.dataTransfer.files }
   //this.worker.postMessage({action:'fileDropped', dataTransfer})
   let file
   dataTransfer = ev.dataTransfer
   if (dataTransfer.items) {
-    console.log('dataTransfer items', dataTransfer)
     // Use DataTransferItemList interface to access the file(s)
     for (let i = 0; i < dataTransfer.items.length; i++) {
       // If dropped items aren't files, reject them
@@ -180,26 +184,64 @@ function fileDropped (ev){
         if (file.webkitGetAsEntry) file = file.webkitGetAsEntry()
         else if (file.getAsEntry) file = file.getAsEntry()
         else file = file.webkitGetAsFile()
-        console.log('... webkit file[' + i + '].name = ' + file.name)
         break
       }
     }
   }
-  if (file){
+  if (file) {
     fileToWatch = file
     checkChange()
   }
 }
 
+const dropModal = byId('dropModal')
+const showDrop = show => {
+  clearTimeout(showDrop.timer)
+  dropModal.style.display = show ? 'initial' : 'none'
+}
+document.body.ondrop = ev => {
+  ev.preventDefault()
+  showDrop(false)
+  fileDropped(ev)
+}
+
+document.body.ondragover = ev => {
+  ev.preventDefault()
+  showDrop(true)
+}
+document.body.ondragleave = document.body.ondragend = ev => {
+  clearTimeout(showDrop.timer)
+  showDrop.timer = setTimeout(() => {
+    showDrop(false)
+  }, 300)
+}
+
 const handlers = {
-  entitties: ({entities})=>{
+  entitties: ({ entities }) => {
     console.log('entities', entities)
   },
-  loaded:()=>{
+  loaded: () => {
     console.log('worker loaded')
+    sendCmd('init',{alias:[['@jscad/modeling','./build/bundle.jscad_modeling.js']],baseURI:document.baseURI})
     return 'hello worker'
+  },
+  entities:({entities})=>{
+    setScene([entities])
   }
 }
 
-var worker = new Worker('./build/bundle.worker.js');
+const initScript = f => {
+  var reader = new FileReader()
+  reader.onload = event => {
+    let script = event.target.result
+    sendCmd('initScript',{script, url: f.name+'?'+f.lastModified}).then(r=>{
+      console.log('params def', r)
+      sendCmd('runMain',{})
+    })
+  }
+  reader.onerror = event => console.log('error', event)
+  reader.readAsText(f)
+}
+
+var worker = new Worker('./build/bundle.worker.js')
 const { sendCmd, sendNotify } = initMessaging(worker, handlers)

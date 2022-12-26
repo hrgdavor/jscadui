@@ -9,3 +9,25 @@
   - use `item.file(callback)` to read file metadata periodically to get new `lastModified` value if changed
   - file provided by the callback can be transfered
 
+## new Function madafakka two linex extra
+
+I was pulling my hair out from using new Function() ... to load bundled code with inline sourcemaps.
+this is nice because it opens more workflows, and allows for debugging and proper line numbers in console.log or stack trace
+but ... lines were shifted by +2 ... and then I was digging if the bundler is the issues ... until I tried fn.toString()
+```js
+console.log(new Function('a','b','return a+b').toString())
+// output:
+function anonymous(a,b
+) {
+return a+b
+}
+```
+dammit ... the bloody thing adds a prefix that has 2 newlines ... so I 
+```js
+// converted
+const anonFn = new Function('require', 'exports', 'module', source)
+// to
+self.eval('function anonFn(require, exports, module){'+source+'}')
+```
+also this:  https://esbuild.github.io/content-types/#direct-eval
+

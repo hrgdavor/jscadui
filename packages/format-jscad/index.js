@@ -4,7 +4,7 @@ const setPoints = (points, p, i) => {
   points[i++] = p[2] || 0
 }
 
-function CSG2Vertices (csg, { letfHanded = false } = {}) {
+function CSG2Vertices (csg) {
   let vLen = 0; let iLen = 0
   for (const poly of csg.polygons) {
     const len = poly.vertices.length
@@ -19,8 +19,6 @@ function CSG2Vertices (csg, { letfHanded = false } = {}) {
   let indOffset = 0
   let posOffset = 0
   let first = 0
-  const idx1 = letfHanded ? 0 : -1
-  const idx2 = letfHanded ? -1 : 0
   for (const poly of csg.polygons) {
     const arr = poly.vertices
     const normal = calculateNormal(arr)
@@ -38,8 +36,8 @@ function CSG2Vertices (csg, { letfHanded = false } = {}) {
       normals.set(normal, vertOffset)
 
       indices[indOffset++] = first
-      indices[indOffset++] = first + i + idx1
-      indices[indOffset++] = first + i + idx2
+      indices[indOffset++] = first + i -1
+      indices[indOffset++] = first + i
       vertOffset += 3
       posOffset += 1
     }

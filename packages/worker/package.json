@@ -1,13 +1,14 @@
 {
-  "name": "@jscadui/render-twgl",
+  "type": "module",
+  "name": "@jscadui/worker",
   "version": "0.1.0",
-  "description": "JSCAD twgl renderer",
+  "description": "worker for executing jscad scripts",
   "main": "index.js",
   "unpkg": "cjs/index.js",
   "module": "./index.js",
   "files": [
     "index.js",
-    "bundle.example.js",
+    "src",
     "esm",
     "cjs"
   ],
@@ -18,7 +19,11 @@
     "build-cjs": "esbuild index.js --outdir=cjs --bundle --sourcemap --minify --loader:.js=jsx --format=cjs",
     "prepublishOnly": "npm run build && npm run build-cjs"
   },
+  "dependencies": {
+    "@jscadui/post-message": "*"
+  },
   "devDependencies": {
+    "esbuild": "^0.16.7",
     "@types/node": "18.11.9",
     "@trivago/prettier-plugin-sort-imports": "~3.3.0",
     "vitest": "0.24.5"

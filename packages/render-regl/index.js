@@ -281,7 +281,6 @@ export function RenderRegl(regl) {
         // _scene.add(group)
       })
       last.forEach(e=>entities.push(e))
-      console.log('entities', entities)
       updateView()
     }
     return { sendCmd, resize, destroy, state, getCamera, setCamera, setBg, setMeshColor, getViewerEnv, setScene }

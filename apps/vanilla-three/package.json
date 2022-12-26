@@ -1,6 +1,5 @@
 {
   "name": "@jscadui/vanilla-three",
-  "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {

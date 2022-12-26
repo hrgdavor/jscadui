@@ -1,22 +1,12 @@
 import { booleans, colors, primitives, transforms } from '@jscad/modeling'
+import { JscadToCommon } from '@jscadui/format-jscad'
 import { Gizmo } from '@jscadui/html-gizmo'
-import {
-  OrbitControl,
-  OrbitState,
-  calcCamPos,
-  camRotation,
-  closerAngle,
-  getCommonRotCombined,
-  normalizeAngle,
-} from '@jscadui/orbit'
+import { OrbitControl, OrbitState, closerAngle, getCommonRotCombined } from '@jscadui/orbit'
 import { makeAxes, makeGrid } from '@jscadui/scene'
 import * as themes from '@jscadui/themes'
-import { JscadToCommon } from '@jscadui/format-jscad'
+import { initMessaging } from '@jscadui/post-message'
 
 import style from './main.css'
-
-// import * as THREE from './src/Three.jscad.js'
-//import * as THREE from '../../packages/render-threejs/bundle.example.js'
 import { initTestBabylon } from './src/testBabylon.js'
 import { initTestRegl } from './src/testRegl.js'
 import { initTestThree } from './src/testThree.js'
@@ -35,11 +25,10 @@ customElements.define('jscadui-gizmo', Gizmo)
 // global: BABYLON
 window.REGL = window.REGL || window.jscadReglRenderer
 
-let viewers = (self.viewer = [
-  initTestThree(THREE, byId('box0')),
-  initTestBabylon(BABYLON, byId('box2')),
-  initTestRegl(REGL, byId('box3')),
-])
+let viewers = self.viewer = []
+if(typeof THREE != 'undefined') viewers.push(initTestThree(THREE, byId('box0')))
+if(typeof BABYLON != 'undefined') viewers.push(initTestBabylon(BABYLON, byId('box2')))
+if(typeof REGL != 'undefined') viewers.push(initTestRegl(REGL, byId('box3')))
 
 const gizmo = (window.gizmo = new Gizmo())
 byId('box1').appendChild(gizmo)
@@ -62,14 +51,14 @@ model.push(colorize([1, 0.7, 0, 0.5], translate([-20, -20, 0], primitives.cube({
 
 model = model.map(m => JscadToCommon(m))
 
-function setTheme(theme){
+function setTheme(theme) {
   viewers.forEach(viewer => {
     viewer.setBg(theme.bg)
     viewer.setMeshColor(theme.color)
-  })  
+  })
 }
 
-function setScene(){
+function setScene() {
   viewers.forEach(viewer => {
     viewer.setScene?.({
       items: [
@@ -88,7 +77,6 @@ const setViewerCamera = ({ position, target, rx, rz }) => {
   gizmo.rotateXZ(rx, rz)
 }
 
-
 const stored = localStorage.getItem('camera.location')
 let initialCamera = { position: [180, -180, 220] }
 try {
@@ -97,8 +85,8 @@ try {
   console.log(error)
 }
 
-const elements = [byId('box0'),byId('box1'),byId('box2'),byId('box3')]
-const ctrl = (window.ctrl = new OrbitControl(elements, { ...initialCamera, alwaysRotate:false} ))
+const elements = [byId('box0'), byId('box1'), byId('box2'), byId('box3')]
+const ctrl = (window.ctrl = new OrbitControl(elements, { ...initialCamera, alwaysRotate: false }))
 //gizmo.rotateXZ(ctrl.rx, ctrl.rz)
 setViewerCamera(ctrl)
 
@@ -153,13 +141,65 @@ let animDuration = 200
 let animTimer, stateStart, stateEnd, startTime
 
 const sel = byId('themeSelect')
-for(let tn in themes){
+for (let tn in themes) {
   const tmp = themes[tn]
   sel.add(new Option(tmp.name, tn))
 }
 sel.value = 'light'
-sel.oninput = e=>{
+sel.oninput = e => {
   const tmp = themes[sel.value]
   setTheme(tmp)
   setScene()
 }
+
+let checkChange_timer
+let fileToWatch
+
+function checkChange(){
+  if(!fileToWatch) return
+
+  clearTimeout(checkChange_timer)
+  fileToWatch.file(f=>{
+    console.log('lastModified::',f.lastModified, f)
+  })
+  checkChange_timer = setTimeout(checkChange,1000)
+}
+  
+function fileDropped (ev){
+  let dataTransfer = {files:ev.dataTransfer.files}
+  //this.worker.postMessage({action:'fileDropped', dataTransfer})
+  let file
+  dataTransfer = ev.dataTransfer
+  if (dataTransfer.items) {
+    console.log('dataTransfer items', dataTransfer)
+    // Use DataTransferItemList interface to access the file(s)
+    for (let i = 0; i < dataTransfer.items.length; i++) {
+      // If dropped items aren't files, reject them
+      if (dataTransfer.items[i].kind === 'file') {
+        file = dataTransfer.items[i]
+        if (file.webkitGetAsEntry) file = file.webkitGetAsEntry()
+        else if (file.getAsEntry) file = file.getAsEntry()
+        else file = file.webkitGetAsFile()
+        console.log('... webkit file[' + i + '].name = ' + file.name)
+        break
+      }
+    }
+  }
+  if (file){
+    fileToWatch = file
+    checkChange()
+  }
+}
+
+const handlers = {
+  entitties: ({entities})=>{
+    console.log('entities', entities)
+  },
+  loaded:()=>{
+    console.log('worker loaded')
+    return 'hello worker'
+  }
+}
+
+var worker = new Worker('./build/bundle.worker.js');
+const { sendCmd, sendNotify } = initMessaging(worker, handlers)

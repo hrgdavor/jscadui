@@ -1,15 +1,16 @@
 {
   "name": "@jscadui/engine-test",
-  "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite --port 5178",
-    "dev-init": "npm run bundle-threejs && npm run bundle-regl && npm run bundle-babylonjs",
+    "dev-init": "npm run bundle-threejs && npm run bundle-regl && npm run bundle-babylonjs && npm run bundle-worker && npm run bundle-jscad_modeling",
     "build": "vite build",
     "bundle-threejs":" esbuild bundle.threejs.js --outdir=build --bundle --sourcemap --minify --format=iife --global-name=THREE",
     "bundle-regl":" esbuild bundle.regl.js --outdir=build --bundle --sourcemap --minify --format=iife --global-name=REGL",
     "bundle-babylonjs":" esbuild bundle.babylonjs.js --outdir=build --bundle --sourcemap --minify --format=iife --global-name=BABYLON",
+    "bundle-worker":" esbuild bundle.worker.js --outdir=build --bundle --sourcemap --minify --format=iife",
+    "bundle-jscad_modeling":" esbuild bundle.jscad_modeling.js --outdir=build --bundle --sourcemap --minify --format=cjs",
     "preview": "vite preview",
     "test": "vitest"
   },
@@ -24,6 +25,8 @@
     "@jscadui/format-babylonjs": "*",
     "@jscadui/format-threejs": "*",
     "@jscadui/format-regl": "*",
+    "@jscadui/post-message": "*",
+    "@jscadui/worker": "*",
     "@jscad/modeling": "2.11.0",
     "gl-matrix": "^3.4.0",
     "@jscad/regl-renderer": "^2.0.1",

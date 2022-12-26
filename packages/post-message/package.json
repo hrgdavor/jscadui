@@ -1,13 +1,13 @@
 {
-  "name": "@jscadui/render-twgl",
+  "type": "module",
+  "name": "@jscadui/post-message",
   "version": "0.1.0",
-  "description": "JSCAD twgl renderer",
+  "description": "postMessage utility for worker and main window",
   "main": "index.js",
   "unpkg": "cjs/index.js",
   "module": "./index.js",
   "files": [
     "index.js",
-    "bundle.example.js",
     "esm",
     "cjs"
   ],
@@ -19,6 +19,7 @@
     "prepublishOnly": "npm run build && npm run build-cjs"
   },
   "devDependencies": {
+    "esbuild": "^0.16.7",
     "@types/node": "18.11.9",
     "@trivago/prettier-plugin-sort-imports": "~3.3.0",
     "vitest": "0.24.5"

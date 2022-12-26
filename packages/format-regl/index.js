@@ -70,7 +70,6 @@ export function CommonToRegl () {
 
         break
     }
-    console.log('visuals', visuals)
     //    if (transforms && !isInstanced) mesh.applyMatrix4({ elements: transforms })
     return { geometry, visuals, transparent:visuals.transparent }
   }

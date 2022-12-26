@@ -25,7 +25,7 @@
     "@jscadui/format-babylonjs": "*",
     "@jscadui/format-threejs": "*",
     "@jscadui/format-regl": "*",
-    "@jscadui/post-message": "*",
+    "@jscadui/postmessage": "*",
     "@jscadui/worker": "*",
     "@jscad/modeling": "2.11.0",
     "gl-matrix": "^3.4.0",

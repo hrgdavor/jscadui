@@ -20,7 +20,7 @@
     "prepublishOnly": "npm run build && npm run build-cjs"
   },
   "dependencies": {
-    "@jscadui/post-message": "*"
+    "@jscadui/postmessage": "*"
   },
   "devDependencies": {
     "esbuild": "^0.16.7",

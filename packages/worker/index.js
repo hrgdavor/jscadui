@@ -1,6 +1,6 @@
 import { JscadToCommon } from '@jscadui/format-jscad'
 import { getParameterDefinitionsFromSource, combineParameterDefinitions } from './getParameterDefinitionsFromSource.js'
-import { initMessaging } from '@jscadui/post-message'
+import { initMessaging } from '@jscadui/postmessage'
 
 let workerBaseURI
 let main

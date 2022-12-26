@@ -2,7 +2,7 @@ import { booleans, colors, primitives, transforms } from '@jscad/modeling'
 import { JscadToCommon } from '@jscadui/format-jscad'
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl, OrbitState, closerAngle, getCommonRotCombined } from '@jscadui/orbit'
-import { initMessaging } from '@jscadui/post-message'
+import { initMessaging } from '@jscadui/postmessage'
 import { makeAxes, makeGrid } from '@jscadui/scene'
 import * as themes from '@jscadui/themes'
 

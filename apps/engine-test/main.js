@@ -220,11 +220,6 @@ const handlers = {
   entitties: ({ entities }) => {
     console.log('entities', entities)
   },
-  loaded: () => {
-    console.log('worker loaded')
-    sendCmd('init',{alias:[['@jscad/modeling','./build/bundle.jscad_modeling.js']],baseURI:document.baseURI})
-    return 'hello worker'
-  },
   entities:({entities})=>{
     setScene([entities])
   }
@@ -245,3 +240,4 @@ const initScript = f => {
 
 var worker = new Worker('./build/bundle.worker.js')
 const { sendCmd, sendNotify } = initMessaging(worker, handlers)
+sendCmd('init',{alias:[['@jscad/modeling','./build/bundle.jscad_modeling.js']],baseURI:document.baseURI})

@@ -6,7 +6,6 @@ const TRANSFERABLE = '__transferable'
 const messageHandler = (handlers, sendResponse) => {
   return e => {
     const { method, params, id, error } = e.data
-    console.log('e', method, id, e.data, e.target)
     if (id && method === RESPONSE) {
       const p = reqMap.get(id)
 
@@ -33,7 +32,7 @@ const messageHandler = (handlers, sendResponse) => {
         }
       }
     } catch (error) {
-      console.log('problem executing command', method, params, error.message)
+      console.error('problem executing command', method, params, error.message)
       throw error
     }
   }
@@ -79,9 +78,9 @@ const messageSender = _self => {
  * @returns 
  */
 export const initMessaging = (_self, handlers) => {
-  const { sendCmd, sendNotify, sendResponse } = messageSender(_self)
+  const out = messageSender(_self)
 
-  _self.addEventListener('message', messageHandler(handlers, sendResponse))
+  _self.addEventListener('message', messageHandler(handlers, out.sendResponse))
 
-  return { sendCmd, sendNotify }
+  return out
 }

@@ -5,7 +5,7 @@ import { OrbitControl, OrbitState, closerAngle, getCommonRotCombined } from '@js
 import { initMessaging } from '@jscadui/postmessage';
 import { makeAxes, makeGrid } from '@jscadui/scene';
 import * as themes from '@jscadui/themes';
-import { registerServiceWorker } from '../../packages/fs-provider/fs-provider';
+import { clearFs, extractEntries, readDir, registerServiceWorker } from '../../packages/fs-provider/fs-provider';
 
 
 
@@ -174,36 +174,6 @@ function checkChange() {
   checkChange_timer = setTimeout(checkChange, 300)
 }
 
-function fileDropped(ev) {
-  let dataTransfer = { files: ev.dataTransfer.files }
-  //this.worker.postMessage({action:'fileDropped', dataTransfer})
-  let file
-  dataTransfer = ev.dataTransfer
-  if (dataTransfer.items) {
-    // Use DataTransferItemList interface to access the file(s)
-    for (let i = 0; i < dataTransfer.items.length; i++) {
-      // If dropped items aren't files, reject them
-      if (dataTransfer.items[i].kind === 'file') {
-        file = dataTransfer.items[i]
-        if (file.webkitGetAsEntry) file = file.webkitGetAsEntry()
-        else if (file.getAsEntry) file = file.getAsEntry()
-        else file = file.webkitGetAsFile()
-        break
-      }
-    }
-  }
-  console.log('file', file)
-  if(file?.isDirectory){
-    console.log('dataTransfer.files', dataTransfer.files)
-    sendNotify('runFolder',{folder:dataTransfer.files[0]})
-  } 
-
-  if (file && !file.isDirectory) {
-    fileToWatch = file
-    checkChange()
-  }
-}
-
 const dropModal = byId('dropModal')
 const showDrop = show => {
   clearTimeout(showDrop.timer)
@@ -252,8 +222,10 @@ const initScript = f => {
 var worker = new Worker('./build/bundle.worker.js')
 const { sendCmd, sendNotify } = initMessaging(worker, handlers)
 
+let sw
 registerServiceWorker('fs-serviceworker.js?prefix=/swfs/'
-).then(sw=>{
+).then(_sw=>{
+  sw = _sw
   sendCmd('init', {
     cacheId: sw.id,
     alias: [['@jscad/modeling', './build/bundle.jscad_modeling.js']],
@@ -261,4 +233,35 @@ registerServiceWorker('fs-serviceworker.js?prefix=/swfs/'
   })
 })
 
-// …
+async function fileDropped(ev) {
+  //this.worker.postMessage({action:'fileDropped', dataTransfer})
+  let files = extractEntries(ev.dataTransfer)
+  if(!files.length) return
+
+  console.log('files', files)
+  clearFs(sw)
+  window.files = files
+
+  if(files.length === 1){
+    if(files[0].isDirectory){
+      let tmp = await readDir(files[0])
+      console.log('tmp', tmp)
+    }else{
+
+    }
+  }else{
+
+  }
+
+  // console.log('file', file)
+  // if(file?.isDirectory){
+  //   console.log('dataTransfer.files', dataTransfer.files)
+  //   sendNotify('runFolder',{folder:dataTransfer.files[0]})
+  // } 
+
+  // if (file && !file.isDirectory) {
+  //   fileToWatch = file
+  //   checkChange()
+  // }
+}
+

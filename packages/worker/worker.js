@@ -1,8 +1,8 @@
 import { JscadToCommon } from '@jscadui/format-jscad'
 import { initMessaging } from '@jscadui/postmessage'
+import { require, requireModule, relativeRequire } from '@jscadui/require'
 
 import { combineParameterDefinitions, getParameterDefinitionsFromSource } from './getParameterDefinitionsFromSource.js'
-import { require, requireModule, relativeRequire } from './src/require.js'
 
 let initialized
 let main

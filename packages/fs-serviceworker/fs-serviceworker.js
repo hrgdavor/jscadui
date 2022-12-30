@@ -1,16 +1,20 @@
 import { initMessaging } from "@jscadui/postmessage";
+// https://gomakethings.com/series/service-workers/
 
 const version = 'SW6'
 const clientMap = {}
-let prefix = '/swfs/'
+let prefix = ''
 let initPath = prefix+'init'
 self.addEventListener("activate", (event) => {
+  prefix = new URL(location.toString()).searchParams.get('prefix')
   event.waitUntil(clients.claim());
-  console.log(version+' activate')
+  console.log(version+' activate', prefix, 'location:',location, event)
   
 });
 
 self.addEventListener("install", (event) => {
+  // https://gomakethings.com/how-to-immediately-activate-a-service-worker-with-vanilla-js/
+  self.skipWaiting();
   console.log(version+' installed')
 })
 

@@ -252,11 +252,13 @@ const initScript = f => {
 var worker = new Worker('./build/bundle.worker.js')
 const { sendCmd, sendNotify } = initMessaging(worker, handlers)
 
-registerServiceWorker('bundle.fs-serviceworker.js').then(sw=>{
+registerServiceWorker('fs-serviceworker.js?prefix=/swfs/'
+).then(sw=>{
   sendCmd('init', {
     cacheId: sw.id,
     alias: [['@jscad/modeling', './build/bundle.jscad_modeling.js']],
     baseURI: document.baseURI,
   })
 })
+
 // …

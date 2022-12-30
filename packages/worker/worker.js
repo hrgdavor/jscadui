@@ -2,13 +2,12 @@ import { JscadToCommon } from '@jscadui/format-jscad'
 import { initMessaging } from '@jscadui/postmessage'
 
 import { combineParameterDefinitions, getParameterDefinitionsFromSource } from './getParameterDefinitionsFromSource.js'
-import { require, requireModule, setBaseURI } from './src/require.js'
+import { require, requireModule, relativeRequire } from './src/require.js'
 
 let initialized
 let main
-let cacheId
 self.JSCAD_WORKER_ENV = {}
-self.require = require
+let requireForScript = require
 
 const init = params => {
   let { baseURI, alias = [] } = params
@@ -16,7 +15,7 @@ const init = params => {
     baseURI = document.baseURI
   }
 
-  if (baseURI) setBaseURI(baseURI.toString())
+  if (baseURI) requireForScript = relativeRequire(baseURI)
 
   alias.forEach(arr => {
     const [orig, ...aliases] = arr
@@ -28,19 +27,6 @@ const init = params => {
     })
   })
   initialized = true
-  cacheId = params.cacheId
-  console.log('cacheId', cacheId)
-  let time = Date.now()
-  fetch(`/swfs/${cacheId}/bla.js`).then(r=>r.text()).then(t=>console.log(Date.now()-time,'file in cache: ',t))
-  setTimeout(() => {
-    time = Date.now()
-    fetch(`/swfs/${cacheId}/after.js`).then(r=>r.text()).then(t=>console.log(Date.now()-time,'file in cache: ',t))
-  }, 500);
-  setTimeout(() => {
-    time = Date.now()
-    fetch(`/swfs/${cacheId}/after.js`).then(r=>r.text()).then(t=>console.log(Date.now()-time,'file in cache: ',t))
-  }, 2000);
-
 }
 
 function runMain({ params } = {}) {
@@ -63,7 +49,7 @@ const initScript = ({ script, url }) => {
     return
   }
 
-  const scriptModule = requireModule(url, script)
+  const scriptModule = requireModule(url, script, requireForScript)
 
   main = scriptModule.exports.main
 

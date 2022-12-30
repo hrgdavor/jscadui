@@ -1,6 +1,5 @@
 {
   "type":"module",
-  "sideEffects": false,
   "name": "@jscadui/worker",
   "version": "0.1.0",
   "description": "worker for executing jscad scripts",
@@ -21,7 +20,8 @@
     "prepublishOnly": "npm run build && npm run build-cjs"
   },
   "dependencies": {
-    "@jscadui/postmessage": "*"
+    "@jscadui/postmessage": "*",
+    "@jscadui/require": "*"
   },
   "devDependencies": {
     "esbuild": "^0.16.7",

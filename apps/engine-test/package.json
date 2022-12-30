@@ -8,9 +8,9 @@
     "build": "vite build",
     "bundle-threejs": " esbuild bundle.threejs.js --outdir=build --bundle --sourcemap --minify --format=iife --global-name=THREE",
     "bundle-regl": " esbuild bundle.regl.js --outdir=build --bundle --sourcemap --minify --format=iife --global-name=REGL",
-    "bundle-babylonjs": " esbuild bundle.babylonjs.js --outdir=build --bundle --sourcemap --minify --format=iife --global-name=BABYLON",
-    "bundle-worker": "echo export * from '@jscadui/worker' | esbuild --outfile=build/bundle.worker.js --bundle --sourcemap --minify --format=iife",
-    "bundle-fs-serviceworker": "echo export * from '@jscadui/fs-serviceworker' | esbuild --outfile=build/bundle.fs-serviceworker.js --bundle --sourcemap --minify --format=iife",
+    "bundle-babylonjs": "esbuild bundle.babylonjs.js --outdir=build --bundle --sourcemap --minify --format=iife --global-name=BABYLON",
+    "bundle-worker": "esbuild bundle.worker.js --outdir=build --bundle --sourcemap --minify --format=iife",
+    "bundle-fs-serviceworker":"esbuild bundle.fs-serviceworker.js --outfile=fs-serviceworker.js --bundle --sourcemap --minify --format=iife",
     "bundle-jscad_modeling": " esbuild bundle.jscad_modeling.js --outdir=build --bundle --sourcemap --minify --format=cjs",
     "preview": "vite preview",
     "test": "vitest"

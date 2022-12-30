@@ -1,6 +1,5 @@
 {
   "type": "module",
-  "sideEffects": false,
   "name": "@jscadui/fs-serviceworker",
   "version": "0.1.0",
   "description": "fs-serviceworker utility for worker and main window",

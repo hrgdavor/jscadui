@@ -1,5 +1,6 @@
 {
   "type":"module",
+  "sideEffects": false,
   "name": "@jscadui/html-gizmo",
   "version": "0.1.0",
   "description": "JSCAD html gizmo controls",

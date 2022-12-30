@@ -1,15 +1,19 @@
-import { booleans, colors, primitives, transforms } from '@jscad/modeling'
-import { JscadToCommon } from '@jscadui/format-jscad'
-import { Gizmo } from '@jscadui/html-gizmo'
-import { OrbitControl, OrbitState, closerAngle, getCommonRotCombined } from '@jscadui/orbit'
-import { initMessaging } from '@jscadui/postmessage'
-import { makeAxes, makeGrid } from '@jscadui/scene'
-import * as themes from '@jscadui/themes'
+import { booleans, colors, primitives, transforms } from '@jscad/modeling';
+import { JscadToCommon } from '@jscadui/format-jscad';
+import { Gizmo } from '@jscadui/html-gizmo';
+import { OrbitControl, OrbitState, closerAngle, getCommonRotCombined } from '@jscadui/orbit';
+import { initMessaging } from '@jscadui/postmessage';
+import { makeAxes, makeGrid } from '@jscadui/scene';
+import * as themes from '@jscadui/themes';
+import { registerServiceWorker } from '../../packages/fs-provider/fs-provider';
 
-import style from './main.css'
-import { initTestBabylon } from './src/testBabylon.js'
-import { initTestRegl } from './src/testRegl.js'
-import { initTestThree } from './src/testThree.js'
+
+
+import style from './main.css';
+import { initTestBabylon } from './src/testBabylon.js';
+import { initTestRegl } from './src/testRegl.js';
+import { initTestThree } from './src/testThree.js';
+
 
 const theme = themes.light
 const { subtract } = booleans
@@ -188,7 +192,13 @@ function fileDropped(ev) {
       }
     }
   }
-  if (file) {
+  console.log('file', file)
+  if(file?.isDirectory){
+    console.log('dataTransfer.files', dataTransfer.files)
+    sendNotify('runFolder',{folder:dataTransfer.files[0]})
+  } 
+
+  if (file && !file.isDirectory) {
     fileToWatch = file
     checkChange()
   }
@@ -221,7 +231,8 @@ const handlers = {
     console.log('entities', entities)
   },
   entities:({entities})=>{
-    setScene([entities])
+    if(!(entities instanceof Array)) entities = [entities]
+    setScene(entities)
   }
 }
 
@@ -240,4 +251,12 @@ const initScript = f => {
 
 var worker = new Worker('./build/bundle.worker.js')
 const { sendCmd, sendNotify } = initMessaging(worker, handlers)
-sendCmd('init',{alias:[['@jscad/modeling','./build/bundle.jscad_modeling.js']],baseURI:document.baseURI})
+
+registerServiceWorker('bundle.fs-serviceworker.js').then(sw=>{
+  sendCmd('init', {
+    cacheId: sw.id,
+    alias: [['@jscad/modeling', './build/bundle.jscad_modeling.js']],
+    baseURI: document.baseURI,
+  })
+})
+// …

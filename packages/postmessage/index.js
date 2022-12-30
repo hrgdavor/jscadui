@@ -6,6 +6,7 @@ const TRANSFERABLE = '__transferable'
 const messageHandler = (handlers, sendResponse) => {
   return e => {
     const { method, params, id, error } = e.data
+    console.log('method', method, params, id, error, e)
     if (id && method === RESPONSE) {
       const p = reqMap.get(id)
 
@@ -20,7 +21,9 @@ const messageHandler = (handlers, sendResponse) => {
 
     const fn = handlers[method]
     if (!fn) {
-      throw new Error('no handler for type: ' + method)
+      const msg = 'no handler for type: ' + method
+      console.error(msg, e)
+      throw new Error(msg)
     }
     try {
       const out = fn(params)
@@ -38,7 +41,7 @@ const messageHandler = (handlers, sendResponse) => {
   }
 }
 
-const fixTransfer = trans => trans ? trans.map(a => a.buffer || a) : []
+const fixTransfer = trans => (trans ? trans.map(a => a.buffer || a) : [])
 
 const messageSender = _self => {
   const sendResponse = (params, id) => {
@@ -46,7 +49,7 @@ const messageSender = _self => {
     if (trans) {
       delete params[TRANSFERABLE]
     }
-    _self.postMessage({ method:RESPONSE, params, id }, fixTransfer(trans))
+    _self.postMessage({ method: RESPONSE, params, id }, fixTransfer(trans))
   }
 
   const sendNotify = (method, params = {}, trans = []) => {
@@ -72,15 +75,17 @@ const messageSender = _self => {
 }
 
 /**
- * 
- * @param {*} _self reference to self of the main widnow (self) or reference to a worker 
+ *
+ * @param {*} _self reference to self of the main widnow (self) or reference to a worker
  * @param {*} handlers - object where key if method name, and value ih handler
- * @returns 
+ * @returns
  */
 export const initMessaging = (_self, handlers) => {
-  const out = messageSender(_self)
-
-  _self.addEventListener('message', messageHandler(handlers, out.sendResponse))
+  // service worker has the postMessage on the .controller, it is not na same object as addEventListener
+  const out = messageSender(_self.postMessage ? _self : _self.controller)
+  out.listener = messageHandler(handlers, out.sendResponse)
+  out.self = _self
+  _self.addEventListener?.('message', out.listener)
 
   return out
 }

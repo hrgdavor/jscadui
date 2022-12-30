@@ -1,5 +1,7 @@
 {
   "name": "@jscadui/render-babylonjs",
+  "type": "module",
+  "sideEffects": false,
   "version": "0.1.0",
   "description": "JSCAD Babylon.js renderer",
   "main": "index.js",

@@ -1,4 +1,6 @@
 {
+  "type":"module",
+  "sideEffects": false,
   "name": "@jscadui/render-threejs",
   "version": "0.1.0",
   "description": "JSCAD Three.js renderer",

@@ -1,4 +1,6 @@
 {
+  "type":"module",
+  "sideEffects": false,
   "name": "@jscadui/render-regl",
   "version": "0.1.0",
   "description": "JSCAD regl renderer",

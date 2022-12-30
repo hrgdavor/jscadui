@@ -1,5 +1,6 @@
 {
   "type": "module",
+  "sideEffects": false,
   "name": "@jscadui/format-jscad",
   "version": "0.1.0",
   "description": "jscad format",

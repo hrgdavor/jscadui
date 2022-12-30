@@ -6,6 +6,7 @@ import { require, requireModule, setBaseURI } from './src/require.js'
 
 let initialized
 let main
+let cacheId
 self.JSCAD_WORKER_ENV = {}
 self.require = require
 
@@ -27,6 +28,19 @@ const init = params => {
     })
   })
   initialized = true
+  cacheId = params.cacheId
+  console.log('cacheId', cacheId)
+  let time = Date.now()
+  fetch(`/swfs/${cacheId}/bla.js`).then(r=>r.text()).then(t=>console.log(Date.now()-time,'file in cache: ',t))
+  setTimeout(() => {
+    time = Date.now()
+    fetch(`/swfs/${cacheId}/after.js`).then(r=>r.text()).then(t=>console.log(Date.now()-time,'file in cache: ',t))
+  }, 500);
+  setTimeout(() => {
+    time = Date.now()
+    fetch(`/swfs/${cacheId}/after.js`).then(r=>r.text()).then(t=>console.log(Date.now()-time,'file in cache: ',t))
+  }, 2000);
+
 }
 
 function runMain({ params } = {}) {
@@ -58,6 +72,10 @@ const initScript = ({ script, url }) => {
   return { def }
 }
 
-const handlers = { initScript, init, runMain }
+const runFolder = ({folder})=>{
+  console.log('runFolder', folder, folder.createReader)
+}
+
+const handlers = { initScript, init, runMain, runFolder}
 
 const { sendCmd, sendNotify } = initMessaging(self, handlers)

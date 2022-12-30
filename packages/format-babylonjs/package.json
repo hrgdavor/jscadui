@@ -1,5 +1,6 @@
 {
   "type": "module",
+  "sideEffects": false,
   "name": "@jscadui/format-babylonjs",
   "version": "0.1.0",
   "description": "babylonjs format",

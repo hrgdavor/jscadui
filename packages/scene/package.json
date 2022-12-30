@@ -1,5 +1,6 @@
 {
   "type":"module",
+  "sideEffects": false,
   "name": "@jscadui/scene",
   "version": "0.1.0",
   "description": "scene utilities like grid and axis",

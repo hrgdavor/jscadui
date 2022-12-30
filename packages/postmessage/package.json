@@ -1,5 +1,6 @@
 {
   "type": "module",
+  "sideEffects": false,
   "name": "@jscadui/postmessage",
   "version": "0.1.0",
   "description": "postMessage utility for worker and main window",

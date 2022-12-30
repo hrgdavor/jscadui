@@ -38,18 +38,11 @@ export function requireModule(url, source) {
     const exports = {}
     if (!source) source = requireFile(url)
     const module = { id: url, uri: url, exports: exports, source } // according to node.js modules
-    //const anonFn = new Function('require', 'exports', 'module', source) // create a Fn with module code, and 3 params: require, exports & module
-    /* damn Function constructor creates function with 2 newlines at the begining before source starts
+    /* const anonFn = new Function('require', 'exports', 'module', source) // create a Fn with module code, and 3 params: require, exports & module
+    damn Function constructor creates function with 2 newlines at the begining before source starts
     the prefix is: `function anonymous(a,b\n) {\n`
-    
     it messes up the line numbers for the initial script log lines and stack traces ( they report +2 line numbers).
-
-    that is why we use eval to do the same trick, but prepended a function that has no newlines
-    also https://esbuild.github.io/content-types/#direct-eval
-    */
-    // self.eval('function anonFn(require, exports, module){' + source + '}')
-    // console.log('source',anonFn.toString())
-    // anonFn(require, exports, module) // call the Fn, Execute the module
+    that is why we use runModule eval to avoid prepending anything */
     runModule(require, exports, module, source)
     return module
   } catch (err) {

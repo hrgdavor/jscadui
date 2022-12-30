@@ -1,4 +1,6 @@
 {
+  "type":"module",
+  "sideEffects": false,
   "name": "@jscadui/render-twgl",
   "version": "0.1.0",
   "description": "JSCAD twgl renderer",

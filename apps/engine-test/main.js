@@ -8,15 +8,12 @@ import * as themes from '@jscadui/themes'
 
 import {
   addPreLoad,
-  addToCache,
+  addPreLoadAll,
   clearFs,
   extractEntries,
-  filePromise,
-  findFileInRoots,
   readDir,
   registerServiceWorker,
 } from '../../packages/fs-provider/fs-provider'
-import style from './main.css'
 import { initTestBabylon } from './src/testBabylon.js'
 import { initTestRegl } from './src/testRegl.js'
 import { initTestThree } from './src/testThree.js'
@@ -258,8 +255,9 @@ async function fileDropped(ev) {
       sw.roots.push(tmp)
       console.log('tmp', tmp)
       let time = Date.now()
-      await addPreLoad(sw, '/index.js')
-      console.log(Date.now()-time, 'preload')
+      const preLoad = ['/index.js', '/package.json']
+      await addPreLoadAll(sw, preLoad, true)
+      console.log(Date.now() - time, 'preload')
       //TODO make proxy for calling commands
       // worker.cmd worker.notify
       sendCmd('runFile', { file: '/swfs/' + sw.id + '/index.js' })

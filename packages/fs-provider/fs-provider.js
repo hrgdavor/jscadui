@@ -17,9 +17,18 @@ export const getFile = async (path, sw) => {
 
 export const addToCache = async (cache, path, content) => cache.put(new Request(path), new Response(content))
 
-export const addPreLoad = async (sw, path) => {
+export const addPreLoadAll = async (sw, paths, ignoreMissing) => {
+  for(let i=0; i<paths.length; i++){
+    await addPreLoad(sw, paths[i], ignoreMissing)
+  }
+}
+
+export const addPreLoad = async (sw, path, ignoreMissing) => {
   const match = await findFileInRoots(sw.roots, path)
-  if (!match) throw new Error('File not found ' + path)
+  if (!match) {
+    if(!ignoreMissing) throw new Error('File not found ' + path)
+    return
+  }
   let f = await filePromise(match.entry)
   addToCache(sw.cache, path, await readAsArrayBuffer(f))
 }

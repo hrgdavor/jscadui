@@ -59,9 +59,17 @@ const initScript = ({ script, url }) => {
 }
 
 const runFolder = ({folder})=>{
-  console.log('runFolder', folder, folder.createReader)
+  console.log('runFolder', folder)
 }
 
-const handlers = { initScript, init, runMain, runFolder}
+const runFile = async ({file})=>{
+  console.log('runFile', file)
+  const r = await fetch(file)
+  console.log('response', r)
+  const text = await r.text()
+  console.log('content', text)
+}
+
+const handlers = { initScript, init, runMain, runFolder, runFile}
 
 const { sendCmd, sendNotify } = initMessaging(self, handlers)

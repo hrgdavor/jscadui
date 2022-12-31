@@ -4,12 +4,13 @@
   "name": "@jscadui/fs-provider",
   "version": "0.1.0",
   "description": "fs-provider utility for worker and main window",
-  "keywords": ["postMessage","serviceworker","rpc","async","promise","worker"],
+  "keywords": ["postMessage","serviceworker","rpc","async","promise","worker","es6","esm"],
   "main": "fs-provider.js",
   "unpkg": "cjs/fs-provider.js",
   "module": "./fs-provider.js",
   "files": [
     "fs-provider.js",
+    "src",
     "esm",
     "cjs"
   ],

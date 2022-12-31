@@ -7,6 +7,7 @@ let prefix = ''
 let initPath = prefix+'init'
 self.addEventListener("activate", (event) => {
   prefix = new URL(location.toString()).searchParams.get('prefix')
+  initPath = prefix+'init'
   event.waitUntil(clients.claim());
   console.log(version+' activate', prefix, 'location:',location, event)
   

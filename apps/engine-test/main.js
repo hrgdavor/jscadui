@@ -1,19 +1,25 @@
-import { booleans, colors, primitives, transforms } from '@jscad/modeling';
-import { JscadToCommon } from '@jscadui/format-jscad';
-import { Gizmo } from '@jscadui/html-gizmo';
-import { OrbitControl, OrbitState, closerAngle, getCommonRotCombined } from '@jscadui/orbit';
-import { initMessaging } from '@jscadui/postmessage';
-import { makeAxes, makeGrid } from '@jscadui/scene';
-import * as themes from '@jscadui/themes';
-import { clearFs, extractEntries, readDir, registerServiceWorker } from '../../packages/fs-provider/fs-provider';
+import { booleans, colors, primitives, transforms } from '@jscad/modeling'
+import { JscadToCommon } from '@jscadui/format-jscad'
+import { Gizmo } from '@jscadui/html-gizmo'
+import { OrbitControl, OrbitState, closerAngle, getCommonRotCombined } from '@jscadui/orbit'
+import { initMessaging } from '@jscadui/postmessage'
+import { makeAxes, makeGrid } from '@jscadui/scene'
+import * as themes from '@jscadui/themes'
 
-
-
-import style from './main.css';
-import { initTestBabylon } from './src/testBabylon.js';
-import { initTestRegl } from './src/testRegl.js';
-import { initTestThree } from './src/testThree.js';
-
+import {
+  addPreLoad,
+  addToCache,
+  clearFs,
+  extractEntries,
+  filePromise,
+  findFileInRoots,
+  readDir,
+  registerServiceWorker,
+} from '../../packages/fs-provider/fs-provider'
+import style from './main.css'
+import { initTestBabylon } from './src/testBabylon.js'
+import { initTestRegl } from './src/testRegl.js'
+import { initTestThree } from './src/testThree.js'
 
 const theme = themes.light
 const { subtract } = booleans
@@ -200,19 +206,19 @@ const handlers = {
   entitties: ({ entities }) => {
     console.log('entities', entities)
   },
-  entities:({entities})=>{
-    if(!(entities instanceof Array)) entities = [entities]
+  entities: ({ entities }) => {
+    if (!(entities instanceof Array)) entities = [entities]
     setScene(entities)
-  }
+  },
 }
 
 const initScript = f => {
   var reader = new FileReader()
   reader.onload = event => {
     let script = event.target.result
-    sendCmd('initScript',{script, url: f.name+'?'+f.lastModified}).then(r=>{
+    sendCmd('initScript', { script, url: f.name + '?' + f.lastModified }).then(r => {
       console.log('params def', r)
-      sendCmd('runMain',{})
+      sendCmd('runMain', {})
     })
   }
   reader.onerror = event => console.log('error', event)
@@ -223,8 +229,7 @@ var worker = new Worker('./build/bundle.worker.js')
 const { sendCmd, sendNotify } = initMessaging(worker, handlers)
 
 let sw
-registerServiceWorker('fs-serviceworker.js?prefix=/swfs/'
-).then(_sw=>{
+registerServiceWorker('fs-serviceworker.js?prefix=/swfs/').then(_sw => {
   sw = _sw
   sendCmd('init', {
     cacheId: sw.id,
@@ -236,32 +241,41 @@ registerServiceWorker('fs-serviceworker.js?prefix=/swfs/'
 async function fileDropped(ev) {
   //this.worker.postMessage({action:'fileDropped', dataTransfer})
   let files = extractEntries(ev.dataTransfer)
-  if(!files.length) return
+  if (!files.length) return
 
   console.log('files', files)
   clearFs(sw)
-  window.files = files
 
-  if(files.length === 1){
-    if(files[0].isDirectory){
+  if (files.length === 1) {
+    if (files[0].isDirectory) {
       let tmp = await readDir(files[0])
+      tmp = tmp.map(entry => ({
+        isDirectory: entry.isDirectory,
+        isFile: entry.isFile,
+        name: entry.name,
+        entry,
+      }))
+      sw.roots.push(tmp)
       console.log('tmp', tmp)
-    }else{
-
+      let time = Date.now()
+      await addPreLoad(sw, '/index.js')
+      console.log(Date.now()-time, 'preload')
+      //TODO make proxy for calling commands
+      // worker.cmd worker.notify
+      sendCmd('runFile', { file: '/swfs/' + sw.id + '/index.js' })
+    } else {
     }
-  }else{
-
+  } else {
   }
 
   // console.log('file', file)
   // if(file?.isDirectory){
   //   console.log('dataTransfer.files', dataTransfer.files)
   //   sendNotify('runFolder',{folder:dataTransfer.files[0]})
-  // } 
+  // }
 
   // if (file && !file.isDirectory) {
   //   fileToWatch = file
   //   checkChange()
   // }
 }
-

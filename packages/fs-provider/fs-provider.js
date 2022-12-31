@@ -1,7 +1,27 @@
 import { initMessaging } from '@jscadui/postmessage'
 
+import { filePromise, readDir } from './src/FileEntry.js'
+import { readAsArrayBuffer } from './src/FileReader.js'
+
+export * from './src/FileReader.js'
+export * from './src/FileEntry.js'
+
 export const getFile = async (path, sw) => {
-  return path + '-response'
+  let arr = path.split('/').filter(p => p)
+  let match = await findFileInRoots(sw.roots, arr)
+  if (!match) return
+  let f = await filePromise(match.entry)
+  window._f = f
+  return readAsArrayBuffer(f)
+}
+
+export const addToCache = async (cache, path, content) => cache.put(new Request(path), new Response(content))
+
+export const addPreLoad = async (sw, path) => {
+  const match = await findFileInRoots(sw.roots, path)
+  if (!match) throw new Error('File not found ' + path)
+  let f = await filePromise(match.entry)
+  addToCache(sw.cache, path, await readAsArrayBuffer(f))
 }
 
 export const registerServiceWorker = async (workerScript, _getFile = getFile, { prefix = '/swfs/' } = {}) => {
@@ -19,7 +39,7 @@ export const registerServiceWorker = async (workerScript, _getFile = getFile, { 
     }
     const sw = initMessaging(navigator.serviceWorker, {
       getFile: async ({ path }) => {
-        await sw.cache.put(new Request(path), new Response(await _getFile(path, sw)))
+        await addToCache(sw.cache, path, await _getFile(path, sw))
         return 'ok'
       },
     })
@@ -69,24 +89,30 @@ export const extractEntries = dt => {
   return files
 }
 
-// https://stackoverflow.com/questions/3590058/does-html5-allow-drag-drop-upload-of-folders-or-a-folder-tree/53058574#53058574
-export const readDir = async dir => {
-  const directoryReader = dir.createReader()
-  let entries = [];
-  let readEntries = await readEntriesPromise(directoryReader);
-  while (readEntries.length > 0) {
-    entries.push(...readEntries);
-    readEntries = await readEntriesPromise(directoryReader);
+export const findFileInRoots = async (roots, path) => {
+  if (typeof path === 'string') path = path.split('/').filter(p=>p)
+  let out
+  for (let i = 0; i < roots.length; i++) {
+    out = await findFile(roots[i], path, 0)
+    if (out) break
   }
-  return entries;
+  return out
 }
 
-async function readEntriesPromise(directoryReader) {
-  try {
-    return await new Promise((resolve, reject) => {
-      directoryReader.readEntries(resolve, reject);
-    });
-  } catch (err) {
-    console.log(err);
+export const findFile = async (arr, path, i) => {
+  let name = path[i]
+  let match = arr.find(f => f.name === name)
+  if (match) {
+    if (i >= path.length - 1) {
+      return match
+    }
+    return findFile(loadDir(match), path, i + 1)
   }
+}
+
+export const loadDir = async dir => {
+  if (dir.isDirectory && dir.entry && !dir.children) {
+    dir.children = await readDir(dir.entry)
+  }
+  return dir.children || []
 }

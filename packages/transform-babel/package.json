@@ -1,0 +1,32 @@
+{
+  "type":"module",
+  "name": "@jscadui/transform-babel",
+  "version": "0.1.0",
+  "description": "transform-babel for executing jscad scripts",
+  "main": "transform-babel.js",
+  "unpkg": "cjs/transform-babel.js",
+  "module": "./transform-babel.js",
+  "files": [
+    "transform-babel.js",
+    "src",
+    "esm",
+    "cjs"
+  ],
+  "scripts": {
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "build": "esbuild transform-babel.js --outdir=esm --bundle --sourcemap --minify --loader:.js=jsx --format=esm",
+    "build-cjs": "esbuild transform-babel.js --outdir=cjs --bundle --sourcemap --minify --loader:.js=jsx --format=cjs",
+    "prepublishOnly": "npm run build && npm run build-cjs"
+  },
+  "dependencies": {
+    "@babel/standalone": "7.20.11"
+  },
+  "devDependencies": {
+    "esbuild": "^0.16.7",
+    "@types/node": "18.11.9",
+    "@trivago/prettier-plugin-sort-imports": "~3.3.0",
+    "vitest": "0.24.5"
+  },
+  "license": "MIT"
+}

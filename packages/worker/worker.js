@@ -4,12 +4,13 @@ import { require, requireModule, relativeRequire } from '@jscadui/require'
 
 import { combineParameterDefinitions, getParameterDefinitionsFromSource } from './getParameterDefinitionsFromSource.js'
 
-let initialized
 let main
 self.JSCAD_WORKER_ENV = {}
 let requireForScript = require
+let transformFunc = x=>x
+let client
 
-const init = params => {
+export const init = params => {
   let { baseURI, alias = [] } = params
   if (!baseURI && typeof document !== 'undefined' && document.baseURI) {
     baseURI = document.baseURI
@@ -26,10 +27,9 @@ const init = params => {
       }
     })
   })
-  initialized = true
 }
 
-function runMain({ params } = {}) {
+export function runMain({ params } = {}) {
   const transferable = []
 
   let time = Date.now()
@@ -40,17 +40,13 @@ function runMain({ params } = {}) {
   JscadToCommon.clearCache()
   const entities = JscadToCommon(solids, transferable, false)
 
-  sendNotify('entities', { entities, solidsTime, entitiesTime: Date.now() - time }, transferable)
+  client.sendNotify('entities', { entities, solidsTime, entitiesTime: Date.now() - time }, transferable)
 }
 
-const initScript = ({ script, url }) => {
-  if (!initialized) {
-    console.error('worker not initialized')
-    return
-  }
+export const initScript = ({ script, url }) => {
 
   const scriptModule = requireModule(url, script, requireForScript)
-
+  
   main = scriptModule.exports.main
 
   const fromSource = getParameterDefinitionsFromSource(script)
@@ -58,11 +54,7 @@ const initScript = ({ script, url }) => {
   return { def }
 }
 
-const runFolder = ({folder})=>{
-  console.log('runFolder', folder)
-}
-
-const runFile = async ({file})=>{
+export const runFile = async ({file})=>{
   console.log('runFile', file)
   const r = await fetch(file)
   console.log('response', r)
@@ -70,6 +62,10 @@ const runFile = async ({file})=>{
   console.log('content', text)
 }
 
-const handlers = { initScript, init, runMain, runFolder, runFile}
+const handlers = { initScript, init, runMain, runFile}
 
-const { sendCmd, sendNotify } = initMessaging(self, handlers)
+export const initWorker = (transform)=>{
+  if(transform) transformFunc = transform
+
+  client = initMessaging(self, handlers)
+}

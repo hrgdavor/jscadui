@@ -31,6 +31,7 @@
     "@jscadui/render-threejs": "*",
     "@jscadui/scene": "*",
     "@jscadui/themes": "*",
+    "@jscadui/transform-babel": "*",
     "@jscadui/worker": "*",
     "babylonjs": "^5.38.0",
     "gl-matrix": "^3.4.0",

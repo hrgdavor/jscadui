@@ -1,5 +1,6 @@
 {
   "type":"module",
+  "sideEffects": false,
   "name": "@jscadui/worker",
   "version": "0.1.0",
   "description": "worker for executing jscad scripts",

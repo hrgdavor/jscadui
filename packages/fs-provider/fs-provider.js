@@ -18,9 +18,13 @@ export const getFile = async (path, sw) => {
 export const addToCache = async (cache, path, content) => cache.put(new Request(path), new Response(content))
 
 export const addPreLoadAll = async (sw, paths, ignoreMissing) => {
+  const out = []
   for(let i=0; i<paths.length; i++){
-    await addPreLoad(sw, paths[i], ignoreMissing)
+    if(await addPreLoad(sw, paths[i], ignoreMissing)){
+      out.push(paths[i])
+    }
   }
+  return out
 }
 
 export const addPreLoad = async (sw, path, ignoreMissing) => {
@@ -30,7 +34,8 @@ export const addPreLoad = async (sw, path, ignoreMissing) => {
     return
   }
   let f = await filePromise(match.entry)
-  addToCache(sw.cache, path, await readAsArrayBuffer(f))
+  await addToCache(sw.cache, path, await readAsArrayBuffer(f))
+  return true
 }
 
 export const registerServiceWorker = async (workerScript, _getFile = getFile, { prefix = '/swfs/' } = {}) => {

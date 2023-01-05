@@ -4,11 +4,6 @@ export const readDir = async dir => {
   if (!dir.createReader) return []
   const directoryReader = dir.createReader()
   let entries = []
-  directoryReader.readEntries(x=>{console.log(x)})
-  setTimeout(() => {
-    directoryReader.readEntries(x=>{console.log(x)})
-  }, 1);
-  return []
   let readEntries = await readEntriesPromise(directoryReader)
   while (readEntries.length > 0) {
     entries.push(...readEntries)

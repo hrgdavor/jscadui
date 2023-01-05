@@ -242,6 +242,7 @@ async function fileDropped(ev) {
 
   console.log('files', files)
   clearFs(sw)
+  sendCmd('clearTempCache',{})
 
   if (files.length === 1) {
     if (files[0].isDirectory) {
@@ -256,12 +257,13 @@ async function fileDropped(ev) {
       console.log('tmp', tmp)
       let time = Date.now()
       const preLoad = ['/index.js', '/package.json']
-      await addPreLoadAll(sw, preLoad, true)
-      console.log(Date.now() - time, 'preload')
+      const loaded = await addPreLoadAll(sw, preLoad, true)
+      console.log(Date.now() - time, 'preload', loaded)
       //TODO make proxy for calling commands
       // worker.cmd worker.notify
       sendCmd('runFile', { file: '/swfs/' + sw.id + '/index.js' })
     } else {
+
     }
   } else {
   }

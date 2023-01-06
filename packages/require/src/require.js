@@ -32,8 +32,12 @@ export function require(url, transform, _readFile, _base, readModule, moduleBase
   // console.log({url, transform, _readFile, _base, readModule, moduleBase})
   let readFile = _readFile
   let base = _base
+  let bundleAlias = requireCache.bundleAlias[url]
+  console.log('bundleAlias', bundleAlias, url)
   url = requireCache.alias[url] || url
-  if (!/^(http:|https:|fs:|file:)/.test(url)) {
+  if(bundleAlias){
+    url = bundleAlias
+  }else if (!/^(http:|https:|fs:|file:)/.test(url)) {
     if (!/(\.\/|\..\/|\/)/.test(url)) {
       console.log('read as module', url, ' moduleBase:', moduleBase)
       base = moduleBase
@@ -64,10 +68,12 @@ export function require(url, transform, _readFile, _base, readModule, moduleBase
         }
       }
     }
-    if (transform) source = transform(source, url).code
+    // do not transform bundles that are already cjs, and provided as bundles with path to load
+    if (transform && !bundleAlias) source = transform(source, url).code
     //console.log('source', source)
     let requireFunc = newUrl => require(newUrl, transform, readFile, url, readModule, moduleBase)
     const module = requireModule(url, source, requireFunc)
+    console.log('module', url, module)
     requireCache.local[url] = exports = module.exports // cache obj exported by module
   }
   return exports // require returns object exported by module
@@ -97,4 +103,5 @@ export const requireCache = {
   local: {},
   module: {},
   alias: {},
+  bundleAlias: {},
 }

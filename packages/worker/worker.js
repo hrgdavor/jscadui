@@ -1,6 +1,6 @@
 import { JscadToCommon } from '@jscadui/format-jscad'
 import { initMessaging } from '@jscadui/postmessage'
-import { require, clearTempCache } from '@jscadui/require'
+import { require, requireCache, clearTempCache, readFileWeb } from '@jscadui/require'
 
 import { combineParameterDefinitions, getParameterDefinitionsFromSource } from './getParameterDefinitionsFromSource.js'
 
@@ -8,21 +8,25 @@ let main
 self.JSCAD_WORKER_ENV = {}
 let transformFunc = x=>x
 let client
+let base
 
 export const init = params => {
-  let { baseURI, alias = [] } = params
+  let { baseURI, alias = [], bundles = {} } = params
   if (!baseURI && typeof document !== 'undefined' && document.baseURI) {
     baseURI = document.baseURI
   }else{
     baseURI = location.origin
   }
+  base = baseURI
 
+  Object.assign(requireCache.bundleAlias, bundles)
+  console.log('bundles', bundles, requireCache.bundleAlias)
   alias.forEach(arr => {
     const [orig, ...aliases] = arr
     aliases.forEach(a => {
-      require.alias[a] = orig
+      requireCache.alias[a] = orig
       if (a.toLowerCase().substr(-3) !== '.js') {
-        require.alias[a + '.js'] = orig
+        requireCache.alias[a + '.js'] = orig
       }
     })
   })
@@ -54,14 +58,17 @@ export const initScript = ({ script, url }) => {
 }
 
 export const runFile = async ({file})=>{
-  console.log('runFile', file)
+  console.log('runFile', file, base, requireCache.alias)
   const r = await fetch(file)
   // console.log('response', r)
   const text = await r.text()
   // console.log('content', text)
   // console.log('alias', require.alias)
-  const script = transformFunc(text, file).code
-  initScript({script, url:file})
+  // const script = transformFunc(text, file).code
+  // initScript({script, url:file})
+  
+  const script = require(file, transformFunc, readFileWeb, base)
+  main = script.main
   runMain({})
 }
 

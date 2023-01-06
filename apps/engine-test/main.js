@@ -226,11 +226,14 @@ var worker = new Worker('./build/bundle.worker.js')
 const { sendCmd, sendNotify } = initMessaging(worker, handlers)
 
 let sw
+const toUrl = path=>new URL(path,document.baseURI).toString()
 registerServiceWorker('fs-serviceworker.js?prefix=/swfs/').then(_sw => {
   sw = _sw
   sendCmd('init', {
     cacheId: sw.id,
-    alias: [['@jscad/modeling', './build/bundle.jscad_modeling.js']],
+    bundles: {
+      '@jscad/modeling':toUrl('./build/bundle.jscad_modeling.js')
+    },
     baseURI: document.baseURI,
   })
 })

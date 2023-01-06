@@ -1,12 +1,11 @@
 import { JscadToCommon } from '@jscadui/format-jscad'
 import { initMessaging } from '@jscadui/postmessage'
-import { require, requireModule, relativeRequire, clearTempCache } from '@jscadui/require'
+import { require, clearTempCache } from '@jscadui/require'
 
 import { combineParameterDefinitions, getParameterDefinitionsFromSource } from './getParameterDefinitionsFromSource.js'
 
 let main
 self.JSCAD_WORKER_ENV = {}
-let requireForScript = require
 let transformFunc = x=>x
 let client
 
@@ -17,8 +16,6 @@ export const init = params => {
   }else{
     baseURI = location.origin
   }
-
-  if (baseURI) requireForScript = relativeRequire(baseURI)
 
   alias.forEach(arr => {
     const [orig, ...aliases] = arr
@@ -57,7 +54,7 @@ export const initScript = ({ script, url }) => {
 }
 
 export const runFile = async ({file})=>{
-  // console.log('runFile', file)
+  console.log('runFile', file)
   const r = await fetch(file)
   // console.log('response', r)
   const text = await r.text()

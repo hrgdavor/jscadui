@@ -2,16 +2,13 @@ import { availablePlugins, transform } from '@babel/standalone'
 
 import { preventInfiniteLoops } from './src/preventInfiniteLoops'
 
-import * as pluginTransformTypescript from '@babel/plugin-transform-typescript'
-
 availablePlugins['preventInfiniteLoops'] = preventInfiniteLoops
-availablePlugins['@babel/plugin-transform-typescript'] = pluginTransformTypescript
 
 export const transformDefaults = {
   retainLines: true,
   // plugins: ['syntax-object-rest-spread', 'preventInfiniteLoops'],
   plugins: ['syntax-object-rest-spread'],
-  presets: [],
+  presets: ["typescript"],
 }
 
 function combineAppend(options = {}, append = {}) {
@@ -25,17 +22,18 @@ function combineAppend(options = {}, append = {}) {
   }
 }
 
-function _transform(code, options = {}, append = {}) {
+function _transform(code, filename, options = {}, append = {}) {
   const op = {
     ...transformDefaults,
     ...options,
+    filename
   }
   combineAppend(op, append)
   return transform(code, op)
 }
 
-export const transformcjs = (code, options = {}, append = {}) => {
+export const transformcjs = (code, filename, options = {}, append = {}) => {
   options = { sourceMaps: 'inline', ...options }
-  combineAppend(append, { plugins: ['transform-modules-commonjs', '@babel/plugin-transform-typescript'] })
-  return _transform(code, options, append)
+  combineAppend(append, { plugins: ['transform-modules-commonjs'] })
+  return _transform(code, filename, options, append)
 }

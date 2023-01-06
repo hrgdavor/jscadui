@@ -23,7 +23,6 @@
     "@babel/standalone": "7.20.11"
   },
   "devDependencies": {
-    "@babel/plugin-transform-typescript": "^7.20.7",
     "@trivago/prettier-plugin-sort-imports": "~3.3.0",
     "@types/node": "18.11.9",
     "esbuild": "^0.16.7",

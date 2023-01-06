@@ -56,14 +56,15 @@ export function require(url, transform, _readFile, _base, readModule, moduleBase
     } catch (e) {
       if (url.endsWith('.js')) {
         try {
-          source = readFile(url.substring(0, url.length - 2) + 'ts', { base })
+          url = url.substring(0, url.length - 2) + 'ts'
+          source = readFile(url, { base })
         } catch (e2) {
           console.error('failed to load fallback .ts')
           throw e
         }
       }
     }
-    if (transform) source = transform(source).code
+    if (transform) source = transform(source, url).code
     //console.log('source', source)
     let requireFunc = newUrl => require(newUrl, transform, readFile, url, readModule, moduleBase)
     const module = requireModule(url, source, requireFunc)

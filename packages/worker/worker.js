@@ -60,7 +60,7 @@ export const runFile = async ({file})=>{
   const text = await r.text()
   // console.log('content', text)
   // console.log('alias', require.alias)
-  const script = transformFunc(text).code
+  const script = transformFunc(text, file).code
   initScript({script, url:file})
   runMain({})
 }

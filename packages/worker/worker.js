@@ -66,7 +66,14 @@ export const runFile = async ({ file }) => {
   return {def}
 }
 
-const exportData = async ({ format }) => {
+// TODO remove, or move to another package, along with exportStlText
+// this is interesting in regards to exporting to stl, and 3mf which actually need vertex data, 
+// and not jcad geometry polygons. So it will be interesting to see if main can give back transferable buffers
+// instead of re-running conversion. or move export to main thread where the data already is, as it is needed for rendering
+const exportData = async (params) => {
+  if(self.exportData) return self.exportData(params, solids, entities)
+
+  const { format } = params
   // todo check if it is ok to give back transferables after webgl has used the buffers
   // then we would not need to clone the data
   // other option is to clone data before sending transferable
@@ -74,14 +81,17 @@ const exportData = async ({ format }) => {
   if (solids.length && !entities.length) entities = JscadToCommon(solids, [], false)
 
   const arr = exportStlText(entities)
-  data = await new Blob(arr).arrayBuffer()
-  return withTransferable({ data }, [data])
+  data = [await new Blob(arr).arrayBuffer()]
+  return withTransferable({ data }, data)
 }
+
+export const currentSolids = ()=>solids
 
 const handlers = { initScript, init, runMain, runFile, clearTempCache, clearFileCache, exportData }
 
-export const initWorker = transform => {
+export const initWorker = (transform, exportData) => {
   if (transform) transformFunc = transform
+  if(exportData) handlers.exportData = exportData
 
   client = initMessaging(self, handlers)
 }

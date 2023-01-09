@@ -35,6 +35,7 @@
     "@jscadui/worker": "*",
     "babylonjs": "^5.38.0",
     "gl-matrix": "^3.4.0",
+    "@jscad/io":"2.4.4",
     "three": "^0.147.0"
   },
   "devDependencies": {

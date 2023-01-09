@@ -1,27 +1,22 @@
 import { JscadToCommon } from '@jscadui/format-jscad'
-import { initMessaging } from '@jscadui/postmessage'
-import { require, requireCache, clearTempCache, readFileWeb } from '@jscadui/require'
+import { initMessaging, withTransferable } from '@jscadui/postmessage'
+import { clearFileCache, clearTempCache, readFileWeb, require, requireCache, resolveUrl } from '@jscadui/require'
 
+import { exportStlText } from './exportStlText.js'
 import { combineParameterDefinitions, getParameterDefinitionsFromSource } from './getParameterDefinitionsFromSource.js'
 
 let main
 self.JSCAD_WORKER_ENV = {}
-let transformFunc = x=>x
+let transformFunc = x => x
 let client
-let base
+let base = location.origin
 
 export const init = params => {
   let { baseURI, alias = [], bundles = {} } = params
-  if (!baseURI && typeof document !== 'undefined' && document.baseURI) {
-    baseURI = document.baseURI
-  }else{
-    baseURI = location.origin
-  }
-  base = baseURI
+  if (baseURI) base = baseURI
 
-  Object.assign(requireCache.bundleAlias, bundles)
-  console.log('bundles', bundles, requireCache.bundleAlias)
-  alias.forEach(arr => {
+  if (bundles) Object.assign(requireCache.bundleAlias, bundles)
+  alias?.forEach(arr => {
     const [orig, ...aliases] = arr
     aliases.forEach(a => {
       requireCache.alias[a] = orig
@@ -31,25 +26,26 @@ export const init = params => {
     })
   })
 }
-
+let entities = [],
+  solids = []
 export function runMain({ params } = {}) {
   const transferable = []
 
   let time = Date.now()
-  const solids = main(params || {})
+  solids = main(params || {})
+  if (!(solids instanceof Array)) solids = [solids]
   const solidsTime = Date.now() - time
 
   time = Date.now()
   JscadToCommon.clearCache()
-  const entities = JscadToCommon(solids, transferable, false)
-
+  entities = JscadToCommon(solids, transferable, false)
   client.sendNotify('entities', { entities, solidsTime, entitiesTime: Date.now() - time }, transferable)
+  entities = [] // we lose access to bytearray data, it is transfered, and on our side it shows length=0
 }
 
 export const initScript = ({ script, url }) => {
-
   const scriptModule = requireModule(url, script, requireForScript)
-  
+
   main = scriptModule.exports.main
 
   const fromSource = getParameterDefinitionsFromSource(script)
@@ -57,25 +53,35 @@ export const initScript = ({ script, url }) => {
   return { def }
 }
 
-export const runFile = async ({file})=>{
+export const runFile = async ({ file }) => {
   console.log('runFile', file, base, requireCache.alias)
-  const r = await fetch(file)
-  // console.log('response', r)
-  const text = await r.text()
-  // console.log('content', text)
-  // console.log('alias', require.alias)
-  // const script = transformFunc(text, file).code
-  // initScript({script, url:file})
-  
-  const script = require(file, transformFunc, readFileWeb, base)
-  main = script.main
+  const script = readFileWeb(resolveUrl(file,base).url,{base})
+  const scriptModule = require(file, transformFunc, readFileWeb, base, readFileWeb)
+
+  const fromSource = getParameterDefinitionsFromSource(script)
+  const def = combineParameterDefinitions(fromSource, scriptModule.getParameterDefinitions)
+
+  main = scriptModule.main
   runMain({})
+  return {def}
 }
 
-const handlers = { initScript, init, runMain, runFile, clearTempCache}
+const exportData = async ({ format }) => {
+  // todo check if it is ok to give back transferables after webgl has used the buffers
+  // then we would not need to clone the data
+  // other option is to clone data before sending transferable
+  JscadToCommon.clearCache()
+  if (solids.length && !entities.length) entities = JscadToCommon(solids, [], false)
 
-export const initWorker = (transform)=>{
-  if(transform) transformFunc = transform
+  const arr = exportStlText(entities)
+  data = await new Blob(arr).arrayBuffer()
+  return withTransferable({ data }, [data])
+}
+
+const handlers = { initScript, init, runMain, runFile, clearTempCache, clearFileCache, exportData }
+
+export const initWorker = transform => {
+  if (transform) transformFunc = transform
 
   client = initMessaging(self, handlers)
 }

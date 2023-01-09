@@ -20,6 +20,8 @@ export const runModule = (typeof self === 'undefined' ? eval : self.eval)(
   '(require, exports, module, source)=>eval(source)',
 )
 
+const MODULE_BASE = 'https://cdn.jsdelivr.net/npm/'
+
 export const selfish = (func, context) => {
   const out = func.bind({ context })
   out.bind = newContext => selfish(func, newContext)
@@ -28,30 +30,44 @@ export const selfish = (func, context) => {
   return out
 }
 
-export function require(url, transform, _readFile, _base, readModule, moduleBase = 'https://cdn.jsdelivr.net/npm/') {
-  // console.log({url, transform, _readFile, _base, readModule, moduleBase})
-  let readFile = _readFile
-  let base = _base
-  let bundleAlias = requireCache.bundleAlias[url]
-  console.log('bundleAlias', bundleAlias, url)
-  url = requireCache.alias[url] || url
-  if(bundleAlias){
-    url = bundleAlias
-  }else if (!/^(http:|https:|fs:|file:)/.test(url)) {
+export const resolveUrl = (url,base, moduleBase=MODULE_BASE)=>{
+  let isRealtiveFile = false
+  let isModule = false
+
+  if (!/^(http:|https:|fs:|file:)/.test(url)) {
     if (!/(\.\/|\..\/|\/)/.test(url)) {
-      console.log('read as module', url, ' moduleBase:', moduleBase)
-      base = moduleBase
-      readFile = readModule
+      isModule = true
+      url = new URL(url, moduleBase).toString()
     } else {
-      console.log('read as file', url, ' base:', base)
-      console.log('read as file', new URL(url, base).toString())
+      isRealtiveFile = true
+      // sanitize to avoid going below root, it will prevent / to go below cache baseUrl
+      // it will prevent ../../../../ to go below cache baseUrl
+      url = new URL(url, 'fs:/').toString().substring(4)
+      // now create the full url to load the file
       url = new URL(url, base).toString()
     }
-  } else {
-    console.log('read as url', url)
   }
 
-  let exports = requireCache.local[url] // get from cache
+  return {url,isRealtiveFile,isModule}
+}
+
+export function require(_url, transform, _readFile, _base, readModule, moduleBase = MODULE_BASE) {
+  let readFile = _readFile
+  let base = _base
+
+  let bundleAlias = requireCache.bundleAlias[_url]
+  _url = requireCache.alias[_url] || _url
+  let cacheUrl = _url
+  
+  if(bundleAlias) _url = bundleAlias
+
+  let {url,isRealtiveFile,isModule} = resolveUrl(_url,base,moduleBase)
+
+  if(isModule) readFile = readModule
+  base = url
+
+  const cache = requireCache[isRealtiveFile ? 'local':'module']
+  let exports = cache[cacheUrl] // get from cache
   if (!exports) {
     // not cached
     let source
@@ -66,16 +82,22 @@ export function require(url, transform, _readFile, _base, readModule, moduleBase
           console.error('failed to load fallback .ts')
           throw e
         }
+      }else{
+        throw e
       }
     }
-    // do not transform bundles that are already cjs, and provided as bundles with path to load
+    // do not transform bundles that are already cjs ( requireCache.bundleAlias.*)
     if (transform && !bundleAlias) source = transform(source, url).code
-    //console.log('source', source)
     let requireFunc = newUrl => require(newUrl, transform, readFile, url, readModule, moduleBase)
     const module = requireModule(url, source, requireFunc)
-    console.log('module', url, module)
-    requireCache.local[url] = exports = module.exports // cache obj exported by module
+    module.local = isRealtiveFile
+    cache[cacheUrl] = exports = module.exports // cache obj exported by module
+    // TODO research maybe in the future, why going through babel adds __esModule=true
+    // this extra reference via defaults helps
+    // exports.__esModule = false // this did not help
+    exports.default = {...exports}
   }
+
   return exports // require returns object exported by module
 }
 
@@ -83,8 +105,7 @@ export function requireModule(url, source, _require) {
   try {
     const exports = {}
     const module = { id: url, uri: url, exports: exports, source } // according to node.js modules
-    module.require = _require
-    //console.log('run script', source)
+    //module.require = _require
     runModule(_require, exports, module, source)
     return module
   } catch (err) {
@@ -93,15 +114,22 @@ export function requireModule(url, source, _require) {
   }
 }
 
+export const clearFileCache = async ({files}) => {
+  const cache = requireCache.local
+  files.forEach(f=>{
+    console.log('clear', f, cache[f])
+    delete cache[f]
+  })
+}
+
 export const clearTempCache = async ({}) => {
   requireCache.local = {}
-  requireCache.module = {}
-  //  require.alias = {}
+  requireCache.alias = {}
 }
 
 export const requireCache = {
   local: {},
-  module: {},
   alias: {},
+  module: {},
   bundleAlias: {},
 }

@@ -22,3 +22,10 @@ new URL('./index.js','fs:/bb/aaa/ccc/bla.js')
 new URL('../index.js','fs:/bb/aaa/ccc/bla.js')
 // .pathname: /bb/aaa/index.js
 ```
+
+Another also useful behaviour is that if url is not relative, secont param is ignored
+
+```js
+new URL('http://google.com','fs:/bb/aaa/ccc/bla.js')
+// http://google.com 
+```

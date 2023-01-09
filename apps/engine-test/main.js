@@ -9,8 +9,16 @@ import * as themes from '@jscadui/themes'
 import {
   addPreLoad,
   addPreLoadAll,
+  addToCache,
   clearFs,
+  entryCheckPromise,
   extractEntries,
+  filePromise,
+  fileToFsEntry,
+  findFileInRoots,
+  getFile,
+  readAsArrayBuffer,
+  readAsText,
   readDir,
   registerServiceWorker,
 } from '../../packages/fs-provider/fs-provider'
@@ -209,6 +217,23 @@ const handlers = {
   },
 }
 
+const link = document.createElement( 'a' );
+link.style.display = 'none';
+document.body.appendChild( link );
+function save(blob, filename) {
+  link.href = URL.createObjectURL(blob)
+  link.download = filename
+  link.click()
+}
+
+function exportModel(format) {
+  sendCmd('exportData', { format }).then(({ data }) => {
+    console.log('save', fileToRun+'.stl', data)
+    save(new Blob([data], { type: 'text/plain' }), fileToRun+'.stl')
+  })
+}
+window.exportModel = exportModel
+
 const initScript = f => {
   var reader = new FileReader()
   reader.onload = event => {
@@ -226,49 +251,137 @@ var worker = new Worker('./build/bundle.worker.js')
 const { sendCmd, sendNotify } = initMessaging(worker, handlers)
 
 let sw
-const toUrl = path=>new URL(path,document.baseURI).toString()
-registerServiceWorker('fs-serviceworker.js?prefix=/swfs/').then(_sw => {
+const toUrl = path => new URL(path, document.baseURI).toString()
+registerServiceWorker('fs-serviceworker.js?prefix=/swfs/', async (path, sw) => {
+  let arr = path.split('/').filter(p => p)
+  let match = await findFileInRoots(sw.roots, arr)
+  if (match) {
+    fileIsRequested(path, match)
+    return readAsArrayBuffer(await filePromise(match))
+  }
+}).then(_sw => {
   sw = _sw
   sendCmd('init', {
-    cacheId: sw.id,
     bundles: {
-      '@jscad/modeling':toUrl('./build/bundle.jscad_modeling.js')
+      '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
     },
-    baseURI: document.baseURI,
+    baseURI: new URL(`/swfs/${sw.id}/`, document.baseURI).toString(),
   })
 })
+
+const findByFsPath = (arr, file) => {
+  const path = typeof file === 'string' ? file : file.fsPath
+  return arr.find(f => f.fsPath === path)
+}
+
+const fileIsRequested = (path, file) => {
+  let match
+  if ((match = findByFsPath(checkPrimary, file))) return
+  if ((match = findByFsPath(checkSecondary, file))) return
+  checkSecondary.push(file)
+}
+
+let checkPrimary = (window.checkPrimary = [])
+let checkSecondary = (window.checkSecondary = [])
+let fileToRun
+let lastCheck = Date.now()
+
+const checkFiles = () => {
+  const now = Date.now()
+  // console.log('check', now - lastCheck > 1000, checkPrimary.length + checkSecondary.length)
+  if (now - lastCheck > 300 && checkPrimary.length + checkSecondary.length != 0) {
+    lastCheck = now
+    let todo = checkPrimary.concat(checkSecondary).map(entryCheckPromise)
+    Promise.all(todo).then(result => {
+      // console.log('result', result)
+      result = result.filter(([entry, file]) => entry.lastModified != entry._lastModified)
+      if (result.length) {
+        const todo = []
+        const files = result.map(([entry, file]) => {
+          todo.push(addToCache(sw.cache, entry.fsPath, file))
+          return entry.fsPath
+        })
+        sendNotify('clearFileCache', { files })
+        Promise.all(todo).then(result => {
+          if (fileToRun) runFile(fileToRun)
+        })
+        console.log(
+          'result',
+          result.map(([entry, file]) => entry.fsPath + '/' + entry.lastModified),
+        )
+      }
+    })
+
+    // TODO clear sw cache
+    // TODO sendCmd clearFileCache {files}
+  }
+  requestAnimationFrame(checkFiles)
+}
+
+const runFile = file=>{
+  sendCmd('runFile', { file }).then(result=>{
+    console.log('result', result)
+  })
+}
+
+checkFiles()
 
 async function fileDropped(ev) {
   //this.worker.postMessage({action:'fileDropped', dataTransfer})
   let files = extractEntries(ev.dataTransfer)
   if (!files.length) return
 
-  console.log('files', files)
+  checkPrimary.length = 0
+  checkSecondary.length = 0
+  fileToRun = 'index.js'
   clearFs(sw)
-  sendCmd('clearTempCache',{})
+  sendCmd('clearTempCache', {})
 
+  let rootFiles = []
   if (files.length === 1) {
-    if (files[0].isDirectory) {
-      let tmp = await readDir(files[0])
-      tmp = tmp.map(entry => ({
-        isDirectory: entry.isDirectory,
-        isFile: entry.isFile,
-        name: entry.name,
-        entry,
-      }))
-      sw.roots.push(tmp)
-      console.log('tmp', tmp)
-      let time = Date.now()
-      const preLoad = ['/index.js', '/package.json']
-      const loaded = await addPreLoadAll(sw, preLoad, true)
-      console.log(Date.now() - time, 'preload', loaded)
-      //TODO make proxy for calling commands
-      // worker.cmd worker.notify
-      sendCmd('runFile', { file: '/swfs/' + sw.id + '/index.js' })
+    const file = files[0]
+    if (file.isDirectory) {
+      file.fsDir = '/'
+      rootFiles = await readDir(file)
     } else {
-
+      rootFiles.push(file)
+      fileToRun = file.name
     }
   } else {
+    rootFiles = Array.from(files)
+  }
+  rootFiles = rootFiles.map(e => fileToFsEntry(e, '/'))
+  sw.roots.push(rootFiles)
+  let time = Date.now()
+  const preLoad = ['/index.js', '/package.json']
+  const loaded = await addPreLoadAll(sw, preLoad, true)
+  console.log(Date.now() - time, 'preload', loaded)
+  //TODO make proxy for calling commands
+  // worker.cmd worker.notify
+
+  let pkgFile = await findFileInRoots(sw.roots, 'package.json')
+  if (pkgFile) {
+    let pack = JSON.parse(await readAsText(pkgFile))
+    const alias = []
+    if (pack.workspaces)
+      for (let i = 0; i < pack.workspaces.length; i++) {
+        const w = pack.workspaces[i]
+        // debugger
+        let pack2 = await findFileInRoots(sw.roots, `/${w}/package.json`)
+        if (pack2) pack2 = JSON.parse(await readAsText(pack2))
+        let name = pack2?.name || w
+        let main = pack2?.main || 'index.js'
+        alias.push([`/${w}/${main}`, name])
+      }
+    if (alias.length) {
+      sendNotify('init', { alias })
+    }
+  }
+
+  if (fileToRun) {
+    fileToRun = `/${fileToRun}`
+    runFile(fileToRun)
+    checkPrimary.push(await findFileInRoots(sw.roots, fileToRun))
   }
 
   // console.log('file', file)

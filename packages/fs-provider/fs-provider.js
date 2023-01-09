@@ -6,23 +6,21 @@ import { readAsArrayBuffer } from './src/FileReader.js'
 export * from './src/FileReader.js'
 export * from './src/FileEntry.js'
 
+export const splitPath = path => (typeof path === 'string' ? path.split('/').filter(p => p && p !== '.') : path)
+
 export const getFile = async (path, sw) => {
-  let arr = path.split('/').filter(p => p)
+  let arr = splitPath(path)
   let match = await findFileInRoots(sw.roots, arr)
-  if (!match) return
-  let f = await filePromise(match.entry)
-  window._f = f
-  return readAsArrayBuffer(f)
+  if (match) return readAsArrayBuffer(await filePromise(match))
 }
 
 export const addToCache = async (cache, path, content) => cache.put(new Request(path), new Response(content))
 
 export const addPreLoadAll = async (sw, paths, ignoreMissing) => {
   const out = []
-  for(let i=0; i<paths.length; i++){
-    if(await addPreLoad(sw, paths[i], ignoreMissing)){
-      out.push(paths[i])
-    }
+  for (let i = 0; i < paths.length; i++) {
+    const match = await addPreLoad(sw, paths[i], ignoreMissing)
+    out.push([paths[i], match])
   }
   return out
 }
@@ -30,12 +28,12 @@ export const addPreLoadAll = async (sw, paths, ignoreMissing) => {
 export const addPreLoad = async (sw, path, ignoreMissing) => {
   const match = await findFileInRoots(sw.roots, path)
   if (!match) {
-    if(!ignoreMissing) throw new Error('File not found ' + path)
+    if (!ignoreMissing) throw new Error('File not found ' + path)
     return
   }
-  let f = await filePromise(match.entry)
+  let f = await filePromise(match)
   await addToCache(sw.cache, path, await readAsArrayBuffer(f))
-  return true
+  return match
 }
 
 export const registerServiceWorker = async (workerScript, _getFile = getFile, { prefix = '/swfs/' } = {}) => {
@@ -53,8 +51,13 @@ export const registerServiceWorker = async (workerScript, _getFile = getFile, { 
     }
     const sw = initMessaging(navigator.serviceWorker, {
       getFile: async ({ path }) => {
-        await addToCache(sw.cache, path, await _getFile(path, sw))
-        return 'ok'
+        const file = await _getFile(path, sw)
+        if (file) {
+          await addToCache(sw.cache, path, file)
+          return 'ok'
+        } else {
+          return 'not_found'
+        }
       },
     })
     sw.roots = []
@@ -104,7 +107,7 @@ export const extractEntries = dt => {
 }
 
 export const findFileInRoots = async (roots, path) => {
-  if (typeof path === 'string') path = path.split('/').filter(p=>p)
+  path = splitPath(path)
   let out
   for (let i = 0; i < roots.length; i++) {
     out = await findFile(roots[i], path, 0)
@@ -120,13 +123,13 @@ export const findFile = async (arr, path, i) => {
     if (i >= path.length - 1) {
       return match
     }
-    return findFile(loadDir(match), path, i + 1)
+    return findFile(await loadDir(match), path, i + 1)
   }
 }
 
 export const loadDir = async dir => {
-  if (dir.isDirectory && dir.entry && !dir.children) {
-    dir.children = await readDir(dir.entry)
+  if (dir.isDirectory && !dir.children) {
+    dir.children = await readDir(dir)
   }
   return dir.children || []
 }

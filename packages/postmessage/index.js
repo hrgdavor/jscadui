@@ -3,10 +3,14 @@ let reqMap = new Map()
 const RESPONSE = '__RESPONSE__'
 const TRANSFERABLE = '__transferable'
 
+export const withTransferable = (params,trans)=>{
+  params[TRANSFERABLE] = trans
+  return params
+}
+
 const messageHandler = (handlers, sendResponse) => {
   return e => {
     const { method, params, id, error } = e.data
-    console.log('method', method, params, id, error, e)
     if (id && method === RESPONSE) {
       const p = reqMap.get(id)
 
@@ -49,7 +53,13 @@ const messageSender = _self => {
     if (trans) {
       delete params[TRANSFERABLE]
     }
-    _self.postMessage({ method: RESPONSE, params, id }, fixTransfer(trans))
+    try {
+      _self.postMessage({ method: RESPONSE, params, id }, fixTransfer(trans))
+      
+    } catch (error) {
+      console.error('failed to send ', params, trans)
+      throw error
+    }
   }
 
   const sendNotify = (method, params = {}, trans = []) => {

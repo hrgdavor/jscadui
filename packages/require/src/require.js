@@ -109,7 +109,7 @@ export function requireModule(url, source, _require) {
     runModule(_require, exports, module, source)
     return module
   } catch (err) {
-    console.error('Error loading module ' + url, err.message)
+    console.error('Error loading module ' + url, err.message, '\n', source)
     throw err
   }
 }

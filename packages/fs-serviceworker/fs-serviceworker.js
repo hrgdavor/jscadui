@@ -54,8 +54,6 @@ self.addEventListener('fetch', async event => {
           resolve(rCached || new Response(path + ' not in cache', { status: rCached ? 200 : 404 }))
         }),
       )
-    } else {
-      event.respondWith(Promise.resolve(new Response('1234')))
     }
   }
 })

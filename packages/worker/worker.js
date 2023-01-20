@@ -11,6 +11,20 @@ let transformFunc = x => x
 let client
 let base = location.origin
 
+export const flatten = arr=>{
+  const doFlatten = (_in, out)=>{
+    if(_in instanceof Array){
+      _in.forEach(el=>doFlatten(el,out))
+    }else{
+      out.push(_in)
+    }
+  }
+
+  const out = []
+  doFlatten(arr,out)
+  return out
+}
+
 export const init = params => {
   let { baseURI, alias = [], bundles = {} } = params
   if (baseURI) base = baseURI
@@ -32,8 +46,12 @@ export function runMain({ params } = {}) {
   const transferable = []
 
   let time = Date.now()
-  solids = main(params || {})
-  if (!(solids instanceof Array)) solids = [solids]
+  solids = flatten(main(params || {}))
+  // if (!(solids instanceof Array)){
+  //   solids = [solids]
+  // } else{
+  //   solids = flatten(solids)
+  // }
   const solidsTime = Date.now() - time
 
   time = Date.now()
@@ -54,14 +72,13 @@ export const initScript = ({ script, url }) => {
 }
 
 // https://stackoverflow.com/questions/52086611/regex-for-matching-js-import-statements
-const importReg = /import(?:(?:(?:[ \n\t]+([^ *\n\t\{\},]+)[ \n\t]*(?:,|[ \n\t]+))?([ \n\t]*\{(?:[ \n\t]*[^ \n\t"'\{\}]+[ \n\t]*,?)+\})?[ \n\t]*)|[ \n\t]*\*[ \n\t]*as[ \n\t]+([^ \n\t\{\}]+)[ \n\t]+)from[ \n\t]*(?:['"])([^'"\n]+)(['"])/gm
+const importReg = /import(?:(?:(?:[ \n\t]+([^ *\n\t\{\},]+)[ \n\t]*(?:,|[ \n\t]+))?([ \n\t]*\{(?:[ \n\t]*[^ \n\t"'\{\}]+[ \n\t]*,?)+\})?[ \n\t]*)|[ \n\t]*\*[ \n\t]*as[ \n\t]+([^ \n\t\{\}]+)[ \n\t]+)from[ \n\t]*(?:['"])([^'"\n]+)(['"])/
 
 export const runFile = async ({ file }) => {
   console.log('runFile', file, base, requireCache.alias)
   const script = readFileWeb(resolveUrl(file,base).url,{base})
 
   const shouldTransform = file.endsWith('.ts') || script.includes('import') && importReg.test(script)
-
   const scriptModule = require(file, shouldTransform ? transformFunc : undefined, readFileWeb, base, readFileWeb)
 
   const fromSource = getParameterDefinitionsFromSource(script)

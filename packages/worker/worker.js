@@ -42,11 +42,11 @@ export const init = params => {
 }
 let entities = [],
   solids = []
-export function runMain({ params } = {}) {
+export async function runMain({ params } = {}) {
   const transferable = []
 
   let time = Date.now()
-  solids = flatten(main(params || {}))
+  solids = flatten(await main(params || {}))
   // if (!(solids instanceof Array)){
   //   solids = [solids]
   // } else{

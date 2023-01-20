@@ -1,7 +1,5 @@
 
 node_modules
 build
-bundle.fs-serviceworker.js
-bundle.fs-serviceworker.js.map
 fs-serviceworker.js
 fs-serviceworker.js.map

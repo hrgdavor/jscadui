@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npx vite --port 5178",
+    "dev": "npm run dev-init && npx vite --port 5178",
     "dev-init": "npm-run-all bundle-**",
     "build": "npx vite build",
     "bundle-threejs": " esbuild bundle.threejs.js --outdir=build --bundle --sourcemap --minify --format=iife --global-name=THREE",

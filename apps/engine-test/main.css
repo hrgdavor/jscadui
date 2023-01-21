@@ -14,6 +14,14 @@ body {
   align-items: stretch;
 }
 
+.layout{
+  flex: 1;
+  display: flex;
+}
+.layout:first-child{
+  min-width: 300px;
+}
+
 #root {
   flex: 1;
   display:grid;
@@ -75,6 +83,72 @@ body {
 .cameraNum{
   width: 55px;
 }
+
+#paramsDiv{
+  padding:20px;
+  overflow: auto;
+  background: white;
+  border: solid 1px gray;
+}
+
+#paramsDiv {
+	padding: 20px;
+	color: black;
+	overflow: auto;
+  background: rgba(255,255,255,0.5);
+}
+	#paramsDiv .form-line label{
+		display: block;
+		min-width: 100px;
+		color: black;
+		font-family: Verdana;
+	}
+
+	#paramsDiv .form-line label i{
+		display: none;
+	}
+	#paramsDiv .form-line[type="color"] label i,
+	#paramsDiv .form-line[type="range"] label i,
+	#paramsDiv .form-line[type="slider"] label i{
+		display: inline-block;
+		padding: 0 5px;
+		margin-left: 5px;
+		border: solid 1px #eee;
+	}
+
+	#paramsDiv .form-line[type="group"]{
+		position: relative;
+	}
+
+	#paramsDiv .form-line[type="group"]:before{
+		position: absolute;
+		content: ">";
+		font-weight: bold;
+		left: -12px;
+		color: gray;
+		transform: rotate(90deg);
+	}
+	#paramsDiv .form-line[type="group"][closed="1"]:before{
+		transform: rotate(0deg);
+	}
+
+	#paramsDiv .form-line[type="group"] label{
+		font-weight: bold;
+		font-size: 1.1em;
+		cursor: pointer;
+	}
+	#paramsDiv .form-line:not([type="group"]){
+		padding-left: 10px;
+	}
+	#paramsDiv .form-line[closed="1"]:not([type="group"]){
+		display: none;
+	}
+	#paramsDiv .form-line[type="checkbox"] label{
+		display: inline-block;
+	}
+	#paramsDiv .form-line input[type="range"]{
+		width: 100%;
+	}
 
 jscadui-gizmo{
   position: absolute;

@@ -61,13 +61,13 @@ export async function runMain({ params } = {}) {
   entities = [] // we lose access to bytearray data, it is transfered, and on our side it shows length=0
 }
 
-export const initScript = ({ script, url }) => {
+export const initScript = async ({ script, url }) => {
   const scriptModule = requireModule(url, script, requireForScript)
 
   main = scriptModule.exports.main
 
   const fromSource = getParameterDefinitionsFromSource(script)
-  const def = combineParameterDefinitions(fromSource, scriptModule.exports.getParameterDefinitions)
+  const def = combineParameterDefinitions(fromSource, await scriptModule.exports.getParameterDefinitions?.())
   return { def }
 }
 
@@ -82,7 +82,7 @@ export const runFile = async ({ file }) => {
   const scriptModule = require(file, shouldTransform ? transformFunc : undefined, readFileWeb, base, readFileWeb)
 
   const fromSource = getParameterDefinitionsFromSource(script)
-  const def = combineParameterDefinitions(fromSource, scriptModule.getParameterDefinitions)
+  const def = combineParameterDefinitions(fromSource, await scriptModule.getParameterDefinitions?.())
 
   main = scriptModule.main
   runMain({})

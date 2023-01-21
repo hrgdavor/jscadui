@@ -6,25 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="main.css"/>
     <title>multi engine test</title>
-    <script _src="build/bundle.babylonjs.js">/* run: 'npm run dev-init'  to generate bundles for faster reloads */</script>
-    <script _src="build/bundle.threejs.js"></script>
+    <script src="build/bundle.babylonjs.js">/* run: 'npm run dev-init'  to generate bundles for faster reloads */</script>
+    <script src="build/bundle.threejs.js"></script>
     <script src="src/jscad-regl-renderer.min.js"></script>
   </head>
   <body>
-    <div id="root" style="overflow: hidden;">
-      <div class="box" id="box0">
-        <div class="boxInfo"><b>Three.js</b></div>
-      </div>
-      <div class="box" id="box1">
-        <div class="boxInfo"><b>TWGL</b></div>
-        <select id="themeSelect"></select>
-        <button onclick="exportModel('stl')">Export stl</button>
-      </div>
-      <div class="box" id="box2">
-        <div class="boxInfo"><b>Babylon.js</b></div>
-      </div>
-      <div class="box" id="box3">
-        <div class="boxInfo"><b>regl</b></div>
+    <div class="layout">
+      <div id="paramsDiv"></div>
+      <div id="root" style="overflow: hidden;">
+        <div class="box" id="box0">
+          <div class="boxInfo"><b>Three.js</b></div>
+        </div>
+        <div class="box" id="box1">
+          <div class="boxInfo"><b>TWGL</b></div>
+          <select id="themeSelect"></select>
+          <button onclick="exportModel('stl')">Export stl</button>
+        </div>
+        <div class="box" id="box2">
+          <div class="boxInfo"><b>Babylon.js</b></div>
+        </div>
+        <div class="box" id="box3">
+          <div class="boxInfo"><b>regl</b></div>
+        </div>
       </div>
     </div>
     <div id="dropModal">drop jscad script to execute it</div>

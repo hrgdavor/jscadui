@@ -22,6 +22,7 @@ import {
   readDir,
   registerServiceWorker,
 } from '../../packages/fs-provider/fs-provider'
+import { genParams } from '../../packages/params-form/src/params'
 import { initTestBabylon } from './src/testBabylon.js'
 import { initTestRegl } from './src/testRegl.js'
 import { initTestThree } from './src/testThree.js'
@@ -318,9 +319,14 @@ const checkFiles = () => {
   requestAnimationFrame(checkFiles)
 }
 
+const paramChangeCallback = (params)=>{
+  console.log('params', params)
+  sendCmd('runMain',{params})
+} 
 const runFile = file=>{
   sendCmd('runFile', { file }).then(result=>{
     console.log('result', result)
+    genParams({target:byId('paramsDiv'), params:result.def || {}, callback:paramChangeCallback})
   })
 }
 

@@ -6,3 +6,6 @@ Renamaing `index.js` to `lib-name.js` and declaring it as main in `package.json`
 
 This is a naming pattern that is forced because bad IDE support. Instead of crying about it, I prefer to tweak the naming, so I have nicer experience in IDE.
 
+# TODO
+worker re-read dir if cached listing, but file/folder not found, ot make sure it was not added in the meantime
+

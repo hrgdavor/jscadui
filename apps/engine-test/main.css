@@ -62,6 +62,9 @@ body {
   text-align: center;
   z-index: 1;
 }
+.box > .boxInfo i{
+  font-style: normal;
+}
 .box > .boxInfo b{
   display: inline-block;
   padding: 2px 4px;

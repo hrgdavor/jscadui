@@ -40,14 +40,54 @@ customElements.define('jscadui-gizmo', Gizmo)
 // global: REGL
 // global: BABYLON
 window.REGL = window.REGL || window.jscadReglRenderer
+const currentUrl = window.currentUrl = new URL(location.toString())
+const getUrlParam = name=>currentUrl.searchParams.get(name)
+
+const engines = {
+  three:{
+    name:'Three.js',
+    init: async (el)=>{
+      initTestThree(THREE, el||byId('box_three'))
+    }
+  },
+  babylon:{
+    name:'Babylon.js',
+    init: async (el)=>{
+      initTestBabylon(BABYLON, el || byId('box_babylon'))
+    }
+  },
+  regl:{
+    name:'regl',
+    init: async (el)=>{
+      viewers.push(initTestRegl(REGL, el || byId('box_regl')))
+    }
+  },
+  twgl:{
+    name:'TWGL',
+    init: async ()=>{
+      
+    }
+  }
+}
+const engineList = Object.keys(engines)
+const useEngines = (getUrlParam('engines') || 'three').split(',')
+console.log('useEngines', useEngines)
 
 let viewers = (self.viewer = [])
-if (typeof THREE != 'undefined') viewers.push(initTestThree(THREE, byId('box0')))
-if (typeof BABYLON != 'undefined') viewers.push(initTestBabylon(BABYLON, byId('box2')))
-if (typeof REGL != 'undefined') viewers.push(initTestRegl(REGL, byId('box3')))
+if (typeof THREE != 'undefined') viewers.push(initTestThree(THREE, byId('box_three')))
+if (typeof BABYLON != 'undefined') viewers.push(initTestBabylon(BABYLON, byId('box_babylon')))
+if (typeof REGL != 'undefined') viewers.push(initTestRegl(REGL, byId('box_regl')))
+
+function initEngines(useEngines){
+
+}
+
+window.boxInfoClick = function(event,box){
+  console.log('boxInfoClick', box, event.target)
+}
 
 const gizmo = (window.gizmo = new Gizmo())
-byId('box1').appendChild(gizmo)
+byId('layout').appendChild(gizmo)
 
 const axes = [makeAxes(50)]
 const grid = makeGrid({ size: 200, color1: theme.grid1, color2: theme.grid2 })
@@ -74,7 +114,7 @@ function setTheme(theme) {
   })
 }
 
-function setScene(model) {
+function setScene(model=model) {
   viewers.forEach(viewer => {
     viewer.setScene?.({
       items: [
@@ -101,7 +141,7 @@ try {
   console.log(error)
 }
 
-const elements = [byId('box0'), byId('box1'), byId('box2'), byId('box3')]
+const elements = engineList.map(e=>byId('box_'+e))
 const ctrl = (window.ctrl = new OrbitControl(elements, { ...initialCamera, alwaysRotate: false }))
 //gizmo.rotateXZ(ctrl.rx, ctrl.rz)
 setViewerCamera(ctrl)
@@ -165,7 +205,7 @@ sel.value = 'light'
 sel.oninput = e => {
   const tmp = themes[sel.value]
   setTheme(tmp)
-  setScene()
+  setScene(model)
 }
 
 let checkChange_timer
@@ -209,12 +249,10 @@ document.body.ondragleave = document.body.ondragend = ev => {
 }
 
 const handlers = {
-  entitties: ({ entities }) => {
-    console.log('entities', entities)
-  },
   entities: ({ entities }) => {
+    console.log('entities', entities)
     if (!(entities instanceof Array)) entities = [entities]
-    setScene(entities)
+    setScene(model=entities)
   },
 }
 

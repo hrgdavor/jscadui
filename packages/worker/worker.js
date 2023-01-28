@@ -73,12 +73,12 @@ export const initScript = async ({ script, url }) => {
 
 // https://stackoverflow.com/questions/52086611/regex-for-matching-js-import-statements
 const importReg = /import(?:(?:(?:[ \n\t]+([^ *\n\t\{\},]+)[ \n\t]*(?:,|[ \n\t]+))?([ \n\t]*\{(?:[ \n\t]*[^ \n\t"'\{\}]+[ \n\t]*,?)+\})?[ \n\t]*)|[ \n\t]*\*[ \n\t]*as[ \n\t]+([^ \n\t\{\}]+)[ \n\t]+)from[ \n\t]*(?:['"])([^'"\n]+)(['"])/
-
+const exportReg = /export.*from/
 export const runFile = async ({ file }) => {
   console.log('runFile', file, base, requireCache.alias)
   const script = readFileWeb(resolveUrl(file,base).url,{base})
 
-  const shouldTransform = file.endsWith('.ts') || script.includes('import') && importReg.test(script)
+  const shouldTransform = file.endsWith('.ts') || script.includes('import') && (importReg.test(script) || exportReg.test(script))
   const scriptModule = require(file, shouldTransform ? transformFunc : undefined, readFileWeb, base, readFileWeb)
 
   const fromSource = getParameterDefinitionsFromSource(script)

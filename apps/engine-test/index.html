@@ -6,27 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="main.css"/>
     <title>multi engine test</title>
-    <script src="build/bundle.babylonjs.js">/* run: 'npm run dev-init'  to generate bundles for faster reloads */</script>
+    <script _src="build/bundle.babylonjs.js">/* run: 'npm run dev-init'  to generate bundles for faster reloads */</script>
     <script src="build/bundle.threejs.js"></script>
-    <script src="src/jscad-regl-renderer.min.js"></script>
+    <script _src="src/jscad-regl-renderer.min.js"></script>
   </head>
   <body>
-    <div class="layout">
-      <div id="paramsDiv"></div>
+    <div class="layout" id="layout">
+      <div>
+        <select id="themeSelect"></select>
+        <button onclick="exportModel('stl')">Export stl</button>
+        <div id="paramsDiv"></div>
+      </div>
       <div id="root" style="overflow: hidden;">
-        <div class="box" id="box0">
-          <div class="boxInfo"><b>Three.js</b></div>
+        <div class="box" id="box_three">
+          <div class="boxInfo" onclick="boxInfoClick(event,'box_three')"><b><input type="checkbox" id="box_three_c"/><i>Three.js</i></b></div>
         </div>
-        <div class="box" id="box1">
-          <div class="boxInfo"><b>TWGL</b></div>
-          <select id="themeSelect"></select>
-          <button onclick="exportModel('stl')">Export stl</button>
+        <div class="box" id="box_babylon">
+          <div class="boxInfo" onclick="boxInfoClick(event,'box_babylon')"><b><input type="checkbox" id="box_babylon_c"/><i>TWGL</i></b></div>
         </div>
-        <div class="box" id="box2">
-          <div class="boxInfo"><b>Babylon.js</b></div>
+        <div class="box" id="box_regl">
+          <div class="boxInfo" onclick="boxInfoClick(event,'box_regl')"><b><input type="checkbox" id="box_regl_c"/><i>Babylon.js</i></b></div>
         </div>
-        <div class="box" id="box3">
-          <div class="boxInfo"><b>regl</b></div>
+        <div class="box" id="box_twgl">
+          <div class="boxInfo" onclick="boxInfoClick(event,'box_twgl')"><b><input type="checkbox" id="box_twgl_c"/><i>regl</i></b></div>
         </div>
       </div>
     </div>

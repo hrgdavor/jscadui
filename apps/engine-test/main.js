@@ -40,9 +40,21 @@ customElements.define('jscadui-gizmo', Gizmo)
 // global: THREE // expose for console testing
 // global: REGL
 // global: BABYLON
-window.REGL = window.REGL || window.jscadReglRenderer
+
 const currentUrl = window.currentUrl = new URL(location.toString())
 const getUrlParam = name=>currentUrl.searchParams.get(name)
+const setUrlParam = (name,value)=>{
+  currentUrl.searchParams.set(name, value)
+  window.history.replaceState(null, null, currentUrl.toString())
+}
+const initUrlParam = (name, def)=>{
+  let out = currentUrl.searchParams.get(name)
+  if(!out && def){
+    setUrlParam(name,def)
+    out = def
+  }
+  return out
+}
 
 const engines = {
   three:{
@@ -50,23 +62,24 @@ const engines = {
     src:'build/bundle.threejs.js',
     init: async (el, cfg)=>{
       await addScript(cfg.src)
-      return initTestThree(THREE, el||byId('box_three'))
+      return initTestThree(THREE, el)
     }
   },
   babylon:{
     name:'Babylon.js',
     src:'build/bundle.babylonjs.js',
-    init: async (el)=>{
+    init: async (el,cfg)=>{
       await addScript(cfg.src)
-      return initTestBabylon(BABYLON, el || byId('box_babylon'))
+      return initTestBabylon(BABYLON, el)
     }
   },
   regl:{
     name:'regl',
     src:'src/jscad-regl-renderer.min.js',
-    init: async (el)=>{
+    init: async (el,cfg)=>{
       await addScript(cfg.src)
-      return viewers.push(initTestRegl(REGL, el || byId('box_regl')))
+      window.REGL = window.REGL || window.jscadReglRenderer
+      return initTestRegl(REGL, el)
     }
   },
   twgl:{
@@ -78,23 +91,12 @@ const engines = {
   }
 }
 const engineList = Object.keys(engines)
-const useEngines = (getUrlParam('engines') || 'three').split(',')
-console.log('useEngines', useEngines)
+const useEngines = initUrlParam('engines','three').split(',')
 
 let viewers = (self.viewer = [])
 // if (typeof THREE != 'undefined') viewers.push(initTestThree(THREE, byId('box_three')))
 // if (typeof BABYLON != 'undefined') viewers.push(initTestBabylon(BABYLON, byId('box_babylon')))
 // if (typeof REGL != 'undefined') viewers.push(initTestRegl(REGL, byId('box_regl')))
-
-async function initEngine(code) {
-  const cfg = engines[code]
-  viewers.push(await cfg.init(byId('box_'+code), cfg))
-}
-await initEngine('three')
-
-function initEngines(useEngines){
-
-}
 
 window.boxInfoClick = function(event,box){
   console.log('boxInfoClick', box, event.target)
@@ -128,19 +130,23 @@ function setTheme(theme) {
   })
 }
 
-function setScene(model=model) {
-  viewers.forEach(viewer => {
-    viewer.setScene?.({
-      items: [
-        { id: 'axes', items: axes },
-        { id: 'grid', items: grid },
-        { id: 'model', items: model },
-      ],
-    })
+function setScene(viewer,model) {
+  viewer.setScene?.({
+    items: [
+      { id: 'axes', items: axes },
+      { id: 'grid', items: grid },
+      { id: 'model', items: model },
+    ],
   })
 }
-setTheme(theme)
-setScene(model)
+
+function setViewerScene(model=model) {
+  viewers.forEach(viewer => setViewerScene(viewer,model))
+}
+
+
+
+
 
 const setViewerCamera = ({ position, target, rx, rz }) => {
   viewers.forEach(v => v.setCamera({ position, target }))
@@ -157,8 +163,6 @@ try {
 
 const elements = engineList.map(e=>byId('box_'+e))
 const ctrl = (window.ctrl = new OrbitControl(elements, { ...initialCamera, alwaysRotate: false }))
-//gizmo.rotateXZ(ctrl.rx, ctrl.rz)
-setViewerCamera(ctrl)
 
 const updateFromCtrl = change => {
   // console.log('change', change)
@@ -219,7 +223,7 @@ sel.value = 'light'
 sel.oninput = e => {
   const tmp = themes[sel.value]
   setTheme(tmp)
-  setScene(model)
+  setViewerScene(model)
 }
 
 let checkChange_timer
@@ -266,7 +270,7 @@ const handlers = {
   entities: ({ entities }) => {
     console.log('entities', entities)
     if (!(entities instanceof Array)) entities = [entities]
-    setScene(model=entities)
+    setViewerScene(model=entities)
   },
 }
 
@@ -453,3 +457,28 @@ async function fileDropped(ev) {
   //   checkChange()
   // }
 }
+
+
+
+// ************ init ui     *********************************
+async function initEngine(code) {
+  const cfg = engines[code]
+  const el = byId('box_'+code)
+  const viewer = await cfg.init(el, cfg)
+  viewers.push(viewer)
+  viewer.setBg(theme.bg)
+  viewer.setMeshColor(theme.color)
+  setScene(viewer, model)
+  viewer.setCamera(ctrl)
+}
+
+engineList.forEach(code=>{
+  const cfg = engines[code]
+  const el = byId('box_'+code)
+  el.querySelector('i').textContent = cfg.name
+})
+
+Promise.all(useEngines.map(engine=>initEngine(engine))).then(()=>{
+  //
+  console.log('engines initialized', useEngines)
+})

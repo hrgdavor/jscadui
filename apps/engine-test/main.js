@@ -23,6 +23,7 @@ import {
   registerServiceWorker,
 } from '../../packages/fs-provider/fs-provider'
 import { genParams } from '../../packages/params-form/src/params'
+import { addScript } from './src/addScript'
 import { initTestBabylon } from './src/testBabylon.js'
 import { initTestRegl } from './src/testRegl.js'
 import { initTestThree } from './src/testThree.js'
@@ -46,25 +47,32 @@ const getUrlParam = name=>currentUrl.searchParams.get(name)
 const engines = {
   three:{
     name:'Three.js',
-    init: async (el)=>{
-      initTestThree(THREE, el||byId('box_three'))
+    src:'build/bundle.threejs.js',
+    init: async (el, cfg)=>{
+      await addScript(cfg.src)
+      return initTestThree(THREE, el||byId('box_three'))
     }
   },
   babylon:{
     name:'Babylon.js',
+    src:'build/bundle.babylonjs.js',
     init: async (el)=>{
-      initTestBabylon(BABYLON, el || byId('box_babylon'))
+      await addScript(cfg.src)
+      return initTestBabylon(BABYLON, el || byId('box_babylon'))
     }
   },
   regl:{
     name:'regl',
+    src:'src/jscad-regl-renderer.min.js',
     init: async (el)=>{
-      viewers.push(initTestRegl(REGL, el || byId('box_regl')))
+      await addScript(cfg.src)
+      return viewers.push(initTestRegl(REGL, el || byId('box_regl')))
     }
   },
   twgl:{
     name:'TWGL',
-    init: async ()=>{
+    src:'',
+    init: async (el,cfg)=>{
       
     }
   }
@@ -74,9 +82,15 @@ const useEngines = (getUrlParam('engines') || 'three').split(',')
 console.log('useEngines', useEngines)
 
 let viewers = (self.viewer = [])
-if (typeof THREE != 'undefined') viewers.push(initTestThree(THREE, byId('box_three')))
-if (typeof BABYLON != 'undefined') viewers.push(initTestBabylon(BABYLON, byId('box_babylon')))
-if (typeof REGL != 'undefined') viewers.push(initTestRegl(REGL, byId('box_regl')))
+// if (typeof THREE != 'undefined') viewers.push(initTestThree(THREE, byId('box_three')))
+// if (typeof BABYLON != 'undefined') viewers.push(initTestBabylon(BABYLON, byId('box_babylon')))
+// if (typeof REGL != 'undefined') viewers.push(initTestRegl(REGL, byId('box_regl')))
+
+async function initEngine(code) {
+  const cfg = engines[code]
+  viewers.push(await cfg.init(byId('box_'+code), cfg))
+}
+await initEngine('three')
 
 function initEngines(useEngines){
 

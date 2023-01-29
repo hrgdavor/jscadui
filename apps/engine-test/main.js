@@ -75,7 +75,7 @@ const engines = {
   },
   regl:{
     name:'regl',
-    src:'src/jscad-regl-renderer.min.js',
+    src:'build/bundle.regl.js',
     init: async (el,cfg)=>{
       await addScript(cfg.src)
       window.REGL = window.REGL || window.jscadReglRenderer
@@ -93,14 +93,11 @@ const engines = {
 const engineList = Object.keys(engines)
 const useEngines = initUrlParam('engines','three').split(',')
 
-let viewers = (self.viewer = [])
+let viewers = []
 // if (typeof THREE != 'undefined') viewers.push(initTestThree(THREE, byId('box_three')))
 // if (typeof BABYLON != 'undefined') viewers.push(initTestBabylon(BABYLON, byId('box_babylon')))
 // if (typeof REGL != 'undefined') viewers.push(initTestRegl(REGL, byId('box_regl')))
 
-window.boxInfoClick = function(event,box){
-  console.log('boxInfoClick', box, event.target)
-}
 
 const gizmo = (window.gizmo = new Gizmo())
 byId('layout').appendChild(gizmo)
@@ -418,7 +415,7 @@ async function fileDropped(ev) {
   const preLoad = ['/index.js', '/package.json']
   const loaded = await addPreLoadAll(sw, preLoad, true)
   console.log(Date.now() - time, 'preload', loaded)
-  //TODO make proxy for calling commands
+  // TODO make proxy for calling commands
   // worker.cmd worker.notify
 
   let pkgFile = await findFileInRoots(sw.roots, 'package.json')
@@ -477,6 +474,10 @@ engineList.forEach(code=>{
   const el = byId('box_'+code)
   el.querySelector('i').textContent = cfg.name
 })
+
+window.boxInfoClick = function(event,box){
+  console.log('boxInfoClick', box, event.target)
+}
 
 Promise.all(useEngines.map(engine=>initEngine(engine))).then(()=>{
   //

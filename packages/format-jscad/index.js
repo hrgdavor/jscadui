@@ -183,9 +183,9 @@ export function JscadToCommon (csg, transferable, unique, options) {
       }
     }
   }
-
+  if(csg.color || csg.transforms) obj = {...obj}
   if(csg.color) obj.color = csg.color 
-  if(csg.transforms) obj.transforms = csg.transforms 
+  if(csg.transforms) obj.transforms = csg.transforms
 
   return obj || { csg, type: 'unknown' }
 }

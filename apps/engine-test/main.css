@@ -25,9 +25,10 @@ body {
 #root {
   flex: 1;
   display:grid;
+}
+#root:not([solo]){
   grid-template-columns: 50% 50%;
   grid-template-rows: 50% 50%;
-  grid-row: auto auto;
 }
 
 #root canvas{

@@ -24,6 +24,9 @@ import {
 } from '../../packages/fs-provider/fs-provider'
 import { genParams } from '../../packages/params-form/src/params'
 import { addScript } from './src/addScript'
+import { availableEngines, availableEnginesList } from './src/availableEngines'
+import { CurrentUrl } from './src/currentUrl'
+import { EngineState } from './src/engineState'
 import { initTestBabylon } from './src/testBabylon.js'
 import { initTestRegl } from './src/testRegl.js'
 import { initTestThree } from './src/testThree.js'
@@ -34,76 +37,15 @@ const { translate } = transforms
 const { colorize } = colors
 
 export const byId = id => document.getElementById(id)
-
+const currentUrl = new CurrentUrl()
 customElements.define('jscadui-gizmo', Gizmo)
 
-// global: THREE // expose for console testing
-// global: REGL
-// global: BABYLON
-
-const currentUrl = window.currentUrl = new URL(location.toString())
-const getUrlParam = name=>currentUrl.searchParams.get(name)
-const setUrlParam = (name,value)=>{
-  currentUrl.searchParams.set(name, value)
-  window.history.replaceState(null, null, currentUrl.toString())
-}
-const initUrlParam = (name, def)=>{
-  let out = currentUrl.searchParams.get(name)
-  if(!out && def){
-    setUrlParam(name,def)
-    out = def
-  }
-  return out
-}
-
-const engines = {
-  three:{
-    name:'Three.js',
-    src:'build/bundle.threejs.js',
-    init: async (el, cfg)=>{
-      await addScript(cfg.src)
-      return initTestThree(THREE, el)
-    }
-  },
-  babylon:{
-    name:'Babylon.js',
-    src:'build/bundle.babylonjs.js',
-    init: async (el,cfg)=>{
-      await addScript(cfg.src)
-      return initTestBabylon(BABYLON, el)
-    }
-  },
-  regl:{
-    name:'regl',
-    src:'build/bundle.regl.js',
-    init: async (el,cfg)=>{
-      await addScript(cfg.src)
-      window.REGL = window.REGL || window.jscadReglRenderer
-      return initTestRegl(REGL, el)
-    }
-  },
-  twgl:{
-    name:'TWGL',
-    src:'',
-    init: async (el,cfg)=>{
-      
-    }
-  }
-}
-const engineList = Object.keys(engines)
-const useEngines = initUrlParam('engines','three').split(',')
-
-let viewers = []
-// if (typeof THREE != 'undefined') viewers.push(initTestThree(THREE, byId('box_three')))
-// if (typeof BABYLON != 'undefined') viewers.push(initTestBabylon(BABYLON, byId('box_babylon')))
-// if (typeof REGL != 'undefined') viewers.push(initTestRegl(REGL, byId('box_regl')))
-
+const engineState = new EngineState(availableEngines, theme, makeAxes, makeGrid)
+const useEngines = currentUrl.initGet('engines','three').split(',')
 
 const gizmo = (window.gizmo = new Gizmo())
 byId('layout').appendChild(gizmo)
 
-const axes = [makeAxes(50)]
-const grid = makeGrid({ size: 200, color1: theme.grid1, color2: theme.grid2 })
 
 const modelRadius = 30
 let model = [
@@ -127,29 +69,6 @@ function setTheme(theme) {
   })
 }
 
-function setScene(viewer,model) {
-  viewer.setScene?.({
-    items: [
-      { id: 'axes', items: axes },
-      { id: 'grid', items: grid },
-      { id: 'model', items: model },
-    ],
-  })
-}
-
-function setViewerScene(model=model) {
-  viewers.forEach(viewer => setViewerScene(viewer,model))
-}
-
-
-
-
-
-const setViewerCamera = ({ position, target, rx, rz }) => {
-  viewers.forEach(v => v.setCamera({ position, target }))
-  gizmo.rotateXZ(rx, rz)
-}
-
 const stored = localStorage.getItem('camera.location')
 let initialCamera = { position: [180, -180, 220] }
 try {
@@ -158,8 +77,22 @@ try {
   console.log(error)
 }
 
-const elements = engineList.map(e=>byId('box_'+e))
+const elements = []
+availableEnginesList.forEach(code=>{
+  const cfg = availableEngines[code]
+  const el = byId('box_'+code)
+  el.querySelector('i').textContent = cfg.name
+  elements.push(el)
+})
+
+function setViewerScene(model){
+  engineState.setModel(model)
+}
 const ctrl = (window.ctrl = new OrbitControl(elements, { ...initialCamera, alwaysRotate: false }))
+function setViewerCamera({ position, target, rx, rz }){
+  engineState.setCamera({ position, target })
+  gizmo.rotateXZ(rx, rz)
+}
 
 const updateFromCtrl = change => {
   // console.log('change', change)
@@ -265,7 +198,6 @@ document.body.ondragleave = document.body.ondragend = ev => {
 
 const handlers = {
   entities: ({ entities }) => {
-    console.log('entities', entities)
     if (!(entities instanceof Array)) entities = [entities]
     setViewerScene(model=entities)
   },
@@ -393,13 +325,15 @@ async function fileDropped(ev) {
   checkPrimary.length = 0
   checkSecondary.length = 0
   fileToRun = 'index.js'
+  let folderName
   clearFs(sw)
   sendCmd('clearTempCache', {})
-
   let rootFiles = []
   if (files.length === 1) {
     const file = files[0]
     if (file.isDirectory) {
+      folderName = file.name
+      console.log('dropped', file.name)
       file.fsDir = '/'
       rootFiles = await readDir(file)
     } else {
@@ -411,16 +345,11 @@ async function fileDropped(ev) {
   }
   rootFiles = rootFiles.map(e => fileToFsEntry(e, '/'))
   sw.roots.push(rootFiles)
-  let time = Date.now()
-  const preLoad = ['/index.js', '/package.json']
-  const loaded = await addPreLoadAll(sw, preLoad, true)
-  console.log(Date.now() - time, 'preload', loaded)
-  // TODO make proxy for calling commands
-  // worker.cmd worker.notify
 
   let pkgFile = await findFileInRoots(sw.roots, 'package.json')
   if (pkgFile) {
     let pack = JSON.parse(await readAsText(pkgFile))
+    if(pack.main) fileToRun = pack.main
     const alias = []
     if (pack.workspaces)
       for (let i = 0; i < pack.workspaces.length; i++) {
@@ -436,6 +365,13 @@ async function fileDropped(ev) {
       sendNotify('init', { alias })
     }
   }
+
+  let time = Date.now()
+  const preLoad = ['/'+fileToRun, '/package.json']
+  const loaded = await addPreLoadAll(sw, preLoad, true)
+  console.log(Date.now() - time, 'preload', loaded)
+  // TODO make proxy for calling commands
+  // worker.cmd worker.notify
 
   if (fileToRun) {
     fileToRun = `/${fileToRun}`
@@ -458,28 +394,12 @@ async function fileDropped(ev) {
 
 
 // ************ init ui     *********************************
-async function initEngine(code) {
-  const cfg = engines[code]
-  const el = byId('box_'+code)
-  const viewer = await cfg.init(el, cfg)
-  viewers.push(viewer)
-  viewer.setBg(theme.bg)
-  viewer.setMeshColor(theme.color)
-  setScene(viewer, model)
-  viewer.setCamera(ctrl)
-}
-
-engineList.forEach(code=>{
-  const cfg = engines[code]
-  const el = byId('box_'+code)
-  el.querySelector('i').textContent = cfg.name
-})
 
 window.boxInfoClick = function(event,box){
   console.log('boxInfoClick', box, event.target)
 }
 
-Promise.all(useEngines.map(engine=>initEngine(engine))).then(()=>{
+Promise.all(useEngines.map(engine=>engineState.initEngine(byId('box_'+engine),engine,ctrl))).then(()=>{
   //
   console.log('engines initialized', useEngines)
 })

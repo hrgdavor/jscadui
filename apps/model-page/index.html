@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="main.css"/>
+    <link rel="stylesheet" href="main.css" />
     <script src="build/bundle.threejs.js"></script>
     <title>jscad model demo page</title>
   </head>
@@ -13,9 +13,21 @@
         <button onclick="exportModel('stl')">Export stl</button>
         <div id="paramsDiv"></div>
       </div>
-      <div id="root" style="overflow: hidden;">
-      </div>
+      <div id="root" style="overflow: hidden"></div>
     </div>
-    <script type="module" src="build/main.js"></script>
+    <script type="module">
+      import { initEngine, runFile } from './build/main.js'
+      // you can define bundles that are loaded by the worker and not bundled width a script
+      // not bundling @jscad/modeling makes sense as soon as you have more than one script you want to show
+      // esbuild howto: to bundle all imports except @jscad/modeling use: --external:@jscad/modeling
+      const workerOptions = {
+        baseURI: document.baseURI.toString(),
+        bundles: {
+          '@jscad/modeling': document.baseURI+'build/bundle.jscad_modeling.js',
+        },
+      }
+      await initEngine(THREE, 'root', workerOptions)
+      runFile('jscad/planter.mesh.js')
+    </script>
   </body>
 </html>

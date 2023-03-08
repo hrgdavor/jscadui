@@ -4,7 +4,6 @@ import { initMessaging } from '@jscadui/postmessage'
 import { makeAxes, makeGrid } from '@jscadui/scene'
 import * as themes from '@jscadui/themes'
 
-
 import { genParams } from '../../packages/params-form/src/params'
 import { initTestThree } from './src/testThree'
 
@@ -13,16 +12,17 @@ let fileToRun
 let sceneGrid
 let sceneAxes = makeAxes(50)
 let sceneEntities = []
+let viewer
 
-export const byId = id => document.getElementById(id)
+export const byId = id => id?.nodeType !== undefined ? id:document.getElementById(id)
 customElements.define('jscadui-gizmo', Gizmo)
 
 const gizmo = (window.gizmo = new Gizmo())
 byId('layout').appendChild(gizmo)
 
-function setViewerScene(model){
+function setViewerScene(model) {
   const all = [...model, ...sceneGrid, sceneAxes]
-  viewer.setScene({items:[{ id: 'model', items: all }]})
+  viewer.setScene({ items: [{ id: 'model', items: all }] })
   sceneEntities = model
 }
 
@@ -30,7 +30,7 @@ function setTheme(theme) {
   viewer.setMeshColor(theme.color)
   viewer.setBg(theme.bg)
   sceneGrid = makeGrid({ size: 200, color1: theme.grid1, color2: theme.grid2 })
-  setViewerScene(sceneEntities)// set again if theme changes meshes with default color need to change too
+  setViewerScene(sceneEntities) // set again if theme changes meshes with default color need to change too
 }
 
 const stored = localStorage.getItem('camera.location')
@@ -43,9 +43,8 @@ try {
 
 const elements = [byId('root')]
 
-
 const ctrl = (window.ctrl = new OrbitControl(elements, { ...initialCamera, alwaysRotate: false }))
-function setViewerCamera({ position, target, rx, rz }){
+function setViewerCamera({ position, target, rx, rz }) {
   viewer.setCamera({ position, target })
   gizmo.rotateXZ(rx, rz)
 }
@@ -103,9 +102,9 @@ const handlers = {
   },
 }
 
-const link = document.createElement( 'a' );
-link.style.display = 'none';
-document.body.appendChild( link );
+const link = document.createElement('a')
+link.style.display = 'none'
+document.body.appendChild(link)
 function save(blob, filename) {
   link.href = URL.createObjectURL(blob)
   link.download = filename
@@ -114,8 +113,8 @@ function save(blob, filename) {
 
 function exportModel(format) {
   sendCmd('exportData', { format }).then(({ data }) => {
-    console.log('save', fileToRun+'.stl', data)
-    save(new Blob([data], { type: 'text/plain' }), fileToRun+'.stl')
+    console.log('save', fileToRun + '.stl', data)
+    save(new Blob([data], { type: 'text/plain' }), fileToRun + '.stl')
   })
 }
 window.exportModel = exportModel
@@ -123,31 +122,24 @@ window.exportModel = exportModel
 var worker = new Worker('./build/bundle.worker.js')
 const { sendCmd, sendNotify } = initMessaging(worker, handlers)
 
-const paramChangeCallback = (params)=>{
+const paramChangeCallback = params => {
   console.log('params', params)
-  sendCmd('runMain',{params})
-} 
+  sendCmd('runMain', { params })
+}
 
-const runFile = file=>{
-  sendCmd('runFile', { file }).then(result=>{
+export const runFile = file => {
+  sendCmd('runFile', { file }).then(result => {
     console.log('result', result)
-    genParams({target:byId('paramsDiv'), params:result.def || {}, callback:paramChangeCallback})
+    genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
   })
 }
 
 // ************ init ui     *********************************
 
-const viewer = initTestThree(THREE, byId('root'))
-updateFromCtrl(ctrl)
-setTheme(theme)
+export const initEngine = async (THREE, elem, workerOptions) => {
+  viewer = initTestThree(THREE, byId(elem))
+  updateFromCtrl(ctrl)
+  setTheme(theme)
 
-const toUrl = path => new URL(path, document.baseURI).toString()
-sendCmd('init', {
-  bundles: {
-    '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
-  },
-  baseURI: document.baseURI.toString(),
-}).then(r=>{
-  console.log('worker initialized', r)
-  runFile('jscad/planter.mesh.js')
-})
+  await sendCmd('init', workerOptions)
+}

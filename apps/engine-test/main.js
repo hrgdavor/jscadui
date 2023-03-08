@@ -2,6 +2,7 @@ import { booleans, colors, primitives, transforms } from '@jscad/modeling'
 import { JscadToCommon } from '@jscadui/format-jscad'
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl, OrbitState, closerAngle, getCommonRotCombined } from '@jscadui/orbit'
+import { genParams } from '@jscadui/params'
 import { initMessaging } from '@jscadui/postmessage'
 import { makeAxes, makeGrid } from '@jscadui/scene'
 import * as themes from '@jscadui/themes'
@@ -22,14 +23,9 @@ import {
   readDir,
   registerServiceWorker,
 } from '../../packages/fs-provider/fs-provider'
-import { genParams } from '../../packages/params-form/src/params'
-import { addScript } from './src/addScript'
 import { availableEngines, availableEnginesList } from './src/availableEngines'
 import { CurrentUrl } from './src/currentUrl'
 import { EngineState } from './src/engineState'
-import { initTestBabylon } from './src/testBabylon.js'
-import { initTestRegl } from './src/testRegl.js'
-import { initTestThree } from './src/testThree.js'
 
 const theme = themes.light
 const { subtract } = booleans
@@ -41,11 +37,10 @@ const currentUrl = new CurrentUrl()
 customElements.define('jscadui-gizmo', Gizmo)
 
 const engineState = new EngineState(availableEngines, theme, makeAxes, makeGrid)
-const useEngines = currentUrl.initGet('engines','three').split(',')
+const useEngines = currentUrl.initGet('engines', 'three').split(',')
 
 const gizmo = (window.gizmo = new Gizmo())
 byId('layout').appendChild(gizmo)
-
 
 const modelRadius = 30
 let model = [
@@ -78,18 +73,18 @@ try {
 }
 
 const elements = []
-availableEnginesList.forEach(code=>{
+availableEnginesList.forEach(code => {
   const cfg = availableEngines[code]
-  const el = byId('box_'+code)
+  const el = byId('box_' + code)
   el.querySelector('i').textContent = cfg.name
   elements.push(el)
 })
 
-function setViewerScene(model){
+function setViewerScene(model) {
   engineState.setModel(model)
 }
 const ctrl = (window.ctrl = new OrbitControl(elements, { ...initialCamera, alwaysRotate: false }))
-function setViewerCamera({ position, target, rx, rz }){
+function setViewerCamera({ position, target, rx, rz }) {
   engineState.setCamera({ position, target })
   gizmo.rotateXZ(rx, rz)
 }
@@ -199,13 +194,13 @@ document.body.ondragleave = document.body.ondragend = ev => {
 const handlers = {
   entities: ({ entities }) => {
     if (!(entities instanceof Array)) entities = [entities]
-    setViewerScene(model=entities)
+    setViewerScene((model = entities))
   },
 }
 
-const link = document.createElement( 'a' );
-link.style.display = 'none';
-document.body.appendChild( link );
+const link = document.createElement('a')
+link.style.display = 'none'
+document.body.appendChild(link)
 function save(blob, filename) {
   link.href = URL.createObjectURL(blob)
   link.download = filename
@@ -214,8 +209,8 @@ function save(blob, filename) {
 
 function exportModel(format) {
   sendCmd('exportData', { format }).then(({ data }) => {
-    console.log('save', fileToRun+'.stl', data)
-    save(new Blob([data], { type: 'text/plain' }), fileToRun+'.stl')
+    console.log('save', fileToRun + '.stl', data)
+    save(new Blob([data], { type: 'text/plain' }), fileToRun + '.stl')
   })
 }
 window.exportModel = exportModel
@@ -304,14 +299,14 @@ const checkFiles = () => {
   requestAnimationFrame(checkFiles)
 }
 
-const paramChangeCallback = (params)=>{
+const paramChangeCallback = params => {
   console.log('params', params)
-  sendCmd('runMain',{params})
-} 
-const runFile = file=>{
-  sendCmd('runFile', { file }).then(result=>{
+  sendCmd('runMain', { params })
+}
+const runFile = file => {
+  sendCmd('runFile', { file }).then(result => {
     console.log('result', result)
-    genParams({target:byId('paramsDiv'), params:result.def || {}, callback:paramChangeCallback})
+    genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
   })
 }
 
@@ -349,7 +344,7 @@ async function fileDropped(ev) {
   let pkgFile = await findFileInRoots(sw.roots, 'package.json')
   if (pkgFile) {
     let pack = JSON.parse(await readAsText(pkgFile))
-    if(pack.main) fileToRun = pack.main
+    if (pack.main) fileToRun = pack.main
     const alias = []
     if (pack.workspaces)
       for (let i = 0; i < pack.workspaces.length; i++) {
@@ -367,7 +362,7 @@ async function fileDropped(ev) {
   }
 
   let time = Date.now()
-  const preLoad = ['/'+fileToRun, '/package.json']
+  const preLoad = ['/' + fileToRun, '/package.json']
   const loaded = await addPreLoadAll(sw, preLoad, true)
   console.log(Date.now() - time, 'preload', loaded)
   // TODO make proxy for calling commands
@@ -391,15 +386,13 @@ async function fileDropped(ev) {
   // }
 }
 
-
-
 // ************ init ui     *********************************
 
-window.boxInfoClick = function(event,box){
+window.boxInfoClick = function (event, box) {
   console.log('boxInfoClick', box, event.target)
 }
 
-Promise.all(useEngines.map(engine=>engineState.initEngine(byId('box_'+engine),engine,ctrl))).then(()=>{
+Promise.all(useEngines.map(engine => engineState.initEngine(byId('box_' + engine), engine, ctrl))).then(() => {
   //
   console.log('engines initialized', useEngines)
 })

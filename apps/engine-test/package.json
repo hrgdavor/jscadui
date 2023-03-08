@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npm run dev-init && npx vite --port 5178",
+    "start": "npm run dev-init && npx vite --port 5120",
     "dev-init": "npm-run-all bundle-**",
     "build": "npx vite build",
     "bundle-threejs": " esbuild bundle.threejs.js --outdir=build --bundle --sourcemap --minify --format=iife --global-name=THREE",
@@ -24,6 +24,7 @@
     "@jscadui/format-threejs": "*",
     "@jscadui/fs-provider": "*",
     "@jscadui/fs-serviceworker": "*",
+    "@jscadui/params": "*",
     "@jscadui/html-gizmo": "*",
     "@jscadui/postmessage": "*",
     "@jscadui/render-babylonjs": "*",

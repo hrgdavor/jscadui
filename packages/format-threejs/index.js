@@ -24,6 +24,7 @@ export function CommonToThree ({
     lines: null
   }
   materials.lines = materials.line
+  materials.instance = materials.mesh// todo support instances for lines
 
   function _CSG2Three (obj) {
     const { vertices, indices, normals, color, colors, isTransparent = false, opacity } = obj
@@ -33,7 +34,7 @@ export function CommonToThree ({
     const materialDef = materials[objType]
     if (!materialDef) { console.error('material not found for type ', objType, obj) }
     let material = materialDef.def
-    const isInstanced = obj.type === 'instances'
+    const isInstanced = obj.type === 'instance'
     if ((color || colors) && !isInstanced) {
       const c = color || colors
       const opts = {
@@ -61,11 +62,16 @@ export function CommonToThree ({
       case 'mesh':
         mesh = new Mesh(geo, material)
         break
-      case 'instances':
+        case 'instance':
+        const {list} = obj
         mesh = new InstancedMesh(
           geo,
-          materials.mesh.make({ color: 0x0084d1 })
+          materials.mesh.make({ color: 0x0084d1 }),
+          list.length
         )
+        list.forEach((item, i)=>{
+          copyTransformToArray(item.transforms, mesh.instanceMatrix.array,i*16)
+        })
         transforms = null
         break
       case 'line':
@@ -79,6 +85,33 @@ export function CommonToThree ({
     if (transforms && !isInstanced) mesh.applyMatrix4({ elements: transforms })
     return mesh
   }
+
+  // shortcut for setMatrixAt for InstancedMesh
+  function copyTransformToArray( te, array = [], offset = 0 ) {
+
+		array[ offset ] = te[ 0 ];
+		array[ offset + 1 ] = te[ 1 ];
+		array[ offset + 2 ] = te[ 2 ];
+		array[ offset + 3 ] = te[ 3 ];
+
+		array[ offset + 4 ] = te[ 4 ];
+		array[ offset + 5 ] = te[ 5 ];
+		array[ offset + 6 ] = te[ 6 ];
+		array[ offset + 7 ] = te[ 7 ];
+
+		array[ offset + 8 ] = te[ 8 ];
+		array[ offset + 9 ] = te[ 9 ];
+		array[ offset + 10 ] = te[ 10 ];
+		array[ offset + 11 ] = te[ 11 ];
+
+		array[ offset + 12 ] = te[ 12 ];
+		array[ offset + 13 ] = te[ 13 ];
+		array[ offset + 14 ] = te[ 14 ];
+		array[ offset + 15 ] = te[ 15 ];
+
+		return array;
+
+	}
 
   _CSG2Three.makeColor = (c) => new Color(c[0], c[1], c[2])
   _CSG2Three.materials = materials

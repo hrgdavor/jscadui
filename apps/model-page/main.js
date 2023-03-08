@@ -120,19 +120,6 @@ function exportModel(format) {
 }
 window.exportModel = exportModel
 
-const initScript = f => {
-  var reader = new FileReader()
-  reader.onload = event => {
-    let script = event.target.result
-    sendCmd('initScript', { script, url: f.name + '?' + f.lastModified }).then(r => {
-      console.log('params def', r)
-      sendCmd('runMain', {})
-    })
-  }
-  reader.onerror = event => console.log('error', event)
-  reader.readAsText(f)
-}
-
 var worker = new Worker('./build/bundle.worker.js')
 const { sendCmd, sendNotify } = initMessaging(worker, handlers)
 
@@ -153,3 +140,14 @@ const runFile = file=>{
 const viewer = initTestThree(THREE, byId('root'))
 updateFromCtrl(ctrl)
 setTheme(theme)
+
+const toUrl = path => new URL(path, document.baseURI).toString()
+sendCmd('init', {
+  bundles: {
+    '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
+  },
+  baseURI: document.baseURI.toString(),
+}).then(r=>{
+  console.log('worker initialized', r)
+  runFile('jscad/planter.mesh.js')
+})

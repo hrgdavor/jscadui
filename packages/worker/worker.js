@@ -10,6 +10,7 @@ self.JSCAD_WORKER_ENV = {}
 let transformFunc = x => x
 let client
 let base = location.origin
+let userInstances
 
 export const flatten = arr=>{
   const doFlatten = (_in, out)=>{
@@ -39,6 +40,7 @@ export const init = params => {
       }
     })
   })
+  userInstances = params.userInstances
 }
 let entities = [],
   solids = []
@@ -56,11 +58,15 @@ export async function runMain({ params } = {}) {
 
   time = Date.now()
   JscadToCommon.clearCache()
-  entities = JscadToCommon(solids, transferable, false)
+  entities = JscadToCommon.prepare(solids, transferable, userInstances)
+  console.log('entities', entities)
+  entities = entities.all
+//  entities = [...entities.lines, ...entities.line, ...entities.instance]
   client.sendNotify('entities', { entities, solidsTime, entitiesTime: Date.now() - time }, transferable)
   entities = [] // we lose access to bytearray data, it is transfered, and on our side it shows length=0
 }
 
+// TODO run a script, textual, not a real file
 export const initScript = async ({ script, url }) => {
   const scriptModule = requireModule(url, script, requireForScript)
 

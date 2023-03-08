@@ -163,14 +163,10 @@ var { sphere, cube } = import_modeling3.default.primitives;
 var { translate: translate3 } = import_modeling3.default.transforms;
 var main = ({
   // @jscad-params
-  rows = 1,
-  // {type:'slider', live:1, min:1, max:20}
-  cols = 1,
-  // {type:'slider', live:1, min:1, max:20}
-  h1 = 1,
-  // {type:'slider', live:1, step:0.1, min:0.1, max:5}
-  h2 = 3
-  // {type:'slider', live:1, step:0.1, min:0.1, max:10}
+  rows = 1, // {type:'slider', live:1, min:1, max:20}
+  cols = 1, // {type:'slider', live:1, min:1, max:20}
+  h1 = 1, // {type:'slider', live:1, step:0.1, min:0.1, max:5}
+  h2 = 3 // {type:'slider', live:1, step:0.1, min:0.1, max:10}
 }) => {
   const cube1 = bottomCube({ size: [2, 2, h2], align: "TNE" });
   const cube2 = bottomCube({ size: [2, 8, h1], align: "TNE" });

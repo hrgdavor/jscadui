@@ -1,0 +1,30 @@
+{
+  "type": "module",
+  "sideEffects": false,
+  "name": "@jscadui/format-threejs",
+  "version": "0.1.0",
+  "description": "threejs format",
+  "main": "index.js",
+  "unpkg": "cjs/index.js",
+  "module": "./index.js",
+  "files": [
+    "index.js",
+    "src",
+    "esm",
+    "cjs"
+  ],
+  "scripts": {
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "build": "esbuild index.js --outdir=esm --bundle --sourcemap --minify --loader:.js=jsx --format=esm",
+    "build-cjs": "esbuild index.js --outdir=cjs --bundle --sourcemap --minify --loader:.js=jsx --format=cjs",
+    "prepublishOnly": "npm run build && npm run build-cjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.16.7",
+    "@types/node": "18.11.9",
+    "@trivago/prettier-plugin-sort-imports": "~3.3.0",
+    "vitest": "0.24.5"
+  },
+  "license": "MIT"
+}

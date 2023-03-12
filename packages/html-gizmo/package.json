@@ -1,8 +1,9 @@
 {
   "type":"module",
-  "name": "@jscadui/orbit",
+  "sideEffects": false,
+  "name": "@jscadui/html-gizmo",
   "version": "0.1.0",
-  "description": "JSCAD orbit controls",
+  "description": "JSCAD html gizmo controls",
   "main": "index.js",
   "unpkg": "cjs/index.js",
   "module": "./index.js",

@@ -1,0 +1,32 @@
+{
+  "type": "module",
+  "name": "@jscadui/fs-serviceworker",
+  "version": "0.1.0",
+  "description": "fs-serviceworker utility for worker and main window",
+  "keywords": ["postMessage","serviceworker","rpc","async","promise","worker"],
+  "main": "fs-serviceworker.js",
+  "unpkg": "cjs/fs-serviceworker.js",
+  "module": "./fs-serviceworker.js",
+  "files": [
+    "fs-serviceworker.js",
+    "esm",
+    "cjs"
+  ],
+  "scripts": {
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "build": "esbuild fs-serviceworker.js --outdir=esm --bundle --sourcemap --minify --loader:.js=jsx --format=esm",
+    "build-cjs": "esbuild fs-serviceworker.js --outdir=cjs --bundle --sourcemap --minify --loader:.js=jsx --format=cjs",
+    "prepublishOnly": "npm run build && npm run build-cjs"
+  },
+  "dependencies": {
+    "@jscadui/postmessage":"*"
+  },
+  "devDependencies": {
+    "esbuild": "^0.16.7",
+    "@types/node": "18.11.9",
+    "@trivago/prettier-plugin-sort-imports": "~3.3.0",
+    "vitest": "0.24.5"
+  },
+  "license": "MIT"
+}

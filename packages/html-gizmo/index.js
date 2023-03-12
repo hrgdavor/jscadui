@@ -1,4 +1,4 @@
-import style from './gizmo.css?inline'
+import style from './gizmo.css.txt?raw'
 
 export const names = {
   T: 'TOP',

@@ -1,0 +1,48 @@
+{
+  "name": "@jscadui/engine-test",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "npm run dev-init && npx vite --port 5120",
+    "dev-init": "npm-run-all bundle-**",
+    "build": "npx vite build",
+    "bundle-threejs": " esbuild bundle.threejs.js --outdir=build --bundle --sourcemap --minify --format=iife --global-name=THREE",
+    "bundle-regl": " esbuild bundle.regl.js --outdir=build --bundle --sourcemap --minify --format=iife --global-name=REGL",
+    "bundle-babylonjs": "esbuild bundle.babylonjs.js --outdir=build --bundle --sourcemap --minify --format=iife --global-name=BABYLON",
+    "bundle-worker": "esbuild bundle.worker.js --outdir=build --bundle --sourcemap --minify --format=iife",
+    "bundle-fs-serviceworker":"esbuild bundle.fs-serviceworker.js --outfile=fs-serviceworker.js --bundle --sourcemap --minify --format=iife",
+    "bundle-jscad_modeling": " esbuild bundle.jscad_modeling.js --outdir=build --bundle --sourcemap --minify --format=cjs",
+    "preview": "vite preview",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@jscad/modeling": "2.11.0",
+    "@jscad/regl-renderer": "^2.0.1",
+    "@jscadui/format-babylonjs": "*",
+    "@jscadui/format-jscad": "*",
+    "@jscadui/format-regl": "*",
+    "@jscadui/format-threejs": "*",
+    "@jscadui/fs-provider": "*",
+    "@jscadui/fs-serviceworker": "*",
+    "@jscadui/params": "*",
+    "@jscadui/html-gizmo": "*",
+    "@jscadui/postmessage": "*",
+    "@jscadui/render-babylonjs": "*",
+    "@jscadui/render-regl": "*",
+    "@jscadui/render-threejs": "*",
+    "@jscadui/scene": "*",
+    "@jscadui/themes": "*",
+    "@jscadui/transform-babel": "*",
+    "@jscadui/worker": "*",
+    "babylonjs": "^5.38.0",
+    "gl-matrix": "^3.4.0",
+    "@jscad/io":"2.4.4",
+    "three": "^0.147.0"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "~3.3.0",
+    "npm-run-all": "^4.1.5",
+    "vite": "^4.0.3",
+    "vitest": "0.24.5"
+  }
+}

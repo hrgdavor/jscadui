@@ -1,7 +1,7 @@
 # work in progress
 
 Most of the things are work in progres but some parts are pretty ready to be used
- - (packages/html-gizmo) - a gizmo to display current camera direction
+ - [packages/html-gizmo](./packages/html-gizmo) - a gizmo to display current camera direction
 
 # jscadui
 

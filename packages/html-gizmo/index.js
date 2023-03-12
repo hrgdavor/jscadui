@@ -1,3 +1,4 @@
+// @ts-nocheck
 import style from './gizmo.css.txt?raw'
 
 export const names = {

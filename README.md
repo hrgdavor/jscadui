@@ -1,18 +1,20 @@
+# work in progress
+
+Most of the things are work in progres but some parts are pretty ready to be used
+ - (packages/html-gizmo) - a gizmo to display current camera direction
+
 # jscadui
 
-
-Alternative jscad UI playground developed here and meant to be later contributed into jscad. This way this is not limited by jscad release cycle.
-
+A jscad UI playground developed here and meant to be later contributed into jscad. This way this is not limited by jscad release cycle.
  - support Three.js Babylon.js regl
  - create nodep pure js parameters
  - allow to be easily used within React, angula, Vue,Solidj ... or whatever is popular at some point.
  - simplify integrating worker 
 
 Worker
-- worker that can work with folder projects 
+ - worker that can work with folder projects 
  - worker for scripts that pull deps from unkpg by simply using import or require
  - worker that also works with es6 modules
-
 
 
 As proof of concet, the goal is to make UI for jscad development that should be able to visualize the changes in realtime.

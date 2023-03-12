@@ -1,9 +1,10 @@
-# work in progress
+# usable bits
 
-Most of the things are work in progres but some parts are pretty ready to be used
- - [packages/html-gizmo](./packages/html-gizmo) - a gizmo to display current camera direction
+Most of the things are work in progres, but some parts are pretty ready to be used
+ 
+- [packages/html-gizmo](./packages/html-gizmo) - a gizmo to display current camera direction
 
-# jscadui
+# About jscadui
 
 A jscad UI playground developed here and meant to be later contributed into jscad. This way this is not limited by jscad release cycle.
  - support Three.js Babylon.js regl

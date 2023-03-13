@@ -13,8 +13,8 @@ npm start
 you must run `npm i` only when you fresly checkout the project or deps change
 
 
-# if you need bundle your JSCAD scripts
-To bundle your scripts you can use this `esbuild ` command:
+# if you need to bundle your JSCAD scripts
+To bundle your jscad scripts you can use this sample `esbuild ` command:
 
 ```sh
 esbuild .\script.js --bundle --external:@jscad/modeling --outdir=build  

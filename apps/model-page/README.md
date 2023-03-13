@@ -2,7 +2,18 @@
 
 This is a project that aims to build a simple set of scripts that can be included in a HTML page to show JSCAD models. It is work in progress, but will likely improve based on user feedback.
 
-# bundle your scripts
+To run the demo first go to root folder of this repository and run `npm i`
+
+then come back to this project and start it
+```
+cd apps/model-page
+npm start
+```
+
+you must run `npm i` only when you fresly checkout the project or deps change
+
+
+# if you need bundle your JSCAD scripts
 To bundle your scripts you can use this `esbuild ` command:
 
 ```sh

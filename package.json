@@ -5,6 +5,7 @@
   "main": "index.js",
   "workspaces": [
     "packages/*",
+    "file-format/*",
     "apps/*"
   ],
   "directories": {

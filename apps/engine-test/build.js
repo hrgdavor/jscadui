@@ -21,15 +21,17 @@ copyTask('public', outDir, { include: [], exclude: [], watch, filters: [] })
 copyTask('static', outDir, { include: [], exclude: [], watch, filters: [] })
 
 /**************************** BUILD JS that is static *************/
-await buildBundle(outDir, 'bundle.regl.js', { globalName:'REGL' })
-await buildBundle(outDir, 'bundle.babylonjs.js', {globalName:'BABYLON' })
-await buildBundle(outDir, 'bundle.threejs.js', {globalName: 'THREE' })
-await buildBundle(outDir, 'bundle.jscad_modeling.js', { format: 'cjs' })
+await buildBundle(outDir + '/build', 'bundle.regl.js', { globalName: 'REGL' })
+await buildBundle(outDir + '/build', 'bundle.babylonjs.js', { globalName: 'BABYLON' })
+await buildBundle(outDir + '/build', 'bundle.threejs.js', { globalName: 'THREE' })
+await buildBundle(outDir + '/build', 'bundle.jscad_modeling.js', { format: 'cjs' })
 
 /**************************** BUILD JS THAT can change and watch in dev *************/
 await buildOne('src_bundle', outDir + '/build', 'bundle.worker.js', watch, { format: 'iife' })
-await buildOne('src_bundle', outDir, 'bundle.fs-serviceworker.js', watch, {format: 'iife'})
-await buildOne('.', outDir, 'main.js', watch, {format: 'esm'})
+
+await buildOne('src_bundle', outDir, 'bundle.fs-serviceworker.js', watch, { format: 'iife' })
+
+await buildOne('.', outDir, 'main.js', watch, { format: 'esm' })
 
 /**************************** LIVE SERVER  *************/
 

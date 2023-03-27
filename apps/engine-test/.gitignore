@@ -1,5 +1,4 @@
 
 node_modules
 build
-fs-serviceworker.js
-fs-serviceworker.js.map
+build_dev

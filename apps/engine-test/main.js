@@ -233,7 +233,7 @@ const { sendCmd, sendNotify } = initMessaging(worker, handlers)
 
 let sw
 const toUrl = path => new URL(path, document.baseURI).toString()
-registerServiceWorker('fs-serviceworker.js?prefix=/swfs/', async (path, sw) => {
+registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', async (path, sw) => {
   let arr = path.split('/').filter(p => p)
   let match = await findFileInRoots(sw.roots, arr)
   if (match) {

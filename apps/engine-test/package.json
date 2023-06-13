@@ -3,16 +3,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start": "npm run dev-init && npx vite --port 5120",
-    "dev-init": "npm-run-all bundle-**",
-    "build": "npx vite build",
-    "bundle-threejs": " esbuild bundle.threejs.js --outdir=build --bundle --sourcemap --minify --format=iife --global-name=THREE",
-    "bundle-regl": " esbuild bundle.regl.js --outdir=build --bundle --sourcemap --minify --format=iife --global-name=REGL",
-    "bundle-babylonjs": "esbuild bundle.babylonjs.js --outdir=build --bundle --sourcemap --minify --format=iife --global-name=BABYLON",
-    "bundle-worker": "esbuild bundle.worker.js --outdir=build --bundle --sourcemap --minify --format=iife",
-    "bundle-fs-serviceworker": "esbuild bundle.fs-serviceworker.js --bundle --sourcemap --minify --format=iife",
-    "bundle-jscad_modeling": " esbuild bundle.jscad_modeling.js --outdir=build --bundle --sourcemap --minify --format=cjs",
-    "preview": "vite preview",
+    "start": "node build.js --dev",
+    "build": "node build.js",
     "test": "vitest"
   },
   "dependencies": {
@@ -42,8 +34,8 @@
   "devDependencies": {
     "esbuild": "^0.17.11",
     "@jsx6/build": "0.2.0",
-    "@trivago/prettier-plugin-sort-imports": "~3.3.0",
     "live-server": "^1.2.2",
+    "@trivago/prettier-plugin-sort-imports": "~3.3.0",
     "npm-run-all": "^4.1.5",
     "vite": "^4.0.3",
     "vitest": "0.24.5"

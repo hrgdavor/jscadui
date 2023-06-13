@@ -1,7 +1,7 @@
 // this implementation exports to 3mf by filling array of strings and doing join at the encoding
 // tests for large files have shown significant speedup related to using string concatenation
 
-import { matrix2str } from "./src/matrix2str"
+import { matrix2str } from "./src/matrix2str.js"
 export * from './src/staticFiles.js'
 
 const toDate = d=> d ? d.toISOString().substring(0,10) : ''
@@ -85,9 +85,9 @@ export function to3dmodel({
         out.push(`<object id="${maxId}" type="model">\n`)
         out.push(` <components>\n`)
         objects.forEach(g=>{
-            if(g.type === 'mesh') addComp(out,g.id, g.csg.transforms)
+            if(g.type === 'mesh') addComp(out,g.id, g.csg?.transforms)
             if(g.type === 'instance'){
-                g.list.forEach(csg=>addComp(out,g.id, csg.transforms))
+                g.list.forEach(csg=>addComp(out,g.id, csg?.transforms))
             } 
         })
         out.push(` </components>\n`)

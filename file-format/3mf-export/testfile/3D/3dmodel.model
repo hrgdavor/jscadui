@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:slic3rpe="http://schemas.slic3r.org/3mf/2017/06">
+ <metadata name="slic3rpe:Version3mf">1</metadata>
+ <metadata name="Title">jscad model</metadata>
+ <metadata name="Designer"></metadata>
+ <metadata name="Description">jscad model</metadata>
+ <metadata name="Copyright"></metadata>
+ <metadata name="LicenseTerms"></metadata>
+ <metadata name="Rating"></metadata>
+ <metadata name="CreationDate">2023-06-13</metadata>
+ <metadata name="ModificationDate">2023-06-13</metadata>
+ <metadata name="Application">jscad</metadata>
+ <resources>
+  <object id="1" type="model">
+   <mesh>
+    <vertices>
+     <vertex x="-1" y="-1" z="-1" />
+     <vertex x="-1" y="-1" z="1" />
+     <vertex x="-1" y="1" z="1" />
+     <vertex x="-1" y="1" z="-1" />
+     <vertex x="1" y="-1" z="-1" />
+     <vertex x="1" y="1" z="-1" />
+     <vertex x="1" y="1" z="1" />
+     <vertex x="1" y="-1" z="1" />
+     <vertex x="-1" y="-1" z="-1" />
+     <vertex x="1" y="-1" z="-1" />
+     <vertex x="1" y="-1" z="1" />
+     <vertex x="-1" y="-1" z="1" />
+     <vertex x="-1" y="1" z="-1" />
+     <vertex x="-1" y="1" z="1" />
+     <vertex x="1" y="1" z="1" />
+     <vertex x="1" y="1" z="-1" />
+     <vertex x="-1" y="-1" z="-1" />
+     <vertex x="-1" y="1" z="-1" />
+     <vertex x="1" y="1" z="-1" />
+     <vertex x="1" y="-1" z="-1" />
+     <vertex x="-1" y="-1" z="1" />
+     <vertex x="1" y="-1" z="1" />
+     <vertex x="1" y="1" z="1" />
+     <vertex x="-1" y="1" z="1" />
+    </vertices>
+    <triangles>
+     <triangle v1="0" v2="1" v3="2" />
+     <triangle v1="0" v2="2" v3="3" />
+     <triangle v1="4" v2="5" v3="6" />
+     <triangle v1="4" v2="6" v3="7" />
+     <triangle v1="8" v2="9" v3="10" />
+     <triangle v1="8" v2="10" v3="11" />
+     <triangle v1="12" v2="13" v3="14" />
+     <triangle v1="12" v2="14" v3="15" />
+     <triangle v1="16" v2="17" v3="18" />
+     <triangle v1="16" v2="18" v3="19" />
+     <triangle v1="20" v2="21" v3="22" />
+     <triangle v1="20" v2="22" v3="23" />
+    </triangles>
+   </mesh>
+  </object>
+<object id="2" type="model">
+ <components>
+    <component objectid="1" transform="1 0 0 0 1 0 0 0 1 0 0 0" />
+ </components>
+</object>
+ </resources>
+ <build>
+     <item objectid="2" transform="1 0 0 0 1 0 0 0 1 0 0 0" />
+</build>
+</model>

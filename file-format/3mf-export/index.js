@@ -85,10 +85,10 @@ export function to3dmodel({
         out.push(`<object id="${maxId}" type="model">\n`)
         out.push(` <components>\n`)
         objects.forEach(g=>{
-            if(g.type === 'mesh') addComp(out,g.id, g.csg?.transforms)
+            if(g.type === 'mesh') addComp(out,g.id, g.transforms)
             if(g.type === 'instance'){
-                g.list.forEach(csg=>addComp(out,g.id, csg?.transforms))
-            } 
+                g.list.forEach(instance=>addComp(out,g.id, instance.transforms))
+            }
         })
         out.push(` </components>\n`)
         out.push(`</object>\n`)

@@ -18,16 +18,16 @@ let indices = [
 ]
 //#endregion
 
-const parts = []
+const zipParts = []
 const zip = new Zip(async (err, dat, final) => {
   if (!err) {
     // output of the streams
-    parts.push(dat)
+    zipParts.push(dat)
     // if (final) { // web version
     //   let blob = new Blob(parts, { type: 'application/octet-stream' })
     //   writeFileSync('testfile.3mf', blob)
     // }
-    writeFileSync('./testfile.3mf', dat, { flag: parts.length === 1 ? 'w' : 'a' })
+    writeFileSync('./testfile.3mf', dat, { flag: zipParts.length === 1 ? 'w' : 'a' })
   }
 })
 
@@ -59,7 +59,7 @@ function cavassToPngA8(canvas) {
   let url = canvas.toDataURL('image/png')
   url = url.substring(url.indexOf(',') + 1)
   // strToU8 function from fflate
-  return strToU8(url.substring(url.indexOf(',') + 1))
+  return strToU8(url)
   // string to Uint8Array taken from stackoverflow, and should work in browser
   return new Uint8Array(
     atob(url)

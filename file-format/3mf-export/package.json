@@ -2,7 +2,7 @@
   "type": "module",
   "sideEffects": false,
   "name": "@jscadui/3mf-export",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "3mf export",
   "main": "index.js",
   "unpkg": "cjs/index.js",
@@ -14,6 +14,9 @@
     "cjs"
   ],
   "scripts": {
+    "build": "esbuild index.js --outdir=esm --bundle --sourcemap --minify --loader:.js=jsx --format=esm",
+    "build-cjs": "esbuild index.js --outdir=cjs --bundle --sourcemap --minify --loader:.js=jsx --format=cjs",
+    "prepublishOnly": "npm run build && npm run build-cjs"
   },
   "devDependencies": {
     "fflate": "0.8.0",

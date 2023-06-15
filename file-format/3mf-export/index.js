@@ -1,7 +1,6 @@
 // this implementation exports to 3mf by filling array of strings and doing join at the encoding
 // tests for large files have shown significant speedup related to using string concatenation
 import { makeItem } from './src/makeItem.js'
-import { matrix2str } from './src/matrix2str.js'
 import { pushObjectWithComponents } from './src/pushObjectComponent.js'
 import { pushObjectWithMesh } from './src/pushObjectMesh.js'
 import { toDate3mf } from './src/toDate3mf.js'

@@ -59,7 +59,6 @@ export async function runMain({ params } = {}) {
   time = Date.now()
   JscadToCommon.clearCache()
   entities = JscadToCommon.prepare(solids, transferable, userInstances)
-  console.log('entities', entities)
   entities = entities.all
 //  entities = [...entities.lines, ...entities.line, ...entities.instance]
   client.sendNotify('entities', { entities, solidsTime, entitiesTime: Date.now() - time }, transferable)
@@ -81,11 +80,10 @@ export const initScript = async ({ script, url }) => {
 const importReg = /import(?:(?:(?:[ \n\t]+([^ *\n\t\{\},]+)[ \n\t]*(?:,|[ \n\t]+))?([ \n\t]*\{(?:[ \n\t]*[^ \n\t"'\{\}]+[ \n\t]*,?)+\})?[ \n\t]*)|[ \n\t]*\*[ \n\t]*as[ \n\t]+([^ \n\t\{\}]+)[ \n\t]+)from[ \n\t]*(?:['"])([^'"\n]+)(['"])/
 const exportReg = /export.*from/
 export const runFile = async ({ file }) => {
-  console.log('runFile', file, base, requireCache.alias)
-  const script = readFileWeb(resolveUrl(file,base).url,{base})
+  const script = readFileWeb(resolveUrl(file,base, base).url,{base})
 
   const shouldTransform = file.endsWith('.ts') || script.includes('import') && (importReg.test(script) || exportReg.test(script))
-  const scriptModule = require(file, shouldTransform ? transformFunc : undefined, readFileWeb, base, readFileWeb)
+  const scriptModule = require(file, shouldTransform ? transformFunc : undefined, readFileWeb, base, base, readFileWeb)
 
   const fromSource = getParameterDefinitionsFromSource(script)
   const def = combineParameterDefinitions(fromSource, await scriptModule.getParameterDefinitions?.())

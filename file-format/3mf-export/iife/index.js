@@ -1,4 +1,4 @@
-var i=Object.defineProperty;var $=Object.getOwnPropertyDescriptor;var T=Object.getOwnPropertyNames;var b=Object.prototype.hasOwnProperty;var y=(t,e)=>{for(var a in e)i(t,a,{get:e[a],enumerable:!0})},j=(t,e,a,o)=>{if(e&&typeof e=="object"||typeof e=="function")for(let n of T(e))!b.call(t,n)&&n!==a&&i(t,n,{get:()=>e[n],enumerable:!(o=$(e,n))||o.enumerable});return t};var C=t=>j(i({},"__esModule",{value:!0}),t);var M={};y(M,{fileForContentTypes:()=>v,fileForRelThumbnail:()=>k,to3dmodel:()=>E});module.exports=C(M);var f=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];var u=t=>{let e="";for(let a=0;a<16;a++)a%4!=3&&(a>0&&(e+=" "),e+=t[a]||0);return e};var l=(t=0,e=f)=>`    <item objectid="${t}" transform="${u(e)}" />
+var juExport3mf=(()=>{var i=Object.defineProperty;var $=Object.getOwnPropertyDescriptor;var T=Object.getOwnPropertyNames;var b=Object.prototype.hasOwnProperty;var y=(t,e)=>{for(var a in e)i(t,a,{get:e[a],enumerable:!0})},j=(t,e,a,o)=>{if(e&&typeof e=="object"||typeof e=="function")for(let n of T(e))!b.call(t,n)&&n!==a&&i(t,n,{get:()=>e[n],enumerable:!(o=$(e,n))||o.enumerable});return t};var C=t=>j(i({},"__esModule",{value:!0}),t);var M={};y(M,{fileForContentTypes:()=>v,fileForRelThumbnail:()=>k,to3dmodel:()=>E});var f=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];var u=t=>{let e="";for(let a=0;a<16;a++)a%4!=3&&(a>0&&(e+=" "),e+=t[a]||0);return e};var l=(t=0,e=f)=>`    <item objectid="${t}" transform="${u(e)}" />
 `;var c=t=>t?t.toISOString().substring(0,10):"";function x(t,{unit:e="millimeter",title:a="jscad model",author:o="",description:n="",application:m="jscad",creationDate:s=new Date,license:r="",modificationDate:p}){t.push(`<?xml version="1.0" encoding="UTF-8"?>
 <model unit="${e}" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:slic3rpe="http://schemas.slic3r.org/3mf/2017/06">
   <metadata name="slic3rpe:Version3mf">1</metadata>
@@ -40,5 +40,5 @@ var i=Object.defineProperty;var $=Object.getOwnPropertyDescriptor;var T=Object.g
 `),m.push(`<build>
 `,...n,`</build>
 `),m.push(`</model>
-`),m.join("")}
+`),m.join("")}return C(M);})();
 //# sourceMappingURL=index.js.map

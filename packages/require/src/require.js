@@ -30,10 +30,10 @@ export const selfish = (func, context) => {
   return out
 }
 
-export const resolveUrl = (url,base, moduleBase=MODULE_BASE)=>{
+export const resolveUrl = (url, base, root, moduleBase=MODULE_BASE)=>{
   let isRealtiveFile = false
   let isModule = false
-
+  
   if (!/^(http:|https:|fs:|file:)/.test(url)) {
     if (!/(\.\/|\..\/|\/)/.test(url)) {
       isModule = true
@@ -42,16 +42,17 @@ export const resolveUrl = (url,base, moduleBase=MODULE_BASE)=>{
       isRealtiveFile = true
       // sanitize to avoid going below root, it will prevent / to go below cache baseUrl
       // it will prevent ../../../../ to go below cache baseUrl
+      let fromRoot = root && url[0] === '/' 
       url = new URL(url, 'fs:/').toString().substring(4)
       // now create the full url to load the file
-      url = new URL(url, base).toString()
+      url = new URL(url, fromRoot ? root : base).toString()
     }
   }
-
+  
   return {url,isRealtiveFile,isModule}
 }
 
-export function require(_url, transform, _readFile, _base, readModule, moduleBase = MODULE_BASE) {
+export function require(_url, transform, _readFile, _base, root, readModule, moduleBase = MODULE_BASE) {
   let readFile = _readFile
   let base = _base
 
@@ -61,7 +62,7 @@ export function require(_url, transform, _readFile, _base, readModule, moduleBas
   
   if(bundleAlias) _url = bundleAlias
 
-  let {url,isRealtiveFile,isModule} = resolveUrl(_url,base,moduleBase)
+  let {url,isRealtiveFile,isModule} = resolveUrl(_url, base, root, moduleBase)
 
   if(isModule) readFile = readModule
   base = url
@@ -88,7 +89,7 @@ export function require(_url, transform, _readFile, _base, readModule, moduleBas
     }
     // do not transform bundles that are already cjs ( requireCache.bundleAlias.*)
     if (transform && !bundleAlias) source = transform(source, url).code
-    let requireFunc = newUrl => require(newUrl, transform, readFile, url, readModule, moduleBase)
+    let requireFunc = newUrl => require(newUrl, transform, readFile, url, root, readModule, moduleBase)
     const module = requireModule(url, source, requireFunc)
     module.local = isRealtiveFile
     cache[cacheUrl] = exports = module.exports // cache obj exported by module
@@ -117,7 +118,7 @@ export function requireModule(url, source, _require) {
 export const clearFileCache = async ({files}) => {
   const cache = requireCache.local
   files.forEach(f=>{
-    console.log('clear', f, cache[f])
+    console.warn('clear', f, cache[f])
     delete cache[f]
   })
 }

@@ -1,10 +1,11 @@
 # Cube camera gizmo Web Component
 
+| ![gizmo in action](docs/gizmo.gif)    | Check the demo at: https://hrgdavor.github.io/jscadui/html-gizmo/    |
+| ---- | ---- |
 
 
-![gizmo in action](docs/gizmo.gif)
 
-Check the demo at: https://hrgdavor.github.io/jscadui/html-gizmo/
+
 
 ## Install
 

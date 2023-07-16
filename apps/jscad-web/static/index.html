@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="main.css"/>
     <title>JSCAD - JavaScript CAD</title>
@@ -10,11 +10,6 @@
   <body>
     <div class="container">
       <div class="layout" id="layout">
-        <div>
-          <select id="themeSelect"></select>
-          <button onclick="exportModel('stl')">Export stl</button>
-          <div id="paramsDiv"></div>
-        </div>
         <div id="root" solo style="overflow: hidden;">
           <div class="box" id="box_three">
             <div class="boxInfo"><b><input type="checkbox" id="box_three_c"/><i></i></b></div>
@@ -35,6 +30,7 @@
         <div id="menu-content">
           <h2>Options</h2>
           <ul>
+            <li><select id="themeSelect"></select></li>
             <li><label for="show-axis">Show Axis</label><input type="checkbox" id="show-axis"></li>
             <li><label for="show-grid">Show Grid</label><input type="checkbox" id="show-grid"></li>
           </ul>
@@ -51,6 +47,11 @@
           <h2>Examples</h2>
           <ul></ul>
         </div>
+      </div>
+
+      <div id="model-options">
+        <div id="paramsDiv"></div>
+        <button id="button-export" onclick="exportModel('stl')">Export STL</button>
       </div>
 
       <div id="welcome">

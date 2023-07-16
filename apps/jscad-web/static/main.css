@@ -56,21 +56,8 @@ body {
   background-color: #666;
 }
 
-.box > .boxInfo{
-  position: absolute;
-  top: 0; left: 50%;
-  text-align: center;
-  z-index: 1;
-}
-.box > .boxInfo i{
-  font-style: normal;
-}
-.box > .boxInfo b{
-  display: inline-block;
-  padding: 2px 4px;
-  border-radius: 3px;
-  background-color: rgba(200,200,200,0.5);
-  margin-left: -50%;
+.box > .boxInfo {
+  display: none;
 }
 
 .formRow{
@@ -87,75 +74,10 @@ body {
   width: 55px;
 }
 
-#paramsDiv{
-  padding:20px;
-  overflow: auto;
-  background: white;
-  border: solid 1px gray;
-}
-
-#paramsDiv {
-	padding: 20px;
-	color: black;
-	overflow: auto;
-  background: rgba(255,255,255,0.5);
-}
-	#paramsDiv .form-line label{
-		display: block;
-		min-width: 100px;
-		color: black;
-		font-family: Verdana;
-	}
-
-	#paramsDiv .form-line label i{
-		display: none;
-	}
-	#paramsDiv .form-line[type="color"] label i,
-	#paramsDiv .form-line[type="range"] label i,
-	#paramsDiv .form-line[type="slider"] label i{
-		display: inline-block;
-		padding: 0 5px;
-		margin-left: 5px;
-		border: solid 1px #eee;
-	}
-
-	#paramsDiv .form-line[type="group"]{
-		position: relative;
-	}
-
-	#paramsDiv .form-line[type="group"]:before{
-		position: absolute;
-		content: ">";
-		font-weight: bold;
-		left: -12px;
-		color: gray;
-		transform: rotate(90deg);
-	}
-	#paramsDiv .form-line[type="group"][closed="1"]:before{
-		transform: rotate(0deg);
-	}
-
-	#paramsDiv .form-line[type="group"] label{
-		font-weight: bold;
-		font-size: 1.1em;
-		cursor: pointer;
-	}
-	#paramsDiv .form-line:not([type="group"]){
-		padding-left: 10px;
-	}
-	#paramsDiv .form-line[closed="1"]:not([type="group"]){
-		display: none;
-	}
-	#paramsDiv .form-line[type="checkbox"] label{
-		display: inline-block;
-	}
-	#paramsDiv .form-line input[type="range"]{
-		width: 100%;
-	}
-
 jscadui-gizmo{
   position: absolute;
-  top: 0; right: 0;
+  top: 10px;
+  right: 10px;
   --cube-size: 100px;
 /*  --cube-line-color: #666;
   --cube-z-color: #00a;
@@ -175,8 +97,6 @@ body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   background-color: #eee;
   color: #222;
-  margin: 0;
-  padding: 0;
 }
 
 a {
@@ -184,7 +104,11 @@ a {
   text-decoration: none;
 }
 button {
-  border: none;
+	padding: 2px 4px;
+	border: 1px solid #888;
+	border-radius: 2px;
+	background-color: #fff;
+	font-size: 12pt;
 }
 h1 {
   margin-bottom: 10px;
@@ -269,8 +193,9 @@ p {
   left: 10px;
 }
 #menu-button {
+  border: none;
+  background-color: transparent;
   cursor: pointer;
-  font-size: 12pt;
 }
 #menu-button::after {
   padding-left: 5px;
@@ -307,12 +232,94 @@ p {
   cursor: pointer;
 }
 
+#model-options {
+	position: absolute;
+  bottom: 10px;
+	left: 10px;
+  padding: 5px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.5);
+}
+#paramsDiv {
+  overflow: auto;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+}
+#paramsDiv button {
+  margin-right: 2px;
+}
+#paramsDiv .form-line {
+  width: 250px;
+  display: flex;
+}
+#paramsDiv .form-line label {
+  display: block;
+  min-width: 100px;
+}
+
+#paramsDiv .form-line label i {
+  display: none;
+}
+#paramsDiv .form-line[type="color"] label i,
+#paramsDiv .form-line[type="range"] label i,
+#paramsDiv .form-line[type="slider"] label i {
+  display: inline-block;
+  padding: 0 5px;
+  margin-left: 5px;
+  border: solid 1px #eee;
+}
+
+#paramsDiv .form-line[type="group"] {
+  position: relative;
+}
+
+#paramsDiv .form-line[type="group"]:before {
+  position: absolute;
+  content: ">";
+  font-weight: bold;
+  left: -12px;
+  color: gray;
+  transform: rotate(90deg);
+}
+#paramsDiv .form-line[type="group"][closed="1"]:before {
+  transform: rotate(0deg);
+}
+
+#paramsDiv .form-line[type="group"] label {
+  font-weight: bold;
+  font-size: 1.1em;
+  cursor: pointer;
+}
+#paramsDiv .form-line:not([type="group"]) {
+  padding-left: 10px;
+}
+#paramsDiv .form-line[closed="1"]:not([type="group"]) {
+  display: none;
+}
+#paramsDiv .form-line[type="checkbox"] label {
+  display: inline-block;
+}
+#paramsDiv .form-line[type="choice"] label {
+  display: inline-block;
+  flex: 1;
+}
+#paramsDiv .form-line input[type="range"] {
+  width: 100%;
+}
+#paramsDiv .jscad-param-buttons {
+  display: none;
+}
+#button-export {
+  float: right;
+}
+
 #welcome {
   position: absolute;
   top: 10%;
   padding: 30px;
   border-radius: 10px;
-  background-color: rgba(180, 180, 180, 0.9);
+  background-color: rgba(120, 120, 120, 0.8);
   z-index: 20000;
 }
 @media (min-width: 768px) {

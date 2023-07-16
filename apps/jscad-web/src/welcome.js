@@ -4,6 +4,9 @@ let showing = true
 export const init = () => {
   document.body.addEventListener("mousedown", () => dismiss())
   document.body.addEventListener("click", () => dismiss())
+  document.body.addEventListener("drop", () => dismiss())
+  document.body.addEventListener("dragstart", () => dismiss())
+  document.body.addEventListener("dragover", () => dismiss())
 }
 
 const dismiss = () => {

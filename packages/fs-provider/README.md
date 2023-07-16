@@ -4,7 +4,7 @@ Provider that fills cache for `fs-service-worker` that you need in your main scr
 
 Use case is for creating a virtual folder that can be accessed by JavaScript during fetch or sync/async XMLHttpRequest. 
 
-## utilities for `RileReader`
+## utilities for `FileReader`
 
 [FileReader](https://developer.mozilla.org/en-US/docs/Web/API/FileReader) is a bit old and does not use promises. It is a bit cumbersome to use. This is why in this library you have convenient `async` functions that you can use with `.then()` or `await`.
 

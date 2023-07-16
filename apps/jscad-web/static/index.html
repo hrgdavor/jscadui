@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="main.css"/>
+    <title>JSCAD - JavaScript CAD</title>
+  </head>
+  <body>
+    <div class="layout" id="layout">
+      <div>
+        <select id="themeSelect"></select>
+        <button onclick="exportModel('stl')">Export stl</button>
+        <div id="paramsDiv"></div>
+      </div>
+      <div id="root" solo style="overflow: hidden;">
+        <div class="box" id="box_three">
+          <div class="boxInfo"><b><input type="checkbox" id="box_three_c"/><i></i></b></div>
+        </div>
+        <div class="box" id="box_babylon" hidden>
+          <div class="boxInfo"><b><input type="checkbox" id="box_babylon_c"/><i></i></b></div>
+        </div>
+        <div class="box" id="box_regl" hidden>
+          <div class="boxInfo"><b><input type="checkbox" id="box_regl_c"/><i></i></b></div>
+        </div>
+        <div class="box" id="box_twgl" hidden>
+          <div class="boxInfo"><b><input type="checkbox" id="box_twgl_c"/><i></i></b></div>
+        </div>
+      </div>
+    </div>
+    <div id="dropModal">drop jscad script to execute it</div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>

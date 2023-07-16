@@ -169,6 +169,11 @@ let animTimer, stateStart, stateEnd, startTime
 const darkMode = byId('dark-mode')
 darkMode.addEventListener('change', () => {
   const themeName = darkMode.checked ? 'dark' : 'light'
+  if (darkMode.checked) {
+    document.body.classList.add('dark')
+  } else {
+    document.body.classList.remove('dark')
+  }
   engineState.setTheme(themes[themeName])
   setViewerScene(model)
 })

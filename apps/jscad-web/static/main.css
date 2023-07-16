@@ -10,10 +10,18 @@ body, html {
 }
 
 body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: #eee;
+  color: #222;
   overflow: hidden;
   display: flex;
   justify-content: stretch;
   align-items: stretch;
+}
+
+body.dark {
+  background-color: #333;
+  color: #ccc;
 }
 
 .layout{
@@ -93,12 +101,6 @@ jscadui-gizmo{
 jscadui-gizmo::part(face){
 }
 
-body {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  background-color: #eee;
-  color: #222;
-}
-
 a {
   color: #09f;
   text-decoration: none;
@@ -109,6 +111,10 @@ button {
 	border-radius: 2px;
 	background-color: #fff;
 	font-size: 12pt;
+  color: #111;
+}
+.dark button {
+  color: #eee;
 }
 h1 {
   margin-bottom: 10px;
@@ -174,6 +180,9 @@ p {
   display: flex;
   cursor: col-resize;
 }
+.dark #editor-toggle {
+  background-color: #758;
+}
 #editor-toggle::after {
   content: "\27E8";
   display: flex;
@@ -185,6 +194,9 @@ p {
 .cm-editor {
   width: 400px;
   height: 100%;
+}
+.dark .cm-gutters {
+  background-color: #888;
 }
 
 #menu {
@@ -210,12 +222,18 @@ p {
   border: 1px solid #444;
   background-color: #f8f8f8;
 }
+.dark #menu-content {
+  background-color: #444;
+}
 .open #menu-content {
   display: block;
 }
 #menu-content h2 {
   border-bottom: 1px solid #111;
   margin-bottom: 5px;
+}
+.dark #menu-content h2 {
+  border-bottom: 1px solid #999;
 }
 #menu-content ul {
   margin-bottom: 10px;
@@ -240,6 +258,9 @@ p {
   padding: 5px;
   border-radius: 5px;
   background: rgba(255, 255, 255, 0.5);
+}
+.dark #model-options {
+  background: rgba(100, 100, 100, 0.5);
 }
 #paramsDiv {
   overflow: auto;
@@ -312,7 +333,7 @@ p {
   display: none;
 }
 #button-export {
-  float: right;
+  color: #333;
 }
 
 #welcome {

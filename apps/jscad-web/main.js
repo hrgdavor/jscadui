@@ -346,6 +346,16 @@ async function fileDropped(ev) {
       file.fsDir = '/'
       rootFiles = await readDir(file)
     } else {
+      console.log("just one file dropped", file)
+      file.file((contents) => {
+        const reader = new FileReader()
+        reader.onload = function (event) {
+          // Load into editor
+          editor.setSource(event.target.result)
+        }
+        reader.readAsText(contents)
+      })
+
       rootFiles.push(file)
       fileToRun = file.name
     }

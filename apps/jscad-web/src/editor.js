@@ -9,14 +9,16 @@ export const main = () => {
 }
 `
 
+let view
+
 export const init = () => {
   // Initialize codemirror
   const editorDiv = document.getElementById("editor-container")
-  const view = new EditorView({
+  view = new EditorView({
     extensions: [basicSetup, javascript()],
     parent: editorDiv,
   })
-  view.dispatch({changes: {from: 0, to: view.state.doc.length, insert: initialCode}})
+  setSource(initialCode)
 
   // Initialize drawer action
   const editor = document.getElementById("editor")
@@ -28,4 +30,8 @@ export const init = () => {
   if (window.innerWidth < 768) {
     editor.classList.remove("open")
   }
+}
+
+export const setSource = (source) => {
+  view.dispatch({changes: {from: 0, to: view.state.doc.length, insert: source}})
 }

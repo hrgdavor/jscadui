@@ -112,10 +112,9 @@ export const genParams = ({
 
     const inputFunc = funcs[type] || inputDefault
 
-    if (type == 'checkbox') html += inputFunc(def)
     html += `${caption}<i>${def.value}</i></label>`
 
-    if (inputFunc && type != 'checkbox') html += inputFunc(def)
+    if (inputFunc) html += inputFunc(def)
 
     if (!inputFunc) missing[type] = 1
 

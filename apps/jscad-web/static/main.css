@@ -10,9 +10,9 @@ body, html {
 }
 
 body {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  background-color: #eee;
-  color: #222;
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: #fafafa;
+  color: #333;
   overflow: hidden;
   display: flex;
   justify-content: stretch;
@@ -53,11 +53,9 @@ body.dark {
   background-color: rgba(0,0,0,0.5);
 }
 
-.box{
+.box {
   position: relative;
   overflow: hidden;
-  background-color:#333;
-  font-family:sans-serif;
 }
 
 .box:nth-child(2),.box:nth-child(3){
@@ -82,28 +80,40 @@ body.dark {
   width: 55px;
 }
 
-jscadui-gizmo{
+jscadui-gizmo {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 15px;
+  right: 15px;
   --cube-size: 100px;
-/*  --cube-line-color: #666;
-  --cube-z-color: #00a;
-  --cube-x-color: #900;
-  --cube-y-color: #090;
-  --cube-bg: #222;
-  --cube-fg: #aaa;
-  --cube-bg-hover: #444;
-  --cube-fg-hover: #aaa;
-  --cube-corner-radius: 5px;*/
+/*  --cube-corner-radius: 5px;*/
+}
+.dark jscadui-gizmo {
+  --cube-line-color: #333;
+  --cube-bg: #111;
+  --cube-fg: #999;
+  --cube-bg-hover: #555560;
+  --cube-fg-hover: #ccc;
 }
 
 jscadui-gizmo::part(face){
 }
 
 a {
-  color: #09f;
+  color: #08d;
   text-decoration: none;
+}
+a:active,
+a:focus,
+a:hover {
+  color: #06a;
+}
+.dark a:active,
+.dark a:focus,
+.dark a:hover {
+  color: #09e;
+}
+.dark a:focus-visible {
+  outline: 1px solid #eee;
 }
 button {
 	padding: 2px 4px;
@@ -111,16 +121,36 @@ button {
 	border-radius: 2px;
 	background-color: #fff;
 	font-size: 12pt;
-  color: #111;
+  color: #222;
+  cursor: pointer;
 }
 .dark button {
-  color: #eee;
+  color: #ddd;
 }
 h1 {
   margin-bottom: 10px;
 }
 h2 {
   font-weight: normal;
+  font-size: 16pt;
+  padding-right: 20px;
+}
+input {
+  border: 1px solid #999;
+  border-radius: 3px;
+  padding: 2px 4px;
+  transition: border 0.3s;
+}
+input:focus {
+  outline: none;
+  border: 1px solid #555;
+}
+input[type="checkbox"],
+input[type="color"],
+input[type="radio"],
+input[type="range"],
+select {
+  cursor: pointer;
 }
 p {
   margin-bottom: 10px;
@@ -163,6 +193,9 @@ p {
   color: #bbb;
   white-space: nowrap;
 }
+.dark #editor-hint {
+  color: #888;
+}
 #editor-toggle {
   background-color: #ebf;
   position: absolute;
@@ -181,7 +214,7 @@ p {
   cursor: col-resize;
 }
 .dark #editor-toggle {
-  background-color: #758;
+  background-color: #657;
 }
 #editor-toggle::after {
   content: "\27E8";
@@ -195,19 +228,60 @@ p {
   width: 400px;
   height: 100%;
 }
+.cm-gutters {
+  border-right: none !important;
+}
 .dark .cm-gutters {
-  background-color: #888;
+  background-color: #445;
+  color: #aaa;
+}
+.dark .cm-activeLineGutter {
+  background-color: #667;
+}
+.dark .cm-activeLine {
+  background-color: #8888bb44;
+}
+.dark .cm-cursor {
+  border-left-color: #ddd;
+}
+.dark .cm-selectionBackground {
+  background-color: #667 !important;
+}
+.dark .ͼb {
+  color: #c8d;
+}
+.dark .ͼd {
+  color: #4b8;
+}
+.dark .ͼe {
+  color: #e77;
+}
+.dark .ͼg {
+  color: #3af;
+}
+.dark .ͼl {
+  color: #a8f;
+}
+.dark .ͼm {
+  color: #d85;
 }
 
 #menu {
   position: absolute;
   top: 10px;
   left: 10px;
+  z-index: 3000;
 }
 #menu-button {
   border: none;
   background-color: transparent;
   cursor: pointer;
+}
+#menu-button:hover {
+  color: #111;
+}
+.dark #menu-button:hover {
+  color: #eee;
 }
 #menu-button::after {
   padding-left: 5px;
@@ -241,30 +315,32 @@ p {
 }
 #menu-content li {
   display: flex;
+  padding-left: 5px;
+  margin-bottom: 1px;
 }
 #menu-content label {
   flex: 1;
   cursor: pointer;
   user-select: none;
 }
-#menu-content input[type="checkbox"] {
-  cursor: pointer;
-}
 
 #model-options {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid #aaaaaa88;
+  border-radius: 5px;
 	position: absolute;
   bottom: 10px;
 	left: 10px;
-  padding: 5px;
-  border-radius: 5px;
-  background: rgba(255, 255, 255, 0.5);
+  z-index: 2000;
+  max-height: calc(100% - 50px);
+  overflow-y: auto;
 }
 .dark #model-options {
-  background: rgba(100, 100, 100, 0.5);
+  background: rgba(60, 60, 60, 0.5);
+  border: 1px solid #33333388;
 }
 #paramsDiv {
   overflow: auto;
-  padding: 5px;
   display: flex;
   flex-direction: column;
 }
@@ -272,12 +348,14 @@ p {
   margin-right: 2px;
 }
 #paramsDiv .form-line {
-  width: 250px;
+  min-width: 260px;
   display: flex;
+  margin: 1px 10px;
 }
 #paramsDiv .form-line label {
-  display: block;
+  display: inline-block;
   min-width: 100px;
+  flex: 1;
 }
 
 #paramsDiv .form-line label i {
@@ -294,37 +372,30 @@ p {
 
 #paramsDiv .form-line[type="group"] {
   position: relative;
+  background: linear-gradient(180deg, #00000014, transparent);
+  padding: 5px 10px;
+  margin: 10px 0 0 0;
+}
+#paramsDiv .form-line[type="group"]:first-child {
+  margin-top: 0;
 }
 
 #paramsDiv .form-line[type="group"]:before {
-  position: absolute;
-  content: ">";
-  font-weight: bold;
-  left: -12px;
-  color: gray;
-  transform: rotate(90deg);
+  content: "\25bc";
+  padding-right: 10px;
+  color: #555;
 }
 #paramsDiv .form-line[type="group"][closed="1"]:before {
-  transform: rotate(0deg);
+  content: "\25b6";
 }
 
 #paramsDiv .form-line[type="group"] label {
-  font-weight: bold;
-  font-size: 1.1em;
+  font-weight: normal;
+  font-size: 1.2em;
   cursor: pointer;
-}
-#paramsDiv .form-line:not([type="group"]) {
-  padding-left: 10px;
 }
 #paramsDiv .form-line[closed="1"]:not([type="group"]) {
   display: none;
-}
-#paramsDiv .form-line[type="checkbox"] label {
-  display: inline-block;
-}
-#paramsDiv .form-line[type="choice"] label {
-  display: inline-block;
-  flex: 1;
 }
 #paramsDiv .form-line input[type="range"] {
   width: 100%;
@@ -334,6 +405,7 @@ p {
 }
 #button-export {
   color: #333;
+  margin: 5px;
 }
 
 #welcome {
@@ -341,8 +413,12 @@ p {
   top: 10%;
   padding: 30px;
   border-radius: 10px;
-  background-color: rgba(120, 120, 120, 0.8);
-  z-index: 20000;
+  background-color: rgba(240, 240, 240, 0.85);
+  backdrop-filter: blur(10px);
+  z-index: 4000;
+}
+.dark #welcome {
+  background-color: rgba(30, 30, 30, 0.85);
 }
 @media (min-width: 768px) {
   #welcome {

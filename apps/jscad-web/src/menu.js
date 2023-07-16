@@ -1,17 +1,28 @@
 
+const menu = document.getElementById("menu")
+
 export const init = () => {
-  const menu = document.getElementById("menu")
   const button = document.getElementById("menu-button")
+  const content = document.getElementById("menu-content")
+
+  // Menu button
   button.addEventListener("click", () => {
     menu.classList.toggle("open")
   })
 
+  // Close menu when anything else is clicked
   window.addEventListener("click", (e) => {
-    if (!menu.contains(e.target)) {
-      menu.classList.remove("open")
+    if (!button.contains(e.target) && !content.contains(e.target)) {
+      dismiss()
     }
   })
+  window.addEventListener("drop", () => dismiss())
+  window.addEventListener("dragstart", () => dismiss())
+  window.addEventListener("dragover", () => dismiss())
 
   // TODO: add examples to menu
-  const content = document.getElementById("menu-content")
+}
+
+const dismiss = () => {
+  menu.classList.remove("open")
 }

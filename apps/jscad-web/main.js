@@ -19,7 +19,7 @@ const themes = {
     color: [1, 0.4, 0, 1],
     bg: [0.211, 0.2, 0.207, 1],
     grid1: [1, 1, 1, 0.5],
-    grid2: [0.6, 0.8, 0.8, 0.4],
+    grid2: [0.55, 0.55, 0.8, 0.4],
   }
 }
 
@@ -417,3 +417,5 @@ async function fileDropped(ev) {
 
 // Initialize three engine
 engineState.initEngine(byId('box_three'), 'three', ctrl)
+engineState.updateGrid()
+setViewerScene(model)

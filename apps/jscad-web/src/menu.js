@@ -6,6 +6,12 @@ export const init = () => {
     menu.classList.toggle("open")
   })
 
-  // add examples to menu
+  window.addEventListener("click", (e) => {
+    if (!menu.contains(e.target)) {
+      menu.classList.remove("open")
+    }
+  })
+
+  // TODO: add examples to menu
   const content = document.getElementById("menu-content")
 }

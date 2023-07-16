@@ -40,7 +40,6 @@ import {
   registerServiceWorker,
 } from '../../packages/fs-provider/fs-provider'
 import { availableEngines, availableEnginesList } from './src/availableEngines'
-import { CurrentUrl } from './src/currentUrl'
 import { EngineState } from './src/engineState'
 
 const theme = themes.light
@@ -57,11 +56,9 @@ menu.init()
 welcome.init()
 
 export const byId = id => document.getElementById(id)
-const currentUrl = new CurrentUrl()
 customElements.define('jscadui-gizmo', Gizmo)
 
 const engineState = new EngineState(availableEngines, theme, makeAxes, makeGrid)
-const useEngines = currentUrl.initGet('engines', 'three').split(',')
 
 // Axis and grid options
 const showAxis = byId('show-axis')
@@ -418,13 +415,5 @@ async function fileDropped(ev) {
   }
 }
 
-// ************ init ui     *********************************
-
-window.boxInfoClick = function (event, box) {
-  console.log('boxInfoClick', box, event.target)
-}
-
-Promise.all(useEngines.map(engine => engineState.initEngine(byId('box_' + engine), engine, ctrl))).then(() => {
-  //
-  console.log('engines initialized', useEngines)
-})
+// Initialize three engine
+engineState.initEngine(byId('box_three'), 'three', ctrl)

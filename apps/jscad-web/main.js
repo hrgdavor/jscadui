@@ -156,17 +156,12 @@ const doAnim = () => {
 let animDuration = 200
 let animTimer, stateStart, stateEnd, startTime
 
-const sel = byId('themeSelect')
-for (let tn in themes) {
-  const tmp = themes[tn]
-  sel.add(new Option(tmp.name, tn))
-}
-sel.value = 'light'
-sel.oninput = e => {
-  const theme = themes[sel.value]
-  engineState.setTheme(theme)
+const darkMode = byId('dark-mode')
+darkMode.addEventListener('change', () => {
+  const themeName = darkMode.checked ? 'dark' : 'light'
+  engineState.setTheme(themes[themeName])
   setViewerScene(model)
-}
+})
 
 let checkChange_timer
 let fileToWatch

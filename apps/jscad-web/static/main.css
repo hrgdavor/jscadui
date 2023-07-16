@@ -227,6 +227,7 @@ p {
 #menu-content label {
   flex: 1;
   cursor: pointer;
+  user-select: none;
 }
 #menu-content input[type="checkbox"] {
   cursor: pointer;

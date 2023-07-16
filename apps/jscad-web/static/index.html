@@ -8,19 +8,67 @@
     <title>JSCAD - JavaScript CAD</title>
   </head>
   <body>
-    <div class="layout" id="layout">
-      <div>
-        <select id="themeSelect"></select>
-        <button onclick="exportModel('stl')">Export stl</button>
-        <div id="paramsDiv"></div>
-      </div>
-      <div id="root" solo style="overflow: hidden;">
-        <div class="box" id="box_three">
-          <div class="boxInfo"><b><input type="checkbox" id="box_three_c"/><i></i></b></div>
+    <div class="container">
+      <div class="layout" id="layout">
+        <div>
+          <select id="themeSelect"></select>
+          <button onclick="exportModel('stl')">Export stl</button>
+          <div id="paramsDiv"></div>
+        </div>
+        <div id="root" solo style="overflow: hidden;">
+          <div class="box" id="box_three">
+            <div class="boxInfo"><b><input type="checkbox" id="box_three_c"/><i></i></b></div>
+          </div>
         </div>
       </div>
+
+      <div id="editor" class="open">
+        <div id="editor-drawer">
+          <div id="editor-container"></div>
+          <div id="editor-hint">Shift-enter to update</div>
+        </div>
+        <div id="editor-toggle"></div>
+      </div>
+
+      <div id="menu">
+        <button id="menu-button">JSCAD</button>
+        <div id="menu-content">
+          <h2>Options</h2>
+          <ul>
+            <li><label for="show-axis">Show Axis</label><input type="checkbox" id="show-axis"></li>
+            <li><label for="show-grid">Show Grid</label><input type="checkbox" id="show-grid"></li>
+          </ul>
+
+          <h2>Documentation</h2>
+          <ul>
+            <li><a href="https://openjscad.xyz/dokuwiki/doku.php" target="_blank">User Guide</a></li>
+            <li><a href="https://openjscad.xyz/docs/" target="_blank">API Reference</a></li>
+            <li><a href="https://github.com/jscad/OpenJSCAD.org/issues" target="_blank">GitHub Issues</a></li>
+            <li><a href="https://openjscad.nodebb.com/" target="_blank">User Group</a></li>
+            <li><a href="https://discord.com/invite/AaqGskur93" target="_blank">Discord Community</a></li>
+          </ul>
+
+          <h2>Examples</h2>
+          <ul></ul>
+        </div>
+      </div>
+
+      <div id="welcome">
+        <h1>JSCAD</h1>
+        <p>
+          JSCAD is an open source set of modular, browser and command line tools for creating parametric 2D and 3D CAD designs with JavaScript code.
+        </p>
+        <p>
+          Use the code editor to create CAD designs.
+        </p>
+        <p>
+          Or drag and drop models on to the editor.
+        </p>
+      </div>
+
     </div>
     <div id="dropModal">drop jscad script to execute it</div>
+
     <script type="module" src="/main.js"></script>
   </body>
 </html>

@@ -32,6 +32,14 @@ const { subtract } = booleans
 const { translate } = transforms
 const { colorize } = colors
 
+import * as editor from "./src/editor.js"
+import * as menu from "./src/menu.js"
+import * as welcome from "./src/welcome.js"
+
+editor.init()
+menu.init()
+welcome.init()
+
 export const byId = id => document.getElementById(id)
 const currentUrl = new CurrentUrl()
 customElements.define('jscadui-gizmo', Gizmo)

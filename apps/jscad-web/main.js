@@ -63,6 +63,16 @@ customElements.define('jscadui-gizmo', Gizmo)
 const engineState = new EngineState(availableEngines, theme, makeAxes, makeGrid)
 const useEngines = currentUrl.initGet('engines', 'three').split(',')
 
+// Axis and grid options
+const showAxis = byId('show-axis')
+const showGrid = byId('show-grid')
+showAxis.addEventListener('change', () => {
+  engineState.setAxes(showAxis.checked ? makeAxes : undefined)
+})
+showGrid.addEventListener('change', () => {
+  engineState.setGrid(showGrid.checked ? makeGrid : undefined)
+})
+
 const gizmo = (window.gizmo = new Gizmo())
 byId('layout').appendChild(gizmo)
 

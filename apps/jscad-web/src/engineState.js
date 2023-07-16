@@ -9,17 +9,27 @@ export class EngineState {
 
   constructor(availableEngines, theme, makeAxes, makeGrid) {
     this.theme = theme
-    // this.makeAxes = makeAxes
+    this.makeAxes = makeAxes
     this.makeGrid = makeGrid
     this.availableEngines = availableEngines
-    if (makeAxes) this.axes = [makeAxes(50)]
     this.updateGrid()
   }
 
   updateGrid() {
-    const { theme, makeGrid } = this
-    if (makeGrid) this.grid = makeGrid({ size: 200, color1: theme.grid1, color2: theme.grid2 })
+    const { theme, makeAxes, makeGrid } = this
+    this.axes = makeAxes ? [makeAxes(50)] : undefined
+    this.grid = makeGrid ? makeGrid({ size: 200, color1: theme.grid1, color2: theme.grid2 }) : undefined
     this.setSceneToAll(this.viewers)
+  }
+
+  setAxes(makeAxes) {
+    this.makeAxes = makeAxes
+    this.updateGrid()
+  }
+
+  setGrid(makeGrid) {
+    this.makeGrid = makeGrid
+    this.updateGrid()
   }
 
   setTheme(theme) {

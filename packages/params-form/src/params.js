@@ -85,6 +85,8 @@ export const genParams = ({
   params.forEach(def => {
     let { type, caption, name } = def
 
+    if (!caption) caption = name
+
     def.value = initialValues[name] = def.initial || def['default'] || def.checked
     if (storedValues[name] !== undefined) {
       def.value = storedValues[name]

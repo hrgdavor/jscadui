@@ -17,8 +17,6 @@ mkdirSync(outDir, { recursive: true })
 copyTask('static', outDir, { include: [], exclude: [], watch, filters: [] })
 
 /**************************** BUILD JS that is static *************/
-await buildBundle(outDir + '/build', 'bundle.regl.js', { globalName: 'REGL' })
-await buildBundle(outDir + '/build', 'bundle.babylonjs.js', { globalName: 'BABYLON' })
 await buildBundle(outDir + '/build', 'bundle.threejs.js', { globalName: 'THREE' })
 await buildBundle(outDir + '/build', 'bundle.jscad_modeling.js', { format: 'cjs' })
 

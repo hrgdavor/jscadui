@@ -20,7 +20,6 @@
     "@jscadui/postmessage": "*",
     "@jscadui/render-threejs": "*",
     "@jscadui/scene": "*",
-    "@jscadui/themes": "*",
     "@jscadui/transform-babel": "*",
     "@jscadui/worker": "*",
     "codemirror": "^6.0.1",

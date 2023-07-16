@@ -5,7 +5,23 @@ import { OrbitControl, OrbitState, closerAngle, getCommonRotCombined } from '@js
 import { genParams } from '@jscadui/params'
 import { initMessaging } from '@jscadui/postmessage'
 import { makeAxes, makeGrid } from '@jscadui/scene'
-import * as themes from '@jscadui/themes'
+
+const themes = {
+  light: {
+    name: 'Light',
+    color: [0, 0.6, 1, 1],
+    bg: [1, 1, 1, 1],
+    grid1: [0, 0, 0, 0.2],
+    grid2: [0, 0, 1, 0.1],
+  },
+  dark: {
+    name: 'Dark',
+    color: [1, 0.4, 0, 1],
+    bg: [0.211, 0.2, 0.207, 1],
+    grid1: [1, 1, 1, 0.5],
+    grid2: [0.6, 0.8, 0.8, 0.4],
+  }
+}
 
 import {
   addPreLoad,
@@ -64,13 +80,6 @@ model.push(colorize([0, 0, 0.7], translate([0, 0, 60], primitives.sphere({ radiu
 model.push(colorize([1, 0.7, 0, 0.5], translate([-20, -20, 0], primitives.cube({ size: 30 }))))
 
 model = model.map(m => JscadToCommon(m))
-
-function setTheme(theme) {
-  viewers.forEach(viewer => {
-    viewer.setBg(theme.bg)
-    viewer.setMeshColor(theme.color)
-  })
-}
 
 const stored = localStorage.getItem('camera.location')
 let initialCamera = { position: [180, -180, 220] }
@@ -154,8 +163,8 @@ for (let tn in themes) {
 }
 sel.value = 'light'
 sel.oninput = e => {
-  const tmp = themes[sel.value]
-  setTheme(tmp)
+  const theme = themes[sel.value]
+  engineState.setTheme(theme)
   setViewerScene(model)
 }
 

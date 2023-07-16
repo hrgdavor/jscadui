@@ -24,6 +24,7 @@ export class EngineState {
 
   setTheme(theme) {
     this.theme = theme
+    this.setThemeToAll(this.viewers)
     this.updateGrid()
   }
 

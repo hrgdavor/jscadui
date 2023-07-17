@@ -408,6 +408,23 @@ p {
   margin: 5px;
 }
 
+#error-bar {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  margin-left: -260px;
+  width: 520px;
+  background-color: #ee111166;
+  padding: 10px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  display: none;
+  font-family: monospace;
+}
+#error-bar label {
+  font-weight: bold;
+}
+
 #welcome {
   position: absolute;
   top: 10%;

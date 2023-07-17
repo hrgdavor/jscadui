@@ -24,7 +24,6 @@ const themes = {
 }
 
 import {
-  addPreLoad,
   addPreLoadAll,
   addToCache,
   clearFs,
@@ -33,7 +32,6 @@ import {
   filePromise,
   fileToFsEntry,
   findFileInRoots,
-  getFile,
   readAsArrayBuffer,
   readAsText,
   readDir,
@@ -51,7 +49,15 @@ import * as editor from "./src/editor.js"
 import * as menu from "./src/menu.js"
 import * as welcome from "./src/welcome.js"
 
-editor.init()
+const compileFn = (script) => {
+  console.log("Compile script:", script)
+  sendCmd('initScript', { script, url: 'editor.js' }).then(r => {
+    console.log('params def', r)
+    sendCmd('runMain', {})
+  })
+}
+
+editor.init(compileFn)
 menu.init()
 welcome.init()
 

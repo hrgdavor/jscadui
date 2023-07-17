@@ -1,6 +1,6 @@
 import { JscadToCommon } from '@jscadui/format-jscad'
 import { initMessaging, withTransferable } from '@jscadui/postmessage'
-import { clearFileCache, clearTempCache, readFileWeb, require, requireCache, resolveUrl } from '@jscadui/require'
+import { clearFileCache, clearTempCache, readFileWeb, require, requireCache, requireModule, resolveUrl } from '@jscadui/require'
 
 import { exportStlText } from './exportStlText.js'
 import { combineParameterDefinitions, getParameterDefinitionsFromSource } from './getParameterDefinitionsFromSource.js'

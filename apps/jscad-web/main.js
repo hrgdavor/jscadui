@@ -1,4 +1,3 @@
-import { booleans, colors, primitives, transforms } from '@jscad/modeling'
 import { JscadToCommon } from '@jscadui/format-jscad'
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl, OrbitState, closerAngle, getCommonRotCombined } from '@jscadui/orbit'
@@ -41,13 +40,11 @@ import { availableEngines, availableEnginesList } from './src/availableEngines'
 import { EngineState } from './src/engineState'
 
 const theme = themes.light
-const { subtract } = booleans
-const { translate } = transforms
-const { colorize } = colors
 
 import * as editor from "./src/editor.js"
 import * as menu from "./src/menu.js"
 import * as welcome from "./src/welcome.js"
+import { defaultModel } from './src/defaultModel.js'
 
 const compileFn = (script) => {
   console.log("Compile script:", script)
@@ -79,19 +76,7 @@ showGrid.addEventListener('change', () => {
 const gizmo = (window.gizmo = new Gizmo())
 byId('layout').appendChild(gizmo)
 
-const modelRadius = 30
-let model = [
-  subtract(
-    primitives.sphere({ radius: modelRadius, segments: 16 }),
-    translate([modelRadius, 0, modelRadius], primitives.sphere({ radius: modelRadius, segments: 16 })),
-  ),
-]
-
-model.push(colorize([0.7, 0, 0], translate([60, 0, 0], primitives.sphere({ radius: 10 }))))
-model.push(colorize([0, 0.7, 0], translate([0, 60, 0], primitives.sphere({ radius: 10 }))))
-model.push(colorize([0, 0, 0.7], translate([0, 0, 60], primitives.sphere({ radius: 10 }))))
-model.push(colorize([1, 0.7, 0, 0.5], translate([-20, -20, 0], primitives.cube({ size: 30 }))))
-
+let model = defaultModel()
 model = model.map(m => JscadToCommon(m))
 
 const stored = localStorage.getItem('camera.location')

@@ -44,6 +44,7 @@ const theme = themes.light
 import * as editor from "./src/editor.js"
 import * as menu from "./src/menu.js"
 import * as welcome from "./src/welcome.js"
+import * as exporter from "./src/exporter.js"
 import { defaultModel } from './src/defaultModel.js'
 
 const compileFn = (script) => {
@@ -57,6 +58,7 @@ const compileFn = (script) => {
 editor.init(compileFn)
 menu.init()
 welcome.init()
+exporter.init(exportModel)
 
 export const byId = id => document.getElementById(id)
 customElements.define('jscadui-gizmo', Gizmo)
@@ -226,6 +228,7 @@ function setError(error) {
   }
 }
 
+// Dummy link for download action
 const link = document.createElement('a')
 link.style.display = 'none'
 document.body.appendChild(link)
@@ -237,14 +240,13 @@ function save(blob, filename) {
 
 function exportModel(format) {
   sendCmd('exportData', { format }).then(({ data }) => {
-    console.log('save', fileToRun + '.stl', data)
-    save(new Blob([data], { type: 'text/plain' }), fileToRun + '.stl')
+    console.log('save', `${fileToRun}.${format}`, data)
+    save(new Blob([data], { type: 'text/plain' }), `${fileToRun}.${format}`)
   })
 }
-window.exportModel = exportModel
 
 const initScript = f => {
-  var reader = new FileReader()
+  const reader = new FileReader()
   reader.onload = event => {
     let script = event.target.result
     sendCmd('initScript', { script, url: f.name + '?' + f.lastModified }).then(r => {
@@ -256,7 +258,7 @@ const initScript = f => {
   reader.readAsText(f)
 }
 
-var worker = new Worker('./build/bundle.worker.js')
+const worker = new Worker('./build/bundle.worker.js')
 const { sendCmd, sendNotify } = initMessaging(worker, handlers)
 
 let sw

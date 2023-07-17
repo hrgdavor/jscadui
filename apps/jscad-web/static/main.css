@@ -403,9 +403,15 @@ p {
 #paramsDiv .jscad-param-buttons {
   display: none;
 }
-#button-export {
-  color: #333;
+.export-panel  {
   margin: 5px;
+  display: flex;
+  align-items: stretch;
+}
+.export-panel button,
+.export-panel select {
+  color: #333;
+  font-size: 12pt;
 }
 
 #error-bar {

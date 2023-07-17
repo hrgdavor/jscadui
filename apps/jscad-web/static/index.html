@@ -51,7 +51,18 @@
 
       <div id="model-options">
         <div id="paramsDiv"></div>
-        <button id="button-export" onclick="exportModel('stl')">Export STL</button>
+        <div class="export-panel">
+          <select id="export-format">
+            <option value="stla">STL (ascii)</option>
+            <option value="stlb">STL (binary)</option>
+            <option value="obj">OBJ</option>
+            <option value="amf">AMF</option>
+            <option value="x3d">X3D</option>
+            <option value="3mf">3MF</option>
+            <option value="json">json</option>
+          </select>
+          <button id="export-button">Export</button>
+        </div>
       </div>
 
       <div id="welcome">

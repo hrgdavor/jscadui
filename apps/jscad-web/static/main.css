@@ -169,12 +169,15 @@ p {
 }
 
 #editor {
-  width: 0;
+  width: 400px;
   position: relative;
   transition: width 0.5s;
 }
-#editor.open {
-  width: 400px;
+#editor.dragging {
+  transition: none;
+}
+#editor.closed {
+  width: 0px !important;
 }
 #editor-drawer {
   position: relative;
@@ -217,12 +220,12 @@ p {
   background-color: #657;
 }
 #editor-toggle::after {
-  content: "\27E8";
+  content: "\27E9";
   display: flex;
   align-items: center;
 }
-.open #editor-toggle::after {
-  content: "\27E9";
+.closed #editor-toggle::after {
+  content: "\27E8";
 }
 .cm-editor {
   width: 400px;
@@ -450,6 +453,7 @@ p {
     left: calc(50% - 200px);
   }
 }
+/* Mobile */
 @media (max-width: 767px) {
   #welcome {
     width: 90%;
@@ -457,5 +461,8 @@ p {
   }
   #editor.open {
     width: 240px;
+  }
+  jscadui-gizmo {
+    --cube-size: 50px;
   }
 }

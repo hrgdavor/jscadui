@@ -9,7 +9,7 @@ let main
 self.JSCAD_WORKER_ENV = {}
 let transformFunc = x => x
 let client
-let base = location.origin
+let globalBase = location.origin
 let userInstances
 
 export const flatten = arr=>{
@@ -28,7 +28,7 @@ export const flatten = arr=>{
 
 export const init = params => {
   let { baseURI, alias = [], bundles = {} } = params
-  if (baseURI) base = baseURI
+  if (baseURI) globalBase = baseURI
 
   if (bundles) Object.assign(requireCache.bundleAlias, bundles)
   alias?.forEach(arr => {
@@ -40,6 +40,7 @@ export const init = params => {
       }
     })
   })
+  console.log('init alias', alias, 'bundles',bundles)
   userInstances = params.userInstances
 }
 let entities = [],
@@ -65,25 +66,20 @@ export async function runMain({ params } = {}) {
   entities = [] // we lose access to bytearray data, it is transfered, and on our side it shows length=0
 }
 
-// TODO run a script, textual, not a real file
-export const initScript = async ({ script, url }) => {
-  const scriptModule = requireModule(url, script, requireForScript)
-
-  main = scriptModule.exports.main
-
-  const fromSource = getParameterDefinitionsFromSource(script)
-  const def = combineParameterDefinitions(fromSource, await scriptModule.exports.getParameterDefinitions?.())
-  return { def }
-}
-
 // https://stackoverflow.com/questions/52086611/regex-for-matching-js-import-statements
 const importReg = /import(?:(?:(?:[ \n\t]+([^ *\n\t\{\},]+)[ \n\t]*(?:,|[ \n\t]+))?([ \n\t]*\{(?:[ \n\t]*[^ \n\t"'\{\}]+[ \n\t]*,?)+\})?[ \n\t]*)|[ \n\t]*\*[ \n\t]*as[ \n\t]+([^ \n\t\{\}]+)[ \n\t]+)from[ \n\t]*(?:['"])([^'"\n]+)(['"])/
 const exportReg = /export.*from/
 export const runFile = async ({ file }) => {
-  const script = readFileWeb(resolveUrl(file,base, base).url,{base})
+  let base = globalBase
+  let root = base
+  const script = readFileWeb(resolveUrl(file, base, root).url,{base})
+  return runScript({url:file ,script, root, base})
+}
 
-  const shouldTransform = file.endsWith('.ts') || script.includes('import') && (importReg.test(script) || exportReg.test(script))
-  const scriptModule = require(file, shouldTransform ? transformFunc : undefined, readFileWeb, base, base, readFileWeb)
+const runScript = async ({ script, url, base=globalBase, root=globalBase }) => {
+  console.log('{ script, url, base, root }', { script, url, base, root })
+  const shouldTransform = url.endsWith('.ts') || script.includes('import') && (importReg.test(script) || exportReg.test(script))
+  const scriptModule = require({url,script}, shouldTransform ? transformFunc : undefined, readFileWeb, base, root, readFileWeb)
 
   const fromSource = getParameterDefinitionsFromSource(script)
   const def = combineParameterDefinitions(fromSource, await scriptModule.getParameterDefinitions?.())
@@ -114,7 +110,7 @@ const exportData = async (params) => {
 
 export const currentSolids = ()=>solids
 
-const handlers = { initScript, init, runMain, runFile, clearTempCache, clearFileCache, exportData }
+const handlers = { runScript, init, runMain, runFile, clearTempCache, clearFileCache, exportData }
 
 export const initWorker = (transform, exportData) => {
   if (transform) transformFunc = transform

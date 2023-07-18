@@ -248,6 +248,24 @@ registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', async (path, s
     },
     baseURI: new URL(`/swfs/${sw.id}/`, document.baseURI).toString(),
   })
+  let script = `const { sphere, geodesicSphere } = require('@jscad/modeling').primitives
+  const { translate, scale } = require('@jscad/modeling').transforms
+  
+  const main = () => [
+    translate([15, -25, 0], sphere({ radius: 10, segments: 12 })),
+    translate([-15, -25, 0], geodesicSphere({ radius: 10, frequency: 6 })),
+    
+    translate([15, 0, 0], sphere({ radius: 10, segments: 32 })),
+    translate([-15, 0, 0], geodesicSphere({ radius: 10, frequency: 24 })),
+    
+    scale([0.5, 1, 2], translate([15, 25, 0], sphere({ radius: 10, segments: 32 }))),
+    scale([0.5, 2, 1], translate([30, 25, 0], sphere({ radius: 10, segments: 32 }))),
+    scale([0.5, 1, 2], translate([-15, 25, 0], geodesicSphere({ radius: 10, frequency: 18 }))),
+    scale([0.5, 2, 1], translate([-30, 25, 0], geodesicSphere({ radius: 10, frequency: 18 })))
+  ]
+  
+  module.exports = { main }`
+  runScript(script, './script.js')
 })
 
 const findByFsPath = (arr, file) => {
@@ -302,6 +320,12 @@ const checkFiles = () => {
 const paramChangeCallback = params => {
   console.log('params', params)
   sendCmd('runMain', { params })
+}
+const runScript = (script, url) => {
+  sendCmd('runScript', { script, url }).then(result => {
+    console.log('result', result)
+    genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
+  })
 }
 const runFile = file => {
   sendCmd('runFile', { file }).then(result => {
@@ -373,17 +397,6 @@ async function fileDropped(ev) {
     runFile(fileToRun)
     checkPrimary.push(await findFileInRoots(sw.roots, fileToRun))
   }
-
-  // console.log('file', file)
-  // if(file?.isDirectory){
-  //   console.log('dataTransfer.files', dataTransfer.files)
-  //   sendNotify('runFolder',{folder:dataTransfer.files[0]})
-  // }
-
-  // if (file && !file.isDirectory) {
-  //   fileToWatch = file
-  //   checkChange()
-  // }
 }
 
 // ************ init ui     *********************************

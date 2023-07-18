@@ -52,52 +52,74 @@ export const resolveUrl = (url, base, root, moduleBase=MODULE_BASE)=>{
   return {url,isRealtiveFile,isModule}
 }
 
-export function require(_url, transform, _readFile, _base, root, readModule, moduleBase = MODULE_BASE) {
+export function require(urlOrSource, transform, _readFile, _base, root, readModule, moduleBase = MODULE_BASE) {
+  let source
+  let url
+  let isRealtiveFile
+  let _url
+  let cache
+  let cacheUrl
+  let bundleAlias
+  if(typeof urlOrSource === 'string'){
+    url = urlOrSource
+  }else{
+    source = urlOrSource.script
+    url = urlOrSource.url
+    isRealtiveFile = true
+  }
   let readFile = _readFile
   let base = _base
-
-  let bundleAlias = requireCache.bundleAlias[_url]
-  _url = requireCache.alias[_url] || _url
-  let cacheUrl = _url
+  let exports
   
-  if(bundleAlias) _url = bundleAlias
+  if(!source){
+    bundleAlias = requireCache.bundleAlias[url]
+    _url = requireCache.alias[url] || url
+    cacheUrl = _url
+    
+    if(bundleAlias) _url = bundleAlias
+  
+    let resolved = resolveUrl(_url, base, root, moduleBase)
+    let {isModule} = resolved
+    url = resolved.url
+    isRealtiveFile = resolved.isRealtiveFile
 
-  let {url,isRealtiveFile,isModule} = resolveUrl(_url, base, root, moduleBase)
-
-  if(isModule) readFile = readModule
-  base = url
-
-  const cache = requireCache[isRealtiveFile ? 'local':'module']
-  let exports = cache[cacheUrl] // get from cache
-  if (!exports) {
-    // not cached
-    let source
-    try {
-      source = readFile(url, { base })
-    } catch (e) {
-      if (url.endsWith('.js')) {
-        try {
-          url = url.substring(0, url.length - 2) + 'ts'
-          source = readFile(url, { base })
-        } catch (e2) {
-          console.error('failed to load fallback .ts')
+    if(isModule) readFile = readModule
+    base = url
+    cache = requireCache[isRealtiveFile ? 'local':'module']
+    exports = cache[cacheUrl] // get from cache
+    if (!exports) {
+      // not cached
+      try {
+        source = readFile(url, { base })
+      } catch (e) {
+        if (url.endsWith('.js')) {
+          try {
+            url = url.substring(0, url.length - 2) + 'ts'
+            source = readFile(url, { base })
+          } catch (e2) {
+            console.error('failed to load fallback .ts')
+            throw e
+          }
+        }else{
           throw e
         }
-      }else{
-        throw e
       }
     }
+  }
+  if(source){
     // do not transform bundles that are already cjs ( requireCache.bundleAlias.*)
     if (transform && !bundleAlias) source = transform(source, url).code
     let requireFunc = newUrl => require(newUrl, transform, readFile, url, root, readModule, moduleBase)
     const module = requireModule(url, source, requireFunc)
     module.local = isRealtiveFile
-    cache[cacheUrl] = exports = module.exports // cache obj exported by module
-    // TODO research maybe in the future, why going through babel adds __esModule=true
-    // this extra reference via defaults helps
-    // exports.__esModule = false // this did not help
-    exports.default = {...exports}
+    exports = module.exports
   }
+  if(cache) cache[cacheUrl] = exports // cache obj exported by module
+  // TODO research maybe in the future, why going through babel adds __esModule=true
+  // this extra reference via defaults helps
+  // exports.__esModule = false // this did not help
+  exports.default = {...exports}
+  
 
   return exports // require returns object exported by module
 }

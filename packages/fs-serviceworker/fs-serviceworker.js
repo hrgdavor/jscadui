@@ -2,13 +2,12 @@ import { initMessaging } from '@jscadui/postmessage'
 
 // https://gomakethings.com/series/service-workers/
 
-const version = 'SW6'
+const version = 'SW7'
 const clientMap = {}
-let prefix = ''
+let prefix = new URL(location.toString()).searchParams.get('prefix')
 let initPath = prefix + 'init'
+
 self.addEventListener('activate', event => {
-  prefix = new URL(location.toString()).searchParams.get('prefix')
-  initPath = prefix + 'init'
   event.waitUntil(clients.claim())
 })
 

@@ -47,15 +47,7 @@ import * as welcome from "./src/welcome.js"
 import * as exporter from "./src/exporter.js"
 import { defaultModel } from './src/defaultModel.js'
 
-const compileFn = (script) => {
-  console.log("Compile script:", script)
-  sendCmd('initScript', { script, url: 'editor.js' }).then(r => {
-    console.log('params def', r)
-    sendCmd('runMain', {})
-  })
-}
-
-editor.init(compileFn)
+editor.init((script) => runScript(script))
 menu.init()
 welcome.init()
 exporter.init(exportModel)
@@ -333,7 +325,7 @@ const paramChangeCallback = params => {
   console.log('params', params)
   sendCmd('runMain', { params })
 }
-const runScript = (script, url) => {
+const runScript = (script, url = './scripts.js') => {
   sendCmd('runScript', { script, url }).then(result => {
     console.log('result', result)
     genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })

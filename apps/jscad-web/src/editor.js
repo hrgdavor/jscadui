@@ -3,12 +3,14 @@ import { javascript } from "@codemirror/lang-javascript"
 import { defaultKeymap } from "@codemirror/commands"
 import { keymap } from "@codemirror/view"
 
-const initialCode = `import * as jscad = from "@jscad/modeling"
+const initialCode = `const jscad = require("@jscad/modeling")
 const { cylinder } = jscad.primitives
 
-export const main = () => {
+const main = () => {
   return cylinder({})
 }
+
+module.exports = { main }
 `
 
 let view
@@ -26,7 +28,7 @@ export const init = (compileFn) => {
       basicSetup,
       javascript(),
       keymap.of([
-        { key: "Shift-Enter", run: () => compileFn(view.state.doc.toString()) },
+        { key: "Shift-Enter", run: () => compileFn(view.state.doc.toString()), preventDefault: true },
         ...defaultKeymap
       ])
     ],

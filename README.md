@@ -18,7 +18,7 @@ Worker
  - worker that also works with es6 modules
 
 
-As proof of concet, the goal is to make UI for jscad development that should be able to visualize the changes in realtime.
+As proof of concept, the goal is to make UI for jscad development that should be able to visualize the changes in realtime.
 
 - to feel responsive on script save, refresh of the preview under 50ms is desirable, but can be few times higher
 
@@ -31,7 +31,7 @@ As proof of concet, the goal is to make UI for jscad development that should be 
  - initial `async await` idea was abandoned as it complicates things greatly, and actual debugger in the browser can be used
    to pause the script and to step through the code. 
  - A second instance of jscad can be used to display any shapes needed to be seen while debugging (original instance can be frozen by debugger)
- - the debbuger instance of jscad can also be further enhanced to inspect the 3d model
+ - the debugger instance of jscad can also be further enhanced to inspect the 3d model
 
 ## allow fastest response 
 
@@ -46,10 +46,10 @@ As proof of concet, the goal is to make UI for jscad development that should be 
 
 - Use of TypedArrays where possible is preferred to allow for sending data between thread with no cost
 - it should be examined if regenerating model in the worker is fast enough, as sending TypedArray out removes access for the sender and coordinating who needs which data can be difficult.
-- consider a hybrid apporach of sending typed arrays data out, to be given back, or regenerated if needed in multiple places
+- consider a hybrid approach of sending typed arrays data out, to be given back, or regenerated if needed in multiple places
 - sets of boolean operations can be done in background
 - Making long running operations like booleans interruptible would be ideal.
-- calculating operation complexitiy in advance would be useful (based on precision that can affect the expected output size and ammount of calculation)
+- calculating operation complexity in advance would be useful (based on precision that can affect the expected output size and amount of calculation)
 
 
 ##  Allowing for changes to be localized instead of recalculating everything

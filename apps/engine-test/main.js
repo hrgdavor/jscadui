@@ -195,7 +195,20 @@ const handlers = {
   entities: ({ entities }) => {
     if (!(entities instanceof Array)) entities = [entities]
     setViewerScene((model = entities))
+    setError(undefined)
   },
+  error: ({ error }) => setError(error)
+}
+
+function setError(error) {
+  const errorBar = byId('error-bar')
+  if (error) {
+    errorBar.style.display = "block"
+    const errorMessage = byId('error-message')
+    errorMessage.innerText = error
+  } else {
+    errorBar.style.display = "none"
+  }
 }
 
 const link = document.createElement('a')

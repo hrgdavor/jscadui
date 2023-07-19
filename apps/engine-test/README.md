@@ -2,7 +2,7 @@
 
 you must install modules from root of the project because it uses workspaces
 
-go to root fodler of the project
+go to root folder of the project
 
 ```
 npm i

@@ -1,22 +1,19 @@
 import * as jscad from '@jscad/modeling'
-const { subtract } = jscad.booleans
-const { translate } = jscad.transforms
+const { intersect, subtract } = jscad.booleans
 const { colorize } = jscad.colors
 const { cube, sphere } = jscad.primitives
 
 export const defaultModel = () => {
-  const modelRadius = 30
-  let model = [
-    subtract(
-      sphere({ radius: modelRadius, segments: 16 }),
-      translate([modelRadius, 0, modelRadius], sphere({ radius: modelRadius, segments: 16 })),
-    ),
+  const outer = subtract(
+    cube({ size: 10 }),
+    sphere({ radius: 6.8 })
+  )
+  const inner = intersect(
+    sphere({ radius: 4 }),
+    cube({ size: 7 })
+  )
+  return [
+    colorize([0.65, 0.25, 0.8], outer),
+    colorize([0.7, 0.7, 0.1], inner),
   ]
-  
-  model.push(colorize([0.7, 0, 0], translate([60, 0, 0], sphere({ radius: 10 }))))
-  model.push(colorize([0, 0.7, 0], translate([0, 60, 0], sphere({ radius: 10 }))))
-  model.push(colorize([0, 0, 0.7], translate([0, 0, 60], sphere({ radius: 10 }))))
-  model.push(colorize([1, 0.7, 0, 0.5], translate([-20, -20, 0], cube({ size: 30 }))))
-
-  return model
 }

@@ -171,3 +171,17 @@ jscadui-gizmo{
 
 jscadui-gizmo::part(face){
 }
+
+#error-bar {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  margin-left: -260px;
+  width: 520px;
+  background-color: #ee111199;
+  padding: 10px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  display: none;
+  font-family: monospace;
+}

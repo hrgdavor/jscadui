@@ -49,21 +49,25 @@ export async function runMain({ params } = {}) {
   const transferable = []
 
   let time = Date.now()
-  solids = flatten(await main(params || {}))
-  // if (!(solids instanceof Array)){
-  //   solids = [solids]
-  // } else{
-  //   solids = flatten(solids)
-  // }
-  const solidsTime = Date.now() - time
+  try {
+    solids = flatten(await main(params || {}))
+    // if (!(solids instanceof Array)){
+    //   solids = [solids]
+    // } else{
+    //   solids = flatten(solids)
+    // }
+    const solidsTime = Date.now() - time
 
-  time = Date.now()
-  JscadToCommon.clearCache()
-  entities = JscadToCommon.prepare(solids, transferable, userInstances)
-  entities = entities.all
-//  entities = [...entities.lines, ...entities.line, ...entities.instance]
-  client.sendNotify('entities', { entities, solidsTime, entitiesTime: Date.now() - time }, transferable)
-  entities = [] // we lose access to bytearray data, it is transfered, and on our side it shows length=0
+    time = Date.now()
+    JscadToCommon.clearCache()
+    entities = JscadToCommon.prepare(solids, transferable, userInstances)
+    entities = entities.all
+  //  entities = [...entities.lines, ...entities.line, ...entities.instance]
+    client.sendNotify('entities', { entities, solidsTime, entitiesTime: Date.now() - time }, transferable)
+    entities = [] // we lose access to bytearray data, it is transfered, and on our side it shows length=0
+  } catch (error) {
+    client.sendNotify('error', { error })
+  }
 }
 
 // https://stackoverflow.com/questions/52086611/regex-for-matching-js-import-statements

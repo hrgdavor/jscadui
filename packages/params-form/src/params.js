@@ -85,6 +85,8 @@ export const genParams = ({
   params.forEach(def => {
     let { type, caption, name } = def
 
+    if (!caption) caption = name
+
     def.value = initialValues[name] = def.initial || def['default'] || def.checked
     if (storedValues[name] !== undefined) {
       def.value = storedValues[name]
@@ -110,10 +112,9 @@ export const genParams = ({
 
     const inputFunc = funcs[type] || inputDefault
 
-    if (type == 'checkbox') html += inputFunc(def)
     html += `${caption}<i>${def.value}</i></label>`
 
-    if (inputFunc && type != 'checkbox') html += inputFunc(def)
+    if (inputFunc) html += inputFunc(def)
 
     if (!inputFunc) missing[type] = 1
 

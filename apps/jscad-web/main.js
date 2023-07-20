@@ -322,19 +322,22 @@ const checkFiles = () => {
   requestAnimationFrame(checkFiles)
 }
 
+const spinner = byId('spinner')
 const paramChangeCallback = params => {
   console.log('params', params)
   sendCmd('runMain', { params })
 }
 const runScript = (script, url = './scripts.js') => {
+  spinner.style.display = 'block'
   sendCmd('runScript', { script, url }).then(result => {
-    console.log('result', result)
+    spinner.style.display = 'none'
     genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
   })
 }
 const runFile = file => {
+  spinner.style.display = 'block'
   sendCmd('runFile', { file }).then(result => {
-    console.log('result', result)
+    spinner.style.display = 'none'
     genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
   })
 }

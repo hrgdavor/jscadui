@@ -212,9 +212,10 @@ const handlers = {
 function setError(error) {
   const errorBar = byId('error-bar')
   if (error) {
+    const message = error.toString().replace(/^Error: /, '')
     errorBar.style.display = "block"
     const errorMessage = byId('error-message')
-    errorMessage.innerText = error
+    errorMessage.innerText = message
   } else {
     errorBar.style.display = "none"
   }

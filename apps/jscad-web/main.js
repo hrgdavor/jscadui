@@ -212,9 +212,10 @@ const handlers = {
 function setError(error) {
   const errorBar = byId('error-bar')
   if (error) {
+    const message = error.toString().replace(/^Error: /, '')
     errorBar.style.display = "block"
     const errorMessage = byId('error-message')
-    errorMessage.innerText = error
+    errorMessage.innerText = message
   } else {
     errorBar.style.display = "none"
   }
@@ -321,19 +322,22 @@ const checkFiles = () => {
   requestAnimationFrame(checkFiles)
 }
 
+const spinner = byId('spinner')
 const paramChangeCallback = params => {
   console.log('params', params)
   sendCmd('runMain', { params })
 }
 const runScript = (script, url = './scripts.js') => {
+  spinner.style.display = 'block'
   sendCmd('runScript', { script, url }).then(result => {
-    console.log('result', result)
+    spinner.style.display = 'none'
     genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
   })
 }
 const runFile = file => {
+  spinner.style.display = 'block'
   sendCmd('runFile', { file }).then(result => {
-    console.log('result', result)
+    spinner.style.display = 'none'
     genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
   })
 }

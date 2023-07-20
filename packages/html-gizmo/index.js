@@ -35,30 +35,27 @@ export class Gizmo extends HTMLElement {
 
     this.setNames(this.names)
 
-    first.onclick = e => {
+    first.addEventListener('click', (e) => {
       const cam = e.target.getAttribute('c')
       if (cam) this.oncam?.({ cam })
-    }
-
-    const doHoverClass = (el, over) => {
-      const classList = el.classList
-      if (over) classList.add('hover')
-      else classList.remove('hover')
-    }
+    })
 
     const mouseover = (el, over) => {
       const cam = el.getAttribute('c')
       if (cam) {
-        // select all camera links for the same camera (higliht corners)
+        // select all camera links for the same camera (highlight corners)
         const all = first.querySelectorAll(`[c="${cam}"]`)
-        all.forEach(el => doHoverClass(el, over))
+        all.forEach((el) => {
+          // toggle hover class
+          if (over) el.classList.add('hover')
+          else el.classList.remove('hover')
+        })
       }
     }
 
-    first.onmouseover = e => mouseover(e.target, true)
-
-    first.onmouseout = e => mouseover(e.target, false)
-    first.ondragstart = e => e.preventDefault()
+    first.addEventListener('pointerover', (e) => mouseover(e.target, true))
+    first.addEventListener('pointerout', (e) => mouseover(e.target, false))
+    first.addEventListener('dragstart', (e) => e.preventDefault())
   }
 
   setNames(_names=names){

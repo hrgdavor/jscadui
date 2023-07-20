@@ -41,7 +41,16 @@ export const init = (compileFn) => {
       basicSetup,
       javascript(),
       keymap.of([
-        { key: "Shift-Enter", run: () => compileFn(view.state.doc.toString()), preventDefault: true },
+        {
+          key: "Shift-Enter",
+          run: () => compileFn(view.state.doc.toString()),
+          preventDefault: true
+        },
+        {
+          key: "Mod-s",
+          run: () => compileFn(view.state.doc.toString()),
+          preventDefault: true
+        },
         ...defaultKeymap
       ])
     ],

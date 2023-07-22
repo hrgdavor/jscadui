@@ -2,14 +2,13 @@
 // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
 
 export const readFileWeb = (path, {base = '', output='text'})=>{
-  try {
-    const X = new XMLHttpRequest()
-    X.open('GET', base ? new URL(path, base) : path, 0) // sync
-    X.send()
-    if (X.status && X.status !== 200) throw new Error(X.statusText)
-    return X.responseText
-  } catch (e) {
-    console.error('problem reading file ', path, 'root', base, ' error:', e.message)
-    throw e
+  const req = new XMLHttpRequest()
+  req.open('GET', base ? new URL(path, base) : path, 0) // sync
+  req.send()
+  if (req.status && req.status === 404) {
+    throw new Error(`file not found ${path}`)
+  } else if (req.status && req.status !== 200) {
+    throw new Error(`failed to fetch file ${path} ${req.status} ${req.statusText}`)
   }
+  return req.responseText
 }

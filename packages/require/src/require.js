@@ -31,15 +31,15 @@ export const selfish = (func, context) => {
 }
 
 export const resolveUrl = (url, base, root, moduleBase=MODULE_BASE)=>{
-  let isRealtiveFile = false
+  let isRelativeFile = false
   let isModule = false
   
   if (!/^(http:|https:|fs:|file:)/.test(url)) {
-    if (!/(\.\/|\..\/|\/)/.test(url)) {
+    if (!/(\.\/|\..\/)/.test(url)) {
       isModule = true
       url = new URL(url, moduleBase).toString()
     } else {
-      isRealtiveFile = true
+      isRelativeFile = true
       // sanitize to avoid going below root, it will prevent / to go below cache baseUrl
       // it will prevent ../../../../ to go below cache baseUrl
       let fromRoot = root && url[0] === '/' 
@@ -49,13 +49,13 @@ export const resolveUrl = (url, base, root, moduleBase=MODULE_BASE)=>{
     }
   }
   
-  return {url,isRealtiveFile,isModule}
+  return { url, isRelativeFile, isModule }
 }
 
 export function require(urlOrSource, transform, _readFile, _base, root, readModule, moduleBase = MODULE_BASE) {
   let source
   let url
-  let isRealtiveFile
+  let isRelativeFile
   let _url
   let cache
   let cacheUrl
@@ -65,13 +65,13 @@ export function require(urlOrSource, transform, _readFile, _base, root, readModu
   }else{
     source = urlOrSource.script
     url = urlOrSource.url
-    isRealtiveFile = true
+    isRelativeFile = true
   }
   let readFile = _readFile
   let base = _base
   let exports
   
-  if(!source){
+  if (source === undefined) {
     bundleAlias = requireCache.bundleAlias[url]
     _url = requireCache.alias[url] || url
     cacheUrl = _url
@@ -81,11 +81,11 @@ export function require(urlOrSource, transform, _readFile, _base, root, readModu
     let resolved = resolveUrl(_url, base, root, moduleBase)
     let {isModule} = resolved
     url = resolved.url
-    isRealtiveFile = resolved.isRealtiveFile
+    isRelativeFile = resolved.isRelativeFile
 
     if(isModule) readFile = readModule
     base = url
-    cache = requireCache[isRealtiveFile ? 'local':'module']
+    cache = requireCache[isRelativeFile ? 'local':'module']
     exports = cache[cacheUrl] // get from cache
     if (!exports) {
       // not cached
@@ -106,20 +106,24 @@ export function require(urlOrSource, transform, _readFile, _base, root, readModu
       }
     }
   }
-  if(source){
+  if (source !== undefined) {
     // do not transform bundles that are already cjs ( requireCache.bundleAlias.*)
     if (transform && !bundleAlias) source = transform(source, url).code
     let requireFunc = newUrl => require(newUrl, transform, readFile, url, root, readModule, moduleBase)
     const module = requireModule(url, source, requireFunc)
-    module.local = isRealtiveFile
+    module.local = isRelativeFile
     exports = module.exports
   }
+
+  if (typeof exports !== 'object') {
+    throw new Error(`module ${cacheUrl} did not export an object`)
+  }
+
   if(cache) cache[cacheUrl] = exports // cache obj exported by module
   // TODO research maybe in the future, why going through babel adds __esModule=true
   // this extra reference via defaults helps
   // exports.__esModule = false // this did not help
   exports.default = {...exports}
-  
 
   return exports // require returns object exported by module
 }
@@ -132,8 +136,8 @@ export function requireModule(url, source, _require) {
     runModule(_require, exports, module, source)
     return module
   } catch (err) {
-    console.error('Error loading module ' + url, err.message, '\n', source)
-    throw err
+    console.error('error loading module ' + url, err)
+    throw new Error(`error loading module: ${err.message}`)
   }
 }
 

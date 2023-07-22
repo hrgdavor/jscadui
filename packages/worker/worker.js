@@ -48,8 +48,10 @@ let entities = [],
 export async function runMain({ params } = {}) {
   const transferable = []
 
-  let time = Date.now()
   try {
+    if (!main) throw new Error('no main function exported')
+
+    let time = Date.now()
     solids = flatten(await main(params || {}))
     // if (!(solids instanceof Array)){
     //   solids = [solids]
@@ -66,6 +68,7 @@ export async function runMain({ params } = {}) {
     client.sendNotify('entities', { entities, solidsTime, entitiesTime: Date.now() - time }, transferable)
     entities = [] // we lose access to bytearray data, it is transfered, and on our side it shows length=0
   } catch (error) {
+    console.error(error)
     client.sendNotify('error', { error })
   }
 }
@@ -92,6 +95,7 @@ const runScript = async ({ script, url, base=globalBase, root=globalBase }) => {
     main = scriptModule.main
     runMain({})
   } catch (error) {
+    console.error(error)
     client.sendNotify('error', { error })
   }
   return {def}

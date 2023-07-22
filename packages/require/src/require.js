@@ -43,6 +43,7 @@ export const selfish = (func, context) => {
 export const resolveUrl = (url, base, root, moduleBase=MODULE_BASE)=>{
   let isRelativeFile = false
   let isModule = false
+  let cacheUrl = url
   
   if (!/^(http:|https:|fs:|file:)/.test(url)) {
     // npm modules cannot start with . or /
@@ -65,12 +66,13 @@ export const resolveUrl = (url, base, root, moduleBase=MODULE_BASE)=>{
       } else {
         url = url.substring(1)
       }
+      cacheUrl = `/${url}`
       // now create the full url to load the file
       url = new URL(url, root).toString()
     }
   }
   
-  return { url, isRelativeFile, isModule }
+  return { url, isRelativeFile, isModule, cacheUrl }
 }
 
 export function require(urlOrSource, transform, _readFile, _base, root, readModule, moduleBase = MODULE_BASE) {
@@ -100,8 +102,9 @@ export function require(urlOrSource, transform, _readFile, _base, root, readModu
     if(bundleAlias) _url = bundleAlias
   
     let resolved = resolveUrl(_url, base, root, moduleBase)
-    let {isModule} = resolved
+    const { isModule } = resolved
     url = resolved.url
+    cacheUrl = resolved.cacheUrl
     isRelativeFile = resolved.isRelativeFile
 
     if(isModule) readFile = readModule

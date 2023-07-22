@@ -83,13 +83,17 @@ export const runFile = async ({ file }) => {
 const runScript = async ({ script, url, base=globalBase, root=globalBase }) => {
   console.log('{ script, url, base, root }', { script, url, base, root })
   const shouldTransform = url.endsWith('.ts') || script.includes('import') && (importReg.test(script) || exportReg.test(script))
-  const scriptModule = require({url,script}, shouldTransform ? transformFunc : undefined, readFileWeb, base, root, readFileWeb)
+  let def = []
 
-  const fromSource = getParameterDefinitionsFromSource(script)
-  const def = combineParameterDefinitions(fromSource, await scriptModule.getParameterDefinitions?.())
-
-  main = scriptModule.main
-  runMain({})
+  try {
+    const scriptModule = require({url,script}, shouldTransform ? transformFunc : undefined, readFileWeb, base, root, readFileWeb)
+    const fromSource = getParameterDefinitionsFromSource(script)
+    def = combineParameterDefinitions(fromSource, await scriptModule.getParameterDefinitions?.())
+    main = scriptModule.main
+    runMain({})
+  } catch (error) {
+    client.sendNotify('error', { error })
+  }
   return {def}
 }
 

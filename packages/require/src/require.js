@@ -30,22 +30,43 @@ export const selfish = (func, context) => {
   return out
 }
 
+/**
+ * Resolve a package or file name to a url.
+ * JS packages will resolve to an npm package url.
+ * Relative urls will resolve to a local url.
+ * @param {string} url the package or file name to resolve
+ * @param {string} base the url of the current module to resolve relative to
+ * @param {string} root the url under which local files are served
+ * @param {string} moduleBase the url for npm packages
+ * @returns the resolved module url
+ */
 export const resolveUrl = (url, base, root, moduleBase=MODULE_BASE)=>{
   let isRelativeFile = false
   let isModule = false
   
   if (!/^(http:|https:|fs:|file:)/.test(url)) {
-    if (!/(\.\/|\..\/)/.test(url)) {
+    // npm modules cannot start with . or /
+    if (!/^\.?\.?\//.test(url)) {
       isModule = true
       url = new URL(url, moduleBase).toString()
     } else {
       isRelativeFile = true
       // sanitize to avoid going below root, it will prevent / to go below cache baseUrl
       // it will prevent ../../../../ to go below cache baseUrl
-      let fromRoot = root && url[0] === '/' 
-      url = new URL(url, 'fs:/').toString().substring(4)
+      const fromRoot = root && url[0] === '/'
+      if (!fromRoot) {
+        // base relative path
+        const relativePath = base.replace(/^\//, '').replace(root, '') // strip root
+        // create url relative path
+        url = new URL(url, `fs:/root/${relativePath}`).toString()
+        // check if url went above root
+        if (!url.startsWith('fs:/root/')) throw new Error('relative url cannot go above root')
+        url = url.substring(9)
+      } else {
+        url = url.substring(1)
+      }
       // now create the full url to load the file
-      url = new URL(url, fromRoot ? root : base).toString()
+      url = new URL(url, root).toString()
     }
   }
   
@@ -137,7 +158,7 @@ export function requireModule(url, source, _require) {
     return module
   } catch (err) {
     console.error('error loading module ' + url, err)
-    throw new Error(`error loading module: ${err.message}`)
+    throw err
   }
 }
 

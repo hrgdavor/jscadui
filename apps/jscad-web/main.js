@@ -385,21 +385,25 @@ async function fileDropped(ev) {
 
   let pkgFile = await findFileInRoots(sw.roots, 'package.json')
   if (pkgFile) {
-    let pack = JSON.parse(await readAsText(pkgFile))
-    if (pack.main) fileToRun = pack.main
-    const alias = []
-    if (pack.workspaces)
-      for (let i = 0; i < pack.workspaces.length; i++) {
-        const w = pack.workspaces[i]
-        // debugger
-        let pack2 = await findFileInRoots(sw.roots, `/${w}/package.json`)
-        if (pack2) pack2 = JSON.parse(await readAsText(pack2))
-        let name = pack2?.name || w
-        let main = pack2?.main || 'index.js'
-        alias.push([`/${w}/${main}`, name])
+    try {
+      let pack = JSON.parse(await readAsText(pkgFile))
+      if (pack.main) fileToRun = pack.main
+      const alias = []
+      if (pack.workspaces)
+        for (let i = 0; i < pack.workspaces.length; i++) {
+          const w = pack.workspaces[i]
+          // debugger
+          let pack2 = await findFileInRoots(sw.roots, `/${w}/package.json`)
+          if (pack2) pack2 = JSON.parse(await readAsText(pack2))
+          let name = pack2?.name || w
+          let main = pack2?.main || 'index.js'
+          alias.push([`/${w}/${main}`, name])
+        }
+      if (alias.length) {
+        sendNotify('init', { alias })
       }
-    if (alias.length) {
-      sendNotify('init', { alias })
+    } catch (error) {
+      console.error('error parsing package.json', error)
     }
   }
 

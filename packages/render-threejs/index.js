@@ -198,7 +198,9 @@ export function RenderThreejs({
         if (obj3d) {
           entities.push(obj3d)
           group.add(obj3d)
-        } else console.error('could not conver to obj3d ', obj)
+        } else {
+          console.error('could not convert to obj3d', obj)
+        }
       })
       _scene.add(group)
     })

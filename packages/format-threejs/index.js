@@ -32,7 +32,10 @@ export function CommonToThree ({
     const objType = obj.type || 'mesh'
 
     const materialDef = materials[objType]
-    if (!materialDef) { console.error('material not found for type ', objType, obj) }
+    if (!materialDef) {
+      console.error(`material not found for type ${objType}`, obj)
+      return
+    }
     let material = materialDef.def
     const isInstanced = obj.type === 'instance'
     if ((color || colors) && !isInstanced) {

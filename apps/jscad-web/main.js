@@ -327,7 +327,7 @@ const paramChangeCallback = params => {
   console.log('params', params)
   sendCmd('runMain', { params })
 }
-const runScript = (script, url = './scripts.js') => {
+const runScript = (script, url = './index.js') => {
   spinner.style.display = 'block'
   sendCmd('runScript', { script, url }).then(result => {
     spinner.style.display = 'none'
@@ -412,8 +412,14 @@ async function fileDropped(ev) {
 
   if (fileToRun) {
     fileToRun = `/${fileToRun}`
-    runFile(fileToRun)
-    checkPrimary.push(await findFileInRoots(sw.roots, fileToRun))
+    const file = await findFileInRoots(sw.roots, fileToRun)
+    if (file) {
+      runFile(fileToRun)
+      checkPrimary.push(file)
+      editor.setSource(await readAsText(file))
+    } else {
+      setError(`main file not found ${fileToRun}`)
+    }
   }
 }
 

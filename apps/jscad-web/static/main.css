@@ -195,6 +195,8 @@ p {
   right: 10px;
   color: #bbb;
   white-space: nowrap;
+  font-size: 10pt;
+  user-select: none;
 }
 .dark #editor-hint {
   color: #888;
@@ -444,7 +446,7 @@ p {
   left: 50%;
   margin-left: -260px;
   width: 520px;
-  background-color: #ee111166;
+  background-color: #dd111199;
   padding: 10px;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
@@ -460,12 +462,12 @@ p {
   top: 10%;
   padding: 30px;
   border-radius: 10px;
-  background-color: rgba(240, 240, 240, 0.85);
+  background-color: rgba(240, 240, 240, 0.8);
   backdrop-filter: blur(10px);
   z-index: 4000;
 }
 .dark #welcome {
-  background-color: rgba(30, 30, 30, 0.85);
+  background-color: rgba(30, 30, 30, 0.8);
 }
 @media (min-width: 768px) {
   #welcome {

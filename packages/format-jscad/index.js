@@ -168,6 +168,7 @@ JscadToCommon.prepare = (list, transferable, useInstances) => {
 
 export function JscadToCommon (csg, transferable, unique, options) {
   if (csg instanceof Array) return csg.map(csg2 => JscadToCommon(csg2, transferable, unique, options))
+  if (typeof csg !== 'object') throw new Error('invalid jscad geometry, not an object')
   let obj
 
   if (csg.polygons) obj = CSGCached(CSG2Vertices, csg, csg.polygons, transferable, unique, options)
@@ -188,7 +189,12 @@ export function JscadToCommon (csg, transferable, unique, options) {
   if(csg.color) obj.color = csg.color 
   if(csg.transforms) obj.transforms = csg.transforms
 
-  return obj || { csg, type: 'unknown' }
+  if (!obj || !obj.type) {
+    // throw new Error('invalid jscad geometry')
+    console.error('invalid jscad geometry', csg)
+    obj = { ...obj, csg, type: 'unknown' }
+  }
+  return obj
 }
 
 JscadToCommon.clearCache = () => {

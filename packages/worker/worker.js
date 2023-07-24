@@ -48,8 +48,10 @@ let entities = [],
 export async function runMain({ params } = {}) {
   const transferable = []
 
-  let time = Date.now()
   try {
+    if (!main) throw new Error('no main function exported')
+
+    let time = Date.now()
     solids = flatten(await main(params || {}))
     // if (!(solids instanceof Array)){
     //   solids = [solids]
@@ -66,6 +68,7 @@ export async function runMain({ params } = {}) {
     client.sendNotify('entities', { entities, solidsTime, entitiesTime: Date.now() - time }, transferable)
     entities = [] // we lose access to bytearray data, it is transfered, and on our side it shows length=0
   } catch (error) {
+    console.error(error)
     client.sendNotify('error', { error })
   }
 }
@@ -83,13 +86,18 @@ export const runFile = async ({ file }) => {
 const runScript = async ({ script, url, base=globalBase, root=globalBase }) => {
   console.log('{ script, url, base, root }', { script, url, base, root })
   const shouldTransform = url.endsWith('.ts') || script.includes('import') && (importReg.test(script) || exportReg.test(script))
-  const scriptModule = require({url,script}, shouldTransform ? transformFunc : undefined, readFileWeb, base, root, readFileWeb)
+  let def = []
 
-  const fromSource = getParameterDefinitionsFromSource(script)
-  const def = combineParameterDefinitions(fromSource, await scriptModule.getParameterDefinitions?.())
-
-  main = scriptModule.main
-  runMain({})
+  try {
+    const scriptModule = require({url,script}, shouldTransform ? transformFunc : undefined, readFileWeb, base, root, readFileWeb)
+    const fromSource = getParameterDefinitionsFromSource(script)
+    def = combineParameterDefinitions(fromSource, await scriptModule.getParameterDefinitions?.())
+    main = scriptModule.main
+    runMain({})
+  } catch (error) {
+    console.error(error)
+    client.sendNotify('error', { error })
+  }
   return {def}
 }
 

@@ -327,7 +327,7 @@ const paramChangeCallback = params => {
   console.log('params', params)
   sendCmd('runMain', { params })
 }
-const runScript = (script, url = './scripts.js') => {
+const runScript = (script, url = './index.js') => {
   spinner.style.display = 'block'
   sendCmd('runScript', { script, url }).then(result => {
     spinner.style.display = 'none'
@@ -385,21 +385,25 @@ async function fileDropped(ev) {
 
   let pkgFile = await findFileInRoots(sw.roots, 'package.json')
   if (pkgFile) {
-    let pack = JSON.parse(await readAsText(pkgFile))
-    if (pack.main) fileToRun = pack.main
-    const alias = []
-    if (pack.workspaces)
-      for (let i = 0; i < pack.workspaces.length; i++) {
-        const w = pack.workspaces[i]
-        // debugger
-        let pack2 = await findFileInRoots(sw.roots, `/${w}/package.json`)
-        if (pack2) pack2 = JSON.parse(await readAsText(pack2))
-        let name = pack2?.name || w
-        let main = pack2?.main || 'index.js'
-        alias.push([`/${w}/${main}`, name])
+    try {
+      const pack = JSON.parse(await readAsText(pkgFile))
+      if (pack.main) fileToRun = pack.main
+      const alias = []
+      if (pack.workspaces)
+        for (let i = 0; i < pack.workspaces.length; i++) {
+          const w = pack.workspaces[i]
+          // debugger
+          let pack2 = await findFileInRoots(sw.roots, `/${w}/package.json`)
+          if (pack2) pack2 = JSON.parse(await readAsText(pack2))
+          let name = pack2?.name || w
+          let main = pack2?.main || 'index.js'
+          alias.push([`/${w}/${main}`, name])
+        }
+      if (alias.length) {
+        sendNotify('init', { alias })
       }
-    if (alias.length) {
-      sendNotify('init', { alias })
+    } catch (error) {
+      console.error('error parsing package.json', error)
     }
   }
 
@@ -412,8 +416,14 @@ async function fileDropped(ev) {
 
   if (fileToRun) {
     fileToRun = `/${fileToRun}`
-    runFile(fileToRun)
-    checkPrimary.push(await findFileInRoots(sw.roots, fileToRun))
+    const file = await findFileInRoots(sw.roots, fileToRun)
+    if (file) {
+      runFile(fileToRun)
+      checkPrimary.push(file)
+      editor.setSource(await readAsText(file))
+    } else {
+      setError(`main file not found ${fileToRun}`)
+    }
   }
 }
 

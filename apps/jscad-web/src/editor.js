@@ -3,12 +3,12 @@ import { javascript } from "@codemirror/lang-javascript"
 import { defaultKeymap } from "@codemirror/commands"
 import { keymap } from "@codemirror/view"
 
-const initialCode = `const jscad = require("@jscad/modeling")
+const initialCode = `import * as jscad from '@jscad/modeling'
 const { intersect, subtract } = jscad.booleans
 const { colorize } = jscad.colors
 const { cube, sphere } = jscad.primitives
 
-const main = () => {
+export const main = () => {
   const outer = subtract(
     cube({ size: 10 }),
     sphere({ radius: 6.8 })
@@ -22,8 +22,6 @@ const main = () => {
     colorize([0.7, 0.7, 0.1], inner),
   ]
 }
-
-module.exports = { main }
 `
 
 let view

@@ -386,7 +386,7 @@ async function fileDropped(ev) {
   let pkgFile = await findFileInRoots(sw.roots, 'package.json')
   if (pkgFile) {
     try {
-      let pack = JSON.parse(await readAsText(pkgFile))
+      const pack = JSON.parse(await readAsText(pkgFile))
       if (pack.main) fileToRun = pack.main
       const alias = []
       if (pack.workspaces)

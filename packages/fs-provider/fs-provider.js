@@ -65,7 +65,12 @@ export const registerServiceWorker = async (workerScript, _getFile = getFile, { 
 
     // id is important as we use it to name the temporary cache instance
     // for now we use fetch to extract our id, but a better way could be found later
-    const id = await fetch(prefix + 'init').then(r => r.text())
+    const id = await fetch(prefix + 'init').then((res) => {
+      if (!res.ok) {
+        throw new Error('failed to start service worker')
+      }
+      return res.text()
+    })
     sw.id = id
     const cacheId = prefix + id
     window.addEventListener('beforeunload', e => caches.delete(cacheId))

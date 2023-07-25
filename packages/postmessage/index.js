@@ -8,8 +8,8 @@ export const withTransferable = (params,trans)=>{
   return params
 }
 
-const messageHandler = (handlers, sendResponse) => {
-  return e => {
+const messageHandler = (handlers, sendResponse, sendError) => {
+  return async (e) => {
     const { method, params, id, error } = e.data
     if (id && method === RESPONSE) {
       const p = reqMap.get(id)
@@ -30,17 +30,13 @@ const messageHandler = (handlers, sendResponse) => {
       throw new Error(msg)
     }
     try {
-      const out = fn(params)
+      const out = await fn(params)
       if (id) {
-        if (out?.then) {
-          out.then(resp => sendResponse(resp, id))
-        } else {
-          sendResponse(out, id)
-        }
+        sendResponse(out, id)
       }
     } catch (error) {
-      console.error('problem executing command', method, params, error.message)
-      throw error
+      console.error(`error executing command ${method}`, params, error)
+      sendError(error, id)
     }
   }
 }
@@ -62,6 +58,14 @@ const messageSender = _self => {
     }
   }
 
+  const sendError = (error, id) => {
+    try {
+      _self.postMessage({ method: RESPONSE, error, id })
+    } catch (error) {
+      console.error('failed to send ', error)
+      throw error
+    }
+  }
   const sendNotify = (method, params = {}, trans = []) => {
     _self.postMessage({ method, params }, fixTransfer(trans))
   }
@@ -81,7 +85,7 @@ const messageSender = _self => {
     return out
   }
 
-  return { sendCmd, sendNotify, sendResponse }
+  return { sendCmd, sendNotify, sendResponse, sendError }
 }
 
 /**
@@ -93,7 +97,7 @@ const messageSender = _self => {
 export const initMessaging = (_self, handlers) => {
   // service worker has the postMessage on the .controller, it is not na same object as addEventListener
   const out = messageSender(_self.postMessage ? _self : _self.controller)
-  out.listener = messageHandler(handlers, out.sendResponse)
+  out.listener = messageHandler(handlers, out.sendResponse, out.sendError)
   out.self = _self
   _self.addEventListener?.('message', out.listener)
 

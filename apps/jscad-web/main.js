@@ -36,7 +36,6 @@ import {
   readDir,
   registerServiceWorker,
 } from '../../packages/fs-provider/fs-provider'
-import { availableEngines, availableEnginesList } from './src/availableEngines'
 import { EngineState } from './src/engineState'
 
 const theme = themes.light
@@ -55,7 +54,7 @@ exporter.init(exportModel)
 export const byId = id => document.getElementById(id)
 customElements.define('jscadui-gizmo', Gizmo)
 
-const engineState = new EngineState(availableEngines, theme, makeAxes, makeGrid)
+const engineState = new EngineState(theme, makeAxes, makeGrid)
 
 // Axis and grid options
 const showAxis = byId('show-axis')
@@ -81,13 +80,7 @@ try {
   console.log(error)
 }
 
-const elements = []
-availableEnginesList.forEach(code => {
-  const cfg = availableEngines[code]
-  const el = byId('box_' + code)
-  el.querySelector('i').textContent = cfg.name
-  elements.push(el)
-})
+const elements = [byId('box_three')]
 
 function setViewerScene(model) {
   engineState.setModel(model)
@@ -99,7 +92,6 @@ function setViewerCamera({ position, target, rx, rz }) {
 }
 
 const updateFromCtrl = change => {
-  // console.log('change', change)
   const { position, target, rx, rz, len, ...rest } = change
   setViewerCamera(change)
 }
@@ -293,12 +285,10 @@ let lastCheck = Date.now()
 
 const checkFiles = () => {
   const now = Date.now()
-  // console.log('check', now - lastCheck > 1000, checkPrimary.length + checkSecondary.length)
   if (now - lastCheck > 300 && checkPrimary.length + checkSecondary.length != 0) {
     lastCheck = now
     let todo = checkPrimary.concat(checkSecondary).map(entryCheckPromise)
     Promise.all(todo).then(result => {
-      // console.log('result', result)
       result = result.filter(([entry, file]) => entry.lastModified != entry._lastModified)
       if (result.length) {
         const todo = []
@@ -367,20 +357,9 @@ async function fileDropped(ev) {
     const file = files[0]
     if (file.isDirectory) {
       folderName = file.name
-      console.log('dropped', file.name)
       file.fsDir = '/'
       rootFiles = await readDir(file)
     } else {
-      console.log("just one file dropped", file)
-      file.file((contents) => {
-        const reader = new FileReader()
-        reader.onload = function (event) {
-          // Load into editor
-          editor.setSource(event.target.result)
-        }
-        reader.readAsText(contents)
-      })
-
       rootFiles.push(file)
       fileToRun = file.name
     }
@@ -418,8 +397,6 @@ async function fileDropped(ev) {
   const preLoad = ['/' + fileToRun, '/package.json']
   const loaded = await addPreLoadAll(sw, preLoad, true)
   console.log(Date.now() - time, 'preload', loaded)
-  // TODO make proxy for calling commands
-  // worker.cmd worker.notify
 
   if (fileToRun) {
     fileToRun = `/${fileToRun}`
@@ -435,6 +412,6 @@ async function fileDropped(ev) {
 }
 
 // Initialize three engine
-engineState.initEngine(byId('box_three'), 'three', ctrl)
+engineState.initEngine(byId('box_three'), ctrl)
 engineState.updateGrid()
 setViewerScene(model)

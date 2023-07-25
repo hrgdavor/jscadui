@@ -1,17 +1,14 @@
-const setCameraToAll = (viewers, ctrl) => {
-  viewers.forEach(viewer => {
-    viewer.setCamera(ctrl)
-  })
-}
+import { RenderThreejs } from '@jscadui/render-threejs'
+import { addScript } from "./addScript"
+import { observeResize } from './observeResize.js'
 
 export class EngineState {
-  viewers = []
+  viewer = undefined
 
-  constructor(availableEngines, theme, makeAxes, makeGrid) {
+  constructor(theme, makeAxes, makeGrid) {
     this.theme = theme
     this.makeAxes = makeAxes
     this.makeGrid = makeGrid
-    this.availableEngines = availableEngines
     this.updateGrid()
   }
 
@@ -19,7 +16,7 @@ export class EngineState {
     const { theme, makeAxes, makeGrid } = this
     this.axes = makeAxes ? [makeAxes(50)] : undefined
     this.grid = makeGrid ? makeGrid({ size: 200, color1: theme.grid1, color2: theme.grid2 }) : undefined
-    this.setSceneToAll(this.viewers)
+    this.updateScene()
   }
 
   setAxes(makeAxes) {
@@ -34,47 +31,43 @@ export class EngineState {
 
   setTheme(theme) {
     this.theme = theme
-    this.setThemeToAll(this.viewers)
+    this.updateTheme()
     this.updateGrid()
   }
 
   setModel(model) {
     this.model = model
-    this.setSceneToAll(this.viewers)
+    this.updateScene()
   }
 
-  setThemeToAll(viewers) {
-    const { theme } = this
-    viewers.forEach(viewer => {
-      viewer.setBg(theme.bg)
-      viewer.setMeshColor(theme.color)
-    })
+  updateTheme() {
+    this.viewer.setBg(this.theme.bg)
+    this.viewer.setMeshColor(this.theme.color)
   }
 
   setCamera(camera) {
-    this.camera = camera
-    setCameraToAll(this.viewers, camera)
+    this.viewer?.setCamera(camera)
   }
 
-  setSceneToAll(viewers) {
-    if (!viewers.length) return
-
+  updateScene() {
     const { axes, grid, model } = this
     const items = []
     if (axes) items.push({ id: 'axes', items: axes })
     if (grid) items.push({ id: 'grid', items: grid })
     if (model) items.push({ id: 'model', items: model })
 
-    viewers.forEach(viewer => viewer.setScene?.({ items }))
+    this.viewer?.setScene({ items })
   }
 
-  async initEngine(el, code, camera) {
-    const cfg = this.availableEngines[code]
-    const viewer = await cfg.init(el, cfg)
-    this.viewers.push(viewer)
-    const viewers = [viewer]
-    this.setThemeToAll(viewers)
-    this.setSceneToAll(viewers, this.model)
-    setCameraToAll(viewers, camera)
+  async initEngine(el, camera) {
+    await addScript('build/bundle.threejs.js')
+    const JscadThreeViewer = RenderThreejs(THREE)
+    this.viewer = JscadThreeViewer(el)
+
+    observeResize(el, evt => this.viewer.resize(evt.contentRect))
+
+    this.updateTheme()
+    this.updateScene()
+    this.setCamera(camera)
   }
 }

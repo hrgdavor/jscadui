@@ -197,7 +197,6 @@ const handlers = {
     setViewerScene((model = entities))
     setError(undefined)
   },
-  error: ({ error }) => setError(error)
 }
 
 function setError(error) {
@@ -279,6 +278,8 @@ registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', async (path, s
   
   module.exports = { main }`
   runScript(script, './script.js')
+}).catch((error) => {
+  setError(error)
 })
 
 const findByFsPath = (arr, file) => {
@@ -338,12 +339,18 @@ const runScript = (script, url) => {
   sendCmd('runScript', { script, url }).then(result => {
     console.log('result', result)
     genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
+  }).catch((error) => {
+    spinner.style.display = 'none'
+    setError(error)
   })
 }
 const runFile = file => {
   sendCmd('runFile', { file }).then(result => {
     console.log('result', result)
     genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
+  }).catch((error) => {
+    spinner.style.display = 'none'
+    setError(error)
   })
 }
 
@@ -415,7 +422,6 @@ async function fileDropped(ev) {
     if (file) {
       runFile(fileToRun)
       checkPrimary.push(file)
-      editor.setSource(await readAsText(file))
     } else {
       setError(`main file not found ${fileToRun}`)
     }

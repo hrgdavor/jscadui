@@ -206,7 +206,6 @@ const handlers = {
     setViewerScene((model = entities))
     setError(undefined)
   },
-  error: ({ error }) => setError(error)
 }
 
 function setError(error) {
@@ -271,6 +270,8 @@ registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', async (path, s
     },
     baseURI: new URL(`/swfs/${sw.id}/`, document.baseURI).toString(),
   })
+}).catch((error) => {
+  setError(error)
 })
 
 const findByFsPath = (arr, file) => {
@@ -332,6 +333,9 @@ const runScript = (script, url = './index.js') => {
   sendCmd('runScript', { script, url }).then(result => {
     spinner.style.display = 'none'
     genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
+  }).catch((error) => {
+    spinner.style.display = 'none'
+    setError(error)
   })
 }
 const runFile = file => {
@@ -339,6 +343,9 @@ const runFile = file => {
   sendCmd('runFile', { file }).then(result => {
     spinner.style.display = 'none'
     genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
+  }).catch((error) => {
+    spinner.style.display = 'none'
+    setError(error)
   })
 }
 

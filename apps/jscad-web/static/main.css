@@ -230,7 +230,7 @@ p {
   content: "\27E8";
 }
 .cm-editor {
-  width: 400px;
+  min-width: 400px;
   height: 100%;
 }
 .cm-gutters {

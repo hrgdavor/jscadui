@@ -459,12 +459,15 @@ p {
 
 #welcome {
   position: absolute;
-  top: 10%;
+  top: 20%;
   padding: 30px;
   border-radius: 10px;
   background-color: rgba(240, 240, 240, 0.8);
   backdrop-filter: blur(10px);
   z-index: 4000;
+}
+#welcome ul li {
+  margin-left: 20px;
 }
 .dark #welcome {
   background-color: rgba(30, 30, 30, 0.8);

@@ -1,5 +1,6 @@
 import { copyTask, parseArgs } from '@jsx6/build'
-import { mkdirSync } from 'fs'
+import { execSync } from 'child_process'
+import { existsSync, mkdirSync } from 'fs'
 import liveServer from 'live-server'
 
 import { buildBundle, buildOne } from './src_build/esbuildUtil.js'
@@ -8,6 +9,16 @@ import { buildBundle, buildOne } from './src_build/esbuildUtil.js'
 const { dev, port = 5120 } = parseArgs()
 const watch = dev
 const outDir = dev ? 'build_dev' : 'build'
+const docsDir = 'jscad/docs'
+// if docs dir does not exist, then clone jscad and run `npm run docs` to generate it
+if (!existsSync(docsDir)) {
+  console.log('generating docs')
+  if (!existsSync('jscad')) {
+    // TODO: faster to fetch https://github.com/jscad/OpenJSCAD.org/archive/refs/heads/master.zip
+    execSync('git clone https://github.com/jscad/OpenJSCAD.org jscad')
+  }
+  execSync('cd jscad && npm install && npm run docs')
+}
 
 /******************************* SETUP  *************/
 mkdirSync(outDir, { recursive: true })
@@ -15,6 +26,7 @@ mkdirSync(outDir, { recursive: true })
 /**************************** COPY STATIC ASSETS  *************/
 
 copyTask('static', outDir, { include: [], exclude: [], watch, filters: [] })
+copyTask(docsDir, outDir + "/docs", { include: [], exclude: [], watch, filters: [] })
 
 /**************************** BUILD JS that is static *************/
 await buildBundle(outDir + '/build', 'bundle.threejs.js', { globalName: 'THREE' })

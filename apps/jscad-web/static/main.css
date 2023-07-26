@@ -101,6 +101,7 @@ jscadui-gizmo::part(face){
 a {
   color: #08d;
   text-decoration: none;
+  cursor: pointer;
 }
 a:active,
 a:focus,

@@ -44,12 +44,6 @@ import * as editor from "./src/editor.js"
 import * as menu from "./src/menu.js"
 import * as welcome from "./src/welcome.js"
 import * as exporter from "./src/exporter.js"
-import { defaultModel } from './src/defaultModel.js'
-
-editor.init((script) => runScript(script))
-menu.init()
-welcome.init()
-exporter.init(exportModel)
 
 export const byId = id => document.getElementById(id)
 customElements.define('jscadui-gizmo', Gizmo)
@@ -69,7 +63,7 @@ showGrid.addEventListener('change', () => {
 const gizmo = (window.gizmo = new Gizmo())
 byId('layout').appendChild(gizmo)
 
-let model = defaultModel()
+let model = []
 model = model.map(m => JscadToCommon(m))
 
 const stored = localStorage.getItem('camera.location')
@@ -254,14 +248,15 @@ registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', async (path, s
     fileIsRequested(path, match)
     return readAsArrayBuffer(await filePromise(match))
   }
-}).then(_sw => {
+}).then(async (_sw) => {
   sw = _sw
-  sendCmd('init', {
+  await sendCmd('init', {
     bundles: {
       '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
     },
     baseURI: new URL(`/swfs/${sw.id}/`, document.baseURI).toString(),
   })
+  editor.init((script) => runScript(script))
 }).catch((error) => {
   setError(error)
 })
@@ -411,7 +406,16 @@ async function fileDropped(ev) {
   }
 }
 
+const loadExample = (source) => {
+  editor.setSource(source)
+  runScript(source)
+}
+
 // Initialize three engine
 engineState.initEngine(byId('box_three'), ctrl)
 engineState.updateGrid()
 setViewerScene(model)
+
+menu.init(loadExample)
+welcome.init()
+exporter.init(exportModel)

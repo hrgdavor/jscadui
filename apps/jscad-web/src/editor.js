@@ -3,26 +3,7 @@ import { javascript } from "@codemirror/lang-javascript"
 import { defaultKeymap } from "@codemirror/commands"
 import { keymap } from "@codemirror/view"
 
-const initialCode = `import * as jscad from '@jscad/modeling'
-const { intersect, subtract } = jscad.booleans
-const { colorize } = jscad.colors
-const { cube, sphere } = jscad.primitives
-
-export const main = () => {
-  const outer = subtract(
-    cube({ size: 10 }),
-    sphere({ radius: 6.8 })
-  )
-  const inner = intersect(
-    sphere({ radius: 4 }),
-    cube({ size: 7 })
-  )
-  return [
-    colorize([0.65, 0.25, 0.8], outer),
-    colorize([0.7, 0.7, 0.1], inner),
-  ]
-}
-`
+import defaultCode from "../examples/jscad.example.js"
 
 let view
 let isMouseDown = false
@@ -54,7 +35,8 @@ export const init = (compileFn) => {
     ],
     parent: editorDiv,
   })
-  setSource(initialCode)
+  setSource(defaultCode)
+  compileFn(defaultCode)
 
   // Initialize drawer action
   const editor = document.getElementById("editor")

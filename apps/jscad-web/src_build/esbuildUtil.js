@@ -6,7 +6,11 @@ export const esbDef = {
   jsxFactory: 'h',
   jsxFragment: 'null',
   format: 'esm',
-  loader: { '.js': 'tsx', '.jsx': 'tsx' },
+  loader: {
+    '.example.js': 'text', // parse example files as text
+    '.js': 'tsx',
+    '.jsx': 'tsx',
+  },
   bundle: true,
   minify: true,
   skipExisting: true,

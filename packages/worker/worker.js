@@ -87,7 +87,9 @@ const runScript = async ({ script, url, base=globalBase, root=globalBase }) => {
   const fromSource = getParameterDefinitionsFromSource(script)
   def = combineParameterDefinitions(fromSource, await scriptModule.getParameterDefinitions?.())
   main = scriptModule.main
-  await runMain({})
+  const params = {}
+  def.forEach(({ name, initial }) => params[name] = initial)
+  await runMain({ params })
   return {def}
 }
 

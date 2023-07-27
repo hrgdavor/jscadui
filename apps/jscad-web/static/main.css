@@ -101,6 +101,10 @@ jscadui-gizmo::part(face){
 a {
   color: #08d;
   text-decoration: none;
+  cursor: pointer;
+}
+.dark a {
+  color: #19d;
 }
 a:active,
 a:focus,
@@ -110,7 +114,7 @@ a:hover {
 .dark a:active,
 .dark a:focus,
 .dark a:hover {
-  color: #09e;
+  color: #6be;
 }
 .dark a:focus-visible {
   outline: 1px solid #eee;
@@ -133,7 +137,6 @@ h1 {
 h2 {
   font-weight: normal;
   font-size: 16pt;
-  padding-right: 20px;
 }
 input {
   border: 1px solid #999;
@@ -151,6 +154,9 @@ input[type="radio"],
 input[type="range"],
 select {
   cursor: pointer;
+}
+input[type="radio"] {
+  margin: 0 5px;
 }
 p {
   margin-bottom: 10px;
@@ -276,6 +282,10 @@ p {
   top: 10px;
   left: 10px;
   z-index: 3000;
+  max-height: 85%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 #menu-button {
   border: none;
@@ -298,11 +308,13 @@ p {
 #menu-content {
   display: none;
   padding: 10px;
-  border: 1px solid #444;
+  border: 1px solid #888;
   background-color: #f8f8f8;
+  overflow-y: auto;
 }
 .dark #menu-content {
   background-color: #444;
+  border: 1px solid #555;
 }
 .open #menu-content {
   display: block;
@@ -310,6 +322,7 @@ p {
 #menu-content h2 {
   border-bottom: 1px solid #111;
   margin-bottom: 5px;
+  padding-right: 30px;
 }
 .dark #menu-content h2 {
   border-bottom: 1px solid #999;
@@ -349,15 +362,18 @@ p {
   display: flex;
   flex-direction: column;
 }
+#paramsDiv > .form-line:first-child {
+  margin-top: 5px;
+}
 #paramsDiv button {
   margin-right: 2px;
 }
 #paramsDiv .form-line {
   min-width: 260px;
   display: flex;
-  margin: 1px 10px;
+  margin: 2px 10px;
 }
-#paramsDiv .form-line label {
+#paramsDiv .form-line > label {
   display: inline-block;
   min-width: 100px;
   flex: 1;
@@ -459,12 +475,15 @@ p {
 
 #welcome {
   position: absolute;
-  top: 10%;
+  top: 20%;
   padding: 30px;
   border-radius: 10px;
   background-color: rgba(240, 240, 240, 0.8);
   backdrop-filter: blur(10px);
   z-index: 4000;
+}
+#welcome ul li {
+  margin-left: 20px;
 }
 .dark #welcome {
   background-color: rgba(30, 30, 30, 0.8);

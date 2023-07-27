@@ -1,11 +1,11 @@
 /**
  * Parametric Involute Gear
  * @category Parameters
- * @skillLevel 1
+ * @skillLevel 5
  * @description Build a proper involute gear, demonstrating parameters, and how they can be used in complex math.
  * @tags gear, tangent, parameter, parameters
  * @authors Joost Nieuwenhuijse, Simon Clark
- * @licence MIT License
+ * @license MIT
  */
 
 import * as jscad from '@jscad/modeling'

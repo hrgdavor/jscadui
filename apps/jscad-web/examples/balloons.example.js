@@ -1,11 +1,11 @@
 /**
  * Birthday Balloons
  * @category Parameters
- * @skillLevel 1
+ * @skillLevel 3
  * @description Example of building models from interactive parameters
  * @tags parameters, select, choice, checkbox, color, picker, slider, date, input, parameter
  * @authors Z3 Dev, Simon Clark
- * @licence MIT License
+ * @license MIT
  */
 
 import * as jscad from '@jscad/modeling'

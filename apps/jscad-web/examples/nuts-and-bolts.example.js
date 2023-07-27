@@ -5,7 +5,7 @@
  * @description Demonstrating the advanced extrusion using slices to generate screw threads.
  * @tags extrude, slice, slices, extrudefromslices, callback
  * @authors platypii
- * @licence MIT License
+ * @license MIT
  */
 
 import * as jscad from '@jscad/modeling'
@@ -15,52 +15,52 @@ const { colorize } = jscad.colors
 const { extrudeFromSlices, slice } = jscad.extrusions
 const { translate } = jscad.transforms
 
-const options = {
-  hexWidth: 4,
-  hexHeight: 3,
-  threadLength: 12,
-  threadSize: 2,
-  innerRadius: 1.2,
-  outerRadius: 2.4,
-  slicesPerRevolution: 12,
-  segments: 16
-}
+export const getParameterDefinitions = () => [
+  { name: 'hexWidth', type: 'number', initial: 4 },
+  { name: 'hexHeight', type: 'number', initial: 3 },
+  { name: 'threadLength', type: 'number', initial: 12 },
+  { name: 'threadSize', type: 'number', initial: 2 },
+  { name: 'innerRadius', type: 'number', initial: 1.2 },
+  { name: 'outerRadius', type: 'number', initial: 2.4 },
+  { name: 'slicesPerRevolution', type: 'number', initial: 12 },
+  { name: 'segments', type: 'number', initial: 16 },
+]
 
-export const main = () => {
+export const main = (params) => {
   return [
-    colorize([0.9, 0.6, 0.2], bolt(options)),
-    colorize([0.4, 0.4, 0.4], translate([15, 0, 0], nut(options)))
+    colorize([0.9, 0.6, 0.2], bolt(params)),
+    colorize([0.4, 0.4, 0.4], translate([15, 0, 0], nut(params)))
   ]
 }
 
 // generate bolt by attaching threads to a hex head
-const bolt = (options) => {
+const bolt = (params) => {
   return union(
-    translate([0, 0, options.threadLength], hex(options)),
-    threads(options)
+    translate([0, 0, params.threadLength], hex(params)),
+    threads(params)
   )
 }
 
 // generate nut by subtracting threads from a hex block
-const nut = (options) => {
+const nut = (params) => {
   return subtract(
-    hex(options),
-    threads({ ...options, threadLength: options.hexHeight })
+    hex(params),
+    threads({ ...params, threadLength: params.hexHeight })
   )
 }
 
 // generate hexagonal block
-const hex = (options) => {
-  const radius = options.hexWidth * 1.1547005 // hexagon outer radius
-  const height = options.hexHeight
+const hex = (params) => {
+  const radius = params.hexWidth * 1.1547005 // hexagon outer radius
+  const height = params.hexHeight
   return cylinder({ center: [0, 0, height / 2], height, radius, segments: 6 })
 }
 
 // generate a threaded shaft using extrudeFromSlices
-const threads = (options) => {
-  const { innerRadius, outerRadius, segments, threadLength } = options
-  const revolutions = threadLength / options.threadSize
-  const numberOfSlices = options.slicesPerRevolution * revolutions
+const threads = (params) => {
+  const { innerRadius, outerRadius, segments, threadLength } = params
+  const revolutions = threadLength / params.threadSize
+  const numberOfSlices = params.slicesPerRevolution * revolutions
   return extrudeFromSlices({
     numberOfSlices,
     callback: (progress, index, base) => {

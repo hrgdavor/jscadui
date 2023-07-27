@@ -5,7 +5,7 @@
  * @description Demonstrating methods of building 3D text
  * @tags text, font, characters
  * @authors Simon Clark
- * @licence MIT License
+ * @license MIT
  */
 
 import * as jscad from '@jscad/modeling'

@@ -16,14 +16,14 @@ const { extrudeFromSlices, slice } = jscad.extrusions
 const { translate } = jscad.transforms
 
 export const getParameterDefinitions = () => [
-  { name: 'hexWidth', type: 'number', initial: 4 },
-  { name: 'hexHeight', type: 'number', initial: 3 },
-  { name: 'threadLength', type: 'number', initial: 12 },
-  { name: 'threadSize', type: 'number', initial: 2 },
-  { name: 'innerRadius', type: 'number', initial: 1.2 },
-  { name: 'outerRadius', type: 'number', initial: 2.4 },
-  { name: 'slicesPerRevolution', type: 'number', initial: 12 },
-  { name: 'segments', type: 'number', initial: 16 },
+  { name: 'hexWidth', type: 'number', initial: 4, min: 0 },
+  { name: 'hexHeight', type: 'number', initial: 3, min: 0 },
+  { name: 'threadLength', type: 'number', initial: 12, min: 0 },
+  { name: 'threadSize', type: 'number', initial: 2, min: 0 },
+  { name: 'innerRadius', type: 'number', initial: 1.2, min: 0 },
+  { name: 'outerRadius', type: 'number', initial: 2.4, min: 0 },
+  { name: 'slicesPerRevolution', type: 'number', initial: 12, min: 8 },
+  { name: 'segments', type: 'int', initial: 16, min: 3 },
 ]
 
 export const main = (params) => {
@@ -61,6 +61,12 @@ const threads = (params) => {
   const { innerRadius, outerRadius, segments, threadLength } = params
   const revolutions = threadLength / params.threadSize
   const numberOfSlices = params.slicesPerRevolution * revolutions
+
+  if (threadLength === 0) return []
+  if (params.slicesPerRevolution < 8) throw new Error('slicesPerRevolution must be at least 8')
+  if (!(params.threadSize > 0)) throw new Error('threadSize must be greater than zero')
+  if (!(innerRadius <= outerRadius)) throw new Error('innerRadius must be less than outerRadius')
+
   return extrudeFromSlices({
     numberOfSlices,
     callback: (progress, index, base) => {

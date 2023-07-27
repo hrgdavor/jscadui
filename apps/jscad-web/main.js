@@ -310,8 +310,14 @@ const checkFiles = () => {
 
 const spinner = byId('spinner')
 const paramChangeCallback = params => {
-  console.log('params', params)
-  sendCmd('runMain', { params })
+  console.log('params changed', params)
+  spinner.style.display = 'block'
+  sendCmd('runMain', { params }).then(() => {
+    spinner.style.display = 'none'
+  }).catch((error) => {
+    spinner.style.display = 'none'
+    setError(error)
+  })
 }
 const runScript = (script, url = './index.js') => {
   spinner.style.display = 'block'

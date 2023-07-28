@@ -3,5 +3,5 @@
     "allowJs": true,
     "moduleResolution": "node16"
   },
-  "exclude": ["node_modules", "build_dev", "build", "dist"]
+  "exclude": ["node_modules", "build_dev", "build", "dist","build.js","examples"]
 }

@@ -49,6 +49,7 @@ await buildOne('.', outDir, 'main.js', watch, { format: 'esm' })
 
 
 /**************************** LIVE SERVER if in dev mode *************/
-if (dev) liveServer.start({ root: outDir, port, open: false })
+// docs folder is too heavy for watch
+if (dev) liveServer.start({ root: outDir, port, open: false, ignore: outDir+'/docs' })
 
 //*/

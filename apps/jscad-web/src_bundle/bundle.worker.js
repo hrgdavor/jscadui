@@ -8,11 +8,23 @@ import {currentSolids, initWorker} from '@jscadui/worker'
 
 import { withTransferable } from '@jscadui/postmessage'
 
-const exportData = ({format})=>{
+const serializerMap ={
+  'stla': ['stlSerializer', {binary:false}],
+  'stlb': ['stlSerializer', {binary:true}],
+  'amf': ['amfSerializer', {}],
+  'obj': ['objSerializer', {}],
+  'x3d': ['x3dSerializer', {}],
+  '3mf': ['m3fSerializer', {}],
+  'json': ['jsonSerializer', {}],
+}
+
+const exportData = ({format, options={}})=>{
   if(typeof jscad_io === 'undefined') importScripts('./bundle.jscad.io.js')
   const solids = currentSolids()
-  console.log('exportData format', format, io)
-  const data = io.stlSerializer.serialize({binary:false}, solids)
+  const [key, defaults] = serializerMap[format]
+  const serializer = jscad_io[key]
+  console.log('exportData format', format, serializer, jscad_io)
+  const data = serializer.serialize({...defaults, ...options}, solids)
   console.log('out', data)
   return withTransferable({ data }, data.filter(v=>typeof v !== 'string'))
 }

@@ -26,11 +26,17 @@ mkdirSync(outDir, { recursive: true })
 /**************************** COPY STATIC ASSETS  *************/
 
 copyTask('static', outDir, { include: [], exclude: [], watch, filters: [] })
-copyTask(docsDir, outDir + "/docs", { include: [], exclude: [], watch, filters: [] })
+//in dev mode dont try to sync docs, just copy the first time 
+if(!(dev & existsSync(outDir + "/docs"))){
+  // this task is heavy
+  copyTask(docsDir, outDir + "/docs", { include: [], exclude: [], watch:false, filters: [] })
+}
 
 /**************************** BUILD JS that is static *************/
 await buildBundle(outDir + '/build', 'bundle.threejs.js', { globalName: 'THREE' })
 await buildBundle(outDir + '/build', 'bundle.jscad_modeling.js', { format: 'cjs' })
+await buildBundle(outDir + '/build', 'bundle.jscad.io.js', { globalName: 'jscad_io' })
+await buildBundle(outDir + '/build', 'bundle.jscadui.transform-babel.js', { globalName: 'jscadui_transform_babel' })
 
 /**************************** BUILD JS THAT can change and watch if in dev mode *************/
 await buildOne('src_bundle', outDir + '/build', 'bundle.worker.js', watch, { format: 'iife' })

@@ -7,7 +7,6 @@ export const esbDef = {
   jsxFragment: 'null',
   format: 'esm',
   loader: {
-    '.example.js': 'text', // parse example files as text
     '.js': 'tsx',
     '.jsx': 'tsx',
   },

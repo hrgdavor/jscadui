@@ -45,7 +45,12 @@ await buildOne('src_bundle', outDir, 'bundle.fs-serviceworker.js', watch, { form
 
 
 /**************************** BUILD MAIN JS and watch if in dev mode *************/
-await buildOne('.', outDir, 'main.js', watch, { format: 'esm' })
+const loader = {
+  '.example.js': 'text', // parse example files as text
+  '.js': 'tsx',
+  '.jsx': 'tsx',
+}
+await buildOne('.', outDir, 'main.js', watch, { format: 'esm', loader })
 
 
 /**************************** LIVE SERVER if in dev mode *************/

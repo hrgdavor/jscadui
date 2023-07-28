@@ -35,7 +35,7 @@ export const getParameterDefinitions = () => [
 
 const initializeOptions = (params) => {
   // use the checkbox to determine the size of the sphere
-  options.b_radius = (params.isBig === true) ? 20 : 10
+  options.b_radius = (params.isBig === true) ? 16 : 10
   // use the color chooser to determine the color of the sphere
   options.b_color = hexToRgb(params.color)
 }
@@ -98,7 +98,7 @@ const createBalloons = (params) => {
     const angle = Math.floor(startingAngle + (angleSpread * i)) % 360
     const x = Math.cos(angle * Math.PI / 180) * 2 * options.b_radius
     const y = Math.sin(angle * Math.PI / 180) * 2 * options.b_radius
-    const z = options.b_radius * 4 + (50 * Math.random())
+    const z = options.b_radius * 4 + (40 * Math.random())
     const aBalloon = colorize(options.b_color, translate([x, y, z], balloon))
     const aRope = createRope([x, y, z - ropeOffset])
     out.push(aBalloon, aRope)

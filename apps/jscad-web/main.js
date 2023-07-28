@@ -3,24 +3,6 @@ import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl, OrbitState, closerAngle, getCommonRotCombined } from '@jscadui/orbit'
 import { genParams } from '@jscadui/params'
 import { initMessaging } from '@jscadui/postmessage'
-import { makeAxes, makeGrid } from '@jscadui/scene'
-
-const themes = {
-  light: {
-    name: 'Light',
-    color: [0, 0.6, 1, 1],
-    bg: [1, 1, 1, 1],
-    grid1: [0, 0, 0, 0.2],
-    grid2: [0, 0, 1, 0.1],
-  },
-  dark: {
-    name: 'Dark',
-    color: [1, 0.4, 0, 1],
-    bg: [0.211, 0.2, 0.207, 1],
-    grid1: [1, 1, 1, 0.35],
-    grid2: [0.55, 0.55, 0.9, 0.25],
-  }
-}
 
 import {
   addPreLoadAll,
@@ -36,9 +18,8 @@ import {
   readDir,
   registerServiceWorker,
 } from '../../packages/fs-provider/fs-provider'
-import { EngineState } from './src/engineState'
-
-const theme = themes.light
+import { EngineState } from './src/engineState.js'
+import * as engine from './src/engine.js'
 
 import * as editor from "./src/editor.js"
 import * as menu from "./src/menu.js"
@@ -48,17 +29,7 @@ import * as exporter from "./src/exporter.js"
 export const byId = id => document.getElementById(id)
 customElements.define('jscadui-gizmo', Gizmo)
 
-const engineState = new EngineState(theme, makeAxes, makeGrid)
-
-// Axis and grid options
-const showAxis = byId('show-axis')
-const showGrid = byId('show-grid')
-showAxis.addEventListener('change', () => {
-  engineState.setAxes(showAxis.checked ? makeAxes : undefined)
-})
-showGrid.addEventListener('change', () => {
-  engineState.setGrid(showGrid.checked ? makeGrid : undefined)
-})
+const engineState = new EngineState()
 
 const gizmo = (window.gizmo = new Gizmo())
 byId('layout').appendChild(gizmo)
@@ -66,20 +37,12 @@ byId('layout').appendChild(gizmo)
 let model = []
 model = model.map(m => JscadToCommon(m))
 
-const stored = localStorage.getItem('camera.location')
-let initialCamera = { position: [180, -180, 220] }
-try {
-  if (stored) initialCamera = JSON.parse(stored)
-} catch (error) {
-  console.log(error)
-}
-
-const elements = [byId('box_three')]
+const elements = [byId('viewer')]
 
 function setViewerScene(model) {
   engineState.setModel(model)
 }
-const ctrl = (window.ctrl = new OrbitControl(elements, { ...initialCamera, alwaysRotate: false }))
+const ctrl = (window.ctrl = new OrbitControl(elements, { ...engineState.camera, alwaysRotate: false }))
 function setViewerCamera({ position, target, rx, rz }) {
   engineState.setCamera({ position, target })
   gizmo.rotateXZ(rx, rz)
@@ -92,10 +55,8 @@ const updateFromCtrl = change => {
 
 updateFromCtrl(ctrl)
 
-const saveCamera = cam => localStorage.setItem('camera.location', JSON.stringify(cam))
-
 ctrl.onchange = change => {
-  saveCamera(change)
+  engineState.saveCamera(change)
   stopAnim()
   updateFromCtrl(change)
 }
@@ -103,7 +64,7 @@ ctrl.onchange = change => {
 gizmo.oncam = ({ cam }) => {
   const [rx, rz] = getCommonRotCombined(cam)
   startAnim({ rx, rz, target: [0, 0, 0] })
-  saveCamera(stateEnd)
+  engineState.saveCamera(stateEnd)
   //  ctrl.setCommonCamera(cam)
 }
 
@@ -133,18 +94,6 @@ const doAnim = () => {
 
 let animDuration = 200
 let animTimer, stateStart, stateEnd, startTime
-
-const darkMode = byId('dark-mode')
-darkMode.addEventListener('change', () => {
-  const themeName = darkMode.checked ? 'dark' : 'light'
-  if (darkMode.checked) {
-    document.body.classList.add('dark')
-  } else {
-    document.body.classList.remove('dark')
-  }
-  engineState.setTheme(themes[themeName])
-  setViewerScene(model)
-})
 
 let checkChange_timer
 let fileToWatch
@@ -256,7 +205,7 @@ registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', async (path, s
     },
     baseURI: new URL(`/swfs/${sw.id}/`, document.baseURI).toString(),
   })
-  editor.init((script) => runScript(script))
+  editor.setCompileFun((script) => runScript(script))
 }).catch((error) => {
   setError(error)
 })
@@ -418,10 +367,12 @@ const loadExample = (source) => {
 }
 
 // Initialize three engine
-engineState.initEngine(byId('box_three'), ctrl)
-engineState.updateGrid()
-setViewerScene(model)
+engine.init().then((viewer) => {
+  engineState.setEngine(viewer)
+  setViewerScene(model)
+})
 
+editor.init()
 menu.init(loadExample)
 welcome.init()
 exporter.init(exportModel)

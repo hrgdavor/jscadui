@@ -58,28 +58,6 @@ body.dark {
   overflow: hidden;
 }
 
-.box:nth-child(2),.box:nth-child(3){
-  background-color: #666;
-}
-
-.box > .boxInfo {
-  display: none;
-}
-
-.formRow{
-  display: flex;
-}
-.formRow label{
-  display: inline-block;
-  width: 55px;
-}
-.formRow label:first-child{
-  width: 55px;
-}
-.cameraNum{
-  width: 55px;
-}
-
 jscadui-gizmo {
   position: absolute;
   top: 15px;

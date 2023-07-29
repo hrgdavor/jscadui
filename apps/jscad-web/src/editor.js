@@ -12,7 +12,17 @@ let dragStartX
 let dragStartWidth
 let dragStartTime
 
-export const init = (compileFn) => {
+let compileFn
+
+const compile = (code) => {
+  if (compileFn) {
+    compileFn(code)
+  } else {
+    console.log("not ready to compile")
+  }
+}
+
+export const init = () => {
   // Initialize codemirror
   const editorDiv = document.getElementById("editor-container")
   view = new EditorView({
@@ -22,12 +32,12 @@ export const init = (compileFn) => {
       keymap.of([
         {
           key: "Shift-Enter",
-          run: () => compileFn(view.state.doc.toString()),
+          run: () => compile(view.state.doc.toString()),
           preventDefault: true
         },
         {
           key: "Mod-s",
-          run: () => compileFn(view.state.doc.toString()),
+          run: () => compile(view.state.doc.toString()),
           preventDefault: true
         },
         ...defaultKeymap
@@ -36,7 +46,6 @@ export const init = (compileFn) => {
     parent: editorDiv,
   })
   setSource(defaultCode)
-  compileFn(defaultCode)
 
   // Initialize drawer action
   const editor = document.getElementById("editor")
@@ -96,4 +105,12 @@ export const init = (compileFn) => {
 
 export const setSource = (source) => {
   view.dispatch({changes: {from: 0, to: view.state.doc.length, insert: source}})
+}
+
+/**
+ * Set the compile function to call on shift-enter
+ */
+export const setCompileFun = (fn) => {
+  compileFn = fn
+  compile(view.state.doc.toString())
 }

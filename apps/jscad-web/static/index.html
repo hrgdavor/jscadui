@@ -13,9 +13,7 @@
     <div class="container">
       <div class="layout" id="layout">
         <div id="root" solo style="overflow: hidden;">
-          <div class="box" id="box_three">
-            <div class="boxInfo"><b><input type="checkbox" id="box_three_c"/><i></i></b></div>
-          </div>
+          <div class="box" id="viewer"></div>
         </div>
 
         <div id="spinner" title="Processing..."></div>
@@ -72,13 +70,14 @@
       <div id="welcome">
         <h1>JSCAD</h1>
         <p>
-          JSCAD is an open source set of modular, browser and command line tools for creating parametric 2D and 3D CAD designs with JavaScript code.
+          JSCAD is a tool for creating parametric 2D and 3D CAD designs using JavaScript code.
         </p>
         <p>
-          Use the code editor to create CAD designs.
+          Code CAD offers more precise control over designs, enables parameterized customization of models, and integrates seamlessly with the web.
+          With an open-source, functional API, complex models can be created with just a few lines of code.
         </p>
         <p>
-          Or drag and drop models on to the editor.
+          Create designs in the editor, or drag and drop local files.
         </p>
 
         <ul>
@@ -94,6 +93,12 @@
     </div>
     <div id="dropModal">drop jscad script to execute it</div>
 
+    <script>
+      // dark mode asap to avoid flash of light
+      if (localStorage.getItem('engine.theme') === 'dark') {
+        document.body.classList.add('dark')
+      }
+    </script>
     <script type="module" src="/main.js"></script>
   </body>
 </html>

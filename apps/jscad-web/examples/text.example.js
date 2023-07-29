@@ -14,7 +14,7 @@ const { extrudeLinear } = jscad.extrusions
 const { hullChain } = jscad.hulls
 const { circle, sphere } = jscad.primitives
 const { vectorText } = jscad.text
-const { translate } = jscad.transforms
+const { scale, translate } = jscad.transforms
 
 export const getParameterDefinitions = () => [
   { name: 'outline_string', initial: 'Outline', type: 'text', caption: 'Outline Text', size: 30 },
@@ -27,7 +27,7 @@ export const main = (params) => {
   const flatText = buildFlatText(params.flat_string, 2, 2)
   const roundText = buildRoundText(params.round_string, 2)
 
-  return [outlineText, flatText, roundText]
+  return scale([0.5, 0.5, 0.5], outlineText, flatText, roundText)
 }
 
 // Build text by creating the font strokes (2D).

@@ -26,6 +26,7 @@ mkdirSync(outDir, { recursive: true })
 /**************************** COPY STATIC ASSETS  *************/
 
 copyTask('static', outDir, { include: [], exclude: [], watch, filters: [] })
+copyTask('examples', outDir+'/examples', { include: [], exclude: [], watch, filters: [] })
 //in dev mode dont try to sync docs, just copy the first time 
 if(!(dev & existsSync(outDir + "/docs"))){
   // this task is heavy

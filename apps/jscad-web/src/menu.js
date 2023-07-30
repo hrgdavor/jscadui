@@ -26,9 +26,9 @@ export const init = (loadExample) => {
   examples.forEach(({ name, source }) => {
     const a = document.createElement("a")
     a.innerText = name
-    a.addEventListener("click", () => {
+    a.addEventListener("click", async () => {
       console.log(`load example ${name}`)
-      loadExample(source)
+      loadExample(await (await fetch(source)).text())
     })
     const li = document.createElement("li")
     li.appendChild(a)

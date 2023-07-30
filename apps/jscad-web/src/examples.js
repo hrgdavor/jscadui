@@ -1,19 +1,10 @@
-import cube from '../examples/jscad.example.js'
-import prim from '../examples/primitives.example.js'
-import gear from '../examples/gear.example.js'
-import nuts from '../examples/nuts-and-bolts.example.js'
-import text from '../examples/text.example.js'
-import balloons from '../examples/balloons.example.js'
-import extrusions from '../examples/extrusions.example.js'
-import hulls from '../examples/hulls.example.js'
-
 export const examples = [
-  { name: 'JSCAD Logo', source: cube },
-  { name: 'Primitives', source: prim },
-  { name: 'Extrusions', source: extrusions },
-  { name: 'Hulls', source: hulls },
-  { name: 'Parametric Gear', source: gear },
-  { name: 'Nuts and Bolts', source: nuts },
-  { name: 'Text Shapes', source: text },
-  { name: 'Balloons', source: balloons },
+  { name: 'JSCAD Logo', source: './examples/jscad.example.js' },
+  { name: 'Primitives', source: './examples/primitives.example.js' },
+  { name: 'Extrusions', source: './examples/extrusions.example.js' },
+  { name: 'Hulls', source: './examples/hulls.example.js' },
+  { name: 'Parametric Gear', source: './examples/gear.example.js' },
+  { name: 'Nuts and Bolts', source: './examples/nuts-and-bolts.example.js' },
+  { name: 'Text Shapes', source: './examples/text.example.js' },
+  { name: 'Balloons', source: './examples/balloons.example.js' },
 ]

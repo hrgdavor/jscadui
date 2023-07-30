@@ -17,8 +17,8 @@ export const init = (exportFn) => {
   document.getElementById("export-button").addEventListener("click", () => {
     // Export model in selected format
     const formatSelect = document.getElementById("export-format")
-    const format = formatSelect.value
-    exportFn(format)
+    const format = exportFormats.find((f) => f.name === formatSelect.value)
+    exportFn(format.name, format.extension)
   })
 }
 

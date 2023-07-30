@@ -3,24 +3,6 @@ import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl, OrbitState, closerAngle, getCommonRotCombined } from '@jscadui/orbit'
 import { genParams } from '@jscadui/params'
 import { initMessaging } from '@jscadui/postmessage'
-import { makeAxes, makeGrid } from '@jscadui/scene'
-
-const themes = {
-  light: {
-    name: 'Light',
-    color: [0, 0.6, 1, 1],
-    bg: [1, 1, 1, 1],
-    grid1: [0, 0, 0, 0.2],
-    grid2: [0, 0, 1, 0.1],
-  },
-  dark: {
-    name: 'Dark',
-    color: [1, 0.4, 0, 1],
-    bg: [0.211, 0.2, 0.207, 1],
-    grid1: [1, 1, 1, 0.5],
-    grid2: [0.55, 0.55, 0.8, 0.4],
-  }
-}
 
 import {
   addPreLoadAll,
@@ -36,80 +18,45 @@ import {
   readDir,
   registerServiceWorker,
 } from '../../packages/fs-provider/fs-provider'
-import { availableEngines, availableEnginesList } from './src/availableEngines'
-import { EngineState } from './src/engineState'
-
-const theme = themes.light
+import { EngineState } from './src/engineState.js'
+import * as engine from './src/engine.js'
 
 import * as editor from "./src/editor.js"
 import * as menu from "./src/menu.js"
 import * as welcome from "./src/welcome.js"
 import * as exporter from "./src/exporter.js"
-import { defaultModel } from './src/defaultModel.js'
-
-editor.init((script) => runScript(script))
-menu.init()
-welcome.init()
-exporter.init(exportModel)
 
 export const byId = id => document.getElementById(id)
 customElements.define('jscadui-gizmo', Gizmo)
 
-const engineState = new EngineState(availableEngines, theme, makeAxes, makeGrid)
-
-// Axis and grid options
-const showAxis = byId('show-axis')
-const showGrid = byId('show-grid')
-showAxis.addEventListener('change', () => {
-  engineState.setAxes(showAxis.checked ? makeAxes : undefined)
-})
-showGrid.addEventListener('change', () => {
-  engineState.setGrid(showGrid.checked ? makeGrid : undefined)
-})
+const engineState = new EngineState()
 
 const gizmo = (window.gizmo = new Gizmo())
 byId('layout').appendChild(gizmo)
 
-let model = defaultModel()
+let model = []
 model = model.map(m => JscadToCommon(m))
 
-const stored = localStorage.getItem('camera.location')
-let initialCamera = { position: [180, -180, 220] }
-try {
-  if (stored) initialCamera = JSON.parse(stored)
-} catch (error) {
-  console.log(error)
-}
-
-const elements = []
-availableEnginesList.forEach(code => {
-  const cfg = availableEngines[code]
-  const el = byId('box_' + code)
-  el.querySelector('i').textContent = cfg.name
-  elements.push(el)
-})
+const elements = [byId('viewer')]
 
 function setViewerScene(model) {
   engineState.setModel(model)
 }
-const ctrl = (window.ctrl = new OrbitControl(elements, { ...initialCamera, alwaysRotate: false }))
+const ctrl = (window.ctrl = new OrbitControl(elements, { ...engineState.camera, alwaysRotate: false }))
 function setViewerCamera({ position, target, rx, rz }) {
   engineState.setCamera({ position, target })
   gizmo.rotateXZ(rx, rz)
 }
 
 const updateFromCtrl = change => {
-  // console.log('change', change)
   const { position, target, rx, rz, len, ...rest } = change
   setViewerCamera(change)
 }
 
 updateFromCtrl(ctrl)
 
-const saveCamera = cam => localStorage.setItem('camera.location', JSON.stringify(cam))
-
 ctrl.onchange = change => {
-  saveCamera(change)
+  engineState.saveCamera(change)
   stopAnim()
   updateFromCtrl(change)
 }
@@ -117,7 +64,7 @@ ctrl.onchange = change => {
 gizmo.oncam = ({ cam }) => {
   const [rx, rz] = getCommonRotCombined(cam)
   startAnim({ rx, rz, target: [0, 0, 0] })
-  saveCamera(stateEnd)
+  engineState.saveCamera(stateEnd)
   //  ctrl.setCommonCamera(cam)
 }
 
@@ -147,18 +94,6 @@ const doAnim = () => {
 
 let animDuration = 200
 let animTimer, stateStart, stateEnd, startTime
-
-const darkMode = byId('dark-mode')
-darkMode.addEventListener('change', () => {
-  const themeName = darkMode.checked ? 'dark' : 'light'
-  if (darkMode.checked) {
-    document.body.classList.add('dark')
-  } else {
-    document.body.classList.remove('dark')
-  }
-  engineState.setTheme(themes[themeName])
-  setViewerScene(model)
-})
 
 let checkChange_timer
 let fileToWatch
@@ -230,11 +165,11 @@ function save(blob, filename) {
   link.click()
 }
 
-function exportModel(format) {
+const exportModel = (format, extension) => {
   sendCmd('exportData', { format }).then(({ data }) => {
-    console.log('save', `${fileToRun}.${format}`, data)
-    save(new Blob([data], { type: 'text/plain' }), `${fileToRun}.${format}`)
-  })
+    console.log('save', `${projectName}.${extension}`, data)
+    save(new Blob([data], { type: 'text/plain' }), `${projectName}.${extension}`)
+  }).catch((error) => setError(error))
 }
 
 const initScript = f => {
@@ -262,17 +197,16 @@ registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', async (path, s
     fileIsRequested(path, match)
     return readAsArrayBuffer(await filePromise(match))
   }
-}).then(_sw => {
+}).then(async (_sw) => {
   sw = _sw
-  sendCmd('init', {
+  await sendCmd('init', {
     bundles: {
       '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
     },
     baseURI: new URL(`/swfs/${sw.id}/`, document.baseURI).toString(),
   })
-}).catch((error) => {
-  setError(error)
-})
+  editor.setCompileFun((script) => runScript(script))
+}).catch((error) => setError(error))
 
 const findByFsPath = (arr, file) => {
   const path = typeof file === 'string' ? file : file.fsPath
@@ -289,16 +223,15 @@ const fileIsRequested = (path, file) => {
 let checkPrimary = (window.checkPrimary = [])
 let checkSecondary = (window.checkSecondary = [])
 let fileToRun
+let projectName = 'jscad'
 let lastCheck = Date.now()
 
 const checkFiles = () => {
   const now = Date.now()
-  // console.log('check', now - lastCheck > 1000, checkPrimary.length + checkSecondary.length)
   if (now - lastCheck > 300 && checkPrimary.length + checkSecondary.length != 0) {
     lastCheck = now
     let todo = checkPrimary.concat(checkSecondary).map(entryCheckPromise)
     Promise.all(todo).then(result => {
-      // console.log('result', result)
       result = result.filter(([entry, file]) => entry.lastModified != entry._lastModified)
       if (result.length) {
         const todo = []
@@ -325,8 +258,14 @@ const checkFiles = () => {
 
 const spinner = byId('spinner')
 const paramChangeCallback = params => {
-  console.log('params', params)
-  sendCmd('runMain', { params })
+  console.log('params changed', params)
+  spinner.style.display = 'block'
+  sendCmd('runMain', { params }).then(() => {
+    spinner.style.display = 'none'
+  }).catch((error) => {
+    spinner.style.display = 'none'
+    setError(error)
+  })
 }
 const runScript = (script, url = './index.js') => {
   spinner.style.display = 'block'
@@ -367,20 +306,9 @@ async function fileDropped(ev) {
     const file = files[0]
     if (file.isDirectory) {
       folderName = file.name
-      console.log('dropped', file.name)
       file.fsDir = '/'
       rootFiles = await readDir(file)
     } else {
-      console.log("just one file dropped", file)
-      file.file((contents) => {
-        const reader = new FileReader()
-        reader.onload = function (event) {
-          // Load into editor
-          editor.setSource(event.target.result)
-        }
-        reader.readAsText(contents)
-      })
-
       rootFiles.push(file)
       fileToRun = file.name
     }
@@ -418,8 +346,10 @@ async function fileDropped(ev) {
   const preLoad = ['/' + fileToRun, '/package.json']
   const loaded = await addPreLoadAll(sw, preLoad, true)
   console.log(Date.now() - time, 'preload', loaded)
-  // TODO make proxy for calling commands
-  // worker.cmd worker.notify
+
+  projectName = 'jscad'
+  if (fileToRun !== 'index.js') projectName = fileToRun.replace(/\.js$/, '')
+  if (folderName) projectName = folderName
 
   if (fileToRun) {
     fileToRun = `/${fileToRun}`
@@ -434,7 +364,18 @@ async function fileDropped(ev) {
   }
 }
 
+const loadExample = (source) => {
+  editor.setSource(source)
+  runScript(source)
+}
+
 // Initialize three engine
-engineState.initEngine(byId('box_three'), 'three', ctrl)
-engineState.updateGrid()
-setViewerScene(model)
+engine.init().then((viewer) => {
+  engineState.setEngine(viewer)
+  setViewerScene(model)
+})
+
+editor.init()
+menu.init(loadExample)
+welcome.init()
+exporter.init(exportModel)

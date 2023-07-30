@@ -56,11 +56,11 @@ export function RenderThreejs({
 
     _scene = new Scene()
 
-    const hemiLight = new HemisphereLight(0xffffff, 0x444444)
+    const hemiLight = new HemisphereLight(0xeeeeee, 0x444444)
     hemiLight.position.set(0, 0, 2000)
     _scene.add(hemiLight)
 
-    const directionalLight = new DirectionalLight(0xffffff)
+    const directionalLight = new DirectionalLight(0xeeeeee)
     directionalLight.position.set(0, 200, 100)
     directionalLight.castShadow = SHADOW
     if (SHADOW) {

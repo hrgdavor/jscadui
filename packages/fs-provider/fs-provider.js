@@ -38,6 +38,20 @@ export const addPreLoad = async (sw, path, ignoreMissing) => {
 
 export const registerServiceWorker = async (workerScript, _getFile = getFile, { prefix = '/swfs/' } = {}) => {
   if ('serviceWorker' in navigator) {
+    if (!navigator.serviceWorker.controller) {
+      // service workers are disabled on hard-refresh, so need to reload.
+      // to prevent a reload loop, don't reload again within 3 seconds.
+      const lastReload = localStorage.getItem('lastReload')
+      if (!lastReload || Date.now() - lastReload > 3000) {
+        console.log('cannot start service worker, reloading')
+        localStorage.setItem('lastReload', Date.now())
+        location.reload()
+      } else {
+        console.error('cannot start service worker, reload required')
+      }
+      throw new Error('cannot start service worker, reload required')
+    }
+
     try {
       let registration = await navigator.serviceWorker.register(workerScript, {
         scope: '/',
@@ -49,6 +63,7 @@ export const registerServiceWorker = async (workerScript, _getFile = getFile, { 
     } catch (error) {
       console.error(`Registration failed with ${error}`)
     }
+
     const sw = initMessaging(navigator.serviceWorker, {
       getFile: async ({ path }) => {
         const file = await _getFile(path, sw)

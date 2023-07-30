@@ -51,6 +51,7 @@ body {
   overflow: hidden;
   background-color:#333;
   font-family:sans-serif;
+  touch-action: none;
 }
 
 .box:nth-child(2),.box:nth-child(3){

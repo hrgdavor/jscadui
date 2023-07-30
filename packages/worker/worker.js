@@ -48,29 +48,24 @@ let entities = [],
 export async function runMain({ params } = {}) {
   const transferable = []
 
-  try {
-    if (!main) throw new Error('no main function exported')
+  if (!main) throw new Error('no main function exported')
 
-    let time = Date.now()
-    solids = flatten(await main(params || {}))
-    // if (!(solids instanceof Array)){
-    //   solids = [solids]
-    // } else{
-    //   solids = flatten(solids)
-    // }
-    const solidsTime = Date.now() - time
+  let time = Date.now()
+  solids = flatten(await main(params || {}))
+  // if (!(solids instanceof Array)) {
+  //   solids = [solids]
+  // } else {
+  //   solids = flatten(solids)
+  // }
+  const solidsTime = Date.now() - time
 
-    time = Date.now()
-    JscadToCommon.clearCache()
-    entities = JscadToCommon.prepare(solids, transferable, userInstances)
-    entities = entities.all
-  //  entities = [...entities.lines, ...entities.line, ...entities.instance]
-    client.sendNotify('entities', { entities, solidsTime, entitiesTime: Date.now() - time }, transferable)
-    entities = [] // we lose access to bytearray data, it is transfered, and on our side it shows length=0
-  } catch (error) {
-    console.error(error)
-    client.sendNotify('error', { error })
-  }
+  time = Date.now()
+  JscadToCommon.clearCache()
+  entities = JscadToCommon.prepare(solids, transferable, userInstances)
+  entities = entities.all
+  // entities = [...entities.lines, ...entities.line, ...entities.instance]
+  client.sendNotify('entities', { entities, solidsTime, entitiesTime: Date.now() - time }, transferable)
+  entities = [] // we lose access to bytearray data, it is transfered, and on our side it shows length=0
 }
 
 // https://stackoverflow.com/questions/52086611/regex-for-matching-js-import-statements
@@ -88,16 +83,13 @@ const runScript = async ({ script, url, base=globalBase, root=globalBase }) => {
   const shouldTransform = url.endsWith('.ts') || script.includes('import') && (importReg.test(script) || exportReg.test(script))
   let def = []
 
-  try {
-    const scriptModule = require({url,script}, shouldTransform ? transformFunc : undefined, readFileWeb, base, root, readFileWeb)
-    const fromSource = getParameterDefinitionsFromSource(script)
-    def = combineParameterDefinitions(fromSource, await scriptModule.getParameterDefinitions?.())
-    main = scriptModule.main
-    runMain({})
-  } catch (error) {
-    console.error(error)
-    client.sendNotify('error', { error })
-  }
+  const scriptModule = require({url,script}, shouldTransform ? transformFunc : undefined, readFileWeb, base, root, readFileWeb)
+  const fromSource = getParameterDefinitionsFromSource(script)
+  def = combineParameterDefinitions(fromSource, await scriptModule.getParameterDefinitions?.())
+  main = scriptModule.main
+  const params = {}
+  def.forEach(({ name, initial }) => params[name] = initial)
+  await runMain({ params })
   return {def}
 }
 

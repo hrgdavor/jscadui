@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "allowJs": true,
+    "outDir": "build_dev",
     "moduleResolution": "node16"
   },
-  "exclude": ["node_modules", "build_dev", "build", "dist"]
+  "include":["src"],
+  "exclude": ["node_modules", "build_dev", "build", "dist","build.js","jscad"]
 }

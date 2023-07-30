@@ -3,26 +3,7 @@ import { javascript } from "@codemirror/lang-javascript"
 import { defaultKeymap } from "@codemirror/commands"
 import { keymap } from "@codemirror/view"
 
-const initialCode = `import * as jscad from '@jscad/modeling'
-const { intersect, subtract } = jscad.booleans
-const { colorize } = jscad.colors
-const { cube, sphere } = jscad.primitives
-
-export const main = () => {
-  const outer = subtract(
-    cube({ size: 10 }),
-    sphere({ radius: 6.8 })
-  )
-  const inner = intersect(
-    sphere({ radius: 4 }),
-    cube({ size: 7 })
-  )
-  return [
-    colorize([0.65, 0.25, 0.8], outer),
-    colorize([0.7, 0.7, 0.1], inner),
-  ]
-}
-`
+import defaultCode from "../examples/jscad.example.js"
 
 let view
 let isMouseDown = false
@@ -31,7 +12,17 @@ let dragStartX
 let dragStartWidth
 let dragStartTime
 
-export const init = (compileFn) => {
+let compileFn
+
+const compile = (code) => {
+  if (compileFn) {
+    compileFn(code)
+  } else {
+    console.log("not ready to compile")
+  }
+}
+
+export const init = () => {
   // Initialize codemirror
   const editorDiv = document.getElementById("editor-container")
   view = new EditorView({
@@ -41,12 +32,12 @@ export const init = (compileFn) => {
       keymap.of([
         {
           key: "Shift-Enter",
-          run: () => compileFn(view.state.doc.toString()),
+          run: () => compile(view.state.doc.toString()),
           preventDefault: true
         },
         {
           key: "Mod-s",
-          run: () => compileFn(view.state.doc.toString()),
+          run: () => compile(view.state.doc.toString()),
           preventDefault: true
         },
         ...defaultKeymap
@@ -54,7 +45,7 @@ export const init = (compileFn) => {
     ],
     parent: editorDiv,
   })
-  setSource(initialCode)
+  setSource(defaultCode)
 
   // Initialize drawer action
   const editor = document.getElementById("editor")
@@ -114,4 +105,12 @@ export const init = (compileFn) => {
 
 export const setSource = (source) => {
   view.dispatch({changes: {from: 0, to: view.state.doc.length, insert: source}})
+}
+
+/**
+ * Set the compile function to call on shift-enter
+ */
+export const setCompileFun = (fn) => {
+  compileFn = fn
+  compile(view.state.doc.toString())
 }

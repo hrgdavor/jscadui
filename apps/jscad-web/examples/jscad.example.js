@@ -3,7 +3,7 @@ const { intersect, subtract } = jscad.booleans
 const { colorize } = jscad.colors
 const { cube, sphere } = jscad.primitives
 
-export const defaultModel = () => {
+export const main = () => {
   const outer = subtract(
     cube({ size: 10 }),
     sphere({ radius: 6.8 })

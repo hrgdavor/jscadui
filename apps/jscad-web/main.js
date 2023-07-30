@@ -169,7 +169,7 @@ const exportModel = (format, extension) => {
   sendCmd('exportData', { format }).then(({ data }) => {
     console.log('save', `${projectName}.${extension}`, data)
     save(new Blob([data], { type: 'text/plain' }), `${projectName}.${extension}`)
-  })
+  }).catch((error) => setError(error))
 }
 
 const initScript = f => {
@@ -206,9 +206,7 @@ registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', async (path, s
     baseURI: new URL(`/swfs/${sw.id}/`, document.baseURI).toString(),
   })
   editor.setCompileFun((script) => runScript(script))
-}).catch((error) => {
-  setError(error)
-})
+}).catch((error) => setError(error))
 
 const findByFsPath = (arr, file) => {
   const path = typeof file === 'string' ? file : file.fsPath

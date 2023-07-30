@@ -11,7 +11,8 @@ export const init = () => {
 }
 
 const dismiss = (e) => {
-  if (showing && (!e || !welcome.contains(e.target))) {
+  // dismiss if click on anything other than a link
+  if (showing && (!e || !welcome.contains(e.target) || e.target.nodeName !== "A")) {
     document.getElementById("welcome").style.display = "none"
     showing = false
   }

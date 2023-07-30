@@ -53,11 +53,6 @@ body.dark {
   background-color: rgba(0,0,0,0.5);
 }
 
-.box {
-  position: relative;
-  overflow: hidden;
-}
-
 jscadui-gizmo {
   position: absolute;
   top: 15px;
@@ -150,6 +145,11 @@ p {
 #layout {
   position: relative;
   flex: 1;
+}
+#viewer {
+  position: relative;
+  overflow: hidden;
+  touch-action: none;
 }
 
 #editor {

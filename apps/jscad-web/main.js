@@ -165,11 +165,11 @@ function save(blob, filename) {
   link.click()
 }
 
-function exportModel(format) {
+const exportModel = (format, extension) => {
   sendCmd('exportData', { format }).then(({ data }) => {
-    console.log('save', `${fileToRun}.${format}`, data)
-    save(new Blob([data], { type: 'text/plain' }), `${fileToRun}.${format}`)
-  })
+    console.log('save', `${projectName}.${extension}`, data)
+    save(new Blob([data], { type: 'text/plain' }), `${projectName}.${extension}`)
+  }).catch((error) => setError(error))
 }
 
 const initScript = f => {
@@ -206,9 +206,7 @@ registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', async (path, s
     baseURI: new URL(`/swfs/${sw.id}/`, document.baseURI).toString(),
   })
   editor.setCompileFun((script) => runScript(script))
-}).catch((error) => {
-  setError(error)
-})
+}).catch((error) => setError(error))
 
 const findByFsPath = (arr, file) => {
   const path = typeof file === 'string' ? file : file.fsPath
@@ -225,6 +223,7 @@ const fileIsRequested = (path, file) => {
 let checkPrimary = (window.checkPrimary = [])
 let checkSecondary = (window.checkSecondary = [])
 let fileToRun
+let projectName = 'jscad'
 let lastCheck = Date.now()
 
 const checkFiles = () => {
@@ -347,6 +346,10 @@ async function fileDropped(ev) {
   const preLoad = ['/' + fileToRun, '/package.json']
   const loaded = await addPreLoadAll(sw, preLoad, true)
   console.log(Date.now() - time, 'preload', loaded)
+
+  projectName = 'jscad'
+  if (fileToRun !== 'index.js') projectName = fileToRun.replace(/\.js$/, '')
+  if (folderName) projectName = folderName
 
   if (fileToRun) {
     fileToRun = `/${fileToRun}`

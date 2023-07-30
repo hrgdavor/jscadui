@@ -223,7 +223,7 @@ function exportModel(format) {
   sendCmd('exportData', { format }).then(({ data }) => {
     console.log('save', fileToRun + '.stl', data)
     save(new Blob([data], { type: 'text/plain' }), fileToRun + '.stl')
-  })
+  }).catch((error) => setError(error))
 }
 window.exportModel = exportModel
 

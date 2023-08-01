@@ -22,7 +22,7 @@ import {
   readAsText,
   readDir,
   registerServiceWorker,
-} from '../../packages/fs-provider/fs-provider'
+} from '@jscadui/fs-provider'
 import { availableEngines, availableEnginesList } from './src/availableEngines'
 import { CurrentUrl } from './src/currentUrl'
 import { EngineState } from './src/engineState'

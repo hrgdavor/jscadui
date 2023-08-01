@@ -143,15 +143,15 @@ const handlers = {
   },
 }
 
-function setError(error) {
+const setError = (error) => {
   const errorBar = byId('error-bar')
   if (error) {
     const message = error.toString().replace(/^Error: /, '')
-    errorBar.style.display = "block"
     const errorMessage = byId('error-message')
     errorMessage.innerText = message
+    errorBar.classList.add('visible')
   } else {
-    errorBar.style.display = "none"
+    errorBar.classList.remove('visible')
   }
 }
 

@@ -95,24 +95,6 @@ const doAnim = () => {
 let animDuration = 200
 let animTimer, stateStart, stateEnd, startTime
 
-let checkChange_timer
-let fileToWatch
-let lastModified
-
-function checkChange() {
-  if (!fileToWatch) return
-
-  clearTimeout(checkChange_timer)
-  fileToWatch.file(f => {
-    if (f.lastModified != lastModified) {
-      initScript(f)
-      lastModified = f.lastModified
-      console.log('lastModified::', f.lastModified, f)
-    }
-  })
-  checkChange_timer = setTimeout(checkChange, 300)
-}
-
 const dropModal = byId('dropModal')
 const showDrop = show => {
   clearTimeout(showDrop.timer)

@@ -18,7 +18,7 @@ import {
   readDir,
   registerServiceWorker,
 } from '../../packages/fs-provider/fs-provider'
-import { EngineState } from './src/engineState.js'
+import { ViewState } from './src/viewState.js'
 import * as engine from './src/engine.js'
 
 import * as editor from "./src/editor.js"
@@ -29,7 +29,7 @@ import * as exporter from "./src/exporter.js"
 export const byId = id => document.getElementById(id)
 customElements.define('jscadui-gizmo', Gizmo)
 
-const engineState = new EngineState()
+const viewState = new ViewState()
 
 const gizmo = (window.gizmo = new Gizmo())
 byId('layout').appendChild(gizmo)
@@ -40,11 +40,11 @@ model = model.map(m => JscadToCommon(m))
 const elements = [byId('viewer')]
 
 function setViewerScene(model) {
-  engineState.setModel(model)
+  viewState.setModel(model)
 }
-const ctrl = (window.ctrl = new OrbitControl(elements, { ...engineState.camera, alwaysRotate: false }))
+const ctrl = (window.ctrl = new OrbitControl(elements, { ...viewState.camera, alwaysRotate: false }))
 function setViewerCamera({ position, target, rx, rz }) {
-  engineState.setCamera({ position, target })
+  viewState.setCamera({ position, target })
   gizmo.rotateXZ(rx, rz)
 }
 
@@ -56,7 +56,7 @@ const updateFromCtrl = change => {
 updateFromCtrl(ctrl)
 
 ctrl.onchange = change => {
-  engineState.saveCamera(change)
+  viewState.saveCamera(change)
   stopAnim()
   updateFromCtrl(change)
 }
@@ -64,7 +64,7 @@ ctrl.onchange = change => {
 gizmo.oncam = ({ cam }) => {
   const [rx, rz] = getCommonRotCombined(cam)
   startAnim({ rx, rz, target: [0, 0, 0] })
-  engineState.saveCamera(stateEnd)
+  viewState.saveCamera(stateEnd)
   //  ctrl.setCommonCamera(cam)
 }
 
@@ -353,7 +353,7 @@ const loadExample = (source) => {
 
 // Initialize three engine
 engine.init().then((viewer) => {
-  engineState.setEngine(viewer)
+  viewState.setEngine(viewer)
   setViewerScene(model)
 })
 

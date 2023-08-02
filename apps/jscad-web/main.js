@@ -154,19 +154,6 @@ const exportModel = (format, extension) => {
   }).catch((error) => setError(error))
 }
 
-const initScript = f => {
-  const reader = new FileReader()
-  reader.onload = event => {
-    let script = event.target.result
-    sendCmd('initScript', { script, url: f.name + '?' + f.lastModified }).then(r => {
-      console.log('params def', r)
-      sendCmd('runMain', {})
-    })
-  }
-  reader.onerror = event => console.log('error', event)
-  reader.readAsText(f)
-}
-
 const worker = new Worker('./build/bundle.worker.js')
 const { sendCmd, sendNotify } = initMessaging(worker, handlers)
 

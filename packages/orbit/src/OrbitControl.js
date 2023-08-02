@@ -8,11 +8,18 @@
 */
 import { OrbitState } from './OrbitState'
 import { getCommonRotCombined } from './commonCamera'
+import { closerAngle } from './normalizeAngle'
 
 const { PI } = Math
 
 export class OrbitControl extends OrbitState {
+  // onchange may be debounced, and when animating called at the end when camera stops et a position
+  onchange
+  // oninput may be debounced, and when animating called at the end when camera stops et a position
+  oninput
   el
+  animDuration = 200
+
   constructor(el, { position, target = [0, 0, 0], rx=PI/4, rz=PI/4, len=200, rxRatio = 0.01, rzRatio = 0.01, zoomRatio = 0.05 } = {}) {
     super({ position, target, rx, rz, len })
 
@@ -74,6 +81,38 @@ export class OrbitControl extends OrbitState {
     else doListen(el)
 
   }
+
+  doAnim(){
+    let percent = Math.min(1, (Date.now() - this.startTime) / this.animDuration)
+    const newState = this.stateStart.calcAnim(this.stateEnd, percent)
+    ctrl.setRotate(newState.rx, newState.rz, newState.target, false)
+    // update orbit control so it can continue working during or after anim
+    if (percent < 1){
+      this.animTimer = requestAnimationFrame(()=>this.doAnim())
+      this.fireInput()
+    }else{
+      this.stopAnim()
+    }
+  }
+  
+  stopAnim(){
+    cancelAnimationFrame(this.animTimer)
+    this.animTimer = null
+    this.startTime = 0
+    this.fireChange()
+  }
+  
+  animateToCamera({ target, rx, rz }) {
+    // normalize angle to avoid crazy spinning if scene was rotated a lot
+    // rx does not need this fix as it only operates inside one half of a rotation
+    this.rz = closerAngle(this.rz, rz) 
+
+    this.startTime = Date.now()
+    this.stateStart = new OrbitState(ctrl, true)
+    this.stateEnd = new OrbitState({ target: target || ctrl.target, rx, rz, len: ctrl.len })
+    this.animTimer = requestAnimationFrame(()=>this.doAnim())
+  }
+
   setCommonCamera(name) {
     this.setRotate(...getCommonRotCombined(name), [0, 0, 0])
   }

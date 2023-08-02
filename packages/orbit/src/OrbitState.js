@@ -103,7 +103,12 @@ export class OrbitState {
     return rest
   }
 
+  fireInput() {
+    this.oninput?.(this)
+  }
+
   fireChange() {
     this.onchange?.(this)
+    this.fireInput()
   }
 }

@@ -99,45 +99,13 @@ updateFromCtrl(ctrl)
 
 const saveCamera = cam => localStorage.setItem('camera.location', JSON.stringify(cam))
 
-ctrl.onchange = change => {
-  saveCamera(change)
-  stopAnim()
-  updateFromCtrl(change)
-}
+ctrl.onchange = state => saveCamera(state)
+ctrl.oninput = state => updateFromCtrl(state)
 
 gizmo.oncam = ({ cam }) => {
   const [rx, rz] = getCommonRotCombined(cam)
-  startAnim({ rx, rz, target: [0, 0, 0] })
-  saveCamera(stateEnd)
-  //  ctrl.setCommonCamera(cam)
+  ctrl.animateToCamera({ rx, rz, target: [0, 0, 0] })
 }
-
-const startAnim = ({ target, rx, rz }) => {
-  startTime = Date.now()
-  // rx does not need this fix as it only operates inside one half of a rotation
-  ctrl.rz = closerAngle(ctrl.rz, rz)
-  stateStart = new OrbitState(ctrl, true)
-  stateEnd = new OrbitState({ target: target || ctrl.target, rx, rz, len: ctrl.len })
-  animTimer = requestAnimationFrame(doAnim)
-}
-
-const stopAnim = () => {
-  cancelAnimationFrame(animTimer)
-  animTimer = null
-  startTime = 0
-}
-
-const doAnim = () => {
-  let percent = Math.min(1, (Date.now() - startTime) / animDuration)
-  const newState = stateStart.calcAnim(stateEnd, percent)
-  ctrl.setRotate(newState.rx, newState.rz, newState.target, false)
-  updateFromCtrl(ctrl)
-  // update orbit control so it can continue working during or after anim
-  if (percent < 1) animTimer = requestAnimationFrame(doAnim)
-}
-
-let animDuration = 200
-let animTimer, stateStart, stateEnd, startTime
 
 const sel = byId('themeSelect')
 for (let tn in themes) {

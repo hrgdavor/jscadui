@@ -445,6 +445,7 @@ p {
 
 #error-bar {
   position: absolute;
+  max-height: 40%;
   bottom: 0;
   left: 50%;
   margin-left: -260px;
@@ -455,6 +456,10 @@ p {
   border-top-right-radius: 10px;
   display: none;
   font-family: monospace;
+  overflow-y: auto;
+}
+#error-bar.visible {
+  display: block;
 }
 #error-bar label {
   font-weight: bold;

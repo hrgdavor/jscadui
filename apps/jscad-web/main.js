@@ -17,8 +17,8 @@ import {
   readAsText,
   readDir,
   registerServiceWorker,
-} from '../../packages/fs-provider/fs-provider'
-import { EngineState } from './src/engineState.js'
+} from '@jscadui/fs-provider'
+import { ViewState } from './src/viewState.js'
 import * as engine from './src/engine.js'
 
 import * as editor from "./src/editor.js"
@@ -29,7 +29,7 @@ import * as exporter from "./src/exporter.js"
 export const byId = id => document.getElementById(id)
 customElements.define('jscadui-gizmo', Gizmo)
 
-const engineState = new EngineState()
+const viewState = new ViewState()
 
 const gizmo = (window.gizmo = new Gizmo())
 byId('layout').appendChild(gizmo)
@@ -40,11 +40,11 @@ model = model.map(m => JscadToCommon(m))
 const elements = [byId('viewer')]
 
 function setViewerScene(model) {
-  engineState.setModel(model)
+  viewState.setModel(model)
 }
-const ctrl = (window.ctrl = new OrbitControl(elements, { ...engineState.camera, alwaysRotate: false }))
+const ctrl = (window.ctrl = new OrbitControl(elements, { ...viewState.camera, alwaysRotate: false }))
 function setViewerCamera({ position, target, rx, rz }) {
-  engineState.setCamera({ position, target })
+  viewState.setCamera({ position, target })
   gizmo.rotateXZ(rx, rz)
 }
 
@@ -56,7 +56,7 @@ const updateFromCtrl = change => {
 updateFromCtrl(ctrl)
 
 ctrl.onchange = change => {
-  engineState.saveCamera(change)
+  viewState.saveCamera(change)
   stopAnim()
   updateFromCtrl(change)
 }
@@ -64,7 +64,7 @@ ctrl.onchange = change => {
 gizmo.oncam = ({ cam }) => {
   const [rx, rz] = getCommonRotCombined(cam)
   startAnim({ rx, rz, target: [0, 0, 0] })
-  engineState.saveCamera(stateEnd)
+  viewState.saveCamera(stateEnd)
   //  ctrl.setCommonCamera(cam)
 }
 
@@ -94,24 +94,6 @@ const doAnim = () => {
 
 let animDuration = 200
 let animTimer, stateStart, stateEnd, startTime
-
-let checkChange_timer
-let fileToWatch
-let lastModified
-
-function checkChange() {
-  if (!fileToWatch) return
-
-  clearTimeout(checkChange_timer)
-  fileToWatch.file(f => {
-    if (f.lastModified != lastModified) {
-      initScript(f)
-      lastModified = f.lastModified
-      console.log('lastModified::', f.lastModified, f)
-    }
-  })
-  checkChange_timer = setTimeout(checkChange, 300)
-}
 
 const dropModal = byId('dropModal')
 const showDrop = show => {
@@ -143,15 +125,15 @@ const handlers = {
   },
 }
 
-function setError(error) {
+const setError = (error) => {
   const errorBar = byId('error-bar')
   if (error) {
     const message = error.toString().replace(/^Error: /, '')
-    errorBar.style.display = "block"
     const errorMessage = byId('error-message')
     errorMessage.innerText = message
+    errorBar.classList.add('visible')
   } else {
-    errorBar.style.display = "none"
+    errorBar.classList.remove('visible')
   }
 }
 
@@ -170,19 +152,6 @@ const exportModel = (format, extension) => {
     console.log('save', `${projectName}.${extension}`, data)
     save(new Blob([data], { type: 'text/plain' }), `${projectName}.${extension}`)
   }).catch((error) => setError(error))
-}
-
-const initScript = f => {
-  const reader = new FileReader()
-  reader.onload = event => {
-    let script = event.target.result
-    sendCmd('initScript', { script, url: f.name + '?' + f.lastModified }).then(r => {
-      console.log('params def', r)
-      sendCmd('runMain', {})
-    })
-  }
-  reader.onerror = event => console.log('error', event)
-  reader.readAsText(f)
 }
 
 const worker = new Worker('./build/bundle.worker.js')
@@ -215,22 +184,20 @@ const findByFsPath = (arr, file) => {
 
 const fileIsRequested = (path, file) => {
   let match
-  if ((match = findByFsPath(checkPrimary, file))) return
-  if ((match = findByFsPath(checkSecondary, file))) return
-  checkSecondary.push(file)
+  if ((match = findByFsPath(filesToCheck, file))) return
+  filesToCheck.push(file)
 }
 
-let checkPrimary = (window.checkPrimary = [])
-let checkSecondary = (window.checkSecondary = [])
+let filesToCheck = (window.filesToCheck = [])
 let fileToRun
 let projectName = 'jscad'
 let lastCheck = Date.now()
 
 const checkFiles = () => {
   const now = Date.now()
-  if (now - lastCheck > 300 && checkPrimary.length + checkSecondary.length != 0) {
+  if (now - lastCheck > 300 && filesToCheck.length != 0) {
     lastCheck = now
-    let todo = checkPrimary.concat(checkSecondary).map(entryCheckPromise)
+    let todo = filesToCheck.map(entryCheckPromise)
     Promise.all(todo).then(result => {
       result = result.filter(([entry, file]) => entry.lastModified != entry._lastModified)
       if (result.length) {
@@ -295,8 +262,7 @@ async function fileDropped(ev) {
   let files = extractEntries(ev.dataTransfer)
   if (!files.length) return
 
-  checkPrimary.length = 0
-  checkSecondary.length = 0
+  filesToCheck.length = 0
   fileToRun = 'index.js'
   let folderName
   clearFs(sw)
@@ -356,7 +322,7 @@ async function fileDropped(ev) {
     const file = await findFileInRoots(sw.roots, fileToRun)
     if (file) {
       runFile(fileToRun)
-      checkPrimary.push(file)
+      filesToCheck.push(file)
       editor.setSource(await readAsText(file))
     } else {
       setError(`main file not found ${fileToRun}`)
@@ -371,7 +337,7 @@ const loadExample = (source) => {
 
 // Initialize three engine
 engine.init().then((viewer) => {
-  engineState.setEngine(viewer)
+  viewState.setEngine(viewer)
   setViewerScene(model)
 })
 

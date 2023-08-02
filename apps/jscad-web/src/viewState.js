@@ -4,7 +4,7 @@ import { themes } from './themes.js'
 
 const byId = (id) => document.getElementById(id)
 
-export class EngineState {
+export class ViewState {
   viewer = undefined
 
   constructor() {

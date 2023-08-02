@@ -22,7 +22,7 @@ import {
   readAsText,
   readDir,
   registerServiceWorker,
-} from '../../packages/fs-provider/fs-provider'
+} from '@jscadui/fs-provider'
 import { availableEngines, availableEnginesList } from './src/availableEngines'
 import { CurrentUrl } from './src/currentUrl'
 import { EngineState } from './src/engineState'
@@ -151,24 +151,6 @@ sel.oninput = e => {
   setViewerScene(model)
 }
 
-let checkChange_timer
-let fileToWatch
-let lastModified
-
-function checkChange() {
-  if (!fileToWatch) return
-
-  clearTimeout(checkChange_timer)
-  fileToWatch.file(f => {
-    if (f.lastModified != lastModified) {
-      initScript(f)
-      lastModified = f.lastModified
-      console.log('lastModified::', f.lastModified, f)
-    }
-  })
-  checkChange_timer = setTimeout(checkChange, 300)
-}
-
 const dropModal = byId('dropModal')
 const showDrop = show => {
   clearTimeout(showDrop.timer)
@@ -226,19 +208,6 @@ function exportModel(format) {
   }).catch((error) => setError(error))
 }
 window.exportModel = exportModel
-
-const initScript = f => {
-  var reader = new FileReader()
-  reader.onload = event => {
-    let script = event.target.result
-    sendCmd('initScript', { script, url: f.name + '?' + f.lastModified }).then(r => {
-      console.log('params def', r)
-      sendCmd('runMain', {})
-    })
-  }
-  reader.onerror = event => console.log('error', event)
-  reader.readAsText(f)
-}
 
 var worker = new Worker('./build/bundle.worker.js')
 const { sendCmd, sendNotify } = initMessaging(worker, handlers)

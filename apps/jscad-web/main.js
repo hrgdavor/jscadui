@@ -17,7 +17,7 @@ import {
   readAsText,
   readDir,
   registerServiceWorker,
-} from '../../packages/fs-provider/fs-provider'
+} from '@jscadui/fs-provider'
 import { ViewState } from './src/viewState.js'
 import * as engine from './src/engine.js'
 
@@ -197,22 +197,20 @@ const findByFsPath = (arr, file) => {
 
 const fileIsRequested = (path, file) => {
   let match
-  if ((match = findByFsPath(checkPrimary, file))) return
-  if ((match = findByFsPath(checkSecondary, file))) return
-  checkSecondary.push(file)
+  if ((match = findByFsPath(filesToCheck, file))) return
+  filesToCheck.push(file)
 }
 
-let checkPrimary = (window.checkPrimary = [])
-let checkSecondary = (window.checkSecondary = [])
+let filesToCheck = (window.filesToCheck = [])
 let fileToRun
 let projectName = 'jscad'
 let lastCheck = Date.now()
 
 const checkFiles = () => {
   const now = Date.now()
-  if (now - lastCheck > 300 && checkPrimary.length + checkSecondary.length != 0) {
+  if (now - lastCheck > 300 && filesToCheck.length != 0) {
     lastCheck = now
-    let todo = checkPrimary.concat(checkSecondary).map(entryCheckPromise)
+    let todo = filesToCheck.map(entryCheckPromise)
     Promise.all(todo).then(result => {
       result = result.filter(([entry, file]) => entry.lastModified != entry._lastModified)
       if (result.length) {
@@ -277,8 +275,7 @@ async function fileDropped(ev) {
   let files = extractEntries(ev.dataTransfer)
   if (!files.length) return
 
-  checkPrimary.length = 0
-  checkSecondary.length = 0
+  filesToCheck.length = 0
   fileToRun = 'index.js'
   let folderName
   clearFs(sw)
@@ -338,7 +335,7 @@ async function fileDropped(ev) {
     const file = await findFileInRoots(sw.roots, fileToRun)
     if (file) {
       runFile(fileToRun)
-      checkPrimary.push(file)
+      filesToCheck.push(file)
       editor.setSource(await readAsText(file))
     } else {
       setError(`main file not found ${fileToRun}`)

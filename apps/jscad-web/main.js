@@ -129,6 +129,7 @@ async function sendCmdAndSpin(method, params){
     return await sendCmd(method, params)
   }catch(error){
     setError(error)
+    throw error
   }finally{
     spinner.style.display = 'none'
   }

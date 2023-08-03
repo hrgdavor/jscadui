@@ -115,11 +115,23 @@ function save(blob, filename) {
   link.click()
 }
 
-const exportModel = (format, extension) => {
-  sendCmd('exportData', { format }).then(({ data }) => {
-    console.log('save', `${projectName}.${extension}`, data)
+const exportModel = async (format, extension) => {
+  const { data } = await sendCmdAndSpin('exportData', { format }) || {}
+  if(data){
     save(new Blob([data], { type: 'text/plain' }), `${projectName}.${extension}`)
-  }).catch((error) => setError(error))
+    console.log('save', `${projectName}.${extension}`, data)
+  } 
+}
+
+async function sendCmdAndSpin(method, params){
+  spinner.style.display = 'block'
+  try{
+    return await sendCmd(method, params)
+  }catch(error){
+    setError(error)
+  }finally{
+    spinner.style.display = 'none'
+  }
 }
 
 const worker = new Worker('./build/bundle.worker.js')
@@ -136,7 +148,7 @@ registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', async (path, s
   }
 }).then(async (_sw) => {
   sw = _sw
-  await sendCmd('init', {
+  await sendCmdAndSpin('init', {
     bundles: {
       '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
     },
@@ -194,33 +206,15 @@ const checkFiles = () => {
 const spinner = byId('spinner')
 const paramChangeCallback = params => {
   console.log('params changed', params)
-  spinner.style.display = 'block'
-  sendCmd('runMain', { params }).then(() => {
-    spinner.style.display = 'none'
-  }).catch((error) => {
-    spinner.style.display = 'none'
-    setError(error)
-  })
+  sendCmdAndSpin('runMain', { params })
 }
-const runScript = (script, url = './index.js') => {
-  spinner.style.display = 'block'
-  sendCmd('runScript', { script, url }).then(result => {
-    spinner.style.display = 'none'
-    genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
-  }).catch((error) => {
-    spinner.style.display = 'none'
-    setError(error)
-  })
+const runScript = async (script, url = './index.js') => {
+  const result = await sendCmdAndSpin('runScript', { script, url })
+  if(result) genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
 }
-const runFile = file => {
-  spinner.style.display = 'block'
-  sendCmd('runFile', { file }).then(result => {
-    spinner.style.display = 'none'
-    genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
-  }).catch((error) => {
-    spinner.style.display = 'none'
-    setError(error)
-  })
+const runFile = async file => {
+  const result = await sendCmdAndSpin('runFile', { file })
+  if(result) genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
 }
 
 checkFiles()

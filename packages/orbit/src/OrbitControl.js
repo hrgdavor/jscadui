@@ -20,6 +20,11 @@ export class OrbitControl extends OrbitState {
   el
   animDuration = 200
 
+  /**
+   * 
+   * @param {Element|Array<Element>} el 
+   * @param {Object} options 
+   */
   constructor(el, { position, target = [0, 0, 0], rx=PI/4, rz=PI/4, len=200, rxRatio = 0.01, rzRatio = 0.01, zoomRatio = 0.05 } = {}) {
     super({ position, target, rx, rz, len })
 
@@ -113,6 +118,11 @@ export class OrbitControl extends OrbitState {
     this.animTimer = requestAnimationFrame(()=>this.doAnim())
   }
 
+  animateToCommonCamera(cam) {
+    const [rx, rz] = getCommonRotCombined(cam)
+    ctrl.animateToCamera({ rx, rz, target: [0, 0, 0] })  
+  }
+  
   setCommonCamera(name) {
     this.setRotate(...getCommonRotCombined(name), [0, 0, 0])
   }

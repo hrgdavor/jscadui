@@ -35,33 +35,20 @@ const gizmo = (window.gizmo = new Gizmo())
 byId('layout').appendChild(gizmo)
 
 let model = []
-model = model.map(m => JscadToCommon(m))
 
-const elements = [byId('viewer')]
-
-function setViewerScene(model) {
-  viewState.setModel(model)
-}
-const ctrl = (window.ctrl = new OrbitControl(elements, { ...viewState.camera, alwaysRotate: false }))
-function setViewerCamera({ position, target, rx, rz }) {
-  viewState.setCamera({ position, target })
-  gizmo.rotateXZ(rx, rz)
-}
+const ctrl = (window.ctrl = new OrbitControl([byId('viewer')], { ...viewState.camera, alwaysRotate: false }))
 
 const updateFromCtrl = change => {
   const { position, target, rx, rz, len, ...rest } = change
-  setViewerCamera(change)
+  viewState.setCamera({ position, target })
+  gizmo.rotateXZ(rx, rz)
 }
-
 updateFromCtrl(ctrl)
 
 ctrl.onchange = state => viewState.saveCamera(state)
 ctrl.oninput = state => updateFromCtrl(state)
 
-gizmo.oncam = ({ cam }) => {
-  const [rx, rz] = getCommonRotCombined(cam)
-  ctrl.animateToCamera({ rx, rz, target: [0, 0, 0] })
-}
+gizmo.oncam = ({ cam }) => ctrl.animateToCommonCamera(cam)
 
 const dropModal = byId('dropModal')
 const showDrop = show => {
@@ -88,7 +75,7 @@ document.body.ondragleave = document.body.ondragend = ev => {
 const handlers = {
   entities: ({ entities }) => {
     if (!(entities instanceof Array)) entities = [entities]
-    setViewerScene((model = entities))
+    viewState.setModel((model = entities))
     setError(undefined)
   },
 }
@@ -123,6 +110,7 @@ const exportModel = async (format, extension) => {
   } 
 }
 
+const spinner = byId('spinner')
 async function sendCmdAndSpin(method, params){
   spinner.style.display = 'block'
   try{
@@ -204,7 +192,6 @@ const checkFiles = () => {
   requestAnimationFrame(checkFiles)
 }
 
-const spinner = byId('spinner')
 const paramChangeCallback = params => {
   console.log('params changed', params)
   sendCmdAndSpin('runMain', { params })
@@ -301,7 +288,7 @@ const loadExample = (source) => {
 // Initialize three engine
 engine.init().then((viewer) => {
   viewState.setEngine(viewer)
-  setViewerScene(model)
+  viewState.setModel(model)
 })
 
 editor.init()

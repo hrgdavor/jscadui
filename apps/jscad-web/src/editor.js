@@ -3,8 +3,6 @@ import { javascript } from "@codemirror/lang-javascript"
 import { defaultKeymap } from "@codemirror/commands"
 import { keymap } from "@codemirror/view"
 
-import defaultCode from "../examples/jscad.example.js"
-
 let view
 let isMouseDown = false
 let isDragging = false
@@ -22,7 +20,8 @@ const compile = (code) => {
   }
 }
 
-export const init = () => {
+export const init = (defaultCode, fn) => {
+  compileFn = fn
   // Initialize codemirror
   const editorDiv = document.getElementById("editor-container")
   view = new EditorView({
@@ -111,6 +110,6 @@ export const setSource = (source) => {
  * Set the compile function to call on shift-enter
  */
 export const setCompileFun = (fn) => {
-  compileFn = fn
+  
   compile(view.state.doc.toString())
 }

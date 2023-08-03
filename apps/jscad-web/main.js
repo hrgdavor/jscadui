@@ -25,8 +25,11 @@ import * as editor from "./src/editor.js"
 import * as menu from "./src/menu.js"
 import * as welcome from "./src/welcome.js"
 import * as exporter from "./src/exporter.js"
+import defaultCode from "./examples/jscad.example.js"
 
 export const byId = id => document.getElementById(id)
+const toUrl = path => new URL(path, document.baseURI).toString()
+
 customElements.define('jscadui-gizmo', Gizmo)
 
 const viewState = new ViewState()
@@ -110,6 +113,9 @@ const exportModel = async (format, extension) => {
   } 
 }
 
+const worker = new Worker('./build/bundle.worker.js')
+const { sendCmd, sendNotify } = initMessaging(worker, handlers)
+
 const spinner = byId('spinner')
 async function sendCmdAndSpin(method, params){
   spinner.style.display = 'block'
@@ -123,14 +129,19 @@ async function sendCmdAndSpin(method, params){
   }
 }
 
-const worker = new Worker('./build/bundle.worker.js')
-const { sendCmd, sendNotify } = initMessaging(worker, handlers)
-
+sendCmdAndSpin('init', {
+  bundles: {
+    '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
+  },
+}).then(()=>{
+  runScript(defaultCode)  
+})
 
 const paramChangeCallback = params => {
   console.log('params changed', params)
   sendCmdAndSpin('runMain', { params })
 }
+
 const runScript = async (script, url = './index.js') => {
   const result = await sendCmdAndSpin('runScript', { script, url })
   genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
@@ -141,7 +152,6 @@ const runFile = async file => {
 }
 
 let sw
-const toUrl = path => new URL(path, document.baseURI).toString()
 registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', async (path, sw) => {
   let arr = path.split('/').filter(p => p)
   let match = await findFileInRoots(sw.roots, arr)
@@ -151,14 +161,12 @@ registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', async (path, s
   }
 }).then(async (_sw) => {
   sw = _sw
-  await sendCmdAndSpin('init', {
-    bundles: {
-      '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
-    },
+  sendCmd('init', {
     baseURI: new URL(`/swfs/${sw.id}/`, document.baseURI).toString(),
   })
-  editor.setCompileFun((script) => runScript(script))
 }).catch((error) => setError(error))
+
+
 
 const findByFsPath = (arr, file) => {
   const path = typeof file === 'string' ? file : file.fsPath
@@ -292,7 +300,7 @@ engine.init().then((viewer) => {
   viewState.setEngine(viewer)
 })
 
-editor.init()
+editor.init(defaultCode,(script) => runScript(script))
 menu.init(loadExample)
 welcome.init()
 exporter.init(exportModel)

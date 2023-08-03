@@ -71,14 +71,10 @@ export async function runMain({ params } = {}) {
 // https://stackoverflow.com/questions/52086611/regex-for-matching-js-import-statements
 const importReg = /import(?:(?:(?:[ \n\t]+([^ *\n\t\{\},]+)[ \n\t]*(?:,|[ \n\t]+))?([ \n\t]*\{(?:[ \n\t]*[^ \n\t"'\{\}]+[ \n\t]*,?)+\})?[ \n\t]*)|[ \n\t]*\*[ \n\t]*as[ \n\t]+([^ \n\t\{\}]+)[ \n\t]+)from[ \n\t]*(?:['"])([^'"\n]+)(['"])/
 const exportReg = /export.*from/
-export const runFile = async ({ file }) => {
-  let base = globalBase
-  let root = base
-  const script = readFileWeb(resolveUrl(file, base, root).url,{base})
-  return runScript({url:file ,script, root, base})
-}
 
-const runScript = async ({ script, url, base=globalBase, root=globalBase }) => {
+const runScript = async ({ script, url, base=globalBase, root=base }) => {
+  if(!script) script = readFileWeb(resolveUrl(url, base, root).url,{base})
+
   console.log('{ script, url, base, root }', { script, url, base, root })
   const shouldTransform = url.endsWith('.ts') || script.includes('import') && (importReg.test(script) || exportReg.test(script))
   let def = []
@@ -114,7 +110,7 @@ const exportData = async (params) => {
 
 export const currentSolids = ()=>solids
 
-const handlers = { runScript, init, runMain, runFile, clearTempCache, clearFileCache, exportData }
+const handlers = { runScript, init, runMain, clearTempCache, clearFileCache, exportData }
 
 export const initWorker = (transform, exportData) => {
   if (transform) transformFunc = transform

@@ -33,6 +33,7 @@ const { translate } = transforms
 const { colorize } = colors
 
 export const byId = id => document.getElementById(id)
+const toUrl = path => new URL(path, document.baseURI).toString()
 const currentUrl = new CurrentUrl()
 customElements.define('jscadui-gizmo', Gizmo)
 
@@ -177,27 +178,28 @@ function exportModel(format) {
 }
 window.exportModel = exportModel
 
-var worker = new Worker('./build/bundle.worker.js')
+const worker = new Worker('./build/bundle.worker.js')
 const { sendCmd, sendNotify } = initMessaging(worker, handlers)
 
-let sw
-const toUrl = path => new URL(path, document.baseURI).toString()
-registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', async (path, sw) => {
-  let arr = path.split('/').filter(p => p)
-  let match = await findFileInRoots(sw.roots, arr)
-  if (match) {
-    fileIsRequested(path, match)
-    return readAsArrayBuffer(await filePromise(match))
+const spinner = byId('spinner')
+async function sendCmdAndSpin(method, params){
+  spinner.style.display = 'block'
+  try{
+    return await sendCmd(method, params)
+  }catch(error){
+    setError(error)
+    throw error
+  }finally{
+    spinner.style.display = 'none'
   }
-}).then(_sw => {
-  sw = _sw
-  sendCmd('init', {
-    bundles: {
-      '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
-    },
-    baseURI: new URL(`/swfs/${sw.id}/`, document.baseURI).toString(),
-  })
-  let script = `const { sphere, geodesicSphere } = require('@jscad/modeling').primitives
+}
+
+sendCmdAndSpin('init', {
+  bundles: {
+    '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
+  },
+}).then(()=>{
+  runScript({script:`const { sphere, geodesicSphere } = require('@jscad/modeling').primitives
   const { translate, scale } = require('@jscad/modeling').transforms
   
   const main = () => [
@@ -214,10 +216,31 @@ registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', async (path, s
   ]
   
   module.exports = { main }`
-  runScript(script, './script.js')
-}).catch((error) => {
-  setError(error)
+  })
 })
+
+const paramChangeCallback = params => {
+  console.log('params changed', params)
+  sendCmdAndSpin('runMain', { params })
+}
+
+const runScript = async ({script, url = './index.js', base, root}) => {
+  const result = await sendCmdAndSpin('runScript', { script, url, base, root })
+  genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
+}
+
+let sw, swBase
+registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', async (path, sw) => {
+  let arr = path.split('/').filter(p => p)
+  let match = await findFileInRoots(sw.roots, arr)
+  if (match) {
+    fileIsRequested(path, match)
+    return readAsArrayBuffer(await filePromise(match))
+  }
+}).then(async (_sw) => {
+  sw = _sw
+  swBase = new URL(`/swfs/${sw.id}/`, document.baseURI).toString()
+}).catch((error) => setError(error))
 
 const findByFsPath = (arr, file) => {
   const path = typeof file === 'string' ? file : file.fsPath
@@ -253,7 +276,7 @@ const checkFiles = () => {
         })
         sendNotify('clearFileCache', { files })
         Promise.all(todo).then(result => {
-          if (fileToRun) runFile(fileToRun)
+          if (fileToRun) runScript({url:fileToRun, base:swBase})
         })
         console.log(
           'result',
@@ -266,29 +289,6 @@ const checkFiles = () => {
     // TODO sendCmd clearFileCache {files}
   }
   requestAnimationFrame(checkFiles)
-}
-
-const paramChangeCallback = params => {
-  console.log('params', params)
-  sendCmd('runMain', { params })
-}
-const runScript = (script, url) => {
-  sendCmd('runScript', { script, url }).then(result => {
-    console.log('result', result)
-    genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
-  }).catch((error) => {
-    spinner.style.display = 'none'
-    setError(error)
-  })
-}
-const runFile = file => {
-  sendCmd('runFile', { file }).then(result => {
-    console.log('result', result)
-    genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
-  }).catch((error) => {
-    spinner.style.display = 'none'
-    setError(error)
-  })
 }
 
 checkFiles()
@@ -357,7 +357,7 @@ async function fileDropped(ev) {
     fileToRun = `/${fileToRun}`
     const file = await findFileInRoots(sw.roots, fileToRun)
     if (file) {
-      runFile(fileToRun)
+      runScript({url:fileToRun, base:swBase})
       checkPrimary.push(file)
     } else {
       setError(`main file not found ${fileToRun}`)

@@ -134,7 +134,7 @@ sendCmdAndSpin('init', {
     '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
   },
 }).then(()=>{
-  runScript(defaultCode)  
+  runScript({script:defaultCode})  
 })
 
 const paramChangeCallback = params => {
@@ -142,16 +142,12 @@ const paramChangeCallback = params => {
   sendCmdAndSpin('runMain', { params })
 }
 
-const runScript = async (script, url = './index.js') => {
-  const result = await sendCmdAndSpin('runScript', { script, url })
-  genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
-}
-const runFile = async file => {
-  const result = await sendCmdAndSpin('runFile', { file })
+const runScript = async ({script, url = './index.js', base, root}) => {
+  const result = await sendCmdAndSpin('runScript', { script, url, base, root })
   genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
 }
 
-let sw
+let sw, swBase
 registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', async (path, sw) => {
   let arr = path.split('/').filter(p => p)
   let match = await findFileInRoots(sw.roots, arr)
@@ -161,12 +157,8 @@ registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', async (path, s
   }
 }).then(async (_sw) => {
   sw = _sw
-  sendCmd('init', {
-    baseURI: new URL(`/swfs/${sw.id}/`, document.baseURI).toString(),
-  })
+  swBase = new URL(`/swfs/${sw.id}/`, document.baseURI).toString()
 }).catch((error) => setError(error))
-
-
 
 const findByFsPath = (arr, file) => {
   const path = typeof file === 'string' ? file : file.fsPath
@@ -199,7 +191,7 @@ const checkFiles = () => {
         })
         sendNotify('clearFileCache', { files })
         Promise.all(todo).then(result => {
-          if (fileToRun) runFile(fileToRun)
+          if (fileToRun) runScript({url:fileToRun, base:swBase})
         })
         console.log(
           'result',
@@ -281,7 +273,7 @@ async function fileDropped(ev) {
     fileToRun = `/${fileToRun}`
     const file = await findFileInRoots(sw.roots, fileToRun)
     if (file) {
-      runFile(fileToRun)
+      runScript({url:fileToRun, base:swBase})
       filesToCheck.push(file)
       editor.setSource(await readAsText(file))
     } else {
@@ -292,7 +284,7 @@ async function fileDropped(ev) {
 
 const loadExample = (source) => {
   editor.setSource(source)
-  runScript(source)
+  runScript({script:source})
 }
 
 // Initialize three engine

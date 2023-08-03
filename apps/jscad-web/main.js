@@ -126,6 +126,20 @@ async function sendCmdAndSpin(method, params){
 const worker = new Worker('./build/bundle.worker.js')
 const { sendCmd, sendNotify } = initMessaging(worker, handlers)
 
+
+const paramChangeCallback = params => {
+  console.log('params changed', params)
+  sendCmdAndSpin('runMain', { params })
+}
+const runScript = async (script, url = './index.js') => {
+  const result = await sendCmdAndSpin('runScript', { script, url })
+  genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
+}
+const runFile = async file => {
+  const result = await sendCmdAndSpin('runFile', { file })
+  genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
+}
+
 let sw
 const toUrl = path => new URL(path, document.baseURI).toString()
 registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', async (path, sw) => {
@@ -192,18 +206,6 @@ const checkFiles = () => {
   requestAnimationFrame(checkFiles)
 }
 
-const paramChangeCallback = params => {
-  console.log('params changed', params)
-  sendCmdAndSpin('runMain', { params })
-}
-const runScript = async (script, url = './index.js') => {
-  const result = await sendCmdAndSpin('runScript', { script, url })
-  if(result) genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
-}
-const runFile = async file => {
-  const result = await sendCmdAndSpin('runFile', { file })
-  if(result) genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
-}
 
 checkFiles()
 
@@ -288,7 +290,6 @@ const loadExample = (source) => {
 // Initialize three engine
 engine.init().then((viewer) => {
   viewState.setEngine(viewer)
-  viewState.setModel(model)
 })
 
 editor.init()

@@ -8,19 +8,8 @@ import { makeAxes, makeGrid } from '@jscadui/scene'
 import * as themes from '@jscadui/themes'
 
 import {
-  addPreLoad,
-  addPreLoadAll,
-  addToCache,
-  clearFs,
-  entryCheckPromise,
+  fileDropped,
   extractEntries,
-  filePromise,
-  fileToFsEntry,
-  findFileInRoots,
-  getFile,
-  readAsArrayBuffer,
-  readAsText,
-  readDir,
   registerServiceWorker,
 } from '@jscadui/fs-provider'
 import { availableEngines, availableEnginesList } from './src/availableEngines'
@@ -43,6 +32,7 @@ const useEngines = currentUrl.initGet('engines', 'three').split(',')
 const gizmo = (window.gizmo = new Gizmo())
 byId('layout').appendChild(gizmo)
 
+let projectName = 'jscad'
 const modelRadius = 30
 let model = [
   subtract(
@@ -125,10 +115,25 @@ const showDrop = show => {
   clearTimeout(showDrop.timer)
   dropModal.style.display = show ? 'initial' : 'none'
 }
-document.body.ondrop = ev => {
-  ev.preventDefault()
-  showDrop(false)
-  fileDropped(ev)
+document.body.ondrop = async ev => {
+  try {
+    ev.preventDefault()
+    let files = extractEntries(ev.dataTransfer)
+    if (!files.length) return {}
+  
+    if (!sw) await initFs()
+    showDrop(false)
+    sendCmd('clearTempCache', {})
+    const { alias, script } = await fileDropped(sw, files)
+    projectName = sw.projectName
+    if (alias?.length) {
+      sendNotify('init', { alias })
+    }
+    runScript({ url: sw.fileToRun, base: sw.base })
+  } catch (error) {
+    setError(error)
+    console.error(error)
+  }
 }
 
 document.body.ondragover = ev => {
@@ -140,14 +145,6 @@ document.body.ondragleave = document.body.ondragend = ev => {
   showDrop.timer = setTimeout(() => {
     showDrop(false)
   }, 300)
-}
-
-const handlers = {
-  entities: ({ entities }) => {
-    if (!(entities instanceof Array)) entities = [entities]
-    setViewerScene((model = entities))
-    setError(undefined)
-  },
 }
 
 function setError(error) {
@@ -179,6 +176,13 @@ function exportModel(format) {
 window.exportModel = exportModel
 
 const worker = new Worker('./build/bundle.worker.js')
+const handlers = {
+  entities: ({ entities }) => {
+    if (!(entities instanceof Array)) entities = [entities]
+    setViewerScene((model = entities))
+    setError(undefined)
+  },
+}
 const { sendCmd, sendNotify } = initMessaging(worker, handlers)
 
 const spinner = byId('spinner')
@@ -229,139 +233,13 @@ const runScript = async ({script, url = './index.js', base, root}) => {
   genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
 }
 
-let sw, swBase
-registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', async (path, sw) => {
-  let arr = path.split('/').filter(p => p)
-  let match = await findFileInRoots(sw.roots, arr)
-  if (match) {
-    fileIsRequested(path, match)
-    return readAsArrayBuffer(await filePromise(match))
-  }
-}).then(async (_sw) => {
-  sw = _sw
-  swBase = new URL(`/swfs/${sw.id}/`, document.baseURI).toString()
-}).catch((error) => setError(error))
-
-const findByFsPath = (arr, file) => {
-  const path = typeof file === 'string' ? file : file.fsPath
-  return arr.find(f => f.fsPath === path)
-}
-
-const fileIsRequested = (path, file) => {
-  let match
-  if ((match = findByFsPath(checkPrimary, file))) return
-  if ((match = findByFsPath(checkSecondary, file))) return
-  checkSecondary.push(file)
-}
-
-let checkPrimary = (window.checkPrimary = [])
-let checkSecondary = (window.checkSecondary = [])
-let fileToRun
-let lastCheck = Date.now()
-
-const checkFiles = () => {
-  const now = Date.now()
-  // console.log('check', now - lastCheck > 1000, checkPrimary.length + checkSecondary.length)
-  if (now - lastCheck > 300 && checkPrimary.length + checkSecondary.length != 0) {
-    lastCheck = now
-    let todo = checkPrimary.concat(checkSecondary).map(entryCheckPromise)
-    Promise.all(todo).then(result => {
-      // console.log('result', result)
-      result = result.filter(([entry, file]) => entry.lastModified != entry._lastModified)
-      if (result.length) {
-        const todo = []
-        const files = result.map(([entry, file]) => {
-          todo.push(addToCache(sw.cache, entry.fsPath, file))
-          return entry.fsPath
-        })
-        sendNotify('clearFileCache', { files })
-        Promise.all(todo).then(result => {
-          if (fileToRun) runScript({url:fileToRun, base:swBase})
-        })
-        console.log(
-          'result',
-          result.map(([entry, file]) => entry.fsPath + '/' + entry.lastModified),
-        )
-      }
-    })
-
-    // TODO clear sw cache
-    // TODO sendCmd clearFileCache {files}
-  }
-  requestAnimationFrame(checkFiles)
-}
-
-checkFiles()
-
-async function fileDropped(ev) {
-  //this.worker.postMessage({action:'fileDropped', dataTransfer})
-  let files = extractEntries(ev.dataTransfer)
-  if (!files.length) return
-
-  checkPrimary.length = 0
-  checkSecondary.length = 0
-  fileToRun = 'index.js'
-  let folderName
-  clearFs(sw)
-  sendCmd('clearTempCache', {})
-  let rootFiles = []
-  if (files.length === 1) {
-    const file = files[0]
-    if (file.isDirectory) {
-      folderName = file.name
-      console.log('dropped', file.name)
-      file.fsDir = '/'
-      rootFiles = await readDir(file)
-    } else {
-      rootFiles.push(file)
-      fileToRun = file.name
-    }
-  } else {
-    rootFiles = Array.from(files)
-  }
-  rootFiles = rootFiles.map(e => fileToFsEntry(e, '/'))
-  sw.roots.push(rootFiles)
-
-  let pkgFile = await findFileInRoots(sw.roots, 'package.json')
-  if (pkgFile) {
-    try {
-      const pack = JSON.parse(await readAsText(pkgFile))
-      if (pack.main) fileToRun = pack.main
-      const alias = []
-      if (pack.workspaces)
-        for (let i = 0; i < pack.workspaces.length; i++) {
-          const w = pack.workspaces[i]
-          // debugger
-          let pack2 = await findFileInRoots(sw.roots, `/${w}/package.json`)
-          if (pack2) pack2 = JSON.parse(await readAsText(pack2))
-          let name = pack2?.name || w
-          let main = pack2?.main || 'index.js'
-          alias.push([`/${w}/${main}`, name])
-        }
-      if (alias.length) {
-        sendNotify('init', { alias })
-      }
-    } catch (error) {
-      console.error('error parsing package.json', error)
-    }
-  }
-
-  let time = Date.now()
-  const preLoad = ['/' + fileToRun, '/package.json']
-  const loaded = await addPreLoadAll(sw, preLoad, true)
-  console.log(Date.now() - time, 'preload', loaded)
-  // TODO make proxy for calling commands
-  // worker.cmd worker.notify
-
-  if (fileToRun) {
-    fileToRun = `/${fileToRun}`
-    const file = await findFileInRoots(sw.roots, fileToRun)
-    if (file) {
-      runScript({url:fileToRun, base:swBase})
-      checkPrimary.push(file)
-    } else {
-      setError(`main file not found ${fileToRun}`)
-    }
+let sw
+async function initFs() {
+  sw = await registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/')
+  sw.defProjectName = 'jscad'
+  sw.onfileschange = files => {
+    sendNotify('clearFileCache', { files })
+    if (sw.fileToRun) runScript({ url: sw.fileToRun, base: sw.base })
   }
 }
 

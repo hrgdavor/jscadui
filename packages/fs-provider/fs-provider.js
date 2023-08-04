@@ -1,7 +1,7 @@
 import { initMessaging } from '@jscadui/postmessage'
 
-import { filePromise, readDir } from './src/FileEntry.js'
-import { readAsArrayBuffer } from './src/FileReader.js'
+import { entryCheckPromise, filePromise, fileToFsEntry, readDir } from './src/FileEntry.js'
+import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
 
 export * from './src/FileReader.js'
 export * from './src/FileEntry.js'
@@ -11,7 +11,10 @@ export const splitPath = path => (typeof path === 'string' ? path.split('/').fil
 export const getFile = async (path, sw) => {
   let arr = splitPath(path)
   let match = await findFileInRoots(sw.roots, arr)
-  if (match) return readAsArrayBuffer(await filePromise(match))
+  if (match) {
+    fileIsRequested(path, match, sw)
+    return readAsArrayBuffer(await filePromise(match))
+  }
 }
 
 export const addToCache = async (cache, path, content) => cache.put(new Request(path), new Response(content))
@@ -91,6 +94,12 @@ export const registerServiceWorker = async (workerScript, _getFile = getFile, { 
     window.addEventListener('beforeunload', e => caches.delete(cacheId))
 
     sw.cache = await caches.open(cacheId)
+    sw.defProjectName = 'project'
+    sw.filesToCheck = []
+    sw.lastCheck = Date.now()
+    sw.base = new URL(`/swfs/${sw.id}/`, document.baseURI).toString()
+    checkFiles(sw)
+  
     return sw
   }
 }
@@ -152,4 +161,106 @@ export const loadDir = async dir => {
     dir.children = await readDir(dir)
   }
   return dir.children || []
+}
+
+export const checkFiles = (sw) => {
+  const now = Date.now()
+  if (now - sw.lastCheck > 300 && sw.filesToCheck.length != 0) {
+    sw.lastCheck = now
+    let todo = sw.filesToCheck.map(entryCheckPromise)
+    Promise.all(todo).then(result => {
+      result = result.filter(([entry, file]) => entry.lastModified != entry._lastModified)
+      if (result.length) {
+        const todo = []
+        const files = result.map(([entry, file]) => {
+          todo.push(addToCache(sw.cache, entry.fsPath, file))
+          return entry.fsPath
+        })
+        Promise.all(todo).then(result => {
+          sw.onfileschange?.(files)
+        })
+      }
+    })
+
+    // TODO clear sw cache
+    // TODO sendCmd clearFileCache {files}
+  }
+  requestAnimationFrame(()=>checkFiles(sw))
+}
+
+export async function fileDropped(sw, files) {
+  sw.filesToCheck.length = 0
+  sw.fileToRun = 'index.js'
+  let folderName
+  clearFs(sw)
+  let rootFiles = []
+  if (files.length === 1) {
+    const file = files[0]
+    if (file.isDirectory) {
+      folderName = file.name
+      file.fsDir = '/'
+      rootFiles = await readDir(file)
+    } else {
+      rootFiles.push(file)
+      sw.fileToRun = file.name
+    }
+  } else {
+    rootFiles = Array.from(files)
+  }
+  rootFiles = rootFiles.map(e => fileToFsEntry(e, '/'))
+  sw.roots.push(rootFiles)
+
+  const alias = []
+  let pkgFile = await findFileInRoots(sw.roots, 'package.json')
+  if (pkgFile) {
+    try {
+      const pack = JSON.parse(await readAsText(pkgFile))
+      if (pack.main) sw.fileToRun = pack.main
+      if (pack.workspaces)
+        for (let i = 0; i < pack.workspaces.length; i++) {
+          const w = pack.workspaces[i]
+          // debugger
+          let pack2 = await findFileInRoots(sw.roots, `/${w}/package.json`)
+          if (pack2) pack2 = JSON.parse(await readAsText(pack2))
+          let name = pack2?.name || w
+          let main = pack2?.main || 'index.js'
+          alias.push([`/${w}/${main}`, name])
+        }
+    } catch (error) {
+      console.error('error parsing package.json', error)
+    }
+  }
+
+  let time = Date.now()
+  const preLoad = ['/' + sw.fileToRun, '/package.json']
+  const loaded = await addPreLoadAll(sw, preLoad, true)
+  console.log(Date.now() - time, 'preload', loaded)
+
+  sw.projectName = sw.defProjectName
+  if (sw.fileToRun !== 'index.js') sw.projectName = sw.fileToRun.replace(/\.js$/, '')
+  if (folderName) sw.projectName = folderName
+  
+  let script = ''
+  if (sw.fileToRun) {
+    sw.fileToRun = `/${sw.fileToRun}`
+    const file = await findFileInRoots(sw.roots, sw.fileToRun)
+    if (file) {
+      sw.filesToCheck.push(file)
+      script = await readAsText(file)
+    } else {
+      throw new Error(`main file not found ${sw.fileToRun}`)
+    }
+  }
+  return {alias, script}
+}
+
+export const findByFsPath = (arr, file) => {
+  const path = typeof file === 'string' ? file : file.fsPath
+  return arr.find(f => f.fsPath === path)
+}
+
+export const fileIsRequested = (path, file, sw) => {
+  let match
+  if ((match = findByFsPath(sw.filesToCheck, file))) return
+  sw.filesToCheck.push(file)
 }

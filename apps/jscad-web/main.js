@@ -1,31 +1,16 @@
-import { JscadToCommon } from '@jscadui/format-jscad'
+import { extractEntries, fileDropped, registerServiceWorker } from '@jscadui/fs-provider'
 import { Gizmo } from '@jscadui/html-gizmo'
-import { OrbitControl, OrbitState, closerAngle, getCommonRotCombined } from '@jscadui/orbit'
+import { OrbitControl } from '@jscadui/orbit'
 import { genParams } from '@jscadui/params'
 import { initMessaging } from '@jscadui/postmessage'
 
-import {
-  addPreLoadAll,
-  addToCache,
-  clearFs,
-  entryCheckPromise,
-  extractEntries,
-  filePromise,
-  fileToFsEntry,
-  findFileInRoots,
-  readAsArrayBuffer,
-  readAsText,
-  readDir,
-  registerServiceWorker,
-} from '@jscadui/fs-provider'
-import { ViewState } from './src/viewState.js'
+import defaultCode from './examples/jscad.example.js'
+import * as editor from './src/editor.js'
 import * as engine from './src/engine.js'
-
-import * as editor from "./src/editor.js"
-import * as menu from "./src/menu.js"
-import * as welcome from "./src/welcome.js"
-import * as exporter from "./src/exporter.js"
-import defaultCode from "./examples/jscad.example.js"
+import * as exporter from './src/exporter.js'
+import * as menu from './src/menu.js'
+import { ViewState } from './src/viewState.js'
+import * as welcome from './src/welcome.js'
 
 export const byId = id => document.getElementById(id)
 const toUrl = path => new URL(path, document.baseURI).toString()
@@ -53,15 +38,40 @@ ctrl.oninput = state => updateFromCtrl(state)
 
 gizmo.oncam = ({ cam }) => ctrl.animateToCommonCamera(cam)
 
+let sw
+async function initFs() {
+  sw = await registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/')
+  sw.defProjectName = 'jscad'
+  sw.onfileschange = files => {
+    sendNotify('clearFileCache', { files })
+    if (sw.fileToRun) runScript({ url: sw.fileToRun, base: sw.base })
+  }
+}
 const dropModal = byId('dropModal')
 const showDrop = show => {
   clearTimeout(showDrop.timer)
   dropModal.style.display = show ? 'initial' : 'none'
 }
-document.body.ondrop = ev => {
-  ev.preventDefault()
-  showDrop(false)
-  fileDropped(ev)
+document.body.ondrop = async ev => {
+  try {
+    ev.preventDefault()
+    let files = extractEntries(ev.dataTransfer)
+    if (!files.length) return {}
+  
+    if (!sw) await initFs()
+    showDrop(false)
+    sendCmd('clearTempCache', {})
+    const { alias, script } = await fileDropped(sw, files)
+    projectName = sw.projectName
+    if (alias?.length) {
+      sendNotify('init', { alias })
+    }
+    runScript({ url: sw.fileToRun, base: sw.base })
+    editor.setSource(script)
+  } catch (error) {
+    setError(error)
+    console.error(error)
+  }
 }
 
 document.body.ondragover = ev => {
@@ -75,15 +85,7 @@ document.body.ondragleave = document.body.ondragend = ev => {
   }, 300)
 }
 
-const handlers = {
-  entities: ({ entities }) => {
-    if (!(entities instanceof Array)) entities = [entities]
-    viewState.setModel((model = entities))
-    setError(undefined)
-  },
-}
-
-const setError = (error) => {
+const setError = error => {
   const errorBar = byId('error-bar')
   if (error) {
     const message = error.toString().replace(/^Error: /, '')
@@ -106,25 +108,32 @@ function save(blob, filename) {
 }
 
 const exportModel = async (format, extension) => {
-  const { data } = await sendCmdAndSpin('exportData', { format }) || {}
-  if(data){
+  const { data } = (await sendCmdAndSpin('exportData', { format })) || {}
+  if (data) {
     save(new Blob([data], { type: 'text/plain' }), `${projectName}.${extension}`)
     console.log('save', `${projectName}.${extension}`, data)
-  } 
+  }
 }
 
 const worker = new Worker('./build/bundle.worker.js')
+const handlers = {
+  entities: ({ entities }) => {
+    if (!(entities instanceof Array)) entities = [entities]
+    viewState.setModel((model = entities))
+    setError(undefined)
+  },
+}
 const { sendCmd, sendNotify } = initMessaging(worker, handlers)
 
 const spinner = byId('spinner')
-async function sendCmdAndSpin(method, params){
+async function sendCmdAndSpin(method, params) {
   spinner.style.display = 'block'
-  try{
+  try {
     return await sendCmd(method, params)
-  }catch(error){
+  } catch (error) {
     setError(error)
     throw error
-  }finally{
+  } finally {
     spinner.style.display = 'none'
   }
 }
@@ -133,8 +142,8 @@ sendCmdAndSpin('init', {
   bundles: {
     '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
   },
-}).then(()=>{
-  runScript({script:defaultCode})  
+}).then(() => {
+  runScript({ script: defaultCode })
 })
 
 const paramChangeCallback = params => {
@@ -142,157 +151,24 @@ const paramChangeCallback = params => {
   sendCmdAndSpin('runMain', { params })
 }
 
-const runScript = async ({script, url = './index.js', base, root}) => {
+const runScript = async ({ script, url = './index.js', base, root }) => {
   const result = await sendCmdAndSpin('runScript', { script, url, base, root })
   genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
 }
 
-let sw, swBase
-registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', async (path, sw) => {
-  let arr = path.split('/').filter(p => p)
-  let match = await findFileInRoots(sw.roots, arr)
-  if (match) {
-    fileIsRequested(path, match)
-    return readAsArrayBuffer(await filePromise(match))
-  }
-}).then(async (_sw) => {
-  sw = _sw
-  swBase = new URL(`/swfs/${sw.id}/`, document.baseURI).toString()
-}).catch((error) => setError(error))
-
-const findByFsPath = (arr, file) => {
-  const path = typeof file === 'string' ? file : file.fsPath
-  return arr.find(f => f.fsPath === path)
-}
-
-const fileIsRequested = (path, file) => {
-  let match
-  if ((match = findByFsPath(filesToCheck, file))) return
-  filesToCheck.push(file)
-}
-
-let filesToCheck = (window.filesToCheck = [])
-let fileToRun
 let projectName = 'jscad'
-let lastCheck = Date.now()
 
-const checkFiles = () => {
-  const now = Date.now()
-  if (now - lastCheck > 300 && filesToCheck.length != 0) {
-    lastCheck = now
-    let todo = filesToCheck.map(entryCheckPromise)
-    Promise.all(todo).then(result => {
-      result = result.filter(([entry, file]) => entry.lastModified != entry._lastModified)
-      if (result.length) {
-        const todo = []
-        const files = result.map(([entry, file]) => {
-          todo.push(addToCache(sw.cache, entry.fsPath, file))
-          return entry.fsPath
-        })
-        sendNotify('clearFileCache', { files })
-        Promise.all(todo).then(result => {
-          if (fileToRun) runScript({url:fileToRun, base:swBase})
-        })
-        console.log(
-          'result',
-          result.map(([entry, file]) => entry.fsPath + '/' + entry.lastModified),
-        )
-      }
-    })
-
-    // TODO clear sw cache
-    // TODO sendCmd clearFileCache {files}
-  }
-  requestAnimationFrame(checkFiles)
-}
-
-
-checkFiles()
-
-async function fileDropped(ev) {
-  //this.worker.postMessage({action:'fileDropped', dataTransfer})
-  let files = extractEntries(ev.dataTransfer)
-  if (!files.length) return
-
-  filesToCheck.length = 0
-  fileToRun = 'index.js'
-  let folderName
-  clearFs(sw)
-  sendCmd('clearTempCache', {})
-  let rootFiles = []
-  if (files.length === 1) {
-    const file = files[0]
-    if (file.isDirectory) {
-      folderName = file.name
-      file.fsDir = '/'
-      rootFiles = await readDir(file)
-    } else {
-      rootFiles.push(file)
-      fileToRun = file.name
-    }
-  } else {
-    rootFiles = Array.from(files)
-  }
-  rootFiles = rootFiles.map(e => fileToFsEntry(e, '/'))
-  sw.roots.push(rootFiles)
-
-  let pkgFile = await findFileInRoots(sw.roots, 'package.json')
-  if (pkgFile) {
-    try {
-      const pack = JSON.parse(await readAsText(pkgFile))
-      if (pack.main) fileToRun = pack.main
-      const alias = []
-      if (pack.workspaces)
-        for (let i = 0; i < pack.workspaces.length; i++) {
-          const w = pack.workspaces[i]
-          // debugger
-          let pack2 = await findFileInRoots(sw.roots, `/${w}/package.json`)
-          if (pack2) pack2 = JSON.parse(await readAsText(pack2))
-          let name = pack2?.name || w
-          let main = pack2?.main || 'index.js'
-          alias.push([`/${w}/${main}`, name])
-        }
-      if (alias.length) {
-        sendNotify('init', { alias })
-      }
-    } catch (error) {
-      console.error('error parsing package.json', error)
-    }
-  }
-
-  let time = Date.now()
-  const preLoad = ['/' + fileToRun, '/package.json']
-  const loaded = await addPreLoadAll(sw, preLoad, true)
-  console.log(Date.now() - time, 'preload', loaded)
-
-  projectName = 'jscad'
-  if (fileToRun !== 'index.js') projectName = fileToRun.replace(/\.js$/, '')
-  if (folderName) projectName = folderName
-
-  if (fileToRun) {
-    fileToRun = `/${fileToRun}`
-    const file = await findFileInRoots(sw.roots, fileToRun)
-    if (file) {
-      runScript({url:fileToRun, base:swBase})
-      filesToCheck.push(file)
-      editor.setSource(await readAsText(file))
-    } else {
-      setError(`main file not found ${fileToRun}`)
-    }
-  }
-}
-
-const loadExample = (source) => {
+const loadExample = source => {
   editor.setSource(source)
-  runScript({script:source})
+  runScript({ script: source })
 }
 
 // Initialize three engine
-engine.init().then((viewer) => {
+engine.init().then(viewer => {
   viewState.setEngine(viewer)
 })
 
-editor.init(defaultCode,(script) => runScript(script))
+editor.init(defaultCode, script => runScript({ script }))
 menu.init(loadExample)
 welcome.init()
 exporter.init(exportModel)

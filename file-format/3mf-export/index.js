@@ -15,7 +15,7 @@ export function to3dmodel({
   components = [],
   items = [],
   precision = 17,
-  header
+  ...header
 }) {
   // items to be placed on the scene (build section of 3mf)
   const out = []

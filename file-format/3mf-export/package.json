@@ -2,7 +2,7 @@
   "type": "module",
   "sideEffects": false,
   "name": "@jscadui/3mf-export",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "3mf export",
   "main": "index.js",
   "unpkg": "cjs/index.js",

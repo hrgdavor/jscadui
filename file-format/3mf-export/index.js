@@ -8,14 +8,45 @@ import {pushObjectWithMesh} from './src/pushObjectMesh.js'
 
 export * from './src/staticFiles.js'
 
+/**
+ * @typedef Mesh3MF
+ * @prop {string} id 
+ * @prop {Float32Array} vertices
+ * @prop {Uint32Array} indices
+ * @prop {string} [name]
+ * 
+ * @typedef Mesh3MFSimpleExt
+ * @prop {mat4} transform
+ * 
+ * @typedef {Mesh3MF & Mesh3MFSimpleExt} Mesh3MFSimple
+ * 
+ * @typedef Component3MF
+ * @prop {string} id
+ * @prop {string} name
+ * @prop {Array<Child3MF>} children
+ * 
+ * @typedef Child3MF
+ * @prop {string} objectID
+ * @prop {mat4} transform
+ * 
+ * @typedef To3MF
+ * @prop {Array<Mesh3MF>} meshes - manually declare meshes
+ * @prop {Array<Component3MF>} [components] - components can combine items
+ * @prop {Array<Child3MF>} items - output items, each pointing to component or mesh with objectID
+ * @prop {number} precision
+ * @prop {import('./src/pushHeader.js').Header} header 
+*/
 
+/**
+ * @param {To3MF} options 
+ * @returns string
+ */
 export function to3dmodel({
-  simple = [],
   meshes = [],
   components = [],
   items = [],
   precision = 17,
-  ...header
+  header
 }) {
   // items to be placed on the scene (build section of 3mf)
   const out = []
@@ -25,11 +56,6 @@ export function to3dmodel({
 
   // #region resources
   out.push('  <resources>\n')
-
-  simple.forEach(({ id, vertices, indices, transform }) => {
-    pushObjectWithMesh(out, id, vertices, indices)
-    items.push({objectID:id, transform})
-  })
 
   if (items.length == 0) {
     console.error('3MF empty build! Include items or simple.')
@@ -54,4 +80,20 @@ export function to3dmodel({
   out.push('</model>\n')  // model tag was opened in the pushHeader()
 
   return out.join('')
+}
+
+
+/** Simple export provided meshes that have transform attached to them and autocreate items and pass to to3dmodel.
+ * 
+ * @param {Array<Mesh3MFSimple>} meshes 
+ * @param {import('./src/pushHeader.js').Header} header 
+ * @param {number} precision
+ * @returns string
+ */
+export function to3dmodelSimple(meshes, header, precision) {
+  const items = []
+  meshes.forEach(({ id, transform }) => {
+    items.push({objectID:id, transform})
+  })
+  return to3dmodel({meshes, items, header, precision})
 }

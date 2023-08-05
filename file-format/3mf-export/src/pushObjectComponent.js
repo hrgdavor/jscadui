@@ -1,6 +1,13 @@
 import {defMatrix} from './defMatrix.js'
 import {matrix2str} from './matrix2str.js'
 
+/**
+ * 
+ * @param {Array<String>} out 
+ * @param {string} id 
+ * @param {Array<import('../index.js').Component3MF>} children 
+ * @param {string} name 
+ */
 export function pushObjectWithComponents(out, id, children, name) {
   out.push(`<object id="${id}" type="model"${
       name == null ? '' : ' name="' + name + '"'}>\n`)

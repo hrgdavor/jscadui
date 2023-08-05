@@ -3,7 +3,7 @@ import { Blob } from 'buffer'
 import { Zip, ZipDeflate, ZipPassThrough, strToU8 } from 'fflate'
 import { readFileSync, writeFileSync } from 'fs'
 
-import { fileForContentTypes, fileForRelThumbnail, to3dmodel } from './index.js'
+import { fileForContentTypes, fileForRelThumbnail, to3dmodel, to3dmodelSimple } from './index.js'
 
 //#region hardcoded cube data
 let vertices = [
@@ -31,7 +31,7 @@ const zip = new Zip(async (err, dat, final) => {
   }
 })
 
-let modelStr = to3dmodel({ simple: [{ vertices, indices, id: '1' }] })
+let modelStr = to3dmodelSimple([{ vertices, indices, id: '1' }])
 addToZip(zip, '3D/3dmodel.model', modelStr)
 
 let staticFiles = [fileForContentTypes, fileForRelThumbnail]

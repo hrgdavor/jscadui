@@ -1,5 +1,20 @@
 import { toDate3mf } from './toDate3mf.js'
 
+/**
+ * @typedef Header
+ * @prop {'micron'|'millimeter'|'centimeter'|'inch'|'foot'|'meter'} unit
+ * @prop {string} [title]
+ * @prop {string} [author]
+ * @prop {string} [description]
+ * @prop {string} [application]
+ * @prop {string} [creationDate]
+ * @prop {string} [license]
+ * @prop {string} [modificationDate] 
+ * 
+ * 
+ * @param {Array<string>} out 
+ * @param {Header} param1 
+ */
 export function pushHeader(out,{
   unit = 'millimeter',
   title = 'jscad model',
@@ -9,7 +24,7 @@ export function pushHeader(out,{
   creationDate = new Date(),
   license = '',
   modificationDate,
-}) {
+}={}) {
   out.push(
     `<?xml version="1.0" encoding="UTF-8"?>
 <model unit="${unit}" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:slic3rpe="http://schemas.slic3r.org/3mf/2017/06">

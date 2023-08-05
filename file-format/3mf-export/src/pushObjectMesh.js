@@ -1,13 +1,17 @@
 /**
  *
- * @param out {Arrray<string>}
- * @param obj
+ * @param {Arrray<string>} out
+ * @param {string} id
+ * @param {Float32Array} vertices
+ * @param {Uint32Array} indices
+ * @param {number} precision
+ * @param {string} [name]
  * @returns
  */
 export function pushObjectWithMesh(
     out, id, vertices, indices, precision, name) {
   out.push(`  <object id="${id}" type="model"${
-      name == null ? '' : ' name="' + name + '"'}>
+      !name ? '' : ' name="' + name + '"'}>
    <mesh>
     <vertices>
 `)

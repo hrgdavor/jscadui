@@ -24,9 +24,10 @@ body.dark {
   color: #ccc;
 }
 
-.layout{
+.layout {
   flex: 1;
   display: flex;
+  min-width: 80px;
 }
 
 #root {

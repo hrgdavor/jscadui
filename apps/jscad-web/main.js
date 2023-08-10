@@ -1,4 +1,4 @@
-import { extractEntries, fileDropped, registerServiceWorker } from '@jscadui/fs-provider'
+import { extractEntries, fileDropped, getFile, registerServiceWorker } from '@jscadui/fs-provider'
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl } from '@jscadui/orbit'
 import { genParams } from '@jscadui/params'
@@ -40,7 +40,13 @@ gizmo.oncam = ({ cam }) => ctrl.animateToCommonCamera(cam)
 
 let sw
 async function initFs() {
-  sw = await registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/')
+  const getFileWrapper = (path, sw) => {
+    const file = getFile(path, sw)
+    // notify editor of active files
+    file.then(() => editor.setFiles(sw.filesToCheck))
+    return file
+  }
+  sw = await registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', getFileWrapper)
   sw.defProjectName = 'jscad'
   sw.onfileschange = files => {
     sendNotify('clearFileCache', { files })
@@ -57,7 +63,7 @@ document.body.ondrop = async ev => {
     ev.preventDefault()
     let files = extractEntries(ev.dataTransfer)
     if (!files.length) return {}
-  
+
     if (!sw) await initFs()
     showDrop(false)
     sendCmd('clearTempCache', {})
@@ -67,7 +73,8 @@ document.body.ondrop = async ev => {
       sendNotify('init', { alias })
     }
     runScript({ url: sw.fileToRun, base: sw.base })
-    editor.setSource(script)
+    editor.setSource(script, sw.fileToRun)
+    editor.setFiles(sw.filesToCheck)
   } catch (error) {
     setError(error)
     console.error(error)
@@ -168,7 +175,10 @@ engine.init().then(viewer => {
   viewState.setEngine(viewer)
 })
 
-editor.init(defaultCode, script => runScript({ script }))
+editor.init(defaultCode, (script, path) => {
+  // TODO: save script to path, and run main file
+  runScript({ script })
+})
 menu.init(loadExample)
 welcome.init()
 exporter.init(exportModel)

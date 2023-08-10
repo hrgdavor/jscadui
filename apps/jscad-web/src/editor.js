@@ -8,9 +8,14 @@ let view
 
 let compileFn
 
-const compile = (code) => {
+// file selector
+let currentFile = '/index.js'
+const editorNav = document.getElementById('editor-nav')
+const editorFile = document.getElementById('editor-file')
+
+const compile = (code, path) => {
   if (compileFn) {
-    compileFn(code)
+    compileFn(code, path)
   } else {
     console.log("not ready to compile")
   }
@@ -27,12 +32,12 @@ export const init = (defaultCode, fn) => {
       keymap.of([
         {
           key: "Shift-Enter",
-          run: () => compile(view.state.doc.toString()),
+          run: () => compile(view.state.doc.toString(), currentFile),
           preventDefault: true
         },
         {
           key: "Mod-s",
-          run: () => compile(view.state.doc.toString()),
+          run: () => compile(view.state.doc.toString(), currentFile),
           preventDefault: true
         },
         ...defaultKeymap
@@ -44,8 +49,51 @@ export const init = (defaultCode, fn) => {
 
   // Initialize drawer action
   drawer.init()
+
+  // Setup file selector
+  editorFile.addEventListener('click', (e) => {
+    editorNav.classList.toggle('open')
+  })
+  // Close file selector on click outside
+  document.addEventListener('click', (e) => {
+    if (!editorFile.contains(e.target)) {
+      editorNav.classList.remove('open')
+    }
+  })
 }
 
-export const setSource = (source) => {
+export const setSource = (source, path = '/index.js') => {
   view.dispatch({changes: {from: 0, to: view.state.doc.length, insert: source}})
+  currentFile = path
+}
+
+export const setFiles = (files) => {
+  const editorFiles = document.getElementById('editor-files')
+  if (files.length === 1) {
+    editorNav.classList.remove('visible')
+  } else {
+    // Update spinner
+    editorFile.innerHTML = currentFile
+    editorFiles.innerHTML = ''
+    files.forEach((file) => {
+      const item = document.createElement('li')
+      const button = document.createElement('button')
+      button.innerText = file.fsPath
+      button.addEventListener('click', () => {
+        currentFile = file.fsPath
+        editorFile.innerHTML = currentFile
+        // Read FileEntry
+        file.file((file) => {
+          const reader = new FileReader()
+          reader.onloadend = () => {
+            setSource(reader.result, file.fsPath)
+          }
+          reader.readAsText(file)
+        })
+      })
+      item.appendChild(button)
+      editorFiles.appendChild(item)
+    })
+    editorNav.classList.add('visible')
+  }
 }

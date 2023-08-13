@@ -9,6 +9,12 @@ export const init = () => {
   // Initialize drawer action
   const editor = document.getElementById("editor")
   const toggle = document.getElementById("editor-toggle")
+  setEditorWidth(localStorage.getItem('editor.width') || 400)
+
+  function setEditorWidth(w){
+    if(w) editor.style.width = `${w}px`
+  }
+
   toggle.addEventListener("click", () => {
     if (!isDragging) {
       editor.classList.toggle("closed")
@@ -34,7 +40,8 @@ export const init = () => {
         const width = dragStartWidth - delta
         // Handle open/closed state
         if (width > 0) {
-          editor.style.width = `${width}px`
+          setEditorWidth(width)
+          localStorage.setItem('editor.width', width)
           editor.classList.remove("closed")
         } else {
           editor.style.width = ''

@@ -24,9 +24,10 @@ body.dark {
   color: #ccc;
 }
 
-.layout{
+.layout {
   flex: 1;
   display: flex;
+  min-width: 80px;
 }
 
 #root {
@@ -152,7 +153,6 @@ p {
 }
 
 #editor {
-  width: 400px;
   position: relative;
   transition: width 0.5s;
 }

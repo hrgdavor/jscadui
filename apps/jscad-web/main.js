@@ -1,4 +1,4 @@
-import { extractEntries, fileDropped, getFile, registerServiceWorker } from '@jscadui/fs-provider'
+import { addToCache, extractEntries, fileDropped, getFile, registerServiceWorker } from '@jscadui/fs-provider'
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl } from '@jscadui/orbit'
 import { genParams } from '@jscadui/params'
@@ -175,9 +175,18 @@ engine.init().then(viewer => {
   viewState.setEngine(viewer)
 })
 
-editor.init(defaultCode, (script, path) => {
-  // TODO: save script to path, and run main file
-  runScript({ script })
+editor.init(defaultCode, async (script, path) => {
+  if (sw && sw.fileToRun) {
+    await addToCache(sw.cache, path, script)
+    // imported script will be also cached by require/import implementation
+    // it is expected if multiple files require same file/module that first time it is loaded
+    // but for others resolved module is returned
+    // if not cleared by calling clearFileCache, require will not try to reload the file
+    await sendCmd('clearFileCache',{files:[path]})
+    if (sw.fileToRun) runScript({ url: sw.fileToRun, base: sw.base })
+  } else {
+    runScript({ script })
+  }
 })
 menu.init(loadExample)
 welcome.init()

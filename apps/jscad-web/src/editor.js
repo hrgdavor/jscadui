@@ -63,6 +63,7 @@ export const init = (defaultCode, fn) => {
 }
 
 export const setSource = (source, path = '/index.js') => {
+  console.warn('setSource', path)
   view.dispatch({changes: {from: 0, to: view.state.doc.length, insert: source}})
   currentFile = path
 }
@@ -86,7 +87,7 @@ export const setFiles = (files) => {
         file.file((file) => {
           const reader = new FileReader()
           reader.onloadend = () => {
-            setSource(reader.result, file.fsPath)
+            setSource(reader.result, currentFile)
           }
           reader.readAsText(file)
         })

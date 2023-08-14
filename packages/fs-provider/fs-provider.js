@@ -3,9 +3,22 @@ import { initMessaging } from '@jscadui/postmessage'
 import { entryCheckPromise, filePromise, fileToFsEntry, readDir } from './src/FileEntry.js'
 import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
 
+/** 
+ * @typedef {Cache}
+ * 
+ * @typedef {SwHandler}
+ * @prop {Cache} cache 
+ * 
+ */
+
 export * from './src/FileReader.js'
 export * from './src/FileEntry.js'
 
+
+/**
+ * @param {string} path 
+ * @returns {Array<string>}
+ */
 export const splitPath = path => (typeof path === 'string' ? path.split('/').filter(p => p && p !== '.') : path)
 
 export const getFile = async (path, sw) => {
@@ -17,6 +30,15 @@ export const getFile = async (path, sw) => {
   }
 }
 
+/** add path to cache, with content that can be anything that response allows
+ * https://developer.mozilla.org/en-US/docs/Web/API/Response/Response
+ *
+ * 
+ * @param {Cache} cache 
+ * @param {string} path 
+ * @param {Blob|ArrayBuffer|TypedArray|DataView|FormData|ReadableStream|URLSearchParams|string} content 
+ * @returns {Promise<undefined>}
+ */
 export const addToCache = async (cache, path, content) => cache.put(new Request(path), new Response(content))
 
 export const addPreLoadAll = async (sw, paths, ignoreMissing) => {
@@ -39,6 +61,13 @@ export const addPreLoad = async (sw, path, ignoreMissing) => {
   return match
 }
 
+/**
+ * 
+ * @param {*} workerScript 
+ * @param {*} _getFile 
+ * @param {*} param2 
+ * @returns {SwHandler}
+ */
 export const registerServiceWorker = async (workerScript, _getFile = getFile, { prefix = '/swfs/' } = {}) => {
   if ('serviceWorker' in navigator) {
     if (!navigator.serviceWorker.controller) {
@@ -67,6 +96,7 @@ export const registerServiceWorker = async (workerScript, _getFile = getFile, { 
       console.error(`Registration failed with ${error}`)
     }
 
+    /** @type {SwHandler} */
     const sw = initMessaging(navigator.serviceWorker, {
       getFile: async ({ path }) => {
         const file = await _getFile(path, sw)

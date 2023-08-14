@@ -63,7 +63,6 @@ export const init = (defaultCode, fn) => {
 }
 
 export const setSource = (source, path = '/index.js') => {
-  console.warn('setSource', path)
   view.dispatch({changes: {from: 0, to: view.state.doc.length, insert: source}})
   currentFile = path
 }

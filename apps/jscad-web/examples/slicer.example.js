@@ -21,7 +21,7 @@ export const main = () => {
     // intersect with a cuboid
     const cutter = cuboid({
       size: [100, 100, thicness],
-      center: [0, 0, z]
+      center: [0, 0, z + thicness / 2]
     })
     const cut = intersect(obj, cutter)
 

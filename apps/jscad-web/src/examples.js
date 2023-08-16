@@ -1,6 +1,6 @@
 export const examples = [
   { name: 'JSCAD Logo', source: './examples/jscad.example.js' },
-  { name: 'Primitives', source: './examples/primitives.example.js' },
+  { name: 'Primitive Shapes', source: './examples/primitives.example.js' },
   { name: 'Extrusions', source: './examples/extrusions.example.js' },
   { name: 'Hulls', source: './examples/hulls.example.js' },
   { name: 'Parametric Gear', source: './examples/gear.example.js' },

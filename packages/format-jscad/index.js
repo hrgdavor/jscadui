@@ -80,7 +80,7 @@ function CSG2LineVertices (csg) {
   return { type: 'line', vertices }
 }
 
-function CSG2LineSegmentsVertices (csg) {
+function CSGSides2LineSegmentsVertices (csg) {
   const vLen = csg.sides.length * 6
 
   const vertices = new Float32Array(vLen)
@@ -88,6 +88,24 @@ function CSG2LineSegmentsVertices (csg) {
     const i = idx * 6
     setPoints(vertices, side[0], i)
     setPoints(vertices, side[1], i + 3)
+  })
+  return { type: 'lines', vertices }
+}
+
+const CSGOutlines2LineSegmentsVertices = (key) => (csg) => {
+  const numPoints = csg[key].reduce((acc, outline) => acc + outline.length, 0)
+  const vLen = numPoints * 6
+
+  const vertices = new Float32Array(vLen)
+  let idx = 0
+  csg[key].forEach((outline) => {
+    let prev = outline[outline.length - 1]
+    outline.forEach((vert) => {
+      setPoints(vertices, prev, idx * 6)
+      setPoints(vertices, vert, idx * 6 + 3)
+      prev = vert
+      idx++
+    })
   })
   return { type: 'lines', vertices }
 }
@@ -172,7 +190,9 @@ export function JscadToCommon (csg, transferable, unique, options) {
   let obj
 
   if (csg.polygons) obj = CSGCached(CSG2Vertices, csg, csg.polygons, transferable, unique, options)
-  if (csg.sides && !csg.points) obj = CSGCached(CSG2LineSegmentsVertices, csg, csg.sides, transferable, unique, options)
+  if (csg.sides && !csg.points) obj = CSGCached(CSGSides2LineSegmentsVertices, csg, csg.sides, transferable, unique, options)
+  if (csg.outlines) obj = CSGCached(CSGOutlines2LineSegmentsVertices('outlines'), csg, csg.outlines, transferable, unique, options)
+  if (csg.contours) obj = CSGCached(CSGOutlines2LineSegmentsVertices('contours'), csg, csg.contours, transferable, unique, options)
   if (csg.points) obj = CSGCached(CSG2LineVertices, csg, csg.points, transferable, unique, options)
   if (csg.vertices) { // cover a case where the object already has the format
     obj = csg

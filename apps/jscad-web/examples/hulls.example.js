@@ -1,47 +1,31 @@
 /**
- * Hull and HullChain example
- * @category Creating Shapes
- * @skillLevel 8
- * @description Demonstrating the basics of Hulls in two dimensions
- * @tags hull, hullchain
- * @authors Simon Clark, platypii
- * @license MIT
+ * Demonstrates Hull and Hull Chain operations in two and three dimensions
  */
 
-const jscad = require('@jscad/modeling')
+import * as jscad from '@jscad/modeling'
+const { colorize } = jscad.colors
 const { circle, cuboid, rectangle, sphere } = jscad.primitives
 const { translate } = jscad.transforms
 const { hull, hullChain } = jscad.hulls
 
-const getParameterDefinitions = () => [{
-    name: 'doHull',
-    type: 'radio',
-    caption: 'Hull type:',
-    values: ['shapes', 'hull', 'chain'],
-    captions: ['Original Shapes', 'Hull', 'Hull Chain'],
-    initial: 'shapes'
-}]
+export const main = (params) => {
+  const radius = 1.5
+  const segments = 16
 
-const main = (params) => {
   const shapes2d = [
-    translate([15, 0, 0], circle({ radius: 2, segments: 16 })),
-    translate([8, 6, 0], circle({ radius: 3.5, segments: 16 })),
-    translate([0, -4, 0], circle({ radius: 5, segments: 16 })),
-    translate([-15, 5, 0], rectangle({ size: [5, 17] }))
+    circle({ center: [-5, 8], radius }),
+    rectangle({ center: [0, 0], size: [6, 3] }),
+    circle({ center: [5, 8], radius })
   ]
   const shapes3d = [
-    translate([10, 20, 5], sphere({ radius: 2, segments: 16 })),
-    translate([-3, 20, 0], sphere({ radius: 3.5, segments: 16 })),
-    translate([0, 30, -3], sphere({ radius: 5, segments: 16 })),
-    translate([5, 25, -10], cuboid({ size: [15, 17, 2] }))
+    sphere({ center: [-5, 30, 0], radius, segments }),
+    sphere({ center: [-5, 18, 0], radius, segments }),
+    sphere({ center: [5, 18, 0], radius, segments }),
+    sphere({ center: [5, 30, 0], radius, segments })
   ]
-  if (params.doHull === 'hull') {
-    return [hull(shapes2d), hull(shapes3d)]
-  } else if (params.doHull === 'chain') {
-    return [hullChain(shapes2d), hullChain(shapes3d)]
-  } else {
-    return [shapes2d, shapes3d]
-  }
+  return [
+    colorize([1.0, 0.0, 0.0], translate([-20, 0, 0], [shapes2d, shapes3d])),
+    colorize([0.1, 0.7, 0.1], translate([0, 0, 0], [hullChain(shapes2d), hullChain(shapes3d)])),
+    colorize([0.2, 0.2, 1.0], translate([20, 0, 0], [hull(shapes2d), hull(shapes3d)]))
+  ]
 }
-
-module.exports = { main, getParameterDefinitions }

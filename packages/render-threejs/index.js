@@ -2,6 +2,7 @@ import { CommonToThree } from '@jscadui/format-threejs'
 
 export function RenderThreejs({
   PerspectiveCamera,
+  AmbientLight,
   HemisphereLight,
   WebGLRenderer,
   DirectionalLight,
@@ -56,12 +57,15 @@ export function RenderThreejs({
 
     _scene = new Scene()
 
-    const hemiLight = new HemisphereLight(0xeeeeee, 0x444444)
+    const ambientLight = new AmbientLight(0xeeeeee, 0.2)
+    _scene.add(ambientLight)
+
+    const hemiLight = new HemisphereLight(0xeeeedd, 0x333333, 0.5)
     hemiLight.position.set(0, 0, 2000)
     _scene.add(hemiLight)
 
-    const directionalLight = new DirectionalLight(0xeeeeee)
-    directionalLight.position.set(0, 200, 100)
+    const directionalLight = new DirectionalLight(0xeeeef4, 0.7)
+    directionalLight.position.set(0, -200, 100)
     directionalLight.castShadow = SHADOW
     if (SHADOW) {
       directionalLight.shadow.camera.top = 180

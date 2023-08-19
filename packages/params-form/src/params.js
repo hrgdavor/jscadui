@@ -177,6 +177,7 @@ export const getParams = target => {
     let value = elem.value
     if (elem.tagName == 'INPUT') {
       if (elem.type == 'checkbox') value = elem?.checked
+      if (elem.type == 'file') value = elem.files?.[0]
       if (elem.type == 'range' || elem.type == 'color') applyRange(elem)
     }
 

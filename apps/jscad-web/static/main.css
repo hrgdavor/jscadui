@@ -472,20 +472,20 @@ p {
   margin-right: 5px;
 }
 
-#paramsDiv .form-line label i {
+#paramsDiv .form-line i {
   display: none;
 }
-#paramsDiv .form-line[type="color"] label i,
-#paramsDiv .form-line[type="range"] label i,
-#paramsDiv .form-line[type="slider"] label i {
+#paramsDiv .form-line[type="color"] i,
+#paramsDiv .form-line[type="range"] i,
+#paramsDiv .form-line[type="slider"] i {
   display: inline-block;
   padding: 0 5px;
   margin-left: 5px;
   border: solid 1px #eee;
 }
-.dark #paramsDiv .form-line[type="color"] label i,
-.dark #paramsDiv .form-line[type="range"] label i,
-.dark #paramsDiv .form-line[type="slider"] label i {
+.dark #paramsDiv .form-line[type="color"] i,
+.dark #paramsDiv .form-line[type="range"] i,
+.dark #paramsDiv .form-line[type="slider"] i {
   border: solid 1px #666;
 }
 

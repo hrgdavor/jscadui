@@ -10,10 +10,9 @@ export const forEachButton = (el, cb) => forQS(el, BUTTON_SELECTOR, cb)
 const numeric = { number: 1, float: 1, int: 1, range: 1, slider: 1 }
 
 function applyRange(inp) {
-  const label = inp.previousElementSibling
-  if (label && label.tagName == 'LABEL') {
-    const info = label.querySelector('I')
-    if (info) info.innerHTML = inp.value
+  const info = inp.previousElementSibling
+  if (info && info.tagName === 'I') {
+    info.innerText = inp.value
   }
 }
 
@@ -107,16 +106,16 @@ export const genParams = ({
     if (type == 'group') html += ` name="${name}"`
     html += `">`
 
+    // label
     html += `<label`
     if (type == 'group') html += ` name="${name}"`
-    html += `>`
+    html += `>${caption}</label>`
+
+    // value
+    html += `<i>${def.value}</i>`
 
     const inputFunc = funcs[type] || inputDefault
-
-    html += `${caption}<i>${def.value}</i></label>`
-
     if (inputFunc) html += inputFunc(def)
-
     if (!inputFunc) missing[type] = 1
 
     html += '</div>\n'

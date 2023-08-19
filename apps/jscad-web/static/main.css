@@ -11,7 +11,7 @@ body, html {
 
 body {
   font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  background-color: #fafafa;
+  background-color: #fbfbfb;
   color: #333;
   overflow: hidden;
   display: flex;
@@ -20,7 +20,7 @@ body {
 }
 
 body.dark {
-  background-color: #333;
+  background-color: #282828;
   color: #ccc;
 }
 
@@ -28,6 +28,10 @@ body.dark {
   flex: 1;
   display: flex;
   min-width: 80px;
+  background-color: #fcfcfc;
+}
+.dark .layout {
+  background-color: #333;
 }
 
 #root {
@@ -39,13 +43,13 @@ body.dark {
   grid-template-rows: 50% 50%;
 }
 
-#root canvas{
+#root canvas {
   position: absolute;
   top:0;
   left:0
 }
 
-#dropModal{
+#dropModal {
   display: none;
   position: fixed;
   top: 0; left:0;
@@ -59,10 +63,11 @@ jscadui-gizmo {
   top: 15px;
   right: 15px;
   --cube-size: 100px;
+  --cube-line-color: #f2f2f2dd;
 /*  --cube-corner-radius: 5px;*/
 }
 .dark jscadui-gizmo {
-  --cube-line-color: #333;
+  --cube-line-color: #333333dd;
   --cube-bg: #111;
   --cube-fg: #999;
   --cube-bg-hover: #555560;
@@ -309,7 +314,7 @@ p {
   outline: none !important;
 }
 .ͼ2 .cm-activeLine {
-  background-color: #f5f5f5;
+  background-color: #eeeeee88;
 }
 .cm-focused .cm-activeLine {
   background-color: #cceeff44;
@@ -320,7 +325,7 @@ p {
 }
 .dark .cm-gutters,
 .dark .cm-activeLine {
-  background-color: #43434f;
+  background-color: #5e5e6e66;
   color: #aaa;
 }
 .dark .cm-activeLineGutter {
@@ -330,27 +335,33 @@ p {
   border-left-color: #ddd;
 }
 .dark .cm-selectionBackground {
-  background-color: #667 !important;
+  background-color: #666677bb !important;
 }
 
 /* code theme */
+/* keyword */
 .dark .ͼb {
   color: #c8d;
 }
+/* numeric */
 .dark .ͼd {
-  color: #4b8;
+  color: #aac281;
 }
+/* strings */
 .dark .ͼe {
-  color: #e77;
+  color: #e48f7f;
 }
+/* vars */
 .dark .ͼg {
   color: #3af;
 }
+/* key */
 .dark .ͼl {
-  color: #a8f;
+  color: #87ceff;
 }
+/* comment */
 .dark .ͼm {
-  color: #d85;
+  color: #5ba25b;
 }
 
 /* menu style */
@@ -359,7 +370,7 @@ p {
   top: 10px;
   left: 10px;
   z-index: 3000;
-  max-height: calc(100vh - 60px);
+  max-height: calc(100vh - 70px);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -391,6 +402,7 @@ p {
   border: 1px solid #888;
   background-color: #f8f8f8;
   overflow-y: auto;
+  box-shadow: 0 5px 10px -5px rgba(0, 0, 0, 0.25);
 }
 .dark #menu-content {
   background-color: #444;
@@ -434,8 +446,8 @@ p {
   overflow-y: auto;
 }
 .dark #model-options {
-  background: rgba(60, 60, 60, 0.5);
-  border: 1px solid #33333388;
+  background: rgba(40, 40, 40, 0.5);
+  border: 1px solid #33333344;
 }
 #paramsDiv {
   overflow: auto;
@@ -457,20 +469,27 @@ p {
   display: inline-block;
   min-width: 100px;
   flex: 1;
+  margin-right: 5px;
 }
 
-#paramsDiv .form-line label i {
+#paramsDiv .form-line i {
   display: none;
 }
-#paramsDiv .form-line[type="color"] label i,
-#paramsDiv .form-line[type="range"] label i,
-#paramsDiv .form-line[type="slider"] label i {
+#paramsDiv .form-line[type="color"] i,
+#paramsDiv .form-line[type="range"] i,
+#paramsDiv .form-line[type="slider"] i {
   display: inline-block;
   padding: 0 5px;
   margin-left: 5px;
   border: solid 1px #eee;
 }
+.dark #paramsDiv .form-line[type="color"] i,
+.dark #paramsDiv .form-line[type="range"] i,
+.dark #paramsDiv .form-line[type="slider"] i {
+  border: solid 1px #666;
+}
 
+/* groups */
 #paramsDiv .form-line[type="group"] {
   position: relative;
   background: linear-gradient(180deg, #00000014, transparent);
@@ -480,26 +499,34 @@ p {
 #paramsDiv .form-line[type="group"]:first-child {
   margin-top: 0;
 }
-
 #paramsDiv .form-line[type="group"]:before {
   content: "\25bc";
   padding-right: 10px;
-  color: #555;
+  cursor: pointer;
 }
 #paramsDiv .form-line[type="group"][closed="1"]:before {
   content: "\25b6";
 }
-
 #paramsDiv .form-line[type="group"] label {
-  font-weight: normal;
+  font-weight: 500;
   font-size: 1.2em;
   cursor: pointer;
+}
+#paramsDiv .form-line[type="group"]:hover {
+  color: #222;
+}
+.dark #paramsDiv .form-line[type="group"]:hover {
+  color: #ddd;
 }
 #paramsDiv .form-line[closed="1"]:not([type="group"]) {
   display: none;
 }
+
+#paramsDiv .form-line input[type="number"] {
+  width: 60px;
+}
 #paramsDiv .form-line input[type="range"] {
-  width: 100%;
+  flex: 1;
 }
 #paramsDiv .jscad-param-buttons {
   display: none;

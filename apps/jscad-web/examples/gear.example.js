@@ -1,16 +1,11 @@
 /**
- * Parametric Involute Gear
- * @category Parameters
- * @skillLevel 5
- * @description Build a proper involute gear, demonstrating parameters, and how they can be used in complex math.
- * @tags gear, tangent, parameter, parameters
+ * Build a Parametric Involute Gear as a parametric design.
  * @authors Joost Nieuwenhuijse, Simon Clark
- * @license MIT
  */
 
 import * as jscad from '@jscad/modeling'
 const { cylinder, polygon } = jscad.primitives
-const { rotateZ, translateZ } = jscad.transforms
+const { rotateZ } = jscad.transforms
 const { extrudeLinear } = jscad.extrusions
 const { union, subtract } = jscad.booleans
 const { vec2 } = jscad.maths
@@ -18,12 +13,12 @@ const { degToRad } = jscad.utils
 
 // Here we define the user editable parameters:
 export const getParameterDefinitions = () => [
-  { name: 'numTeeth', caption: 'Number of teeth:', type: 'int', initial: 10, min: 5, max: 20, step: 1 },
+  { name: 'numTeeth', caption: 'Number of teeth:', type: 'int', initial: 10, min: 5, max: 20 },
   { name: 'circularPitch', caption: 'Circular pitch:', type: 'float', initial: 5 },
   { name: 'pressureAngle', caption: 'Pressure angle:', type: 'float', initial: 20 },
   { name: 'clearance', caption: 'Clearance:', type: 'float', initial: 0.0, step: 0.1 },
-  { name: 'thickness', caption: 'Thickness:', type: 'float', initial: 5 },
-  { name: 'centerholeradius', caption: 'Radius of center hole (0 for no hole):', type: 'float', initial: 2 }
+  { name: 'thickness', caption: 'Thickness:', type: 'float', initial: 5, min: 0 },
+  { name: 'centerHoleRadius', caption: 'Center hole:', type: 'float', initial: 2, min: 0 }
 ]
 
 // Main entry point; here we construct our solid:
@@ -35,8 +30,13 @@ export const main = (params) => {
     params.clearance,
     params.thickness
   )
-  if (params.centerholeradius > 0) {
-    const centerHole = translateZ(params.thickness / 2, cylinder({ height: params.thickness, radius: params.centerholeradius, segments: 16 }))
+  if (params.centerHoleRadius > 0) {
+    const centerHole = cylinder({
+      height: params.thickness,
+      radius: params.centerHoleRadius,
+      center: [0, 0, params.thickness / 2],
+      segments: 16
+    })
     gear = subtract(gear, centerHole)
   }
   return gear

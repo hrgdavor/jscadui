@@ -2,6 +2,7 @@
 export { PerspectiveCamera } from 'three/src/cameras/PerspectiveCamera.js';
 export { Scene } from 'three/src/scenes/Scene.js';
 export { Color } from 'three/src/math/Color.js';
+export { AmbientLight } from 'three/src/lights/AmbientLight.js';
 export { HemisphereLight } from 'three/src/lights/HemisphereLight.js';
 export { DirectionalLight } from 'three/src/lights/DirectionalLight.js';
 // export { PlaneGeometry } from 'three/src/geometries/PlaneGeometry';

@@ -1,59 +1,54 @@
 /**
- * Basic Extrude Functions
- * @category Creating Shapes
- * @skillLevel 3
- * @description Demonstrating the basic types of extrusions, and the variety of objects they can create.
- * @tags extrude, linear, extrudelinear, extruderotate, bezier
- * @authors Rene K. Mueller, Moissette Mark, Simon Clark, platypii
- * @license MIT
+ * Demonstrates the types of extrusions, and the variety of objects they can create.
  */
 
-const jscad = require('@jscad/modeling')
+import * as jscad from '@jscad/modeling'
 const { bezier } = jscad.curves
-const { line, polygon, star } = jscad.primitives
+const { circle, line, polygon, rectangle, roundedRectangle, star } = jscad.primitives
 const { extrudeLinear, extrudeRotate, extrudeFromSlices, slice } = jscad.extrusions
 const { translate } = jscad.transforms
 const { expand } = jscad.expansions
 const { mat4 } = jscad.maths
 
-const main = () => {
+export const main = () => {
   const shapes = []
 
-  const aLine = line([[0, 0], [0, 5], [2, 8], [5, 9]])
-  shapes.push(translate([-10, 0, 0], aLine))
-  const pathSquare = extrudeLinear({ height: 1 }, expand({ delta: 1, corners: 'edge' }, aLine))
-  shapes.push(translate([0, 0, 0], pathSquare))
-  const pathRound = extrudeLinear({ height: 1 }, expand({ delta: 1, corners: 'round', segments: 32 }, aLine))
-  shapes.push(translate([10, 0, 0], pathRound))
+  // rounded box
+  const rect = roundedRectangle({ size: [6, 3], roundRadius: 1 })
+  shapes.push(rect)
+  shapes.push(extrudeLinear({}, rect))
+  shapes.push(extrudeLinear({ height: 4 }, rect))
 
-  const poly = polygon({ points: [[-1, -1], [3, -1], [3.5, 2], [2, 1], [1, 2], [0, 1], [-1, 2]] })
-  shapes.push(translate([-10, 16, 0], poly))
-  const polyLinear = extrudeLinear({ height: 5 }, poly)
-  shapes.push(translate([0, 16, 0], polyLinear))
-  const polyTwist = extrudeLinear({ height: 5, twistAngle: Math.PI / 4, twistSteps: 10 }, poly)
-  shapes.push(translate([10, 16, 0], polyTwist))
+  // expanded lines
+  const aLine = line([[-3, 0], [0, 0], [2, 2], [3, 4]])
+  shapes.push(aLine)
+  shapes.push(extrudeLinear({ height: 1 }, expand({ delta: 1, corners: 'edge' }, aLine)))
+  shapes.push(extrudeLinear({ height: 1 }, expand({ delta: 1, corners: 'round', segments: 32 }, aLine)))
 
-  const starPoly = translate([3, 0, 0], star())
-  shapes.push(translate([-10, 28, 0], starPoly))
-  const extrudedStar = extrudeRotate({
-    segments: 32,
-    startAngle: 0,
-    angle: (Math.PI * 0.75),
-    overflow: 'cap'
-  }, starPoly)
-  shapes.push(translate([0, 28, 0], extrudedStar))
+  // polygon twist
+  const poly = polygon({ points: [[-2, -1], [2, -1], [2.5, 2], [1, 1], [0, 2], [-1, 1], [-2, 2]] })
+  shapes.push(poly)
+  shapes.push(extrudeLinear({ height: 4 }, poly))
+  shapes.push(extrudeLinear({ height: 4, twistAngle: Math.PI / 4, twistSteps: 10 }, poly))
 
-  shapes.push(translate([10, 28, 0], extrudeBezier(10)))
+  // extrude rotate
+  shapes.push(extrudeRotate({ angle: Math.PI, segments: 24 }, rectangle({ center: [3, 0] })))
+  shapes.push(extrudeRotate({ angle: Math.PI, segments: 24 }, circle({ center: [3, 0] })))
+  shapes.push(extrudeRotate({ angle: Math.PI, segments: 24 }, star({ center: [3, 0] })))
 
-  return shapes
+  // extrude bezier
+  shapes.push(extrudeBezier(8))
+
+  // Arrange primitives in a grid
+  return shapes.map((primitive, index) => translate([(index % 3 - 1) * 10, Math.floor(index / 3 - 1) * 8, 0], primitive))
 }
 
 // Extrude a slice while varying the x and y dimensions using a bezier curve
 const extrudeBezier = (height) => {
   const squareSlice = slice.fromPoints([[2, 2], [-2, 2], [-2, -2], [2, -2]])
 
-  const xCurve = bezier.create([1, 2, 0.4, 1])
-  const yCurve = bezier.create([1, 2, 0.5])
+  const xCurve = bezier.create([1, 1.8, 0.4, 1])
+  const yCurve = bezier.create([1, 1.8, 0.5])
 
   return extrudeFromSlices({
     numberOfSlices: 20,
@@ -70,5 +65,3 @@ const extrudeBezier = (height) => {
     }
   }, squareSlice)
 }
-
-module.exports = { main }

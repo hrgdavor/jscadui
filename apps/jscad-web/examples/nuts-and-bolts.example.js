@@ -1,11 +1,6 @@
 /**
  * Nuts and Bolts
- * @category Creating Shapes
- * @skillLevel 8
- * @description Demonstrating the advanced extrusion using slices to generate screw threads.
- * @tags extrude, slice, slices, extrudefromslices, callback
- * @authors platypii
- * @license MIT
+ * Demonstrates advanced extrusion using slices to generate screw threads.
  */
 
 import * as jscad from '@jscad/modeling'

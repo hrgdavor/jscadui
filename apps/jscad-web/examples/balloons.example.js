@@ -1,11 +1,6 @@
 /**
- * Birthday Balloons
- * @category Parameters
- * @skillLevel 3
- * @description Example of building models from interactive parameters
- * @tags parameters, select, choice, checkbox, color, picker, slider, date, input, parameter
+ * Birthday Balloons with interactive parameters
  * @authors Z3 Dev, Simon Clark
- * @license MIT
  */
 
 import * as jscad from '@jscad/modeling'
@@ -20,25 +15,16 @@ const { circle, ellipsoid } = jscad.primitives
 const { vectorText } = jscad.text
 const { translate, scale, rotateX, center } = jscad.transforms
 
-const options = { segments: 32 }
-
 export const getParameterDefinitions = () => [
   { name: 'balloon', type: 'group', caption: 'Balloons' },
   { name: 'isBig', type: 'checkbox', checked: true, initial: '20', caption: 'Big?' },
-  { name: 'color', type: 'color', initial: '#FFB431', caption: 'Color?' },
+  { name: 'color', type: 'color', initial: '#ffb431', caption: 'Color?' },
   { name: 'count', type: 'slider', initial: 4, min: 2, max: 10, step: 1, caption: 'How many?' },
   { name: 'friend', type: 'group', caption: 'Friend' },
   { name: 'name', type: 'text', initial: '', size: 20, maxLength: 20, caption: 'Name?', placeholder: '20 characters' },
   { name: 'birthdate', type: 'date', initial: '', min: '1915-01-01', max: '2030-12-31', caption: 'Birthday?', placeholder: 'YYYY-MM-DD' },
   { name: 'age', type: 'int', initial: 20, min: 1, max: 100, step: 1, caption: 'Age?' }
 ]
-
-const initializeOptions = (params) => {
-  // use the checkbox to determine the size of the sphere
-  options.b_radius = (params.isBig === true) ? 16 : 10
-  // use the color chooser to determine the color of the sphere
-  options.b_color = hexToRgb(params.color)
-}
 
 // Build text by creating the font strokes (2D), then extruding up (3D).
 const text = (message, extrusionHeight, characterLineWidth) => {
@@ -61,14 +47,14 @@ const text = (message, extrusionHeight, characterLineWidth) => {
 const createSingleBalloon = (params) => {
   let t = rotateX(Math.PI / 2, text(params.age.toString(), 2, 2))
   const m = measureBoundingBox(t)
-  const x = (options.b_radius * 0.70) / Math.max(m[1][0], m[1][2])
-  const y = options.b_radius * 3
+  const x = (params.bRadius * 0.70) / Math.max(m[1][0], m[1][2])
+  const y = params.bRadius * 3
   const z = x
   t = translate([0, y / 2, 0], scale([x, y, z], t))
 
   const b = ellipsoid({
-    radius: [options.b_radius, options.b_radius, options.b_radius],
-    segments: options.segments
+    radius: [params.bRadius, params.bRadius, params.bRadius],
+    segments: params.segments || 32
   })
   return subtract(b, t)
 }
@@ -93,13 +79,13 @@ const createBalloons = (params) => {
   const startingAngle = 360 * Math.random()
   const angleSpread = 360 / params.count
 
-  const ropeOffset = options.b_radius - 1
+  const ropeOffset = params.bRadius - 1
   for (let i = 0; i < params.count; i++) {
     const angle = Math.floor(startingAngle + (angleSpread * i)) % 360
-    const x = Math.cos(angle * Math.PI / 180) * 2 * options.b_radius
-    const y = Math.sin(angle * Math.PI / 180) * 2 * options.b_radius
-    const z = options.b_radius * 4 + (40 * Math.random())
-    const aBalloon = colorize(options.b_color, translate([x, y, z], balloon))
+    const x = Math.cos(angle * Math.PI / 180) * 2 * params.bRadius
+    const y = Math.sin(angle * Math.PI / 180) * 2 * params.bRadius
+    const z = params.bRadius * 4 + (40 * Math.random())
+    const aBalloon = colorize(params.bColor, translate([x, y, z], balloon))
     const aRope = createRope([x, y, z - ropeOffset])
     out.push(aBalloon, aRope)
   }
@@ -107,10 +93,7 @@ const createBalloons = (params) => {
 }
 
 const createSalutation = (name) => {
-  let salutation = 'Happy Birthday!'
-  if (name.length > 0) {
-    salutation = `Happy Birthday, ${name}!`
-  }
+  const salutation = name ? `Happy Birthday, ${name}!` : 'Happy Birthday!'
   return translate([0, -10, 0], scale([0.5, 0.5, 0.5], text(salutation, 2, 2)))
 }
 
@@ -126,13 +109,14 @@ const createBirthDate = (birthDate) => {
 }
 
 export const main = (params) => {
-  initializeOptions(params)
+  // use the checkbox to determine the size of the sphere
+  params.bRadius = (params.isBig === true) ? 16 : 10
+  // use the color chooser to determine the color of the sphere
+  params.bColor = hexToRgb(params.color)
 
-  const balloonScene = []
-
-  balloonScene.push(createBalloons(params))
-  balloonScene.push(createSalutation(params.name))
-  balloonScene.push(createBirthDate(params.birthdate))
-
-  return balloonScene
+  return [
+    createBalloons(params),
+    createSalutation(params.name),
+    createBirthDate(params.birthdate)
+  ]
 }

@@ -109,12 +109,12 @@ body {
 		font-family: Verdana;
 	}
 
-	#paramsDiv .form-line label i{
+	#paramsDiv .form-line i {
 		display: none;
 	}
-	#paramsDiv .form-line[type="color"] label i,
-	#paramsDiv .form-line[type="range"] label i,
-	#paramsDiv .form-line[type="slider"] label i{
+	#paramsDiv .form-line[type="color"] i,
+	#paramsDiv .form-line[type="range"] i,
+	#paramsDiv .form-line[type="slider"] i {
 		display: inline-block;
 		padding: 0 5px;
 		margin-left: 5px;

@@ -1,11 +1,6 @@
 /**
- * Basic Text Creation
- * @category Creating Shapes
- * @skillLevel 10
- * @description Demonstrating methods of building 3D text
- * @tags text, font, characters
+ * Demonstrates methods of building 3D text
  * @authors Simon Clark
- * @license MIT
  */
 
 import * as jscad from '@jscad/modeling'

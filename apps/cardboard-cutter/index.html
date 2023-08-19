@@ -24,10 +24,11 @@
         baseURI: document.baseURI.toString(),
         bundles: {
           '@jscad/modeling': document.baseURI+'build/bundle.jscad_modeling.js',
+          '@jscad/io': document.baseURI+'build/bundle.jscad_io.js',
         },
       }
       await initEngine(THREE, 'root', workerOptions)
-      runFile('jscad/sqed/index.js')
+      runFile('./jscad/sqed/index.js')
     </script>
   </body>
 </html>

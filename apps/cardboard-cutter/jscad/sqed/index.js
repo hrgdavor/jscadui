@@ -1,4 +1,5 @@
 const jscad = require('@jscad/modeling')
+const jscadio = require('@jscad/io')
 const { curves, maths, extrusions, primitives, transforms, booleans, 
   colors, geometries, measurements, utils } = jscad
 const { bezier } = curves
@@ -15,6 +16,7 @@ const { degToRad } = utils
 
 // checkout https://jsfiddle.net/prisoner849/8uxw667m/ for possible more ideas on performance
 
+console.log('jscadio', jscadio)
 
 const getParameterDefinitions = () => {
   let params = [
@@ -31,6 +33,7 @@ const getParameterDefinitions = () => {
   params.push(
     {name: 'g3', caption: 'Parametres', type: 'group'},
     {name: 'v', type:'text', caption: 'volume:', initial: '0001'},
+    {name: 'vFile', type:'file', caption: 'volume file:'},
     {name: 'ep', type:'float', caption: 'ep (mm):', initial: 6.0},    
 
     {name: 'g4', caption: 'PREVIEW', type: 'group'},

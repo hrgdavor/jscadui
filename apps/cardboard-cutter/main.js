@@ -128,7 +128,8 @@ const paramChangeCallback = params => {
 }
 
 export const runFile = file => {
-  sendCmd('runFile', { file }).then(result => {
+  console.warn('runFile', file)
+  sendCmd('runScript', { url:file }).then(result => {
     console.log('result', result)
     genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
   })

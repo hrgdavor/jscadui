@@ -9,6 +9,7 @@ import * as editor from './src/editor.js'
 import * as engine from './src/engine.js'
 import * as exporter from './src/exporter.js'
 import * as menu from './src/menu.js'
+import * as remote from './src/remote.js'
 import { ViewState } from './src/viewState.js'
 import * as welcome from './src/welcome.js'
 
@@ -190,4 +191,14 @@ editor.init(defaultCode, async (script, path) => {
 })
 menu.init(loadExample)
 welcome.init()
+remote.init((script) => {
+  // run remote script
+  editor.setSource(script)
+  runScript({ script })
+  welcome.dismiss()
+}, (err) => {
+  // show remote script error
+  setError(err)
+  welcome.dismiss()
+})
 exporter.init(exportModel)

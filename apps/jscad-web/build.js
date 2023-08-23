@@ -2,11 +2,12 @@ import { copyTask, parseArgs } from '@jsx6/build'
 import { execSync } from 'child_process'
 import { existsSync, mkdirSync } from 'fs'
 import liveServer from 'live-server'
+import {serve} from './serve.js'
 
 import { buildBundle, buildOne } from './src_build/esbuildUtil.js'
 
 // *************** read parameters **********************
-const { dev, port = 5120 } = parseArgs()
+const { dev, port = 5120, serve:serveBuild=false } = parseArgs()
 const watch = dev
 const outDir = dev ? 'build_dev' : 'build'
 const docsDir = 'jscad/docs'
@@ -56,6 +57,9 @@ await buildOne('.', outDir, 'main.js', watch, { format: 'esm', loader })
 
 /**************************** LIVE SERVER if in dev mode *************/
 // docs folder is too heavy for watch
-if (dev) liveServer.start({ root: outDir, port, open: false, ignore: outDir+'/docs' })
+if (dev) 
+  liveServer.start({ root: outDir, port, open: false, ignore: outDir+'/docs' })
+else 
+  if(serveBuild) serve(port)
 
 //*/

@@ -10,10 +10,10 @@ export const init = () => {
   window.addEventListener("dragover", () => dismiss())
 }
 
-const dismiss = (e) => {
+export const dismiss = (e) => {
   // dismiss if click on anything other than a link
   if (showing && (!e || !welcome.contains(e.target) || e.target.nodeName !== "A")) {
-    document.getElementById("welcome").style.display = "none"
+    welcome.style.display = "none"
     showing = false
   }
 }

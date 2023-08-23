@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node build.js --dev",
     "build": "node build.js",
+    "serve": "node build.js --serve",
     "test": "ava"
   },
   "dependencies": {

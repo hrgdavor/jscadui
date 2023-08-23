@@ -32,11 +32,28 @@
       </div>
 
       <div class="layout" id="layout">
-        <div id="root" solo style="overflow: hidden;">
+        <div id="root">
           <div id="viewer"></div>
         </div>
 
-        <div id="spinner" title="Processing..."></div>
+        <div id="overlay">
+          <div class="above-error">
+            <div id="spinner" title="Processing..."></div>
+
+            <div id="model-options">
+              <div id="paramsDiv"></div>
+              <div class="export-panel">
+                <select id="export-format"></select>
+                <button id="export-button">Export</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="error-bar">
+            <label>Error:</label>
+            <span id="error-message"></span>
+          </div>
+        </div>
       </div>
 
       <div id="editor" class="open">
@@ -73,19 +90,6 @@
           <h2>Examples</h2>
           <ul id="examples"></ul>
         </div>
-      </div>
-
-      <div id="model-options">
-        <div id="paramsDiv"></div>
-        <div class="export-panel">
-          <select id="export-format"></select>
-          <button id="export-button">Export</button>
-        </div>
-      </div>
-
-      <div id="error-bar">
-        <label>Error:</label>
-        <span id="error-message"></span>
       </div>
     </div>
     <div id="dropModal">drop jscad script to execute it</div>

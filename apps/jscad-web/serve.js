@@ -30,6 +30,9 @@ const handleRequest = (req) => {
   } else if (pathname.endsWith('/')) {
     // serve index.html
     return handleStatic(`${pathname}index.html`)
+  } else if (pathname === '/remote') {
+    // fetch remote script
+    return handleRemote(parsedUrl)
   } else {
     // serve static files
     return handleStatic(pathname)
@@ -57,6 +60,27 @@ const handleStatic = async (pathname) => {
 
   const content = await fs.readFile(filePath)
   return { status: 200, content, contentType }
+}
+
+/**
+ * Serve a remote script at a url
+ */
+const handleRemote = async (parsedUrl) => {
+  // parse url from query parameters
+  const scriptUrl = decodeURIComponent(parsedUrl.query.url)
+  if (scriptUrl) {
+    console.log('fetching remote url', scriptUrl)
+    const res = await fetch(scriptUrl)
+    if (res.ok) {
+      const content = await res.text()
+      return { status: 200, content, contentType: 'text/plain' }
+    } else {
+      console.warn(`failed to load remote url ${scriptUrl}`)
+      return { status: 404, content: 'not found' }
+    }
+  } else {
+    return { status: 400, content: 'missing url parameter' }
+  }
 }
 
 /* create http server */

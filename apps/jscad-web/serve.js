@@ -3,8 +3,6 @@ import fs from 'fs/promises'
 import path from 'path'
 import url from 'url'
 
-const port = 5120
-
 const mimeTypes = {
   '.html': 'text/html',
   '.js': 'application/javascript',
@@ -115,6 +113,8 @@ const server = http.createServer(async (req, res) => {
   }
 })
 
-server.listen(port, () => {
-  console.log(`JSCADUI running on http://localhost:${port}`)
-})
+export function serve(port){
+  server.listen(port, () => {
+    console.log(`JSCADUI running on http://localhost:${port}`)
+  })
+}

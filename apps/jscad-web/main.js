@@ -192,8 +192,13 @@ editor.init(defaultCode, async (script, path) => {
 menu.init(loadExample)
 welcome.init()
 remote.init((script) => {
+  // run remote script
   editor.setSource(script)
   runScript({ script })
+  welcome.dismiss()
+}, (err) => {
+  // show remote script error
+  setError(err)
   welcome.dismiss()
 })
 exporter.init(exportModel)

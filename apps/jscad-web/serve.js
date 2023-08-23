@@ -40,10 +40,9 @@ const handleRequest = (req) => {
 }
 
 /**
- * Serve static files
+ * Serve static files from the build directory
  */
 const handleStatic = async (pathname) => {
-  // serve static files from the build directory
   let filePath = path.join(process.cwd(), 'build', pathname)
 
   const stats = await fs.stat(filePath).catch(() => undefined)

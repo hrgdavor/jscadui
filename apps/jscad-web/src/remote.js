@@ -1,23 +1,33 @@
 
-export const init = (compileFn) => {
-  load(compileFn) // on load
-  window.addEventListener('hashchange', () => load(compileFn)) // on change
+export const init = (compileFn, setError) => {
+  const load = loadFromUrl(compileFn, setError)
+  load() // on load
+  window.addEventListener('hashchange', load) // on change
 }
 
 /**
  * Handles a url passed in the anchor string
  */
-export const load = async (compileFn) => {
+export const loadFromUrl = (compileFn, setError) => async () => {
   const url = window.location.hash.substring(1)
   if (url) {
     console.log('fetching script', url)
     // load from /remote
-    const res = await fetch(`/remote?url=${url}`)
-    if (res.ok) {
-      const script = await res.text()
+    try {
+      const script = await fetchUrl(url)
       compileFn(script, url)
-    } else {
-      throw new Error('failed to load remote')
+    } catch (err) {
+      console.error('failed to load remote script', err)
+      setError(err)
     }
+  }
+}
+
+const fetchUrl = async (url) => {
+  const res = await fetch(`/remote?url=${url}`)
+  if (res.ok) {
+    return await res.text()
+  } else {
+    throw new Error(`failed to load script from url ${url}`)
   }
 }

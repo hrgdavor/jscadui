@@ -202,3 +202,4 @@ remote.init((script) => {
   welcome.dismiss()
 })
 exporter.init(exportModel)
+initFs()

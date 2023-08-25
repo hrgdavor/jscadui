@@ -70,6 +70,18 @@ export const addPreLoad = async (sw, path, ignoreMissing) => {
  */
 export const registerServiceWorker = async (workerScript, _getFile = getFile, { prefix = '/swfs/' } = {}) => {
   if ('serviceWorker' in navigator) {
+    try {
+      let registration = await navigator.serviceWorker.register(workerScript, {
+        scope: '/',
+      })
+      for (let i = 1; i <= 10; i++) {
+        if (registration.active) break
+        registration = await navigator.serviceWorker.getRegistration()
+      }
+    } catch (error) {
+      console.error(`service worker registration failed with ${error}`)
+    }
+
     if (!navigator.serviceWorker.controller) {
       // service workers are disabled on hard-refresh, so need to reload.
       // to prevent a reload loop, don't reload again within 3 seconds.
@@ -82,18 +94,6 @@ export const registerServiceWorker = async (workerScript, _getFile = getFile, { 
         console.error('cannot start service worker, reload required')
       }
       throw new Error('cannot start service worker, reload required')
-    }
-
-    try {
-      let registration = await navigator.serviceWorker.register(workerScript, {
-        scope: '/',
-      })
-      for (let i = 1; i <= 10; i++) {
-        if (registration.active) break
-        registration = await navigator.serviceWorker.getRegistration()
-      }
-    } catch (error) {
-      console.error(`Registration failed with ${error}`)
     }
 
     /** @type {SwHandler} */
@@ -131,6 +131,8 @@ export const registerServiceWorker = async (workerScript, _getFile = getFile, { 
     checkFiles(sw)
   
     return sw
+  } else {
+    throw new Error('service worker unavailable')
   }
 }
 

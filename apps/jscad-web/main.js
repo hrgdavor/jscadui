@@ -203,6 +203,10 @@ remote.init((script) => {
 })
 exporter.init(exportModel)
 
+try{
+  await initFs()
+}catch(err){setError(err)}
+
 if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
   // service workers are disabled on hard-refresh, so need to reload.
   // to prevent a reload loop, don't reload again within 3 seconds.

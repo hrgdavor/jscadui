@@ -202,3 +202,17 @@ remote.init((script) => {
   welcome.dismiss()
 })
 exporter.init(exportModel)
+
+if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
+  // service workers are disabled on hard-refresh, so need to reload.
+  // to prevent a reload loop, don't reload again within 3 seconds.
+  const lastReload = localStorage.getItem('lastReload')
+  if (!lastReload || Date.now() - lastReload > 3000) {
+    setError('cannot start service worker, reloading')
+    localStorage.setItem('lastReload', Date.now())
+    location.reload()
+  } else {
+    console.error('cannot start service worker, reload required')
+  }
+  setError('cannot start service worker, reload required')
+}

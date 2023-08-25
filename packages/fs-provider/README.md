@@ -8,24 +8,34 @@ Use case is for creating a virtual folder that can be accessed by JavaScript dur
 ## important known issue
 
 Service worker does not work after hard refresh: CTRL+F5 or CTR*+refresh. You can work around this by calling regular refresh.
-Service worker also does not work at all in incognito mode, and there maybe other reasons it does not work. It is important
-to check if reload was already called to avoid infinite reloading of the page. Here is a sample snippet that does that tht you can customize.
+Service worker also does not work at all in incognito mode in Firefox, and there maybe other reasons it does not work.
+
+It is also important to check if reload was already called to avoid infinite reloading of the page. Here is a sample snippet that you can customize.
 
 ```js
-if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
-  // service workers are disabled on hard-refresh, so need to reload.
-  // to prevent a reload loop, don't reload again within 3 seconds.
-  const lastReload = localStorage.getItem('lastReload')
-  if (!lastReload || Date.now() - lastReload > 3000) {
-    console.error('cannot start service worker, reloading')
-    localStorage.setItem('lastReload', Date.now())
-    location.reload()
-  } else {
-    console.error('cannot start service worker, reload required')
-  }
+if('serviceWorker' in navigator){
+  // initialize serviceWorker here, or elsewhere with the above check
+
+  // call the following code after initializing the service worker
+  if (!navigator.serviceWorker.controller) {
+    // service workers are disabled on hard-refresh, so need to reload.
+    // to prevent a reload loop, don't reload again within 3 seconds.
+    const lastReload = localStorage.getItem('lastReload')
+    if (!lastReload || Date.now() - lastReload > 3000) {
+      console.error('cannot start service worker, reloading')
+      localStorage.setItem('lastReload', Date.now())
+      location.reload()
+    } else {
+      console.error('cannot start service worker, reload required')
+    }
+  }  
 }
 
 ```
+
+`'serviceWorker' in navigator` will return false in incognito mode in Firefox
+
+`navigator.serviceWorker.controller` will be falsy, but only after you try to load a service worker!.
 
 
 ## utilities for `FileReader`

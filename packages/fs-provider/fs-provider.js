@@ -82,20 +82,6 @@ export const registerServiceWorker = async (workerScript, _getFile = getFile, { 
       console.error(`service worker registration failed with ${error}`)
     }
 
-    if (!navigator.serviceWorker.controller) {
-      // service workers are disabled on hard-refresh, so need to reload.
-      // to prevent a reload loop, don't reload again within 3 seconds.
-      const lastReload = localStorage.getItem('lastReload')
-      if (!lastReload || Date.now() - lastReload > 3000) {
-        console.log('cannot start service worker, reloading')
-        localStorage.setItem('lastReload', Date.now())
-        location.reload()
-      } else {
-        console.error('cannot start service worker, reload required')
-      }
-      throw new Error('cannot start service worker, reload required')
-    }
-
     /** @type {SwHandler} */
     const sw = initMessaging(navigator.serviceWorker, {
       getFile: async ({ path }) => {

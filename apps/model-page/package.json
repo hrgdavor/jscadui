@@ -5,7 +5,10 @@
   "scripts": {
     "dev-init": "npm-run-all bundle-**",
     "start": "npm run dev-init && esbuild main.js --format=esm --outdir=build --bundle --sourcemap=inline --serve=127.0.0.1:5121 --servedir=.",
-    "build": "npm run dev-init && esbuild main.js --format=esm --outdir=build --bundle --sourcemap=inline"
+    "build": "npm run dev-init && esbuild main.js --format=esm --outdir=build --bundle --sourcemap=inline",
+    "bundle-threejs": "esbuild bundle.threejs.js --outdir=build --bundle --sourcemap --minify --format=iife --global-name=THREE",
+    "bundle-worker": "esbuild bundle.worker.js --outdir=build --bundle --sourcemap --minify --format=iife",
+    "bundle-jscad_modeling": " esbuild bundle.jscad_modeling.js --outdir=build --bundle --sourcemap --minify --format=cjs"
   },
   "dependencies": {
     "@jscad/modeling": "2.11.0",

@@ -1,5 +1,5 @@
 /**
- * Demonstrates Hull and Hull Chain operations in two and three dimensions
+ * Demonstrates Hull and Hull Chain operations in 2D and 3D
  */
 
 import * as jscad from '@jscad/modeling'
@@ -18,10 +18,10 @@ export const main = (params) => {
     circle({ center: [5, 8], radius })
   ]
   const shapes3d = [
-    sphere({ center: [-5, 30, 0], radius, segments }),
     sphere({ center: [-5, 18, 0], radius, segments }),
-    sphere({ center: [5, 18, 0], radius, segments }),
-    sphere({ center: [5, 30, 0], radius, segments })
+    sphere({ center: [-3, 30, 0], radius, segments }),
+    sphere({ center: [3, 30, 0], radius, segments }),
+    sphere({ center: [5, 18, 0], radius, segments })
   ]
   return [
     colorize([1.0, 0.0, 0.0], translate([-20, 0, 0], [shapes2d, shapes3d])),

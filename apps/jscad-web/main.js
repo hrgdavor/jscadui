@@ -25,6 +25,9 @@ byId('overlay').appendChild(gizmo)
 
 let model = []
 
+// load default model unless another model was already loaded
+let loadDefault = true
+
 const ctrl = (window.ctrl = new OrbitControl([byId('viewer')], { ...viewState.camera, alwaysRotate: false }))
 
 const updateFromCtrl = change => {
@@ -151,7 +154,9 @@ sendCmdAndSpin('init', {
     '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
   },
 }).then(() => {
-  runScript({ script: defaultCode })
+  if (loadDefault) {
+    runScript({ script: defaultCode })
+  }
 })
 
 const paramChangeCallback = params => {
@@ -160,6 +165,7 @@ const paramChangeCallback = params => {
 }
 
 const runScript = async ({ script, url = './index.js', base, root }) => {
+  loadDefault = false // don't load default model if something else was loaded
   const result = await sendCmdAndSpin('runScript', { script, url, base, root })
   genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
 }

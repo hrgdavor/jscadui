@@ -12,11 +12,13 @@ const mimeTypes = {
   '.ico': 'image/x-icon',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
+  '.svg': 'image/svg+xml',
+  '.ttf': 'font/ttf',
   '.woff2': 'font/woff2',
 }
 
 /**
- * Handles an http request
+ * Route an http request
  */
 const handleRequest = (req) => {
   const parsedUrl = url.parse(req.url, true)
@@ -25,6 +27,9 @@ const handleRequest = (req) => {
   if (pathname === '/docs') {
     // docs redirect
     return { status: 301, content: '/docs/' }
+  } else if (pathname.endsWith('/index.html')) {
+    // redirect index.html to /
+    return { status: 301, content: pathname.slice(0, -10) }
   } else if (pathname.endsWith('/')) {
     // serve index.html
     return handleStatic(`${pathname}index.html`)
@@ -38,7 +43,7 @@ const handleRequest = (req) => {
 }
 
 /**
- * Serve static files from the build directory
+ * Serve static file from the build directory
  */
 const handleStatic = async (pathname) => {
   let filePath = path.join(process.cwd(), 'build', pathname)
@@ -66,13 +71,13 @@ const handleRemote = async (parsedUrl) => {
   // parse url from query parameters
   const scriptUrl = decodeURIComponent(parsedUrl.query.url)
   if (scriptUrl) {
-    console.log('fetching remote url', scriptUrl)
+    console.log(`fetching remote url ${scriptUrl}`)
     const res = await fetch(scriptUrl)
     if (res.ok) {
       const content = await res.text()
       return { status: 200, content, contentType: 'text/plain' }
     } else {
-      console.warn(`failed to load remote url ${scriptUrl}`)
+      console.warn(`failed to fetch remote url ${scriptUrl}`)
       return { status: 404, content: 'not found' }
     }
   } else {
@@ -83,24 +88,27 @@ const handleRemote = async (parsedUrl) => {
 /* create http server */
 const server = http.createServer(async (req, res) => {
   const startTime = new Date()
+
+  // handle request
   let result = { status: 500, content: 'internal server error' }
   try {
     result = await handleRequest(req)
   } catch (err) {
     console.error('error handling request', err)
   }
-
   let { status, content, contentType } = result
+
   // write http response
   const headers = {}
   if (contentType) headers['Content-Type'] = contentType
   if (status === 301) {
-    // handle redirects
+    // handle redirect
     headers['Location'] = content
     content = ''
   }
   res.writeHead(status, headers)
   res.end(content)
+
   // log request
   const endTime = new Date()
   const ms = endTime - startTime
@@ -108,12 +116,12 @@ const server = http.createServer(async (req, res) => {
   if (status < 400) {
     console.log(line)
   } else {
-    // highlight errors
+    // highlight errors red
     console.log(`\x1b[31m${line}\x1b[0m`)
   }
 })
 
-export function serve(port){
+export const serve = (port) => {
   server.listen(port, () => {
     console.log(`JSCADUI running on http://localhost:${port}`)
   })

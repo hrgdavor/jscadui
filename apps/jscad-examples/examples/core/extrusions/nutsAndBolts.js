@@ -18,12 +18,12 @@ const { translate } = jscad.transforms
 const options = {
   hexWidth: 10,
   hexHeight: 8,
-  threadLength: 32,
+  threadLength: 24,
   threadSize: 4,
   innerRadius: 4,
   outerRadius: 5.6,
   slicesPerRevolution: 12,
-  segments: 32
+  segments: 20
 }
 
 const main = () => {

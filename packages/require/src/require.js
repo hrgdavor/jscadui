@@ -10,6 +10,11 @@
 - typescript import must use .js (it is a bit strange, but probably has good reasons)
 */
 
+import { readFileWeb } from './readFileWeb'
+import { MODULE_BASE, getExtension, resolveUrl } from './resolveUrl'
+
+export { resolveUrl } from './resolveUrl'
+
 // initially new Function was used to pass parameters: require, exports, module
 // new Functions screws with sourcemaps as it adds a prefix to the source
 // we need eval to do the same without prefix
@@ -20,62 +25,7 @@ export const runModule = (typeof self === 'undefined' ? eval : self.eval)(
   '(require, exports, module, source)=>eval(source)',
 )
 
-const MODULE_BASE = 'https://cdn.jsdelivr.net/npm/'
-
-export const selfish = (func, context) => {
-  const out = func.bind({ context })
-  out.bind = newContext => selfish(func, newContext)
-  out.func = func
-  out.context = context
-  return out
-}
-
-/**
- * Resolve a package or file name to a url.
- * JS packages will resolve to an npm package url.
- * Relative urls will resolve to a local url.
- * @param {string} url the package or file name to resolve
- * @param {string} base the url of the current module to resolve relative to
- * @param {string} root the url under which local files are served
- * @param {string} moduleBase the url for npm packages
- * @returns the resolved module url
- */
-export const resolveUrl = (url, base, root, moduleBase=MODULE_BASE)=>{
-  let isRelativeFile = false
-  let isModule = false
-  let cacheUrl = url
-  
-  if (!/^(http:|https:|fs:|file:)/.test(url)) {
-    // npm modules cannot start with . or /
-    if (!/^\.?\.?\//.test(url)) {
-      isModule = true
-      url = new URL(url, moduleBase).toString()
-    } else {
-      isRelativeFile = true
-      // sanitize to avoid going below root, it will prevent / to go below cache baseUrl
-      // it will prevent ../../../../ to go below cache baseUrl
-      const fromRoot = root && url[0] === '/'
-      if (!fromRoot) {
-        // base relative path
-        const relativePath = base.replace(/^\//, '').replace(root, '') // strip root
-        // create url relative path
-        url = new URL(url, `fs:/root/${relativePath}`).toString()
-        // check if url went above root
-        if (!url.startsWith('fs:/root/')) throw new Error('relative url cannot go above root')
-        url = url.substring(9)
-      } else {
-        url = url.substring(1)
-      }
-      cacheUrl = `/${url}`
-      // now create the full url to load the file
-      url = new URL(url, root).toString()
-    }
-  }
-  
-  return { url, isRelativeFile, isModule, cacheUrl }
-}
-
-export function require(urlOrSource, transform, _readFile, _base, root, readModule, moduleBase = MODULE_BASE) {
+export function require(urlOrSource, transform, _readFile=readFileWeb, _base, root, readModule, moduleBase = MODULE_BASE) {
   let source
   let url
   let isRelativeFile
@@ -107,14 +57,27 @@ export function require(urlOrSource, transform, _readFile, _base, root, readModu
     cacheUrl = resolved.cacheUrl
     isRelativeFile = resolved.isRelativeFile
 
-    if(isModule) readFile = readModule
-    base = url
+    if (isModule) {
+      readFile = readModule
+      base = root = url + '/'
+    }
+
     cache = requireCache[isRelativeFile ? 'local':'module']
     exports = cache[cacheUrl] // get from cache
     if (!exports) {
       // not cached
       try {
         source = readFile(url, { base })
+        if (url.includes('jsdelivr.net')) {
+          // jsdelivr will read package.json and tell us what the main file is
+          const srch = ' * Original file: '
+          let idx = source.indexOf(srch)
+          if (idx != -1) {
+            let idx2 = source.indexOf('\n', idx+srch.length+1)
+            let realFile = new URL(source.substring(idx+srch.length, idx2), url).toString()
+            url = base = realFile
+          }
+        }
       } catch (e) {
         if (url.endsWith('.js')) {
           try {
@@ -131,16 +94,18 @@ export function require(urlOrSource, transform, _readFile, _base, root, readModu
     }
   }
   if (source !== undefined) {
-    // do not transform bundles that are already cjs ( requireCache.bundleAlias.*)
-    if (transform && !bundleAlias) source = transform(source, url).code
-    let requireFunc = newUrl => require(newUrl, transform, readFile, url, root, readModule, moduleBase)
-    const module = requireModule(url, source, requireFunc)
-    module.local = isRelativeFile
-    exports = module.exports
-  }
-
-  if (typeof exports !== 'object') {
-    throw new Error(`module ${cacheUrl} did not export an object`)
+    let extension = getExtension(url)
+    // https://cdn.jsdelivr.net/npm/@jscad/svg-serializer@2.3.13/index.js uses require to read package.json
+    if (extension === 'json') {
+      exports = JSON.parse(source)
+    } else {
+      // do not transform bundles that are already cjs ( requireCache.bundleAlias.*)
+      if (transform && !bundleAlias) source = transform(source, url).code
+      let requireFunc = newUrl => require(newUrl, transform, readFile, base, root, readModule, moduleBase)
+      const module = requireModule(url, source, requireFunc)
+      module.local = isRelativeFile
+      exports = module.exports
+    }
   }
 
   if(cache) cache[cacheUrl] = exports // cache obj exported by module
@@ -168,7 +133,6 @@ export function requireModule(url, source, _require) {
 export const clearFileCache = async ({files}) => {
   const cache = requireCache.local
   files.forEach(f=>{
-    console.warn('clear', f, cache[f])
     delete cache[f]
   })
 }

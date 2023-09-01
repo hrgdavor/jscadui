@@ -152,6 +152,7 @@ async function sendCmdAndSpin(method, params) {
 sendCmdAndSpin('init', {
   bundles: {
     '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
+    '@jscad/io': toUrl('./build/bundle.jscad_io.js'),
   },
 }).then(() => {
   if (loadDefault) {

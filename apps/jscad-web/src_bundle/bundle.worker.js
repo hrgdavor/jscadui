@@ -5,6 +5,7 @@ const {transformcjs} = jscadui_transform_babel
 // import {transformcjs} from '@jscadui/transform-babel'
 
 import {currentSolids, initWorker} from '@jscadui/worker'
+import {readFileWeb, require} from '@jscadui/require'
 
 import { withTransferable } from '@jscadui/postmessage'
 
@@ -20,7 +21,7 @@ const serializerMap ={
 }
 
 const exportData = ({format, options={}})=>{
-  if(typeof jscad_io === 'undefined') importScripts('./bundle.jscad.io.js')
+  const jscad_io = require('./bundle.jscad_io.js')
   const solids = currentSolids()
   const [key, defaults] = serializerMap[format]
   const serializer = jscad_io[key]

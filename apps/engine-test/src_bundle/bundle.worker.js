@@ -9,7 +9,7 @@ import {currentSolids, initWorker} from '@jscadui/worker'
 import { withTransferable } from '@jscadui/postmessage'
 
 const exportData = ({format})=>{
-  if(typeof jscad_io === 'undefined') importScripts('./bundle.jscad.io.js')
+  if(typeof jscad_io === 'undefined') importScripts('./bundle.jscad_io.js')
   const solids = currentSolids()
   console.log('exportData format', format, jscad_io)
   const data = jscad_io.stlSerializer.serialize({binary:false}, solids)

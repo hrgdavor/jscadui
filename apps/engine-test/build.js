@@ -21,7 +21,7 @@ await buildBundle(outDir + '/build', 'bundle.regl.js', { globalName: 'REGL' })
 await buildBundle(outDir + '/build', 'bundle.babylonjs.js', { globalName: 'BABYLON' })
 await buildBundle(outDir + '/build', 'bundle.threejs.js', { globalName: 'THREE' })
 await buildBundle(outDir + '/build', 'bundle.jscad_modeling.js', { format: 'cjs' })
-await buildBundle(outDir + '/build', 'bundle.jscad.io.js', { globalName: 'jscad_io' })
+await buildBundle(outDir + '/build', 'bundle.jscad_io.js', { globalName: 'jscad_io' })
 await buildBundle(outDir + '/build', 'bundle.jscadui.transform-babel.js', { globalName: 'jscadui_transform_babel' })
 
 /**************************** BUILD JS THAT can change and watch if in dev mode *************/

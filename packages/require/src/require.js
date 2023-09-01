@@ -73,7 +73,6 @@ export function require(urlOrSource, transform, _readFile=readFileWeb, _base, ro
           if(idx != -1){
             let idx2 = source.indexOf('\n', idx+srch.length+1)
             let realFile = new URL(source.substring(idx+srch.length, idx2), url).toString()
-            console.warn(' * Original file: ', realFile);
             url = base = realFile
           }
         }
@@ -107,12 +106,6 @@ export function require(urlOrSource, transform, _readFile=readFileWeb, _base, ro
     }
   }
   
-  // allow aslo function workaround for weid case in @jscad/io-utils/Blob.js
-  if (typeof exports !== 'object' && typeof exports !== 'function') {
-    console.error('exports',typeof exports, exports)
-    throw new Error(`module ${cacheUrl} did not export an object`)
-  }
-
   if(cache) cache[cacheUrl] = exports // cache obj exported by module
   // TODO research maybe in the future, why going through babel adds __esModule=true
   // this extra reference via defaults helps
@@ -138,7 +131,6 @@ export function requireModule(url, source, _require) {
 export const clearFileCache = async ({files}) => {
   const cache = requireCache.local
   files.forEach(f=>{
-    console.warn('clear', f, cache[f])
     delete cache[f]
   })
 }

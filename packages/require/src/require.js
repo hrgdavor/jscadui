@@ -10,7 +10,8 @@
 - typescript import must use .js (it is a bit strange, but probably has good reasons)
 */
 
-import { readFileWeb } from "./readFileWeb"
+import { readFileWeb } from './readFileWeb'
+import { getExtension, resolveUrl } from './resolveUrl'
 
 // initially new Function was used to pass parameters: require, exports, module
 // new Functions screws with sourcemaps as it adds a prefix to the source
@@ -21,93 +22,6 @@ import { readFileWeb } from "./readFileWeb"
 export const runModule = (typeof self === 'undefined' ? eval : self.eval)(
   '(require, exports, module, source)=>eval(source)',
 )
-
-const MODULE_BASE = 'https://cdn.jsdelivr.net/npm/'
-
-function getExtension(url){
-  let arr = url.split('/')
-  let file = arr[arr.length-1]
-  let idx = file.lastIndexOf('.')
-  return idx == -1 ? '' : file.substring(idx+1)
-}
-
-function splitModuleName(module){
-  let file = ''
-  let idx = module.indexOf('/')
-  if(module[0] === '@') idx = module.indexOf('/',idx+1)
-  if(idx !== -1) {
-    file = module.substring(idx+1)
-    module = module.substring(0,idx)
-  }
-  return [module,file]
-}
-
-export const selfish = (func, context) => {
-  const out = func.bind({ context })
-  out.bind = newContext => selfish(func, newContext)
-  out.func = func
-  out.context = context
-  return out
-}
-
-/**
- * Resolve a package or file name to a url.
- * JS packages will resolve to an npm package url.
- * Relative urls will resolve to a local url.
- * @param {string} url the package or file name to resolve
- * @param {string} base the url of the current module to resolve relative to
- * @param {string} root the url under which local files are served
- * @param {string} moduleBase the url for npm packages
- * @returns the resolved module url
- */
-export const resolveUrl = (url, base, root, moduleBase=MODULE_BASE)=>{
-  console.log('resolveUrl', url, '\nbase:', base, '\nroot:',root, '\nmoduleBase:', moduleBase)
-  let isRelativeFile = false
-  let isModule = false
-  let cacheUrl = url
-  
-  if (!/^(http:|https:|fs:|file:)/.test(url)) {
-    // npm modules cannot start with . or /
-    if (!/^\.?\.?\//.test(url)) {
-      const [moduleName, moduleFile] = splitModuleName(url)
-      const moduleUrl = new URL(moduleName, moduleBase).toString()
-      if(moduleFile){
-        base = root = moduleUrl + '/'
-        url = moduleFile
-        isRelativeFile = true
-        console.log('moduleFile', moduleFile, '\nbase,root:', base)
-      }else{
-        isModule = true
-        url = moduleUrl
-      }
-    }else{
-      isRelativeFile = true
-    }
-
-    if(isRelativeFile && root){
-      // sanitize to avoid going below root, it will prevent / to go below cache baseUrl
-      // it will prevent ../../../../ to go below cache baseUrl
-      const fromRoot = root && url[0] === '/'
-      if (!fromRoot) {
-        // base relative path
-        const relativePath = base.replace(/^\//, '').replace(root, '') // strip root
-        // create url relative path
-        url = new URL(url, `fs:/root/${relativePath}`).toString()
-        // check if url went above root
-        if (!url.startsWith('fs:/root/')) throw new Error('relative url cannot go above root')
-        url = url.substring(9)
-      } else {
-        url = url.substring(1)
-      }
-      if(!getExtension(url)) url += '.js'
-      cacheUrl = `/${url}`
-      // now create the full url to load the file
-      url = new URL(url, root).toString()
-    }
-  }
-  console.log(url, isRelativeFile, isModule, cacheUrl )
-  return { url, isRelativeFile, isModule, cacheUrl }
-}
 
 export function require(urlOrSource, transform, _readFile=readFileWeb, _base, root, readModule, moduleBase = MODULE_BASE) {
   let source

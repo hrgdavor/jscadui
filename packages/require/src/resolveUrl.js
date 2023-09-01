@@ -1,5 +1,5 @@
 
-const MODULE_BASE = 'https://cdn.jsdelivr.net/npm/'
+export const MODULE_BASE = 'https://cdn.jsdelivr.net/npm/'
 
 export const getExtension = (url) => {
   let arr = url.split('/')

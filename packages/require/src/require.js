@@ -11,7 +11,9 @@
 */
 
 import { readFileWeb } from './readFileWeb'
-import { getExtension, resolveUrl } from './resolveUrl'
+import { MODULE_BASE, getExtension, resolveUrl } from './resolveUrl'
+
+export { resolveUrl } from './resolveUrl'
 
 // initially new Function was used to pass parameters: require, exports, module
 // new Functions screws with sourcemaps as it adds a prefix to the source
@@ -55,9 +57,9 @@ export function require(urlOrSource, transform, _readFile=readFileWeb, _base, ro
     cacheUrl = resolved.cacheUrl
     isRelativeFile = resolved.isRelativeFile
 
-    if(isModule){
+    if (isModule) {
       readFile = readModule
-      base = root = url+'/'
+      base = root = url + '/'
     }
 
     cache = requireCache[isRelativeFile ? 'local':'module']
@@ -66,11 +68,11 @@ export function require(urlOrSource, transform, _readFile=readFileWeb, _base, ro
       // not cached
       try {
         source = readFile(url, { base })
-        if(url.includes('jsdelivr.net')){
+        if (url.includes('jsdelivr.net')) {
           // jsdelivr will read package.json and tell us what the main file is
           const srch = ' * Original file: '
           let idx = source.indexOf(srch)
-          if(idx != -1){
+          if (idx != -1) {
             let idx2 = source.indexOf('\n', idx+srch.length+1)
             let realFile = new URL(source.substring(idx+srch.length, idx2), url).toString()
             url = base = realFile
@@ -94,9 +96,9 @@ export function require(urlOrSource, transform, _readFile=readFileWeb, _base, ro
   if (source !== undefined) {
     let extension = getExtension(url)
     // https://cdn.jsdelivr.net/npm/@jscad/svg-serializer@2.3.13/index.js uses require to read package.json
-    if(extension === 'json'){
+    if (extension === 'json') {
       exports = JSON.parse(source)
-    }else{
+    } else {
       // do not transform bundles that are already cjs ( requireCache.bundleAlias.*)
       if (transform && !bundleAlias) source = transform(source, url).code
       let requireFunc = newUrl => require(newUrl, transform, readFile, base, root, readModule, moduleBase)
@@ -105,7 +107,7 @@ export function require(urlOrSource, transform, _readFile=readFileWeb, _base, ro
       exports = module.exports
     }
   }
-  
+
   if(cache) cache[cacheUrl] = exports // cache obj exported by module
   // TODO research maybe in the future, why going through babel adds __esModule=true
   // this extra reference via defaults helps

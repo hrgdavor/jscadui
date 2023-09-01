@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest'
 
-import { resolveUrl } from '../src/require.js'
+import { resolveUrl } from '../src/resolveUrl.js'
 
 const localBase = 'http://localhost:5120/swfs/5810d898-ed92-4d48-b22f-1b7d6353117a/'
 const remoteBase = 'https://cdn.jsdelivr.net/npm/@jscad/io-utils/'

@@ -10,6 +10,8 @@
 - typescript import must use .js (it is a bit strange, but probably has good reasons)
 */
 
+import { readFileWeb } from "./readFileWeb"
+
 // initially new Function was used to pass parameters: require, exports, module
 // new Functions screws with sourcemaps as it adds a prefix to the source
 // we need eval to do the same without prefix
@@ -82,8 +84,7 @@ export const resolveUrl = (url, base, root, moduleBase=MODULE_BASE)=>{
       isRelativeFile = true
     }
 
-    if(isRelativeFile){
-      isRelativeFile = true
+    if(isRelativeFile && root){
       // sanitize to avoid going below root, it will prevent / to go below cache baseUrl
       // it will prevent ../../../../ to go below cache baseUrl
       const fromRoot = root && url[0] === '/'
@@ -108,7 +109,7 @@ export const resolveUrl = (url, base, root, moduleBase=MODULE_BASE)=>{
   return { url, isRelativeFile, isModule, cacheUrl }
 }
 
-export function require(urlOrSource, transform, _readFile, _base, root, readModule, moduleBase = MODULE_BASE) {
+export function require(urlOrSource, transform, _readFile=readFileWeb, _base, root, readModule, moduleBase = MODULE_BASE) {
   let source
   let url
   let isRelativeFile
@@ -143,9 +144,8 @@ export function require(urlOrSource, transform, _readFile, _base, root, readModu
     if(isModule){
       readFile = readModule
       base = root = url+'/'
-    }else{
-      base = url
     }
+
     cache = requireCache[isRelativeFile ? 'local':'module']
     exports = cache[cacheUrl] // get from cache
     if (!exports) {

@@ -1,3 +1,6 @@
+If you want to discuss jscad or jscadui you can also join us on discord: https://discord.gg/AaqGskur93
+
+
 # usable bits
 
 Most of the things are work in progres, but some parts are pretty ready to be used

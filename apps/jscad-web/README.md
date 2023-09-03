@@ -1,5 +1,7 @@
 # JSCAD UI test app
 
+If you want to discuss jscad or jscadui you can also join us on discord: https://discord.gg/AaqGskur93
+
 you must install modules from root of the project because it uses workspaces
 
 go to root fodler of the project

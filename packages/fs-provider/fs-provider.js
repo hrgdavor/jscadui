@@ -129,7 +129,7 @@ export const clearFs = async sw => {
 }
 
 export const clearCache = async cache => {
-  await cache.keys(key => cache.delete(key))
+  (await cache.keys()).forEach(key => cache.delete(key))
 }
 
 export const extractEntries = dt => {

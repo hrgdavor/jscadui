@@ -31,6 +31,7 @@ export const init = params => {
   if (baseURI) globalBase = baseURI
 
   if (bundles) Object.assign(requireCache.bundleAlias, bundles)
+  // workspace aliases
   alias?.forEach(arr => {
     const [orig, ...aliases] = arr
     aliases.forEach(a => {

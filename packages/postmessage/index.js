@@ -74,10 +74,27 @@ const messageSender = _self => {
       throw error
     }
   }
+
+  /**
+   * Send a message with no response
+   *
+   * @param {string} method
+   * @param {object} params
+   * @param {Array} trans
+   */
   const sendNotify = (method, params = {}, trans = []) => {
     _self.postMessage({ method, params }, fixTransfer(trans))
   }
 
+  /**
+   * Send a message with response expected
+   *
+   * @param {string} method
+   * @param {object} params
+   * @param {Array} trans
+   * @param {number?} timeout
+   * @returns {Promise} resolves when response is received
+   */
   const sendCmd = (method, params = {}, trans = [], timeout) => {
     const id = seq++
     _self.postMessage({ method, params, id }, fixTransfer(trans))
@@ -98,7 +115,7 @@ const messageSender = _self => {
 
 /**
  *
- * @param {*} _self reference to self of the main widnow (self) or reference to a worker
+ * @param {*} _self reference to self of the main window (self) or reference to a worker
  * @param {*} handlers - object where key if method name, and value ih handler
  * @returns
  */

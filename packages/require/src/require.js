@@ -120,16 +120,19 @@ export function require(urlOrSource, transform, _readFile=readFileWeb, _base, ro
 export function requireModule(url, source, _require) {
   try {
     const exports = {}
-    const module = { id: url, uri: url, exports: exports, source } // according to node.js modules
+    const module = { id: url, uri: url, exports, source } // according to node.js modules
     //module.require = _require
     runModule(_require, exports, module, source)
     return module
   } catch (err) {
-    console.error('error loading module ' + url, err)
-    throw err
+    console.error('failed loading module', url, err)
+    throw new Error(`failed loading module ${url}\n  ${err}`)
   }
 }
 
+/**
+ * Clear file cache for specific files. Used when a file has changed.
+ */
 export const clearFileCache = async ({files}) => {
   const cache = requireCache.local
   files.forEach(f=>{
@@ -137,7 +140,10 @@ export const clearFileCache = async ({files}) => {
   })
 }
 
-export const clearTempCache = async ({}) => {
+/**
+ * Clear project-specific cache
+ */
+export const clearTempCache = () => {
   requireCache.local = {}
   requireCache.alias = {}
 }

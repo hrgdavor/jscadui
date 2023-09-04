@@ -10,15 +10,21 @@ export const withTransferable = (params,trans)=>{
 
 const messageHandler = (handlers, sendResponse, sendError) => {
   return async (e) => {
-    const { method, params, id, error } = e.data
+    const { method, params, id, error, stack } = e.data
     if (id && method === RESPONSE) {
       const p = reqMap.get(id)
 
       if (!p) return console.error(`req ${id} not found`)
       reqMap.delete(id)
 
-      if (error) p[1](error)
-      else p[0](params)
+      const [resolve, reject] = p
+      if (error) {
+        // restore stacktrace
+        error.stack = stack
+        reject(error)
+      } else {
+        resolve(params)
+      }
 
       return
     }
@@ -60,7 +66,9 @@ const messageSender = _self => {
 
   const sendError = (error, id) => {
     try {
-      _self.postMessage({ method: RESPONSE, error, id })
+      // serialize stacktrace so it isn't lost in transit
+      const stack = error.stack
+      _self.postMessage({ method: RESPONSE, error, stack, id })
     } catch (error) {
       console.error('failed to send ', error)
       throw error

@@ -74,7 +74,7 @@ document.body.ondrop = async ev => {
     sendCmd('clearTempCache', {})
     const { alias, script } = await fileDropped(sw, files)
     projectName = sw.projectName
-    if (alias?.length) {
+    if (alias.length) {
       sendNotify('init', { alias })
     }
     runScript({ url: sw.fileToRun, base: sw.base })
@@ -151,7 +151,7 @@ async function sendCmdAndSpin(method, params) {
 }
 
 sendCmdAndSpin('init', {
-  bundles: {
+  bundles: {// local bundled alias for common libs.
     '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
     '@jscad/io': toUrl('./build/bundle.jscad_io.js'),
   },

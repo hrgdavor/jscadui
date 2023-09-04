@@ -1,6 +1,6 @@
 import { JscadToCommon } from '@jscadui/format-jscad'
 import { initMessaging, withTransferable } from '@jscadui/postmessage'
-import { clearFileCache, clearTempCache, readFileWeb, require, requireCache, requireModule, resolveUrl } from '@jscadui/require'
+import { clearFileCache, clearTempCache, readFileWeb, require, requireCache, resolveUrl } from '@jscadui/require'
 
 import { exportStlText } from './exportStlText.js'
 import { combineParameterDefinitions, getParameterDefinitionsFromSource } from './getParameterDefinitionsFromSource.js'
@@ -31,14 +31,9 @@ export const init = params => {
   if (baseURI) globalBase = baseURI
 
   if (bundles) Object.assign(requireCache.bundleAlias, bundles)
-  alias?.forEach(arr => {
-    const [orig, ...aliases] = arr
-    aliases.forEach(a => {
-      requireCache.alias[a] = orig
-      if (a.toLowerCase().substr(-3) !== '.js') {
-        requireCache.alias[a + '.js'] = orig
-      }
-    })
+  // workspace aliases
+  alias.forEach(({ name, path }) => {
+    requireCache.alias[name] = path
   })
   console.log('init alias', alias, 'bundles',bundles)
   userInstances = params.userInstances
@@ -73,13 +68,13 @@ const importReg = /import(?:(?:(?:[ \n\t]+([^ *\n\t\{\},]+)[ \n\t]*(?:,|[ \n\t]+
 const exportReg = /export.*from/
 
 const runScript = async ({ script, url, base=globalBase, root=base }) => {
-  if(!script) script = readFileWeb(resolveUrl(url, base, root).url,{base})
+  if(!script) script = readFileWeb(resolveUrl(url, base, root).url)
 
   console.log('{ script, url, base, root }', { script, url, base, root })
   const shouldTransform = url.endsWith('.ts') || script.includes('import') && (importReg.test(script) || exportReg.test(script))
   let def = []
 
-  const scriptModule = require({url,script}, shouldTransform ? transformFunc : undefined, readFileWeb, base, root, readFileWeb)
+  const scriptModule = require({url,script}, shouldTransform ? transformFunc : undefined, readFileWeb, base, root)
   const fromSource = getParameterDefinitionsFromSource(script)
   def = combineParameterDefinitions(fromSource, await scriptModule.getParameterDefinitions?.())
   main = scriptModule.main

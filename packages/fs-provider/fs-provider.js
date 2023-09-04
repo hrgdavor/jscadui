@@ -129,7 +129,7 @@ export const clearFs = async sw => {
 }
 
 export const clearCache = async cache => {
-  await cache.keys(key => cache.delete(key))
+  (await cache.keys()).forEach(key => cache.delete(key))
 }
 
 export const extractEntries = dt => {
@@ -228,26 +228,7 @@ export async function fileDropped(sw, files) {
   rootFiles = rootFiles.map(e => fileToFsEntry(e, '/'))
   sw.roots.push(rootFiles)
 
-  const alias = []
-  let pkgFile = await findFileInRoots(sw.roots, 'package.json')
-  if (pkgFile) {
-    try {
-      const pack = JSON.parse(await readAsText(pkgFile))
-      if (pack.main) sw.fileToRun = pack.main
-      if (pack.workspaces)
-        for (let i = 0; i < pack.workspaces.length; i++) {
-          const w = pack.workspaces[i]
-          // debugger
-          let pack2 = await findFileInRoots(sw.roots, `/${w}/package.json`)
-          if (pack2) pack2 = JSON.parse(await readAsText(pack2))
-          let name = pack2?.name || w
-          let main = pack2?.main || 'index.js'
-          alias.push([`/${w}/${main}`, name])
-        }
-    } catch (error) {
-      console.error('error parsing package.json', error)
-    }
-  }
+  const alias = await getWorkspaceAliases(sw)
 
   let time = Date.now()
   const preLoad = ['/' + sw.fileToRun, '/package.json']
@@ -270,6 +251,37 @@ export async function fileDropped(sw, files) {
     }
   }
   return {alias, script}
+}
+
+/**
+ * Parse package.json, and return a list of workspace aliases.
+ * Also parses the main file to run, if any.
+ *
+ * @param {SwHandler} sw
+ * @returns {Array}
+ */
+const getWorkspaceAliases = async (sw) => {
+  const alias = []
+  let pkgFile = await findFileInRoots(sw.roots, 'package.json')
+  if (pkgFile) {
+    try {
+      const pack = JSON.parse(await readAsText(pkgFile))
+      if (pack.main) sw.fileToRun = pack.main
+      if (pack.workspaces)
+        for (let i = 0; i < pack.workspaces.length; i++) {
+          const w = pack.workspaces[i]
+          // debugger
+          let pack2 = await findFileInRoots(sw.roots, `/${w}/package.json`)
+          if (pack2) pack2 = JSON.parse(await readAsText(pack2))
+          let name = pack2?.name || w
+          let main = pack2?.main || 'index.js'
+          alias.push({ name, path: `/${w}/${main}` })
+        }
+    } catch (error) {
+      throw new Error(`failed to parse package.json\n  ${error}`)
+    }
+  }
+  return alias
 }
 
 export const findByFsPath = (arr, file) => {

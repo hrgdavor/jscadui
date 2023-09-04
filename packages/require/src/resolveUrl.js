@@ -32,7 +32,6 @@ const splitModuleName = (module) => {
 export const resolveUrl = (url, base, root, moduleBase=MODULE_BASE) => {
   let isRelativeFile = false
   let isModule = false
-  let cacheUrl = url
   
   if (!/^(http:|https:|fs:|file:)/.test(url)) {
     // npm modules cannot start with . or /
@@ -67,10 +66,9 @@ export const resolveUrl = (url, base, root, moduleBase=MODULE_BASE) => {
         url = url.substring(1)
       }
       if (!getExtension(url)) url += '.js'
-      cacheUrl = `/${url}`
       // now create the full url to load the file
       url = new URL(url, root).toString()
     }
   }
-  return { url, isRelativeFile, isModule, cacheUrl }
+  return { url, isRelativeFile, isModule }
 }

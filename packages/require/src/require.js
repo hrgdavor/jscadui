@@ -59,8 +59,8 @@ export function require(urlOrSource, transform, _readFile=readFileWeb, _base, ro
 
     if (isModule) {
       readFile = readModule
-      base = root = url + '/'
     }
+    base = url
 
     cache = requireCache[isRelativeFile ? 'local':'module']
     exports = cache[cacheUrl] // get from cache

@@ -10,7 +10,6 @@
 - typescript import must use .js (it is a bit strange, but probably has good reasons)
 */
 
-import { readFileWeb } from './readFileWeb'
 import { MODULE_BASE, getExtension, resolveUrl } from './resolveUrl'
 
 export { resolveUrl } from './resolveUrl'
@@ -25,11 +24,10 @@ export const runModule = (typeof self === 'undefined' ? eval : self.eval)(
   '(require, exports, module, source)=>eval(source)',
 )
 
-export function require(urlOrSource, transform, _readFile=readFileWeb, _base, root, readModule, moduleBase = MODULE_BASE) {
+export const require = (urlOrSource, transform, readFile, base, root, moduleBase = MODULE_BASE) => {
   let source
   let url
   let isRelativeFile
-  let _url
   let cache
   let cacheUrl
   let bundleAlias
@@ -40,75 +38,66 @@ export function require(urlOrSource, transform, _readFile=readFileWeb, _base, ro
     url = urlOrSource.url
     isRelativeFile = true
   }
-  let readFile = _readFile
-  let base = _base
   let exports
-  
+  let resolvedUrl = url
+
   if (source === undefined) {
     bundleAlias = requireCache.bundleAlias[url]
-    _url = requireCache.alias[url] || url
-    cacheUrl = _url
-    
-    if(bundleAlias) _url = bundleAlias
-  
-    let resolved = resolveUrl(_url, base, root, moduleBase)
-    const { isModule } = resolved
-    url = resolved.url
-    cacheUrl = resolved.cacheUrl
-    isRelativeFile = resolved.isRelativeFile
+    const aliasedUrl = bundleAlias || requireCache.alias[url] || url
 
-    if (isModule) {
-      readFile = readModule
-    }
-    base = url
+    const resolved = resolveUrl(aliasedUrl, base, root, moduleBase)
+    isRelativeFile = resolved.isRelativeFile
+    resolvedUrl = resolved.url
+    cacheUrl = resolved.url
 
     cache = requireCache[isRelativeFile ? 'local':'module']
     exports = cache[cacheUrl] // get from cache
     if (!exports) {
       // not cached
       try {
-        source = readFile(url, { base })
-        if (url.includes('jsdelivr.net')) {
+        source = readFile(resolvedUrl)
+        if (resolvedUrl.includes('jsdelivr.net')) {
           // jsdelivr will read package.json and tell us what the main file is
           const srch = ' * Original file: '
           let idx = source.indexOf(srch)
           if (idx != -1) {
-            let idx2 = source.indexOf('\n', idx+srch.length+1)
-            let realFile = new URL(source.substring(idx+srch.length, idx2), url).toString()
-            url = base = realFile
+            const idx2 = source.indexOf('\n', idx+srch.length+1)
+            const realFile = new URL(source.substring(idx+srch.length, idx2), resolvedUrl).toString()
+            resolvedUrl = base = realFile
           }
         }
       } catch (e) {
-        if (url.endsWith('.js')) {
+        if (resolvedUrl.endsWith('.js')) {
           try {
-            url = url.substring(0, url.length - 2) + 'ts'
-            source = readFile(url, { base })
+            resolvedUrl = resolvedUrl.replace(/\.js$/, '.ts')
+            source = readFile(resolvedUrl)
           } catch (e2) {
             console.error('failed to load fallback .ts')
-            throw e
+            throw new Error(`failed to load module ${url}\n  ${e}`)
           }
-        }else{
-          throw e
+        } else {
+          throw new Error(`failed to load module ${url}\n  ${e}`)
         }
       }
     }
   }
   if (source !== undefined) {
-    let extension = getExtension(url)
+    let extension = getExtension(resolvedUrl)
     // https://cdn.jsdelivr.net/npm/@jscad/svg-serializer@2.3.13/index.js uses require to read package.json
     if (extension === 'json') {
       exports = JSON.parse(source)
     } else {
       // do not transform bundles that are already cjs ( requireCache.bundleAlias.*)
-      if (transform && !bundleAlias) source = transform(source, url).code
-      let requireFunc = newUrl => require(newUrl, transform, readFile, base, root, readModule, moduleBase)
-      const module = requireModule(url, source, requireFunc)
+      if (transform && !bundleAlias) source = transform(source, resolvedUrl).code
+      // construct require function relative to resolvedUrl
+      let requireFunc = newUrl => require(newUrl, transform, readFile, resolvedUrl, root, moduleBase)
+      const module = requireModule(url, resolvedUrl, source, requireFunc)
       module.local = isRelativeFile
       exports = module.exports
     }
   }
 
-  if(cache) cache[cacheUrl] = exports // cache obj exported by module
+  if (cache && cacheUrl) cache[cacheUrl] = exports // cache obj exported by module
   // TODO research maybe in the future, why going through babel adds __esModule=true
   // this extra reference via defaults helps
   // exports.__esModule = false // this did not help
@@ -117,16 +106,16 @@ export function require(urlOrSource, transform, _readFile=readFileWeb, _base, ro
   return exports // require returns object exported by module
 }
 
-export function requireModule(url, source, _require) {
+const requireModule = (id, url, source, _require) => {
   try {
     const exports = {}
-    const module = { id: url, uri: url, exports, source } // according to node.js modules
+    const module = { id, uri: url, exports, source } // according to node.js modules
     //module.require = _require
     runModule(_require, exports, module, source)
     return module
   } catch (err) {
-    console.error('failed loading module', url, err)
-    throw new Error(`failed loading module ${url}\n  ${err}`)
+    console.error('error loading module ' + url, err)
+    throw new Error(`failed loading module ${id}\n  ${err}`)
   }
 }
 

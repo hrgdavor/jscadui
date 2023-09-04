@@ -2,6 +2,7 @@ import http from 'http'
 import fs from 'fs/promises'
 import path from 'path'
 import url from 'url'
+import zlib from 'zlib'
 
 const mimeTypes = {
   '.html': 'text/html',
@@ -99,15 +100,22 @@ const server = http.createServer(async (req, res) => {
   }
   let { status, content, contentType } = result
 
-  // write http response
-  const headers = {}
+  // write http header
+  const headers = { 'Connection': 'keep-alive' }
   if (contentType) headers['Content-Type'] = contentType
   if (status === 301) {
     // handle redirect
     headers['Location'] = content
     content = ''
   }
+  // compress content
+  const gzipped = gzip(req, content)
+  if (gzipped) {
+    headers['Content-Encoding'] = 'gzip'
+    content = gzipped
+  }
   res.writeHead(status, headers)
+  // write http response
   res.end(content)
 
   // log request
@@ -122,8 +130,22 @@ const server = http.createServer(async (req, res) => {
   }
 })
 
+/**
+ * Start http server on given port
+ */
 export const serve = (port) => {
   server.listen(port, () => {
     console.log(`JSCADUI running on http://localhost:${port}`)
   })
+}
+
+/**
+ * If the request accepts gzip, compress the content, else undefined
+ */
+const gzip = (req, content) => {
+  if (!content) return undefined
+  const acceptEncoding = req.headers['accept-encoding']
+  if (acceptEncoding?.includes('gzip')) {
+    return zlib.gzipSync(content)
+  }
 }

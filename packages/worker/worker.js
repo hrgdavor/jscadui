@@ -32,14 +32,8 @@ export const init = params => {
 
   if (bundles) Object.assign(requireCache.bundleAlias, bundles)
   // workspace aliases
-  alias?.forEach(arr => {
-    const [orig, ...aliases] = arr
-    aliases.forEach(a => {
-      requireCache.alias[a] = orig
-      if (a.toLowerCase().substr(-3) !== '.js') {
-        requireCache.alias[a + '.js'] = orig
-      }
-    })
+  alias.forEach(({ name, path }) => {
+    requireCache.alias[name] = path
   })
   console.log('init alias', alias, 'bundles',bundles)
   userInstances = params.userInstances

@@ -74,7 +74,7 @@ document.body.ondrop = async ev => {
     sendCmd('clearTempCache', {})
     const { alias, script } = await fileDropped(sw, files)
     projectName = sw.projectName
-    if (alias?.length) {
+    if (alias.length) {
       sendNotify('init', { alias })
     }
     runScript({ url: sw.fileToRun, base: sw.base })

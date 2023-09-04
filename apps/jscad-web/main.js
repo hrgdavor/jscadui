@@ -22,7 +22,7 @@ customElements.define('jscadui-gizmo', Gizmo)
 const viewState = new ViewState()
 
 const gizmo = (window.gizmo = new Gizmo())
-byId('overlay').appendChild(gizmo)
+byId('overlay').parentNode.appendChild(gizmo)
 
 let model = []
 

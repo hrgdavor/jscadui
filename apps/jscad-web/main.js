@@ -10,6 +10,7 @@ import * as engine from './src/engine.js'
 import * as exporter from './src/exporter.js'
 import * as menu from './src/menu.js'
 import * as remote from './src/remote.js'
+import { formatStacktrace } from './src/stacktrace.js'
 import { ViewState } from './src/viewState.js'
 import * as welcome from './src/welcome.js'
 
@@ -99,7 +100,7 @@ document.body.ondragleave = document.body.ondragend = ev => {
 const setError = error => {
   const errorBar = byId('error-bar')
   if (error) {
-    const message = error.toString().replace(/^Error: /, '')
+    const message = formatStacktrace(error).replace(/^Error: /, '')
     const errorMessage = byId('error-message')
     errorMessage.innerText = message
     errorBar.classList.add('visible')

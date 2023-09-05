@@ -127,8 +127,9 @@ const paramChangeCallback = params => {
   sendCmd('runMain', { params })
 }
 
-export const runFile = file => {
-  sendCmd('runFile', { file }).then(result => {
+export const runScript = file => {
+  fileToRun = file.replace(/.*\//, '').replace(/\..*/, '')
+  sendCmd('runScript', { url: file }).then(result => {
     console.log('result', result)
     genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
   })

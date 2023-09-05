@@ -21,7 +21,7 @@ const serializerMap ={
 }
 
 const exportData = ({format, options={}})=>{
-  const jscad_io = require('./bundle.jscad_io.js')
+  const jscad_io = require('./bundle.jscad_io.js', null, readFileWeb)
   const solids = currentSolids()
   const [key, defaults] = serializerMap[format]
   const serializer = jscad_io[key]

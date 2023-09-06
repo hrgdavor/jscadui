@@ -34,16 +34,18 @@ export class OrbitControl extends OrbitState {
 
     let isDown = false
     let isPan = false
+    let isZoom = false
     let isMoving = false
+    let theButton = 0
     let lx = 0
     let ly = 0
 
     const doListen = el=>{
       el.addEventListener('pointerdown', e => {
+        theButton = e.button
         lx = e.clientX
         ly = e.clientY
         isDown = true
-        isPan = e.shiftKey || e.button === 1
       })
   
       el.addEventListener('pointerup', e => {
@@ -67,13 +69,17 @@ export class OrbitControl extends OrbitState {
           isMoving = true
         }
   
+        isPan = theButton === 1 || (theButton === 0 && e.shiftKey)
+        isZoom = e.ctrlKey
         let dx = lx - e.clientX
         let dy = ly - e.clientY
   
         if (isPan) {
           const { len } = this
-          const ratio = len / 500
+          const ratio = len / 1600
           this.panBy(dx * ratio, dy * ratio)
+        } else if(isZoom){
+          this.zoomBy((dx+dy)/200)
         } else {
           this.rotateBy(dy * this.rxRatio, dx * this.rzRatio)
         }

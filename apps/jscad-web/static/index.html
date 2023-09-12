@@ -29,6 +29,11 @@
           <li><a href="/docs/" target="_blank">API Reference</a></li>
           <li><a href="https://github.com/jscad/OpenJSCAD.org" target="_blank">GitHub</a></li>
         </ul>
+
+        <label for="welcome-dismiss" class="welcome-dismiss">
+          Don't show again
+          <input type="checkbox" id="welcome-dismiss" />
+        </label>
       </div>
 
       <div class="layout" id="layout">
@@ -98,6 +103,9 @@
       // dark mode asap to avoid flash of light
       if (localStorage.getItem('engine.theme') === 'dark') {
         document.body.classList.add('dark')
+      }
+      if (localStorage.getItem('welcome.dismissed')) {
+        document.getElementById('welcome').remove()
       }
     </script>
     <script type="module" src="/main.js"></script>

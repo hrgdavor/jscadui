@@ -1,5 +1,5 @@
 /** Produce directly a 4x4 matrix theat does the rotation based on the rotation angles provided for X and Z
- * 
+ *
  * @param {mat4} out mat4 receiving operation result
  * @param {Number} rx - rotation on X axis
  * @param {Number} rz  - rotation on Z axis

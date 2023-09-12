@@ -2,7 +2,7 @@ import * as vec3 from 'gl-matrix/esm/vec3.js'
 
 const { hypot, acos } = Math
 
-export const camRotation = (out,position, target) => {
+export const camRotation = (out, position, target) => {
   let vec = vec3.subtract([], position, target)
   const [x, y, z] = vec
   let len = Math.hypot(x, y, z)

@@ -23,6 +23,9 @@ const viewState = new ViewState()
 
 const gizmo = (window.gizmo = new Gizmo())
 byId('overlay').parentNode.appendChild(gizmo)
+// slightly larger gizmo for touch devices
+var touchDevice = ('ontouchstart' in document.documentElement);
+if(touchDevice) gizmo.setSize(70)
 
 let model = []
 

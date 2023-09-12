@@ -2,10 +2,10 @@ import { TAU } from './commonCamera.js'
 
 const { PI } = Math
 
-/** Bring angle into range [0...2PI]
- * 
- * @param {Number} a - (Radians) angle that might need correcting
- * @returns 
+/**
+ * Bring angle into range [0...2PI]
+ * @param {number} a - (Radians) angle that might need correcting
+ * @returns {number}
  */
 export const normalizeAngle = a => {
   while (a < 0) a += TAU
@@ -17,8 +17,8 @@ export const normalizeAngle = a => {
  * calculate closer rotation angle a from angle b that is already normalized.
  * This is needed to make rotation animations to travel
  *
- * @param {Number} a - (Radians) angle that might need correcting
- * @param {Number} b - (Radians) already normalized reference angle
+ * @param {number} a - (Radians) angle that might need correcting
+ * @param {number} b - (Radians) already normalized reference angle
  * @returns
  */
 export const closerAngle = (a, b) => {

@@ -25,7 +25,7 @@ export class OrbitState {
     this.target = target
     this.rx = rx
     this.rz = rz
-    this.len = len
+    this.len = Math.abs(len) // not sure how, but I saw negative len
 
     if (clone) {
       this.position = position

@@ -618,8 +618,20 @@ p {
 #welcome ul li {
   margin-left: 20px;
 }
+.welcome-dismiss {
+  float: right;
+  cursor: pointer;
+  color: #555;
+  user-select: none;
+}
+.welcome-dismiss input {
+  cursor: pointer;
+}
 .dark #welcome {
   background-color: rgba(30, 30, 30, 0.8);
+}
+.dark .welcome-dismiss {
+  color: #888;
 }
 @media (min-width: 768px) {
   #welcome {

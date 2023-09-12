@@ -10,8 +10,7 @@
   },
   "dependencies": {
     "@jscadui/themes": "*",
-    "@jscadui/render-three": "*",
-    "@jscadui/bundle-three": "*",
+    "@jscadui/render-threejs": "*",
     "@jscadui/scene": "*",
     "gl-matrix": "^3.4.0"
   },

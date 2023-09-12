@@ -3,7 +3,7 @@ import { TAU } from './commonCamera.js'
 const { PI } = Math
 
 /**
- * Bring angle into range [0...2PI]
+ * Bring angle into range [0...TAU]
  * @param {number} a - (Radians) angle that might need correcting
  * @returns {number}
  */

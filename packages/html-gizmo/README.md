@@ -21,7 +21,7 @@ You need to import the gizmo and register custom html element so you can decide 
 
 ```js
 import { Gizmo } from '@jscadui/html-gizmo'
-customElements.define('jscadui-gizmo', Gizmo);
+Gizmo.define()
 ```
 
  After that you can add the gizmo either in html

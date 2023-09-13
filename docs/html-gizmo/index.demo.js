@@ -1,6 +1,6 @@
 import { Gizmo } from './index.js'
 
-customElements.define('jscadui-gizmo', Gizmo)
+Gizmo.define()
 
 const rotateGizmos = () => {
   document.body.querySelectorAll('jscadui-gizmo').forEach(gizmo => gizmo.rotateXZ(rx, rz))

@@ -18,6 +18,10 @@ const makeSide = (names, name, ...parts) => {
 }
 
 export class Gizmo extends HTMLElement {
+  // nice pattern to define cutom element found on https://webcomponents.guide
+  static define(tag = "jscadui-gizmo") {
+    customElements.define(tag, this)
+  }
   #root
   #first
   names

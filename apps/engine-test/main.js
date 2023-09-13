@@ -24,7 +24,7 @@ const { colorize } = colors
 export const byId = id => document.getElementById(id)
 const toUrl = path => new URL(path, document.baseURI).toString()
 const currentUrl = new CurrentUrl()
-customElements.define('jscadui-gizmo', Gizmo)
+Gizmo.define()
 
 const engineState = new EngineState(availableEngines, theme, makeAxes, makeGrid)
 const useEngines = currentUrl.initGet('engines', 'three').split(',')

@@ -23,11 +23,22 @@ export const loadFromUrl = (compileFn, setError) => async () => {
   }
 }
 
+/**
+ * Try to fetch a url directly, but if that fails (due to CORS)
+ * then fallback to fetching via server proxy
+ */
 const fetchUrl = async (url) => {
-  const res = await fetch(`/remote?url=${url}`)
-  if (res.ok) {
-    return await res.text()
+  // Try to fetch url directly
+  const direct = await fetch(url)
+  if (direct.ok) {
+    return await direct.text()
   } else {
-    throw new Error(`failed to load script from url ${url}`)
+    // failed to fetch directly, try proxy
+    const proxy = await fetch(`/remote?url=${url}`)
+    if (proxy.ok) {
+      return await res.text()
+    } else {
+      throw new Error(`failed to load script from url ${url}`)
+    }
   }
 }

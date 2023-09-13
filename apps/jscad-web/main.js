@@ -17,7 +17,7 @@ import * as welcome from './src/welcome.js'
 export const byId = id => document.getElementById(id)
 const toUrl = path => new URL(path, document.baseURI).toString()
 
-customElements.define('jscadui-gizmo', Gizmo)
+Gizmo.define()
 
 const viewState = new ViewState()
 

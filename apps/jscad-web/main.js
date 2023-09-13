@@ -206,6 +206,7 @@ remote.init((script) => {
   welcome.dismiss()
 }, (err) => {
   // show remote script error
+  loadDefault = false
   setError(err)
   welcome.dismiss()
 })

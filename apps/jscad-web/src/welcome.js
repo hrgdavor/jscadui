@@ -18,6 +18,7 @@ export const init = () => {
 }
 
 export const dismiss = (e) => {
+  if (!welcome) return
   // dismiss if click on anything other than a link
   const isClickable = ['A', 'LABEL', 'INPUT'].includes(e?.target?.nodeName)
   if (showing && (!e || !welcome.contains(e.target) || !isClickable)) {

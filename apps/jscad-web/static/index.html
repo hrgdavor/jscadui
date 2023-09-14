@@ -100,12 +100,18 @@
     <div id="dropModal">drop jscad script to execute it</div>
 
     <script>
-      // dark mode asap to avoid flash of light
+      // load visible preferences immediately to prevent flash of content
       if (localStorage.getItem('engine.theme') === 'dark') {
         document.body.classList.add('dark')
       }
       if (localStorage.getItem('welcome.dismissed')) {
         document.getElementById('welcome').remove()
+      }
+      if (localStorage.getItem('editor.closed') === 'true') {
+        document.getElementById('editor').classList.add('closed')
+      } else if (localStorage.getItem('editor.width')) {
+        const editorWidth = localStorage.getItem('editor.width')
+        document.getElementById('editor').style.width = `${editorWidth}px`
       }
     </script>
     <script type="module" src="/main.js"></script>

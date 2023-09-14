@@ -4,19 +4,31 @@ let dragStartX
 let dragStartWidth
 let dragStartTime
 
+// Initialize drawer action
+// Initial open/closed state is in index.html to prevent flash of content
 export const init = () => {
-  // Initialize drawer action
   const editor = document.getElementById('editor')
   const toggle = document.getElementById('editor-toggle')
 
+  // Set editor width and handle open/closed state
   const setEditorWidth = (w) => {
-    if (w) editor.style.width = `${w}px`
+    if (w > 0) {
+      editor.style.width = `${w}px`
+      editor.classList.remove('closed')
+    } else {
+      editor.classList.add('closed')
+    }
   }
-  setEditorWidth(localStorage.getItem('editor.width') || 400)
 
   toggle.addEventListener('click', () => {
     if (!isDragging) {
-      editor.classList.toggle('closed')
+      const isClosed = editor.classList.contains('closed')
+      localStorage.setItem('editor.closed', !isClosed)
+      if (isClosed) {
+        setEditorWidth(localStorage.getItem('editor.width') || 400)
+      } else {
+        setEditorWidth(0)
+      }
     }
   })
 
@@ -36,28 +48,30 @@ export const init = () => {
       if (isDragging || Math.abs(delta) > 5) {
         isDragging = true
         editor.classList.add('dragging') // prevent animation
-        const width = dragStartWidth - delta
-        // Handle open/closed state
-        if (width > 0) {
-          setEditorWidth(width)
-          localStorage.setItem('editor.width', width)
-          editor.classList.remove('closed')
-        } else {
-          editor.style.width = ''
-          editor.classList.add('closed')
-        }
+        const width = Math.max(0, dragStartWidth - delta)
+        setEditorWidth(width)
       }
     }
   })
 
   window.addEventListener('pointerup', (e) => {
+    editor.classList.remove('dragging')
     const downTime = new Date() - dragStartTime
     // Long press, assume dragging
     if (isDragging || downTime > 200) {
       // Prevent click
       isDragging = true
+      // Save width
+      const width = editor.offsetWidth
+      // Minimum width, otherwise snap to closed
+      if (width > 10) {
+        localStorage.setItem('editor.width', width)
+        localStorage.setItem('editor.closed', false)
+      } else {
+        localStorage.setItem('editor.closed', true)
+        setEditorWidth(0)
+      }
     }
-    editor.classList.remove('dragging')
     isMouseDown = false
   })
 

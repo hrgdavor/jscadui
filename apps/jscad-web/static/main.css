@@ -169,6 +169,7 @@ p {
 #editor {
   position: relative;
   transition: width 0.5s;
+  width: 400px;
   max-width: calc(100vw - 80px);
 }
 #editor.dragging {
@@ -312,7 +313,6 @@ p {
   content: "\27E8";
 }
 .cm-editor {
-  min-width: 400px;
   height: 100%;
 }
 .cm-gutters {
@@ -355,7 +355,7 @@ p {
 }
 /* numeric */
 .dark .ͼd {
-  color: #aac281;
+  color: #bbc281;
 }
 /* strings */
 .dark .ͼe {
@@ -644,6 +644,9 @@ p {
   #welcome {
     width: 90%;
     left: 5%;
+  }
+  #editor {
+    width: 0;
   }
   jscadui-gizmo {
     --cube-size: 70px;

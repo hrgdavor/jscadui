@@ -22,6 +22,7 @@ export const init = () => {
 
   toggle.addEventListener('click', () => {
     if (!isDragging) {
+      editor.classList.add('transition') // animate
       const isClosed = editor.classList.contains('closed')
       localStorage.setItem('editor.closed', !isClosed)
       if (isClosed) {
@@ -47,7 +48,7 @@ export const init = () => {
       // Moved more than 5 pixels, assume dragging
       if (isDragging || Math.abs(delta) > 5) {
         isDragging = true
-        editor.classList.add('dragging') // prevent animation
+        editor.classList.remove('transition') // no animation when dragging
         const width = Math.max(0, dragStartWidth - delta)
         setEditorWidth(width)
       }
@@ -55,7 +56,6 @@ export const init = () => {
   })
 
   window.addEventListener('pointerup', (e) => {
-    editor.classList.remove('dragging')
     const downTime = new Date() - dragStartTime
     // Long press, assume dragging
     if (isDragging || downTime > 200) {
@@ -69,15 +69,10 @@ export const init = () => {
         localStorage.setItem('editor.closed', false)
       } else {
         localStorage.setItem('editor.closed', true)
+        editor.classList.add('transition') // snap closed
         setEditorWidth(0)
       }
     }
     isMouseDown = false
   })
-
-  // Close drawer on mobile
-  if (window.innerWidth < 768) {
-    // 'dragging' to prevent animation
-    editor.classList.add('closed', 'dragging')
-  }
 }

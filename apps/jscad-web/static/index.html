@@ -107,7 +107,7 @@
       if (localStorage.getItem('welcome.dismissed')) {
         document.getElementById('welcome').remove()
       }
-      if (localStorage.getItem('editor.closed') === 'true') {
+      if (localStorage.getItem('editor.closed') === 'true' || window.innerWidth < 768) {
         document.getElementById('editor').classList.add('closed')
       } else if (localStorage.getItem('editor.width')) {
         const editorWidth = localStorage.getItem('editor.width')

@@ -168,12 +168,11 @@ p {
 /* editor style */
 #editor {
   position: relative;
-  transition: width 0.5s;
   width: 400px;
   max-width: calc(100vw - 80px);
 }
-#editor.dragging {
-  transition: none;
+#editor.transition {
+  transition: width 0.5s;
 }
 #editor.closed {
   width: 0px !important;

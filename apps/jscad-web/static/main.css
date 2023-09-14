@@ -89,9 +89,6 @@ jscadui-gizmo {
   --cube-fg-hover: #ccc;
 }
 
-jscadui-gizmo::part(face){
-}
-
 a {
   color: #08d;
   text-decoration: none;
@@ -172,6 +169,7 @@ p {
 #editor {
   position: relative;
   transition: width 0.5s;
+  max-width: calc(100vw - 80px);
 }
 #editor.dragging {
   transition: none;
@@ -300,6 +298,7 @@ p {
   padding: 5px;
   display: flex;
   cursor: col-resize;
+  touch-action: none;
 }
 .dark #editor-toggle {
   background-color: #657;
@@ -645,9 +644,6 @@ p {
   #welcome {
     width: 90%;
     left: 5%;
-  }
-  #editor.open {
-    width: 240px;
   }
   jscadui-gizmo {
     --cube-size: 70px;

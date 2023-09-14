@@ -17,7 +17,6 @@ export const loadFromUrl = (compileFn, setError) => async () => {
       const script = await fetchUrl(url)
       compileFn(script, url)
     } catch (err) {
-      console.error('failed to load remote script', err)
       setError(err)
     }
   }
@@ -29,16 +28,13 @@ export const loadFromUrl = (compileFn, setError) => async () => {
  */
 const fetchUrl = async (url) => {
   // Try to fetch url directly
-  const direct = await fetch(url)
-  if (direct.ok) {
-    return await direct.text()
+  const res = await fetch(url).catch((err) => {
+    // Failed to fetch directly, try proxy
+    return fetch(`/remote?url=${url}`)
+  })
+  if (res.ok) {
+    return await res.text()
   } else {
-    // failed to fetch directly, try proxy
-    const proxy = await fetch(`/remote?url=${url}`)
-    if (proxy.ok) {
-      return await res.text()
-    } else {
-      throw new Error(`failed to load script from url ${url}`)
-    }
+    throw new Error(`failed to load script from url ${url}`)
   }
 }

@@ -194,14 +194,14 @@ p {
 #editor-hint {
   position: absolute;
   bottom: 10px;
-  right: 10px;
-  color: #bbb;
+  right: calc(min(10px, 100% - 180px)); /* push right when editor is small */
+  color: #66666688;
   white-space: nowrap;
   font-size: 10pt;
   user-select: none;
 }
 .dark #editor-hint {
-  color: #888;
+  color: #dddddd88;
 }
 
 /* editor file navigation */

@@ -38,7 +38,7 @@ export const init = () => {
     isDragging = false
     dragStartX = e.clientX
     dragStartWidth = editor.offsetWidth
-    dragStartTime = new Date()
+    dragStartTime = e.timeStamp
     e.preventDefault()
   })
 
@@ -56,7 +56,7 @@ export const init = () => {
   })
 
   window.addEventListener('pointerup', (e) => {
-    const downTime = new Date() - dragStartTime
+    const downTime = e.timeStamp - dragStartTime
     // Long press, assume dragging
     if (isDragging || downTime > 200) {
       // Prevent click
@@ -64,7 +64,7 @@ export const init = () => {
       // Save width
       const width = editor.offsetWidth
       // Minimum width, otherwise snap to closed
-      if (width > 10) {
+      if (width > 50) {
         localStorage.setItem('editor.width', width)
         localStorage.setItem('editor.closed', false)
       } else {

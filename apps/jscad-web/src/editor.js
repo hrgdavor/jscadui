@@ -50,6 +50,11 @@ export const init = (defaultCode, fn) => {
   // Initialize drawer action
   drawer.init()
 
+  // Make editor hint clickable
+  document.getElementById('editor-hint').addEventListener('click', () => {
+    compile(view.state.doc.toString(), currentFile)
+  })
+
   // Setup file selector
   editorFile.addEventListener('click', (e) => {
     editorNav.classList.toggle('open')

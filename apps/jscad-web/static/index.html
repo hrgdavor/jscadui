@@ -5,7 +5,7 @@
     <link rel="icon" type="image/png" href="/favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="JSCAD is an open source set of modular, browser and command line tools for creating parametric 2D and 3D CAD designs with JavaScript code.">
-    <meta name="keywords" content="jscad, openjscad, javascript, cad, svg, stl, obj, csg, 3mf, 3d-design, 2d-design">
+    <meta name="keywords" content="jscad, openjscad, javascript, typescript, cad, svg, stl, obj, csg, 3mf, 3d-design, 2d-design">
     <link rel="stylesheet" href="main.css">
     <title>JSCAD - JavaScript CAD</title>
   </head>
@@ -61,14 +61,14 @@
         </div>
       </div>
 
-      <div id="editor" class="open">
+      <div id="editor">
         <div id="editor-drawer">
           <nav id="editor-nav">
             <button id="editor-file"></button>
             <ul id="editor-files"></ul>
           </nav>
           <div id="editor-container"></div>
-          <div id="editor-hint">Shift-enter to update</div>
+          <a id="editor-hint">Shift-enter to update</a>
         </div>
         <div id="editor-toggle"></div>
       </div>
@@ -100,12 +100,18 @@
     <div id="dropModal">drop jscad script to execute it</div>
 
     <script>
-      // dark mode asap to avoid flash of light
+      // load visible preferences immediately to prevent flash of content
       if (localStorage.getItem('engine.theme') === 'dark') {
         document.body.classList.add('dark')
       }
       if (localStorage.getItem('welcome.dismissed')) {
         document.getElementById('welcome').remove()
+      }
+      if (localStorage.getItem('editor.closed') === 'true' || window.innerWidth < 768) {
+        document.getElementById('editor').classList.add('closed')
+      } else if (localStorage.getItem('editor.width')) {
+        const editorWidth = localStorage.getItem('editor.width')
+        document.getElementById('editor').style.width = `${editorWidth}px`
       }
     </script>
     <script type="module" src="/main.js"></script>

@@ -89,9 +89,6 @@ jscadui-gizmo {
   --cube-fg-hover: #ccc;
 }
 
-jscadui-gizmo::part(face){
-}
-
 a {
   color: #08d;
   text-decoration: none;
@@ -171,10 +168,11 @@ p {
 /* editor style */
 #editor {
   position: relative;
-  transition: width 0.5s;
+  width: 400px;
+  max-width: calc(100vw - 80px);
 }
-#editor.dragging {
-  transition: none;
+#editor.transition {
+  transition: width 0.5s;
 }
 #editor.closed {
   width: 0px !important;
@@ -195,14 +193,14 @@ p {
 #editor-hint {
   position: absolute;
   bottom: 10px;
-  right: 10px;
-  color: #bbb;
+  right: calc(min(10px, 100% - 180px)); /* push right when editor is small */
+  color: #66666688;
   white-space: nowrap;
   font-size: 10pt;
   user-select: none;
 }
 .dark #editor-hint {
-  color: #888;
+  color: #dddddd88;
 }
 
 /* editor file navigation */
@@ -300,6 +298,7 @@ p {
   padding: 5px;
   display: flex;
   cursor: col-resize;
+  touch-action: none;
 }
 .dark #editor-toggle {
   background-color: #657;
@@ -313,7 +312,6 @@ p {
   content: "\27E8";
 }
 .cm-editor {
-  min-width: 400px;
   height: 100%;
 }
 .cm-gutters {
@@ -356,7 +354,7 @@ p {
 }
 /* numeric */
 .dark .ͼd {
-  color: #aac281;
+  color: #bbc281;
 }
 /* strings */
 .dark .ͼe {
@@ -646,8 +644,8 @@ p {
     width: 90%;
     left: 5%;
   }
-  #editor.open {
-    width: 240px;
+  #editor {
+    width: 0;
   }
   jscadui-gizmo {
     --cube-size: 70px;

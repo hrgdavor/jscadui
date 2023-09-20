@@ -278,7 +278,8 @@ const getWorkspaceAliases = async (sw) => {
           alias.push({ name, path: `/${w}/${main}` })
         }
     } catch (error) {
-      throw new Error(`failed to parse package.json\n  ${error}`)
+      error.message = `failed to parse package.json\n  ${error}`
+      throw error
     }
   }
   return alias

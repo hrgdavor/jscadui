@@ -24,6 +24,7 @@ const viewState = new ViewState()
 const gizmo = (window.gizmo = new Gizmo())
 byId('overlay').parentNode.appendChild(gizmo)
 
+let projectName = 'jscad'
 let model = []
 
 // load default model unless another model was already loaded
@@ -101,9 +102,10 @@ const setError = error => {
   const errorBar = byId('error-bar')
   if (error) {
     console.error(error)
-    const message = formatStacktrace(error).replace(/^Error: /, '')
-    const errorMessage = byId('error-message')
-    errorMessage.innerText = message
+    const name = (error.name || 'Error') + ': '
+    byId('error-name').innerText = name
+    const message = formatStacktrace(error)
+    byId('error-message').innerText = message
     errorBar.classList.add('visible')
   } else {
     errorBar.classList.remove('visible')
@@ -139,7 +141,9 @@ const handlers = {
 const { sendCmd, sendNotify } = initMessaging(worker, handlers)
 
 const spinner = byId('spinner')
+let jobs = 0
 async function sendCmdAndSpin(method, params) {
+  jobs++
   spinner.style.display = 'block'
   try {
     return await sendCmd(method, params)
@@ -147,7 +151,9 @@ async function sendCmdAndSpin(method, params) {
     setError(error)
     throw error
   } finally {
-    spinner.style.display = 'none'
+    if (--jobs === 0) {
+      spinner.style.display = 'none'
+    }
   }
 }
 
@@ -172,8 +178,6 @@ const runScript = async ({ script, url = './index.js', base, root }) => {
   const result = await sendCmdAndSpin('runScript', { script, url, base, root })
   genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
 }
-
-let projectName = 'jscad'
 
 const loadExample = source => {
   editor.setSource(source)

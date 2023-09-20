@@ -22,5 +22,5 @@ export const formatStacktrace = (error) => {
     .map((line) => line.replace(/@http.*?bundle.worker.js.* > eval:/, ' ')) // firefox
     .map((line) => line.replace(/^\s*(at )?/, '  at ')) // indent
 
-  return [error.toString(), ...cleaned].join('\n')
+  return [error.message, ...cleaned].join('\n')
 }

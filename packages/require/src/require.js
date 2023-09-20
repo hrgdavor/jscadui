@@ -114,8 +114,8 @@ const requireModule = (id, url, source, _require) => {
     runModule(_require, exports, module, source)
     return module
   } catch (err) {
-    console.error('error loading module ' + url, err)
-    throw new Error(`failed loading module ${id}\n  ${err}`)
+    err.message = `failed loading module ${id}\n  ${err}`
+    throw err
   }
 }
 

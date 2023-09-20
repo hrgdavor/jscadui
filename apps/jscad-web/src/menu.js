@@ -1,41 +1,41 @@
 import { examples } from './examples.js'
 
-const menu = document.getElementById("menu")
+const menu = document.getElementById('menu')
 
 export const init = (loadExample) => {
-  const button = document.getElementById("menu-button")
-  const content = document.getElementById("menu-content")
+  const button = document.getElementById('menu-button')
+  const content = document.getElementById('menu-content')
 
   // Menu button
-  button.addEventListener("click", () => {
-    menu.classList.toggle("open")
+  button.addEventListener('click', () => {
+    menu.classList.toggle('open')
   })
 
   // Close menu when anything else is clicked
-  window.addEventListener("click", (e) => {
+  window.addEventListener('click', (e) => {
     if (!button.contains(e.target) && !content.contains(e.target)) {
       dismiss()
     }
   })
-  window.addEventListener("drop", () => dismiss())
-  window.addEventListener("dragstart", () => dismiss())
-  window.addEventListener("dragover", () => dismiss())
+  window.addEventListener('drop', () => dismiss())
+  window.addEventListener('dragstart', () => dismiss())
+  window.addEventListener('dragover', () => dismiss())
 
   // Add examples to menu
-  const exampleDiv = document.getElementById("examples")
+  const exampleDiv = document.getElementById('examples')
   examples.forEach(({ name, source }) => {
-    const a = document.createElement("a")
+    const a = document.createElement('a')
     a.innerText = name
-    a.addEventListener("click", async () => {
+    a.addEventListener('click', async () => {
       console.log(`load example ${name}`)
       loadExample(await (await fetch(source)).text())
     })
-    const li = document.createElement("li")
+    const li = document.createElement('li')
     li.appendChild(a)
     exampleDiv.appendChild(li)
   })
 }
 
 const dismiss = () => {
-  menu.classList.remove("open")
+  menu.classList.remove('open')
 }

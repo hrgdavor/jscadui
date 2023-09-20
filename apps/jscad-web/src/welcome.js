@@ -1,4 +1,4 @@
-const welcome = document.getElementById("welcome")
+const welcome = document.getElementById('welcome')
 let showing = true
 
 export const init = () => {
@@ -6,11 +6,12 @@ export const init = () => {
   console.log('Welcome to JSCAD! Like JavaScript and want to help? Join us at https://github.com/jscad/OpenJSCAD.org')
   if (!welcome) return
   // hide the welcome menu when anything is clicked
-  window.addEventListener("mousedown", (e) => dismiss(e))
-  window.addEventListener("click", (e) => dismiss(e))
-  window.addEventListener("drop", () => dismiss())
-  window.addEventListener("dragstart", () => dismiss())
-  window.addEventListener("dragover", () => dismiss())
+  window.addEventListener('mousedown', dismiss)
+  window.addEventListener('click', dismiss)
+  window.addEventListener('drop', dismiss)
+  window.addEventListener('dragstart', dismiss)
+  window.addEventListener('dragover', dismiss)
+  // permanently hide the welcome menu
   document.getElementById('welcome-dismiss').addEventListener('click', () => {
     localStorage.setItem('welcome.dismissed', true)
     dismiss()

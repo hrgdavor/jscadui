@@ -196,7 +196,7 @@ editor.init(defaultCode, async (script, path) => {
     // it is expected if multiple files require same file/module that first time it is loaded
     // but for others resolved module is returned
     // if not cleared by calling clearFileCache, require will not try to reload the file
-    await sendCmd('clearFileCache',{files:[path]})
+    await sendCmd('clearFileCache', { files: [path] })
     if (sw.fileToRun) runScript({ url: sw.fileToRun, base: sw.base })
   } else {
     runScript({ script })
@@ -217,9 +217,11 @@ remote.init((script) => {
 })
 exporter.init(exportModel)
 
-try{
+try {
   await initFs()
-}catch(err){setError(err)}
+} catch (err) {
+  setError(err)
+}
 
 if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
   // service workers are disabled on hard-refresh, so need to reload.

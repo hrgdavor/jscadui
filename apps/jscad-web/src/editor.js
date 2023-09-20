@@ -1,7 +1,8 @@
-import { EditorView, basicSetup } from "codemirror"
-import { javascript } from "@codemirror/lang-javascript"
-import { defaultKeymap } from "@codemirror/commands"
-import { keymap } from "@codemirror/view"
+import { defaultKeymap } from '@codemirror/commands'
+import { javascript } from '@codemirror/lang-javascript'
+import { keymap } from '@codemirror/view'
+import { EditorView, basicSetup } from 'codemirror'
+
 import * as drawer from './drawer.js'
 
 let view
@@ -17,31 +18,31 @@ const compile = (code, path) => {
   if (compileFn) {
     compileFn(code, path)
   } else {
-    console.log("not ready to compile")
+    console.log('not ready to compile')
   }
 }
 
 export const init = (defaultCode, fn) => {
   compileFn = fn
   // Initialize codemirror
-  const editorDiv = document.getElementById("editor-container")
+  const editorDiv = document.getElementById('editor-container')
   view = new EditorView({
     extensions: [
       basicSetup,
       javascript(),
       keymap.of([
         {
-          key: "Shift-Enter",
+          key: 'Shift-Enter',
           run: () => compile(view.state.doc.toString(), currentFile),
-          preventDefault: true
+          preventDefault: true,
         },
         {
-          key: "Mod-s",
+          key: 'Mod-s',
           run: () => compile(view.state.doc.toString(), currentFile),
-          preventDefault: true
+          preventDefault: true,
         },
-        ...defaultKeymap
-      ])
+        ...defaultKeymap,
+      ]),
     ],
     parent: editorDiv,
   })
@@ -56,7 +57,7 @@ export const init = (defaultCode, fn) => {
   })
 
   // Setup file selector
-  editorFile.addEventListener('click', (e) => {
+  editorFile.addEventListener('click', () => {
     editorNav.classList.toggle('open')
   })
   // Close file selector on click outside
@@ -68,7 +69,7 @@ export const init = (defaultCode, fn) => {
 }
 
 export const setSource = (source, path = '/index.js') => {
-  view.dispatch({changes: {from: 0, to: view.state.doc.length, insert: source}})
+  view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: source } })
   currentFile = path
 }
 

@@ -15,12 +15,13 @@ export const formatStacktrace = (error) => {
   // firefox stacktrace:
   // main@http://localhost:5120/build/bundle.worker.js line 14 > eval line 1 > eval:13:3
   // @http://localhost:5120/build/bundle.worker.js line 14 > eval:1:37
-  const cleaned = error.stack.split('\n')
-    .filter((line) => line.includes('eval'))
-    .map((line) => line.replace(/eval at <anonymous> \(.*?\), /, '')) // chrome
-    .map((line) => line.replace(/^@/, '<anonymous>@')) // firefox
-    .map((line) => line.replace(/@http.*?bundle.worker.js.* > eval:/, ' ')) // firefox
-    .map((line) => line.replace(/^\s*(at )?/, '  at ')) // indent
+  const cleaned = error.stack
+    .split('\n')
+    .filter(line => line.includes('eval'))
+    .map(line => line.replace(/eval at <anonymous> \(.*?\), /, '')) // chrome
+    .map(line => line.replace(/^@/, '<anonymous>@')) // firefox
+    .map(line => line.replace(/@http.*?bundle.worker.js.* > eval:/, ' ')) // firefox
+    .map(line => line.replace(/^\s*(at )?/, '  at ')) // indent
 
   return [error.message, ...cleaned].join('\n')
 }

@@ -1,4 +1,3 @@
-
 export const init = (compileFn, setError) => {
   const load = loadFromUrl(compileFn, setError)
   load() // on load
@@ -28,7 +27,7 @@ export const loadFromUrl = (compileFn, setError) => async () => {
  */
 const fetchUrl = async (url) => {
   // Try to fetch url directly
-  const res = await fetch(url).catch((err) => {
+  const res = await fetch(url).catch(() => {
     // Failed to fetch directly, try proxy
     return fetch(`/remote?url=${url}`)
   })

@@ -1,4 +1,5 @@
 import { RenderThreejs } from '@jscadui/render-threejs'
+
 // import * as THREE from 'three'
 
 export const init = async () => {
@@ -28,7 +29,7 @@ const addScript = async (source, module = false) => {
     var tag = document.createElement('script')
     tag.type = module ? 'module' : 'text/javascript'
     tag.src = source
-    tag.onload = ()=>resolve()
+    tag.onload = () => resolve()
     tag.onerror = err => reject(err)
     document.head.append(tag)
   })

@@ -16,6 +16,14 @@ self.addEventListener('install', event => {
   self.skipWaiting()
 })
 
+/** Create a client wrapper, or return one from cahce. It is important to know
+ * that cache can dissapear (likely due to browser suspending the worker when idle).
+ * page calling init will createa a cached instance, but if dev tools in chrome 
+ * are nto open, after about 10 seconds, looks like cache is gone (likely worker got suspended)
+ * 
+ * @param {string} clientId 
+ * @returns 
+ */
 const getClientWrapper = async clientId =>{
   let clientWrapper = clientMap[clientId]
   if(!clientWrapper){
@@ -29,6 +37,8 @@ self.addEventListener('fetch', async event => {
   const urlPath = event.request.url
   let path = new URL(urlPath).pathname
   if (path === initPath) {
+    // this procedure allows tab-page-client to know it's clientId
+    // that way urls in worker can have clientId in path to preperly route file requests
     const clientId = event.clientId
     event.respondWith(new Response(clientId))
     getClientWrapper(clientId)

@@ -79,7 +79,20 @@ const runScript = async ({ script, url, base=globalBase, root=base }) => {
   def = combineParameterDefinitions(fromSource, await scriptModule.getParameterDefinitions?.())
   main = scriptModule.main
   const params = {}
-  def.forEach(({ name, initial, default: def }) => params[name] = def || initial)
+  def.forEach(({ name, initial, default: def, type, values, captions }) =>{
+    let val = def || initial
+    if(type === 'choice' && values.indexOf(v=>v === val) === -1){
+      // it is supported for choice to use default value from captions also
+      // but script will need the matching value
+      for(let i=0; i<captions.length; i++){
+        if(captions[i] === val){
+          val = values[i]
+          break;
+        }
+      }
+    }
+    params[name] = val
+  })
   await runMain({ params })
   return {def}
 }

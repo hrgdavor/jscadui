@@ -142,9 +142,15 @@ const { sendCmd, sendNotify } = initMessaging(worker, handlers)
 
 const spinner = byId('spinner')
 let jobs = 0
+let firstJobTimer
 async function sendCmdAndSpin(method, params) {
   jobs++
-  spinner.style.display = 'block'
+  if(jobs === 1){
+    // do not show spinner for fast renders
+    firstJobTimer = setTimeout(()=>{
+      spinner.style.display = 'block'
+    },300)
+  }
   try {
     return await sendCmd(method, params)
   } catch (error) {
@@ -152,6 +158,7 @@ async function sendCmdAndSpin(method, params) {
     throw error
   } finally {
     if (--jobs === 0) {
+      clearTimeout(firstJobTimer)
       spinner.style.display = 'none'
     }
   }

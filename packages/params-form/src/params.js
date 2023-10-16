@@ -69,7 +69,6 @@ export const genParams = ({
     if (type == 'range' || type == 'slider') inputType = 'range'
     let str = `<input _type="${type}" type="${inputType}" name="${name}"`
     if (step !== undefined) str += ` step="${step}"`
-    console.log('inputDefault', def)
     if (min !== undefined) str += ` min="${min}"`
     if (max !== undefined) str += ` max="${max}"`
     if (value !== undefined) str += ` value="${value}"`

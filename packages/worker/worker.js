@@ -39,9 +39,10 @@ export const init = params => {
   console.log('init alias', alias, 'bundles',bundles)
   userInstances = params.userInstances
 }
-let entities = [],
-  solids = []
+
+solids = []
 export async function runMain({ params } = {}) {
+  let entities = []
   const transferable = []
 
   if (!main) throw new Error('no main function exported')
@@ -60,8 +61,8 @@ export async function runMain({ params } = {}) {
   entities = JscadToCommon.prepare(solids, transferable, userInstances)
   entities = entities.all
   // entities = [...entities.lines, ...entities.line, ...entities.instance]
-  client.sendNotify('entities', { entities, solidsTime, entitiesTime: Date.now() - time }, transferable)
-  entities = [] // we lose access to bytearray data, it is transfered, and on our side it shows length=0
+  //  client.sendNotify('entities', { entities, solidsTime, entitiesTime: Date.now() - time }, transferable)
+  return withTransferable({entities}, transferable)
 }
 
 // https://stackoverflow.com/questions/52086611/regex-for-matching-js-import-statements
@@ -79,23 +80,24 @@ const runScript = async ({ script, url, base=globalBase, root=base }) => {
   const fromSource = getParameterDefinitionsFromSource(script)
   def = combineParameterDefinitions(fromSource, await scriptModule.getParameterDefinitions?.())
   main = scriptModule.main
-  await runMain({ params: extractDefaults(def) })
-  return {def}
+  let out = await runMain({ params: extractDefaults(def) })
+  out.def = def
+  return out
 }
 
 // TODO remove, or move to another package, along with exportStlText
 // this is interesting in regards to exporting to stl, and 3mf which actually need vertex data, 
-// and not jcad geometry polygons. So it will be interesting to see if main can give back transferable buffers
+// and not jcad geometry polygons. So it will be interesting to can give back transferable buffers
 // instead of re-running conversion. or move export to main thread where the data already is, as it is needed for rendering
 const exportData = async (params) => {
-  if(self.exportData) return self.exportData(params, solids, entities)
+  if(self.exportData) return self.exportData(params)
 
   const { format } = params
   // todo check if it is ok to give back transferables after webgl has used the buffers
   // then we would not need to clone the data
   // other option is to clone data before sending transferable
   JscadToCommon.clearCache()
-  if (solids.length && !entities.length) entities = JscadToCommon(solids, [], false)
+  let entities = JscadToCommon(solids, [], false)
 
   const arr = exportStlText(entities)
   data = [await new Blob(arr).arrayBuffer()]

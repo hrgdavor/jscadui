@@ -2,8 +2,9 @@ import { JscadToCommon } from '@jscadui/format-jscad'
 import { initMessaging, withTransferable } from '@jscadui/postmessage'
 import { clearFileCache, clearTempCache, readFileWeb, require, requireCache, resolveUrl } from '@jscadui/require'
 
-import { exportStlText } from './exportStlText.js'
-import { combineParameterDefinitions, getParameterDefinitionsFromSource } from './getParameterDefinitionsFromSource.js'
+import { exportStlText } from './src/exportStlText.js'
+import { combineParameterDefinitions, getParameterDefinitionsFromSource } from './src/getParameterDefinitionsFromSource.js'
+import { extractDefaults } from './src/extractDefaults.js'
 
 let main
 self.JSCAD_WORKER_ENV = {}
@@ -78,23 +79,7 @@ const runScript = async ({ script, url, base=globalBase, root=base }) => {
   const fromSource = getParameterDefinitionsFromSource(script)
   def = combineParameterDefinitions(fromSource, await scriptModule.getParameterDefinitions?.())
   main = scriptModule.main
-  const params = {}
-  def.forEach(({ name, initial, default: def, type, values, captions }) =>{
-    let val = def === undefined ? initial : def
-    if(type === 'choice' && values.indexOf(v=>v === val) === -1){
-      // it is supported for choice to use default value from captions also
-      // but script will need the matching value
-      for(let i=0; i<captions.length; i++){
-        if(captions[i] === val){
-          val = values[i]
-          break;
-        }
-      }
-      if(val === undefined) val = values[0]
-    }
-    params[name] = val
-  })
-  await runMain({ params })
+  await runMain({ params: extractDefaults(def) })
   return {def}
 }
 

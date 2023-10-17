@@ -30,7 +30,7 @@ npm run serve
 
 # using url to load external script and CORS
 
-If you want to share a script from your website you need to setup CORS
+If you want to share a script from your website you need to setup CORS, and make sure to use HTTPS!
 
 For hostings (that are uaually cheap and abundant) on CPanel adding .htaccess to your folder should work.
 ```

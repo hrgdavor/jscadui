@@ -4,8 +4,21 @@ If you want to discuss jscad or jscadui you can also join us on discord: https:/
 # usable bits
 
 Most of the things are work in progres, but some parts are pretty ready to be used
- 
+
 - [packages/html-gizmo](./packages/html-gizmo) - a gizmo to display current camera direction
+
+# demo
+[jscad.app](https://jscad.app) is a nice demo and our attempt at making a an improved version of [openjscad.xyz](https://openjscad.xyz).
+
+
+# Worker
+ - [x] can run folder projects 
+ - [x] can run scripts that pull deps from unkpg by simply using import or require
+ - [x] can run es6 modules code
+ - [x] can run typescript
+ - [x] can run mixed typescript js+require, js+import
+ - [x] worker is preserved, so caching optimizations are possible between parameter changes
+
 
 # About jscadui
 
@@ -15,10 +28,6 @@ A jscad UI playground developed here and meant to be later contributed into jsca
  - allow to be easily used within React, angula, Vue,Solidj ... or whatever is popular at some point.
  - simplify integrating worker 
 
-Worker
- - worker that can work with folder projects 
- - worker for scripts that pull deps from unkpg by simply using import or require
- - worker that also works with es6 modules
 
 
 As proof of concept, the goal is to make UI for jscad development that should be able to visualize the changes in realtime.

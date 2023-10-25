@@ -86,7 +86,11 @@ export const genParams = ({
 
     if (!caption) caption = name
 
-    def.value = initialValues[name] = def.initial || def['default'] || def.checked
+    // Construct the initial value
+    let value = def.initial
+    if (def['default'] !== undefined) value = def['default']
+    if (type == 'checkbox' && def.checked !== undefined) value = def.checked
+    def.value = initialValues[name] = value
     if (storedValues[name] !== undefined) {
       def.value = storedValues[name]
     }

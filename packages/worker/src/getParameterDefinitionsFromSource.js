@@ -3,7 +3,7 @@ import JSON5 from 'json5'
 /* Count leading spaces in a line.
 This helps provide more descriptive comments after the parameter.
 
-When comment is foundm the number of spaces can be compared with previous parameter definition.
+When comment is found the number of spaces can be compared with previous parameter definition.
 When comment line is indented more than parameter(incl. parameter name)
 it is considered as description of previous parameter and not a group definition.
 
@@ -71,7 +71,7 @@ const getParameterDefinitionsFromSource = (script) => {
       if (idx === -1) {
         // also handle case when closing bracket is in same line as last parameter
         //   width=11}
-        // it is not an exhaustive check but covers aditional case to simplify it for users
+        // it is not an exhaustive check but covers additional case to simplify it for users
         const bracketIdx = code.indexOf('}')
         if (bracketIdx !== -1) code = code.substring(0, bracketIdx)
 

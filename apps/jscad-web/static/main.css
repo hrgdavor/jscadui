@@ -144,9 +144,9 @@ input:focus {
 input[type="checkbox"],
 input[type="color"],
 input[type="radio"],
-input[type="range"],
-input[type="radio"] {
+input[type="range"] {
   margin: 0 5px;
+  cursor: pointer;
 }
 p {
   margin-bottom: 10px;
@@ -536,6 +536,12 @@ p {
 }
 #paramsDiv .form-line input[type="range"] {
   flex: 1;
+}
+#paramsDiv .form-line input[type="date"] {
+  cursor: text;
+}
+#paramsDiv .form-line [type="radio"] label {
+  cursor: pointer;
 }
 #paramsDiv .jscad-param-buttons {
   display: none;

@@ -20,14 +20,14 @@ export const getParameterDefinitions = () => [
   { name: 'password', type: 'password', initial: '', caption: 'Password:' },
 
   { name: 'group2', type: 'group', caption: 'Group 2: Interactive Controls' },
-  { name: 'checkbox', type: 'checkbox', checked: true, initial: '20', caption: 'Checkbox:' },
+  { name: 'checkbox', type: 'checkbox', checked: true, caption: 'Checkbox:' },
   { name: 'color', type: 'color', initial: '#8844ee', caption: 'Color:' },
   { name: 'slider', type: 'slider', initial: 5, min: 1, max: 10, step: 1, caption: 'Slider:' },
   { name: 'choice3', type: 'choice', caption: 'Choice:', values: ['No', 'Yes', 'Maybe', 'So so'], initial: 'No' },
   { name: 'choice2', type: 'radio', caption: 'Radio Buttons:', values, captions, initial: 5 },
 
   { name: 'group3', type: 'group', initial: 'closed', caption: 'Group 3: Initially Closed Group' },
-  { name: 'checkbox2', type: 'checkbox', checked: true, initial: '20', caption: 'Optional Checkbox:' }
+  { name: 'checkbox2', type: 'checkbox', checked: false, caption: 'Optional Checkbox:' }
 ]
 
 export const main = (params) => {

@@ -187,8 +187,12 @@ const paramChangeCallback = async params => {
     return
   }
   working = true
-  let result = await sendCmdAndSpin('runMain', { params })
-  working = false
+  let result
+  try{
+    result = await sendCmdAndSpin('runMain', { params })
+  } finally{
+    working = false
+  }
   handlers.entities(result)
   if(lastParams && lastParams != params) paramChangeCallback(lastParams)
 }

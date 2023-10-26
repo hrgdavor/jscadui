@@ -179,10 +179,8 @@ let working
 let lastParams
 const paramChangeCallback = async params => {
   if(!working){
-    console.log('params changed')
     lastParams = null
   }else{
-    console.log('skip')
     lastParams = params
     return
   }
@@ -200,7 +198,6 @@ const paramChangeCallback = async params => {
 const runScript = async ({ script, url = './index.js', base, root }) => {
   loadDefault = false // don't load default model if something else was loaded
   const result = await sendCmdAndSpin('runScript', { script, url, base, root })
-  console.log('result', result)
   genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
   handlers.entities(result)
 }

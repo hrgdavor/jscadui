@@ -1,5 +1,5 @@
 {
-    "extends": "tsconfig/themes.json",
+    "extends": "../tsconfig/themes.json",
     "include": ["."],
     "exclude": ["dist", "build", "node_modules"]
   }

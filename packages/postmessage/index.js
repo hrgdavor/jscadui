@@ -1,7 +1,7 @@
 let seq = 1
 let reqMap = new Map()
 const RESPONSE = '__RESPONSE__'
-const TRANSFERABLE = '__transferable'
+const TRANSFERABLE = Symbol.for('__transferable__')
 
 export const withTransferable = (params,trans)=>{
   params[TRANSFERABLE] = trans

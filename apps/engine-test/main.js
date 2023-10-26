@@ -223,14 +223,17 @@ sendCmdAndSpin('init', {
   })
 })
 
-const paramChangeCallback = params => {
+const paramChangeCallback = async params => {
   console.log('params changed', params)
-  sendCmdAndSpin('runMain', { params })
+  let result = await sendCmdAndSpin('runMain', { params })
+  handlers.entities(result)
 }
 
 const runScript = async ({script, url = './index.js', base, root}) => {
   const result = await sendCmdAndSpin('runScript', { script, url, base, root })
+  console.log('result', result)
   genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
+  handlers.entities(result)
 }
 
 let sw

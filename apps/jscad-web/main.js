@@ -175,15 +175,31 @@ sendCmdAndSpin('init', {
   }
 })
 
-const paramChangeCallback = params => {
-  console.log('params changed', params)
-  sendCmdAndSpin('runMain', { params })
+let working
+let lastParams
+const paramChangeCallback = async params => {
+  if(!working){
+    lastParams = null
+  }else{
+    lastParams = params
+    return
+  }
+  working = true
+  let result
+  try{
+    result = await sendCmdAndSpin('runMain', { params })
+  } finally{
+    working = false
+  }
+  handlers.entities(result)
+  if(lastParams && lastParams != params) paramChangeCallback(lastParams)
 }
 
 const runScript = async ({ script, url = './index.js', base, root }) => {
   loadDefault = false // don't load default model if something else was loaded
   const result = await sendCmdAndSpin('runScript', { script, url, base, root })
   genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
+  handlers.entities(result)
 }
 
 const loadExample = source => {

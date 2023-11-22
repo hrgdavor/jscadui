@@ -3,8 +3,9 @@ import { Blob } from 'buffer'
 import { Zip, ZipDeflate, ZipPassThrough, strToU8 } from 'fflate'
 import { readFileSync, writeFileSync } from 'fs'
 
-import { fileForContentTypes, fileForRelThumbnail, to3dmodel, to3dmodelSimple } from './index.js'
+import { fileForContentTypes, FileForRelThumbnail, to3dmodel, to3dmodelSimple } from './index.js'
 
+const fileForRelThumbnail = new FileForRelThumbnail()
 //#region hardcoded cube data
 let vertices = [
   -1, -1, -1, -1, -1, 1, -1, 1, 1, -1, 1, -1, 1, -1, -1, 1, 1, -1, 1, 1, 1, 1, -1, 1, -1, -1, -1, 1, -1, -1, 1, -1, 1,
@@ -33,14 +34,16 @@ const zip = new Zip(async (err, dat, final) => {
 
 let modelStr = to3dmodelSimple([{ vertices, indices, id: '1' }])
 addToZip(zip, '3D/3dmodel.model', modelStr)
-
-let staticFiles = [fileForContentTypes, fileForRelThumbnail]
-staticFiles.forEach(({ name, content }) => addToZip(zip, name, content))
+fileForRelThumbnail.add3dModel('3D/3dmodel.model')
 
 let thumb = readFileSync('testThumbnail.png')
 const pngPreviewFile = new ZipPassThrough('Metadata/thumbnail.png')
 zip.add(pngPreviewFile)
 pngPreviewFile.push(thumb, true)
+fileForRelThumbnail.addThumbnail('Metadata/thumbnail.png')
+
+let staticFiles = [fileForContentTypes, fileForRelThumbnail]
+staticFiles.forEach(({ name, content }) => addToZip(zip, name, content))
 
 zip.end()
 

@@ -18,7 +18,13 @@ export function pushObjectWithComponents(out, id, children, name) {
   out.push(`</object>\n`)
 }
 
-const addComp = (out, id = 0, matrix = defMatrix) => {
+/**
+ * 
+ * @param {*} out 
+ * @param {*} id - must start with 1, can not be zero by spec 
+ * @param {*} matrix 
+ */
+const addComp = (out, id = 1, matrix = defMatrix) => {
   out.push(
       `    <component objectid="${id}" transform="${matrix2str(matrix)}" />\n`)
 }

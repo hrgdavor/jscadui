@@ -27,3 +27,21 @@ To start the production server run:
 ```
 npm run serve
 ```
+
+# using url to load external script and CORS
+
+If you want to share a script from your website you should setup CORS, and make sure to use HTTPS!
+
+if you do not setup CORS [jscad.app](https://jscad.app) can fallback to `/remote` to download the script, but this workaround  may not be available forever (such enpoint could be abused to hide IP for attacks).
+
+
+For hostings (that are uaually cheap and abundant) on CPanel adding .htaccess to your folder should work.
+```
+<IfModule mod_headers.c>
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Headers "origin, x-requested-with, content-type"
+Header set Access-Control-Allow-Methods "PUT, GET, POST, DELETE, OPTIONS"
+</IfModule>
+```
+
+If you are using github you should be fine, as gists and github pages have those CORS headers.

@@ -8,6 +8,10 @@ Format is defined by openxmlformats.
 
 3mf file is a zip file that you need to produce using a zip library of your choice.
 
+# object ids > 0
+
+lib3mf cannot recognize things with id 0, so it is recommended to not use zero as id
+
 # contents of said zip file
 
 File names (with path) and metadata are hardcoded as it is not important for the purpose of exporting a model.

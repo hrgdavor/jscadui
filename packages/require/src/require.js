@@ -24,7 +24,7 @@ export const runModule = (typeof self === 'undefined' ? eval : self.eval)(
   '(require, exports, module, source)=>eval(source)',
 )
 
-export const require = (urlOrSource, transform, readFile, base, root, moduleBase = MODULE_BASE) => {
+export const require = (urlOrSource, transform, readFile, base, root, importData = null, moduleBase = MODULE_BASE) => {
   let source
   let url
   let isRelativeFile
@@ -46,6 +46,12 @@ export const require = (urlOrSource, transform, readFile, base, root, moduleBase
     const aliasedUrl = bundleAlias || requireCache.alias[url] || url
 
     const resolved = resolveUrl(aliasedUrl, base, root, moduleBase)
+    const resolvedStr = resolved.url.toString()
+    const isJs = resolvedStr.endsWith('.ts') || resolvedStr.endsWith('.js')
+    if(!isJs && importData){
+      return importData(resolvedStr, readFile, base, root, moduleBase)
+    }
+
     isRelativeFile = resolved.isRelativeFile
     resolvedUrl = resolved.url
     cacheUrl = resolved.url
@@ -90,7 +96,7 @@ export const require = (urlOrSource, transform, readFile, base, root, moduleBase
       // do not transform bundles that are already cjs ( requireCache.bundleAlias.*)
       if (transform && !bundleAlias) source = transform(source, resolvedUrl).code
       // construct require function relative to resolvedUrl
-      let requireFunc = newUrl => require(newUrl, transform, readFile, resolvedUrl, root, moduleBase)
+      let requireFunc = newUrl => require(newUrl, transform, readFile, resolvedUrl, root, importData, moduleBase)
       const module = requireModule(url, resolvedUrl, source, requireFunc)
       module.local = isRelativeFile
       exports = module.exports

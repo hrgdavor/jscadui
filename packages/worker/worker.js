@@ -12,6 +12,7 @@ let transformFunc = x => x
 let client
 let globalBase = location.origin
 let userInstances
+let importData
 
 export const flatten = arr=>{
   const doFlatten = (_in, out)=>{
@@ -72,11 +73,10 @@ const exportReg = /export.*from/
 const runScript = async ({ script, url, base=globalBase, root=base }) => {
   if(!script) script = readFileWeb(resolveUrl(url, base, root).url)
 
-  console.log('{ script, url, base, root }', { script, url, base, root })
   const shouldTransform = url.endsWith('.ts') || script.includes('import') && (importReg.test(script) || exportReg.test(script))
   let def = []
-
-  const scriptModule = require({url,script}, shouldTransform ? transformFunc : undefined, readFileWeb, base, root)
+  
+  const scriptModule = require({url,script}, shouldTransform ? transformFunc : undefined, readFileWeb, base, root, importData)
   const fromSource = getParameterDefinitionsFromSource(script)
   def = combineParameterDefinitions(fromSource, await scriptModule.getParameterDefinitions?.())
   main = scriptModule.main
@@ -108,9 +108,10 @@ export const currentSolids = ()=>solids
 
 const handlers = { runScript, init, runMain, clearTempCache, clearFileCache, exportData }
 
-export const initWorker = (transform, exportData) => {
+export const initWorker = (transform, exportData, _importData) => {
   if (transform) transformFunc = transform
   if(exportData) handlers.exportData = exportData
+  importData = _importData
 
   client = initMessaging(self, handlers)
 }

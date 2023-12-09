@@ -10,6 +10,7 @@
 - typescript import must use .js (it is a bit strange, but probably has good reasons)
 */
 
+import { extractPathInfo } from '../../fs-provider/fs-provider'
 import { MODULE_BASE, getExtension, resolveUrl } from './resolveUrl'
 
 export { resolveUrl } from './resolveUrl'
@@ -49,7 +50,9 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
     const resolvedStr = resolved.url.toString()
     const isJs = resolvedStr.endsWith('.ts') || resolvedStr.endsWith('.js')
     if(!isJs && importData){
-      return importData(resolvedStr, readFile, base, root, moduleBase)
+      const info = extractPathInfo(resolvedStr)
+      let content = readFile(resolvedStr,{output: importData.isBinaryExt(info.ext)})
+      return importData.deserialize(info, content)
     }
 
     isRelativeFile = resolved.isRelativeFile

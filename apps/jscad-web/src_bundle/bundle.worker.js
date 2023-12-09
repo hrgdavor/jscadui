@@ -29,21 +29,19 @@ const exportData = ({format, options={}})=>{
   return withTransferable({ data }, data.filter(v=>typeof v !== 'string'))
 }
 
-const importData = (url, readFile, base, root, moduleBase)=>{
-  try {    
-    const jscad_io = require('./bundle.jscad_io.js', null, readFileWeb)
-    let idx = url.lastIndexOf('/')
-    let filename = url.substring(idx+1)
-    idx = filename.lastIndexOf('.')
-    let ext = filename.substring(idx+1)
-    let deserializer = jscad_io.deserializers[ext]
-    let file = readFile(url,{output:ext === 'stl' ? 'bin':'text'})
+const importData = {
+  isBinaryExt: ext=>ext === 'stl' ? 'bin':'text',
+  deserialize: ({url, filename, ext}, fileContent)=>{
+    try {
+      const jscad_io = require('./bundle.jscad_io.js', null, readFileWeb)
+      let deserializer = jscad_io.deserializers[ext]
 
-    if(deserializer) return deserializer({output:'geometry', filename}, file)
-    throw new Error('unsupportd format in '+url)
-  } catch (error) {
-    console.error(error)
-    throw error
+      if(deserializer) return deserializer({output:'geometry', filename}, fileContent)
+      throw new Error('unsupportd format in '+url)
+    } catch (error) {
+      console.error(error)
+      throw error
+    }
   }
 }
 

@@ -20,7 +20,13 @@ export * from './src/FileEntry.js'
  * @returns {Array<string>}
  */
 export const splitPath = path => (typeof path === 'string' ? path.split('/').filter(p => p && p !== '.') : path)
-
+export function extractPathInfo(url){
+  let idx = url.lastIndexOf('/')
+  let filename = url.substring(idx+1)
+  idx = filename.lastIndexOf('.')
+  let ext = filename.substring(idx+1)
+  return {url, filename, ext}
+}
 export const getFile = async (path, sw) => {
   let arr = splitPath(path)
   let match = await findFileInRoots(sw.roots, arr)
@@ -233,7 +239,6 @@ export async function fileDropped(sw, files) {
   let time = Date.now()
   const preLoad = ['/' + sw.fileToRun, '/package.json']
   const loaded = await addPreLoadAll(sw, preLoad, true)
-  console.log(Date.now() - time, 'preload', loaded)
 
   sw.projectName = sw.defProjectName
   if (sw.fileToRun !== 'index.js') sw.projectName = sw.fileToRun.replace(/\.js$/, '')

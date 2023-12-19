@@ -5,6 +5,7 @@ import { clearFileCache, clearTempCache, readFileWeb, require, requireCache, res
 import { exportStlText } from './src/exportStlText.js'
 import { combineParameterDefinitions, getParameterDefinitionsFromSource } from './src/getParameterDefinitionsFromSource.js'
 import { extractDefaults } from './src/extractDefaults.js'
+import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/fs-provider.js'
 
 let main
 self.JSCAD_WORKER_ENV = {}
@@ -41,8 +42,22 @@ export const init = params => {
   userInstances = params.userInstances
 }
 
+async function readFileFile(file, {bin=false}={}){
+  if(bin) return await readAsArrayBuffer(file)
+  else return readAsText(file)
+}
+
 solids = []
 export async function runMain({ params } = {}) {
+  params = {...params}
+  for(let p in params){
+    if(params[p] instanceof File && importData){
+      const info = extractPathInfo(params[p].name)
+      let content = await readFileFile(params[p],{bin: importData.isBinaryExt(info.ext)})
+      params[p] = importData.deserialize(info, content)
+    }
+  }
+  console.log('runMain', params)
   let entities = []
   const transferable = []
 

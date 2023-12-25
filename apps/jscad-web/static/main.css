@@ -469,6 +469,10 @@ p {
 #paramsDiv button {
   margin-right: 2px;
 }
+#paramsDiv select {
+  font-size: 10pt;
+  padding: 2px 4px;
+}
 #paramsDiv .form-line {
   min-width: 260px;
   display: flex;
@@ -645,6 +649,13 @@ p {
   }
 }
 /* Mobile */
+@media (max-height: 480px) {
+  #welcome {
+    top: 20px;
+    bottom: 20px;
+    overflow-y: auto;
+  }
+}
 @media (max-width: 767px) {
   #welcome {
     width: 90%;

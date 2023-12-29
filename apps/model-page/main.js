@@ -15,7 +15,6 @@ let sceneEntities = []
 let viewer
 
 export const byId = id => id?.nodeType !== undefined ? id:document.getElementById(id)
-Gizmo.define()
 
 const gizmo = (window.gizmo = new Gizmo())
 byId('layout').appendChild(gizmo)

@@ -1,5 +1,5 @@
 import { Gizmo } from './index.js'
-
+// this is required to register the jscadui-gizmo web component
 Gizmo.define()
 
 const rotateGizmos = () => {

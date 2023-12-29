@@ -7,8 +7,6 @@ import { Gizmo } from '@jscadui/html-gizmo'
 
 import style from "./main.css";
 
-Gizmo.define()
-
 window.THREE = THREE // just so we can play with and inspect THREE in browser console
 const defaultCamera = { position: [180, -180, 220], target: [0, 0, 0] }
 const root = document.getElementById('root')

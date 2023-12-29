@@ -17,8 +17,6 @@ import * as welcome from './src/welcome.js'
 export const byId = id => document.getElementById(id)
 const toUrl = path => new URL(path, document.baseURI).toString()
 
-Gizmo.define()
-
 const viewState = new ViewState()
 
 const gizmo = (window.gizmo = new Gizmo())

@@ -17,11 +17,21 @@ const makeSide = (names, name, ...parts) => {
   return out.join('')
 }
 
+/** 
+ * If using in HTML as tag <jscadui-gizmo/> you must call the static method Gizmo.define().
+ * 
+ * If creating from code via new Gizmo() static initializer will be triggered automatically.
+ * 
+ */
 export class Gizmo extends HTMLElement {
-  // nice pattern to define cutom element found on https://webcomponents.guide
-  static define(tag = "jscadui-gizmo") {
-    customElements.define(tag, this)
+  static {
+    // auto define
+    customElements.define('jscadui-gizmo', this)
   }
+  /** Empty method that can be called to trigger static initializer, that will then
+   * trigger customElements.define('jscadui-gizmo', this)
+   */
+  static define() {}
   #root
   #first
   names

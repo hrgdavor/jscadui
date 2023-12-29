@@ -17,7 +17,7 @@ npm i --save-dev @jscadui/html-gizmo
 
 ## Use
 
-You need to import the gizmo and register custom html element so you can decide the html tag name.
+You need to import the gizmo and register custom html element `jscadui-gizmo`.
 
 ```js
 import { Gizmo } from '@jscadui/html-gizmo'
@@ -35,7 +35,7 @@ Gizmo.define()
 </script>
 ```
 
- or you can add the gizmo in JS
+or you can add the gizmo in JS
 
 ```js
 <div class="myContent" id="myContent">
@@ -46,6 +46,10 @@ Gizmo.define()
         myContent.appendChild(gizmo)
 </script>
 ```
+
+NOTICE!: if you are only creating the gizmo vi JS you do not need to call `Gizmo.define()`, as it will be automaticall 
+called during class static initialization
+
 
 ## Styling
 

@@ -17,6 +17,7 @@
     "@jscadui/fs-provider": "*",
     "@jscadui/fs-serviceworker": "*",
     "@jscadui/html-gizmo": "*",
+    "@jscadui/orbit": "^0.1.0",
     "@jscadui/params": "*",
     "@jscadui/postmessage": "*",
     "@jscadui/render-threejs": "*",

@@ -52,7 +52,8 @@ async function initFs() {
     file.then(() => editor.setFiles(sw.filesToCheck))
     return file
   }
-  sw = await registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/', getFileWrapper)
+  let scope = document.location.pathname
+  sw = await registerServiceWorker(`bundle.fs-serviceworker.js?prefix=${scope}swfs/`, getFileWrapper, {scope, prefix:scope+'swfs/'})
   sw.defProjectName = 'jscad'
   sw.onfileschange = files => {
     sendNotify('clearFileCache', { files })

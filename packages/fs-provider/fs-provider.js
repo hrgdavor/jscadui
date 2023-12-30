@@ -3,29 +3,28 @@ import { initMessaging } from '@jscadui/postmessage'
 import { entryCheckPromise, filePromise, fileToFsEntry, readDir } from './src/FileEntry.js'
 import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
 
-/** 
+/**
  * @typedef {Cache}
- * 
+ *
  * @typedef {SwHandler}
- * @prop {Cache} cache 
- * 
+ * @prop {Cache} cache
+ *
  */
 
 export * from './src/FileReader.js'
 export * from './src/FileEntry.js'
 
-
 /**
- * @param {string} path 
+ * @param {string} path
  * @returns {Array<string>}
  */
 export const splitPath = path => (typeof path === 'string' ? path.split('/').filter(p => p && p !== '.') : path)
-export function extractPathInfo(url){
+export function extractPathInfo(url) {
   let idx = url.lastIndexOf('/')
-  let filename = url.substring(idx+1)
+  let filename = url.substring(idx + 1)
   idx = filename.lastIndexOf('.')
-  let ext = filename.substring(idx+1)
-  return {url, filename, ext}
+  let ext = filename.substring(idx + 1)
+  return { url, filename, ext }
 }
 export const getFile = async (path, sw) => {
   let arr = splitPath(path)
@@ -39,10 +38,10 @@ export const getFile = async (path, sw) => {
 /** add path to cache, with content that can be anything that response allows
  * https://developer.mozilla.org/en-US/docs/Web/API/Response/Response
  *
- * 
- * @param {Cache} cache 
- * @param {string} path 
- * @param {Blob|ArrayBuffer|TypedArray|DataView|FormData|ReadableStream|URLSearchParams|string} content 
+ *
+ * @param {Cache} cache
+ * @param {string} path
+ * @param {Blob|ArrayBuffer|TypedArray|DataView|FormData|ReadableStream|URLSearchParams|string} content
  * @returns {Promise<undefined>}
  */
 export const addToCache = async (cache, path, content) => cache.put(new Request(path), new Response(content))
@@ -68,17 +67,21 @@ export const addPreLoad = async (sw, path, ignoreMissing) => {
 }
 
 /**
- * 
- * @param {*} workerScript 
- * @param {*} _getFile 
- * @param {*} param2 
+ *
+ * @param {*} workerScript
+ * @param {*} _getFile
+ * @param {*} param2
  * @returns {SwHandler}
  */
-export const registerServiceWorker = async (workerScript, _getFile = getFile, { prefix = '/swfs/' } = {}) => {
+export const registerServiceWorker = async (
+  workerScript,
+  _getFile = getFile,
+  { prefix = '/swfs/', scope = '/' } = {},
+) => {
   if ('serviceWorker' in navigator) {
     try {
       let registration = await navigator.serviceWorker.register(workerScript, {
-        scope: '/',
+        scope,
       })
       for (let i = 1; i <= 10; i++) {
         if (registration.active) break
@@ -105,7 +108,7 @@ export const registerServiceWorker = async (workerScript, _getFile = getFile, { 
 
     // id is important as we use it to name the temporary cache instance
     // for now we use fetch to extract our id, but a better way could be found later
-    const id = await fetch(prefix + 'init').then((res) => {
+    const id = await fetch(prefix + 'init').then(res => {
       if (!res.ok) {
         throw new Error('failed to start service worker')
       }
@@ -119,9 +122,9 @@ export const registerServiceWorker = async (workerScript, _getFile = getFile, { 
     sw.defProjectName = 'project'
     sw.filesToCheck = []
     sw.lastCheck = Date.now()
-    sw.base = new URL(`/swfs/${sw.id}/`, document.baseURI).toString()
+    sw.base = new URL(`${prefix}${sw.id}/`, document.baseURI).toString()
     checkFiles(sw)
-  
+
     return sw
   } else {
     throw new Error('service worker unavailable')
@@ -135,7 +138,7 @@ export const clearFs = async sw => {
 }
 
 export const clearCache = async cache => {
-  (await cache.keys()).forEach(key => cache.delete(key))
+  ;(await cache.keys()).forEach(key => cache.delete(key))
 }
 
 export const extractEntries = dt => {
@@ -187,7 +190,7 @@ export const loadDir = async dir => {
   return dir.children || []
 }
 
-export const checkFiles = (sw) => {
+export const checkFiles = sw => {
   const now = Date.now()
   if (now - sw.lastCheck > 300 && sw.filesToCheck.length != 0) {
     sw.lastCheck = now
@@ -209,7 +212,7 @@ export const checkFiles = (sw) => {
     // TODO clear sw cache
     // TODO sendCmd clearFileCache {files}
   }
-  requestAnimationFrame(()=>checkFiles(sw))
+  requestAnimationFrame(() => checkFiles(sw))
 }
 
 export async function fileDropped(sw, files) {
@@ -243,7 +246,7 @@ export async function fileDropped(sw, files) {
   sw.projectName = sw.defProjectName
   if (sw.fileToRun !== 'index.js') sw.projectName = sw.fileToRun.replace(/\.js$/, '')
   if (folderName) sw.projectName = folderName
-  
+
   let script = ''
   if (sw.fileToRun) {
     sw.fileToRun = `/${sw.fileToRun}`
@@ -255,7 +258,7 @@ export async function fileDropped(sw, files) {
       throw new Error(`main file not found ${sw.fileToRun}`)
     }
   }
-  return {alias, script}
+  return { alias, script }
 }
 
 /**
@@ -265,7 +268,7 @@ export async function fileDropped(sw, files) {
  * @param {SwHandler} sw
  * @returns {Array}
  */
-const getWorkspaceAliases = async (sw) => {
+const getWorkspaceAliases = async sw => {
   const alias = []
   let pkgFile = await findFileInRoots(sw.roots, 'package.json')
   if (pkgFile) {

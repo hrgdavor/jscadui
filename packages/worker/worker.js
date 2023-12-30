@@ -86,6 +86,7 @@ const importReg = /import(?:(?:(?:[ \n\t]+([^ *\n\t\{\},]+)[ \n\t]*(?:,|[ \n\t]+
 const exportReg = /export.*from/
 
 const runScript = async ({ script, url, base=globalBase, root=base }) => {
+  console.log('run script with base:', base)
   if(!script) script = readFileWeb(resolveUrl(url, base, root).url)
 
   const shouldTransform = url.endsWith('.ts') || script.includes('import') && (importReg.test(script) || exportReg.test(script))

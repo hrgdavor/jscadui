@@ -15,7 +15,9 @@ import { ViewState } from './src/viewState.js'
 import * as welcome from './src/welcome.js'
 
 export const byId = id => document.getElementById(id)
-const toUrl = path => new URL(path, document.baseURI).toString()
+const appBase = document.baseURI
+let currentBase = appBase
+const toUrl = path => new URL(path, appBase).toString()
 
 const viewState = new ViewState()
 
@@ -193,16 +195,17 @@ const paramChangeCallback = async params => {
   if(lastParams && lastParams != params) paramChangeCallback(lastParams)
 }
 
-const runScript = async ({ script, url = './index.js', base, root }) => {
+const runScript = async ({ script, url = './index.js', base = currentBase, root }) => {
+  currentBase = base
   loadDefault = false // don't load default model if something else was loaded
   const result = await sendCmdAndSpin('runScript', { script, url, base, root })
   genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
   handlers.entities(result)
 }
 
-const loadExample = source => {
+const loadExample = (source, base=appBase) => {
   editor.setSource(source)
-  runScript({ script: source })
+  runScript({ script: source, base })
 }
 
 // Initialize three engine

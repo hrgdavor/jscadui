@@ -2,7 +2,7 @@ import { examples } from './examples.js'
 
 const menu = document.getElementById('menu')
 
-export const init = (loadExample) => {
+export const init = loadExample => {
   const button = document.getElementById('menu-button')
   const content = document.getElementById('menu-content')
 
@@ -12,7 +12,7 @@ export const init = (loadExample) => {
   })
 
   // Close menu when anything else is clicked
-  window.addEventListener('click', (e) => {
+  window.addEventListener('click', e => {
     if (!button.contains(e.target) && !content.contains(e.target)) {
       dismiss()
     }
@@ -28,7 +28,7 @@ export const init = (loadExample) => {
     a.innerText = name
     a.addEventListener('click', async () => {
       console.log(`load example ${name}`)
-      loadExample(await (await fetch(source)).text())
+      loadExample(await (await fetch(source)).text(), new URL(source, document.baseURI).toString())
     })
     const li = document.createElement('li')
     li.appendChild(a)

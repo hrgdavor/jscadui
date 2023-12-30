@@ -11,8 +11,8 @@ let compileFn
 
 // file selector
 let currentFile = '/index.js'
-const editorNav = document.getElementById('editor-nav')
-const editorFile = document.getElementById('editor-file')
+let editorNav
+let editorFile
 
 const compile = (code, path) => {
   if (compileFn) {
@@ -23,6 +23,12 @@ const compile = (code, path) => {
 }
 
 export const init = (defaultCode, fn) => {
+  // by calling document.getElementById here instead outside of init we allow the flow
+  // where javascript is included in the page before the tempalte is loaded into the DOM
+  // it was causing issue to users trying to replicate the app in Vue, and would likely some others too
+  editorNav = document.getElementById('editor-nav')
+  editorFile = document.getElementById('editor-file')
+
   compileFn = fn
   // Initialize codemirror
   const editorDiv = document.getElementById('editor-container')

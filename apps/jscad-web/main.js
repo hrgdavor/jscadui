@@ -225,10 +225,10 @@ editor.init(defaultCode, async (script, path) => {
 })
 menu.init(loadExample)
 welcome.init()
-remote.init((script) => {
+remote.init((script, url) => {
   // run remote script
   editor.setSource(script)
-  runScript({ script })
+  runScript({ script, base:url })
   welcome.dismiss()
 }, (err) => {
   // show remote script error

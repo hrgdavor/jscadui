@@ -1,0 +1,24 @@
+{
+  "name": "vue3-jscad",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@jscadui/fs-provider": "^0.1.0",
+    "@jscadui/html-gizmo": "^0.1.0",
+    "@jscadui/orbit": "^0.1.0",
+    "@jscadui/params": "^0.1.0",
+    "@jscadui/postmessage": "^0.1.0",
+    "vue": "^3.3.11"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.5.2",
+    "sass": "^1.69.6",
+    "vite": "^5.0.10"
+  }
+}

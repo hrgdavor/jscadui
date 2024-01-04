@@ -2,7 +2,7 @@
   "type":"module",
   "sideEffects": false,
   "name": "@jscadui/html-gizmo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "JSCAD html gizmo controls",
   "main": "index.js",
   "unpkg": "cjs/index.js",

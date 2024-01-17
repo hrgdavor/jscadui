@@ -9,6 +9,7 @@ export const examples = [
   { name: 'Slicer', source: './examples/slicer.example.js' },
   { name: 'Balloons', source: './examples/balloons.example.js' },
   { name: 'Parameter Types', source: './examples/parameters.example.js' },
+  { name: 'Multipart project', source: './examples/multipart.project.template.js' },
   { name: 'Import AMF', source: './examples/AMFImport/index.js' },
   { name: 'Import STL', source: './examples/STLImport/index.js' },
   { name: 'Import SVG', source: './examples/SVGImport/index.js' },

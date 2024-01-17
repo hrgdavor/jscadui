@@ -1,3 +1,8 @@
+import {decode} from 'base64-arraybuffer'
+import * as fflate from 'fflate'
+
+const gzipPrefix = 'data:application/gzip;base64,'
+
 export const init = (compileFn, setError) => {
   const load = loadFromUrl(compileFn, setError)
   load() // on load
@@ -23,9 +28,15 @@ export const loadFromUrl = (compileFn, setError) => async () => {
 
 /**
  * Try to fetch a url directly, but if that fails (due to CORS)
- * then fallback to fetching via server proxy
+ * then fallback to fetching via server proxy.
  */
 const fetchUrl = async (url) => {
+  if(url.startsWith(gzipPrefix)){
+    const bytes = decode(url.substring(gzipPrefix.length))
+    const dec = fflate.gunzipSync(new Uint8Array(bytes))
+    return new TextDecoder("utf-8").decode(dec)
+  }
+
   // Try to fetch url directly
   const res = await fetch(url).catch(() => {
     // Failed to fetch directly, try proxy

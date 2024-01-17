@@ -96,6 +96,8 @@ const runScript = async ({ script, url, base=globalBase, root=base }) => {
   const fromSource = getParameterDefinitionsFromSource(script)
   def = combineParameterDefinitions(fromSource, await scriptModule.getParameterDefinitions?.())
   main = scriptModule.main
+  // if the main function is the default export
+  if(!main && typeof scriptModule == 'function') main = scriptModule
   let out = await runMain({ params: extractDefaults(def) })
   out.def = def
   return out

@@ -45,3 +45,10 @@ Header set Access-Control-Allow-Methods "PUT, GET, POST, DELETE, OPTIONS"
 ```
 
 If you are using github you should be fine, as gists and github pages have those CORS headers.
+
+# using github gists to share scripts
+
+- To reference latest version, no commit hash should be in URL:
+- max-age=300 for raw gist cannot be lowered
+- publish change, wait for 5 minutes before sharing with ppls that gist was changed
+

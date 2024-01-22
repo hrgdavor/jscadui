@@ -46,6 +46,22 @@ Header set Access-Control-Allow-Methods "PUT, GET, POST, DELETE, OPTIONS"
 
 If you are using github you should be fine, as gists and github pages have those CORS headers.
 
+# using data url
+
+you can use data url to pack the script into the url
+
+- [example](https://jscad.app/#data:application/javascript;base64,bW9kdWxlLmV4cG9ydHM9ZnVuY3Rpb24gbWFpbigpe3JldHVybiByZXF1aXJlKCdAanNjYWQvbW9kZWxpbmcnKS5wcmltaXRpdmVzLnNwaGVyZSh7cmFkaXVzOiA0MH0pfQ==)
+
+*NOTICE: utf8 encoding is assumed when converting bytes to string*
+
+# using data url and gzip
+
+you can also use gzip to minimize the length of the url.
+
+- [example](https://jscad.app/#data:application/gzip;base64,H4sICN1FqGUAA3Rlc3QADcrBDkAwDADQu6/YjV3GxUUi8SuLFRXrpl1FIv6dd34xBT3AwZ0TFxkXpblgIhM9UmMfhqJMhuFUZGjqaZfZhzamAAfSWluXGSMWvECc5A3+9LAPqDKYvnvtW33S8ZutYgAAAA==)
+
+*NOTICE: utf8 encoding is assumed when converting bytes to string*
+
 # using github gists to share scripts
 
 - To reference latest version, no commit hash should be in URL:

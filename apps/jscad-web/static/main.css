@@ -470,7 +470,9 @@ p {
   margin-right: 2px;
 }
 #paramsDiv select {
+  border-radius: 3px;
   font-size: 10pt;
+  min-width: 60px;
   padding: 2px 4px;
 }
 #paramsDiv .form-line {

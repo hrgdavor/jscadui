@@ -3,7 +3,7 @@
  * @authors Joost Nieuwenhuijse, Simon Clark
  */
 
-import * as jscad from '@jscad/modeling'
+const jscad = require('@jscad/modeling')
 const { cylinder, polygon } = jscad.primitives
 const { rotateZ } = jscad.transforms
 const { extrudeLinear } = jscad.extrusions
@@ -12,7 +12,7 @@ const { vec2 } = jscad.maths
 const { degToRad } = jscad.utils
 
 // Here we define the user editable parameters:
-export const getParameterDefinitions = () => [
+const getParameterDefinitions = () => [
   { name: 'numTeeth', caption: 'Number of teeth:', type: 'int', initial: 10, min: 5, max: 20 },
   { name: 'circularPitch', caption: 'Circular pitch:', type: 'float', initial: 5 },
   { name: 'pressureAngle', caption: 'Pressure angle:', type: 'float', initial: 20 },
@@ -22,7 +22,7 @@ export const getParameterDefinitions = () => [
 ]
 
 // Main entry point; here we construct our solid:
-export const main = (params) => {
+const main = (params) => {
   let gear = involuteGear(
     params.numTeeth,
     params.circularPitch,
@@ -125,3 +125,5 @@ const involuteGear = (numTeeth, circularPitch, pressureAngle, clearance, thickne
 
   return union(rootcircle, allTeeth)
 }
+
+module.exports = { main, getParameterDefinitions }

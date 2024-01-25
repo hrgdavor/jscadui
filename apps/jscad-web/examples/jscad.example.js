@@ -1,9 +1,9 @@
-import * as jscad from '@jscad/modeling'
+const jscad = require('@jscad/modeling')
 const { intersect, subtract } = jscad.booleans
 const { colorize } = jscad.colors
 const { cube, sphere } = jscad.primitives
 
-export const main = () => {
+function main() {
   const outer = subtract(
     cube({ size: 10 }),
     sphere({ radius: 6.8 })
@@ -17,3 +17,5 @@ export const main = () => {
     colorize([0.7, 0.7, 0.1], inner),
   ]
 }
+
+module.exports = { main }

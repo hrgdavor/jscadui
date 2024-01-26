@@ -25,7 +25,7 @@ export function CommonToThree({
   materials.lines = materials.line
   materials.instance = materials.mesh // todo support instances for lines
 
-  function _CSG2Three(obj, { smooth = true }) {
+  function _CSG2Three(obj, { smooth = false }) {
     const { vertices, indices, normals, color, colors, isTransparent = false, opacity } = obj
     let { transforms } = obj
     const objType = obj.type || 'mesh'

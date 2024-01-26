@@ -24,6 +24,7 @@ export function RenderThreejs({
   let _camera
   let controls
   let renderer
+  let smooth
   const SHADOW = false
   const shouldRender = Date.now()
   const lastRender = true
@@ -98,6 +99,10 @@ export function RenderThreejs({
   function setBg(bg = [1, 1, 1]) {
     _scene.background = new Color(...bg)
     updateView()
+  }
+
+  function setSmooth(v){
+    smooth = v
   }
 
   function setMeshColor(bg = [1, 1, 1]) {
@@ -193,7 +198,8 @@ export function RenderThreejs({
     }
   }
 
-  function setScene(scene) {
+  function setScene(scene,{smooth}={}) {
+    console.warn('options', {smooth})
     groups.forEach(group => {
       _scene.remove(group)
     })
@@ -205,7 +211,7 @@ export function RenderThreejs({
       const group = new Group()
       groups.push(group)
       item.items.forEach(obj => {
-        const obj3d = csgConvert(obj, scene, meshColor)
+        const obj3d = csgConvert(obj, { smooth, scene, meshColor})
         if (obj3d) {
           entities.push(obj3d)
           group.add(obj3d)

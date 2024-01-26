@@ -5,7 +5,7 @@ import liveServer from 'live-server'
 import { buildBundle, buildOne } from './src_build/esbuildUtil.js'
 
 // *************** read parameters **********************
-const { dev, port = 5120 } = parseArgs()
+const { dev, port = 5121 } = parseArgs()
 const watch = dev
 const outDir = dev ? 'build_dev' : 'build'
 

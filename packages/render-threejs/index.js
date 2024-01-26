@@ -46,7 +46,7 @@ export function RenderThreejs({
     Color,
   })
 
-  const startRenderer = ({ canvas, cameraPosition = [180, -180, 220], cameraTarget = [0, 0, 0], bg = [1, 1, 1], lightPosition =[0,200,200]}) => {
+  const startRenderer = ({ canvas, cameraPosition = [180, -180, 220], cameraTarget = [0, 0, 0], bg = [1, 1, 1], lightPosition}) => {
     _camera = new PerspectiveCamera(45, 1, 1, 50000)
     _camera.up.set(0, 0, 1)
     _camera.position.set(...cameraPosition)
@@ -56,7 +56,7 @@ export function RenderThreejs({
     window.updateView = updateView
 
     _scene = new Scene()
-    //lightPosition = null
+    lightPosition = null
     const ambientLight = new AmbientLight(0xeeeeee, lightPosition ? 0.2 : 0.5)
     _scene.add(ambientLight)
 
@@ -65,7 +65,6 @@ export function RenderThreejs({
     if(lightPosition) _scene.add(hemiLight)
 
     const directionalLight = new DirectionalLight(0xeeeef4, 0.7)
-    if(lightPosition) directionalLight.position.set(...lightPosition)
     directionalLight.castShadow = SHADOW
     if (SHADOW) {
       directionalLight.shadow.camera.top = 180
@@ -73,10 +72,15 @@ export function RenderThreejs({
       directionalLight.shadow.camera.left = -120
       directionalLight.shadow.camera.right = 120
     }
-    if(!lightPosition){
+    if(lightPosition){
+      directionalLight.position.set(...lightPosition)
+      _scene.add(directionalLight)
+    }else{
+      // set pos relative to camera
+      directionalLight.position.set(50,0,100)
       _camera.add(directionalLight)
+      _scene.add(_camera)
     }
-    _scene.add( lightPosition ? directionalLight : _camera)
     setBg(bg)
 
     renderer = new WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, canvas })

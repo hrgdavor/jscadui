@@ -215,6 +215,8 @@ engine.init().then(viewer => {
   viewState.setEngine(viewer)
 })
 
+const saveMap = {}
+
 editor.init(defaultCode, async (script, path) => {
   if (sw && sw.fileToRun) {
     await addToCache(sw.cache, path, script)
@@ -227,6 +229,29 @@ editor.init(defaultCode, async (script, path) => {
   } else {
     runScript({ script })
   }
+},async (script, path) => {
+  console.log('save file', path)
+  let fileHandle = saveMap[path]
+  if(!fileHandle){
+    const opts = {
+      excludeAcceptAllOption: true,
+      types: [
+        {
+          description: "Javascript",
+          accept: { "application/javascript": [".js"] },
+        },
+      ],
+    }
+    saveMap[path] = fileHandle = await globalThis.showSaveFilePicker?.(opts)
+  }
+  if(fileHandle){
+    saveMap[path] = fileHandle
+    const writable = await fileHandle.createWritable()
+    await writable.write(script)
+    await writable.close()
+    console.log('fileHandle', fileHandle)
+  }
+
 })
 menu.init(loadExample)
 welcome.init()

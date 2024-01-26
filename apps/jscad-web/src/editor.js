@@ -8,6 +8,7 @@ import * as drawer from './drawer.js'
 let view
 
 let compileFn
+let saveFn
 
 // file selector
 let currentFile = '/index.js'
@@ -22,7 +23,12 @@ const compile = (code, path) => {
   }
 }
 
-export const init = (defaultCode, fn) => {
+const save = (code, path) => {
+  compileFn(code, path)
+  saveFn(code, path)
+}
+
+export const init = (defaultCode, fn, _saveFn) => {
   // by calling document.getElementById here instead outside of init we allow the flow
   // where javascript is included in the page before the tempalte is loaded into the DOM
   // it was causing issue to users trying to replicate the app in Vue, and would likely some others too
@@ -30,6 +36,7 @@ export const init = (defaultCode, fn) => {
   editorFile = document.getElementById('editor-file')
 
   compileFn = fn
+  saveFn = _saveFn
   // Initialize codemirror
   const editorDiv = document.getElementById('editor-container')
   view = new EditorView({
@@ -44,7 +51,7 @@ export const init = (defaultCode, fn) => {
         },
         {
           key: 'Mod-s',
-          run: () => compile(view.state.doc.toString(), currentFile),
+          run: () => save(view.state.doc.toString(), currentFile),
           preventDefault: true,
         },
         ...defaultKeymap,

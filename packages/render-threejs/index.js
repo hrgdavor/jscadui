@@ -44,6 +44,7 @@ export function RenderThreejs({
     Line,
     LineSegments,
     Color,
+    Vector3,
   })
 
   const startRenderer = ({ canvas, cameraPosition = [180, -180, 220], cameraTarget = [0, 0, 0], bg = [1, 1, 1], lightPosition}) => {

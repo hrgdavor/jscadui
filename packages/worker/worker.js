@@ -57,28 +57,21 @@ export async function runMain({ params } = {}) {
       params[p] = importData.deserialize(info, content)
     }
   }
-  console.log('runMain', params)
+  console.log('runMain with params', params)
   let entities = []
   const transferable = []
 
   if (!main) throw new Error('no main function exported')
 
-  let time = Date.now()
+  let time = performance.now()
   solids = flatten(await main(params || {}))
-  // if (!(solids instanceof Array)) {
-  //   solids = [solids]
-  // } else {
-  //   solids = flatten(solids)
-  // }
-  const solidsTime = Date.now() - time
+  const mainTime = performance.now() - time
 
-  time = Date.now()
+  time = performance.now()
   JscadToCommon.clearCache()
   entities = JscadToCommon.prepare(solids, transferable, userInstances)
   entities = entities.all
-  // entities = [...entities.lines, ...entities.line, ...entities.instance]
-  //  client.sendNotify('entities', { entities, solidsTime, entitiesTime: Date.now() - time }, transferable)
-  return withTransferable({entities}, transferable)
+  return withTransferable({entities, mainTime, convertTime: performance.now() - time}, transferable)
 }
 
 // https://stackoverflow.com/questions/52086611/regex-for-matching-js-import-statements

@@ -133,9 +133,10 @@ const exportModel = async (format, extension) => {
 
 const worker = new Worker('./build/bundle.worker.js')
 const handlers = {
-  entities: ({ entities }) => {
+  entities: ({ entities, mainTime, convertTime}) => {
     if (!(entities instanceof Array)) entities = [entities]
     viewState.setModel((model = entities))
+    console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2))
     setError(undefined)
   },
 }

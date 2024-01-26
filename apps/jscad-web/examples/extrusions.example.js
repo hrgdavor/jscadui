@@ -2,7 +2,7 @@
  * Demonstrates the types of extrusions, and the variety of objects they can create.
  */
 
-import * as jscad from '@jscad/modeling'
+const jscad = require('@jscad/modeling')
 const { bezier } = jscad.curves
 const { circle, line, polygon, rectangle, roundedRectangle, star } = jscad.primitives
 const { extrudeLinear, extrudeRotate, extrudeFromSlices, slice } = jscad.extrusions
@@ -10,7 +10,7 @@ const { translate } = jscad.transforms
 const { expand } = jscad.expansions
 const { mat4 } = jscad.maths
 
-export const main = () => {
+function main() {
   const shapes = []
 
   // rounded box
@@ -65,3 +65,5 @@ const extrudeBezier = (height) => {
     }
   }, squareSlice)
 }
+
+module.exports = { main }

@@ -3,12 +3,12 @@
  * Demonstrates the basics of a variety of 2D and 3D primitives
  */
 
-import * as jscad from '@jscad/modeling'
+const jscad = require('@jscad/modeling')
 const { arc, circle, ellipse, line, polygon, rectangle, roundedRectangle, square, star } = jscad.primitives
 const { cube, cuboid, cylinder, cylinderElliptic, ellipsoid, geodesicSphere, roundedCuboid, roundedCylinder, sphere, torus } = jscad.primitives
 const { translate } = require('@jscad/modeling').transforms
 
-export const main = () => {
+function main() {
   const shapes = [
     arc({ center: [-1, -1], radius: 2, startAngle: 0, endAngle: (Math.PI / 2), makeTangent: false, segments: 32 }),
     line([[1, 1], [-1, -1], [1, -1]]),
@@ -45,3 +45,5 @@ export const main = () => {
   // Arrange primitives in a grid
   return shapes.map((primitive, index) => translate([(index % 5 - 1) * 5, Math.floor(index / 5 - 1) * 5, 0], primitive))
 }
+
+module.exports = { main }

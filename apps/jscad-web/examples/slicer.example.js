@@ -2,7 +2,7 @@
  * Slice a geometry object into layers
  */
 
-import * as jscad from '@jscad/modeling'
+const jscad = require('@jscad/modeling')
 const { colorize } = jscad.colors
 const { intersect } = jscad.booleans
 const { extrudeLinear, project } = jscad.extrusions
@@ -10,11 +10,11 @@ const { measureBoundingBox } = jscad.measurements
 const { cuboid, sphere } = jscad.primitives
 const { translate } = jscad.transforms
 
-export const getParameterDefinitions = () => [
+const getParameterDefinitions = () => [
   { name: 'thicness', type: 'slider', initial: 0.75, min: 0.1, max: 2, step: 0.1, caption: 'Layer thickness:' },
 ]
 
-export const main = ({ thicness }) => {
+const main = ({ thicness }) => {
   const obj = sphere({ radius: 6 })
 
   // calculate bounding box
@@ -43,3 +43,5 @@ export const main = ({ thicness }) => {
 
   return colorize([0.7, 0, 0.1], out)
 }
+
+module.exports = { main, getParameterDefinitions }

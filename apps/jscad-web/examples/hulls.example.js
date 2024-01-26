@@ -2,13 +2,13 @@
  * Demonstrates Hull and Hull Chain operations in 2D and 3D
  */
 
-import * as jscad from '@jscad/modeling'
+const jscad = require('@jscad/modeling')
 const { colorize } = jscad.colors
-const { circle, cuboid, rectangle, sphere } = jscad.primitives
+const { circle, rectangle, sphere } = jscad.primitives
 const { translate } = jscad.transforms
 const { hull, hullChain } = jscad.hulls
 
-export const main = (params) => {
+function main() {
   const radius = 1.5
   const segments = 16
 
@@ -29,3 +29,5 @@ export const main = (params) => {
     colorize([0.2, 0.2, 1.0], translate([20, 0, 0], [hull(shapes2d), hull(shapes3d)]))
   ]
 }
+
+module.exports = { main }

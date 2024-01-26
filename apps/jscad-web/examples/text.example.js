@@ -3,7 +3,7 @@
  * @authors Simon Clark
  */
 
-import * as jscad from '@jscad/modeling'
+const jscad = require('@jscad/modeling')
 const { union } = jscad.booleans
 const { extrudeLinear } = jscad.extrusions
 const { hullChain } = jscad.hulls
@@ -11,13 +11,13 @@ const { circle, sphere } = jscad.primitives
 const { vectorText } = jscad.text
 const { scale, translate } = jscad.transforms
 
-export const getParameterDefinitions = () => [
+const getParameterDefinitions = () => [
   { name: 'outline_string', initial: 'Outline', type: 'text', caption: 'Outline Text', size: 30 },
   { name: 'flat_string', initial: 'Flat', type: 'text', caption: 'Flat Text', size: 30 },
   { name: 'round_string', initial: 'Round', type: 'text', caption: 'Round Text', size: 30 }
 ]
 
-export const main = (params) => {
+const main = (params) => {
   const outlineText = buildOutlineText(params.outline_string, 2)
   const flatText = buildFlatText(params.flat_string, 2, 2)
   const roundText = buildRoundText(params.round_string, 2)
@@ -77,3 +77,5 @@ const buildRoundText = (message, p) => {
   const message3D = union(lineSegments)
   return translate([0, -35, 0], message3D)
 }
+
+module.exports = { main, getParameterDefinitions }

@@ -3,7 +3,7 @@
  * @authors Z3 Dev, Simon Clark
  */
 
-import * as jscad from '@jscad/modeling'
+const jscad = require('@jscad/modeling')
 const { subtract, union } = jscad.booleans
 const { colorize, hexToRgb } = jscad.colors
 const { extrudeFromSlices, extrudeLinear, slice } = jscad.extrusions
@@ -15,7 +15,7 @@ const { circle, ellipsoid } = jscad.primitives
 const { vectorText } = jscad.text
 const { translate, scale, rotateX, center } = jscad.transforms
 
-export const getParameterDefinitions = () => [
+const getParameterDefinitions = () => [
   { name: 'balloon', type: 'group', caption: 'Balloons' },
   { name: 'isBig', type: 'checkbox', checked: true, initial: '20', caption: 'Big?' },
   { name: 'color', type: 'color', initial: '#ffb431', caption: 'Color?' },
@@ -25,6 +25,19 @@ export const getParameterDefinitions = () => [
   { name: 'birthdate', type: 'date', initial: '', min: '1915-01-01', max: '2030-12-31', caption: 'Birthday?', placeholder: 'YYYY-MM-DD' },
   { name: 'age', type: 'int', initial: 20, min: 1, max: 100, step: 1, caption: 'Age?' }
 ]
+
+const main = (params) => {
+  // use the checkbox to determine the size of the sphere
+  params.bRadius = (params.isBig === true) ? 16 : 10
+  // use the color chooser to determine the color of the sphere
+  params.bColor = hexToRgb(params.color)
+
+  return [
+    createBalloons(params),
+    createSalutation(params.name),
+    createBirthDate(params.birthdate)
+  ]
+}
 
 // Build text by creating the font strokes (2D), then extruding up (3D).
 const text = (message, extrusionHeight, characterLineWidth) => {
@@ -108,15 +121,4 @@ const createBirthDate = (birthDate) => {
   return birthDate3D
 }
 
-export const main = (params) => {
-  // use the checkbox to determine the size of the sphere
-  params.bRadius = (params.isBig === true) ? 16 : 10
-  // use the color chooser to determine the color of the sphere
-  params.bColor = hexToRgb(params.color)
-
-  return [
-    createBalloons(params),
-    createSalutation(params.name),
-    createBirthDate(params.birthdate)
-  ]
-}
+module.exports = { main, getParameterDefinitions }

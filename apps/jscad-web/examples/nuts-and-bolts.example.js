@@ -3,14 +3,14 @@
  * Demonstrates advanced extrusion using slices to generate screw threads.
  */
 
-import * as jscad from '@jscad/modeling'
+const jscad = require('@jscad/modeling')
 const { cylinder } = jscad.primitives
 const { subtract, union } = jscad.booleans
 const { colorize } = jscad.colors
 const { extrudeFromSlices, slice } = jscad.extrusions
 const { translate } = jscad.transforms
 
-export const getParameterDefinitions = () => [
+const getParameterDefinitions = () => [
   { name: 'hexWidth', type: 'number', initial: 4, min: 0 },
   { name: 'hexHeight', type: 'number', initial: 3, min: 0 },
   { name: 'threadLength', type: 'number', initial: 12, min: 0 },
@@ -21,7 +21,7 @@ export const getParameterDefinitions = () => [
   { name: 'segments', type: 'int', initial: 16, min: 3 },
 ]
 
-export const main = (params) => {
+const main = (params) => {
   return [
     colorize([0.9, 0.6, 0.2], bolt(params)),
     colorize([0.4, 0.4, 0.4], translate([15, 0, 0], nut(params)))
@@ -92,3 +92,4 @@ const angleDiff = (angle1, angle2) => {
   return diff > Math.PI ? Math.PI * 2 - diff : diff
 }
 
+module.exports = { main, getParameterDefinitions }

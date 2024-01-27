@@ -5,11 +5,27 @@ export const readDir = async dir => {
   let entries = []
   let readEntries = await readEntriesPromise(directoryReader)
   while (readEntries.length > 0) {
-    entries.push(...readEntries)
+    for(let i=0; i<readEntries.length; i++){
+      let entry = readEntries[i]
+      if(!entry) continue
+      addFileHandle(dir, entry)
+      entries.push(entry)
+    }
     readEntries = await readEntriesPromise(directoryReader)
   }
   const fsDir = dir.fsPath && dir.fsPath !== '/' ? dir.fsPath + '/' : '/'
   return entries.map(e => fileToFsEntry(e, fsDir))
+}
+
+async function addFileHandle(dir, entry){
+  // we may be reading too fast, wait for the promise to resolve
+  if(dir.fileHandle.then) await dir.fileHandle
+  let promise = dir.fileHandle[entry.isDirectory ? 'getDirectoryHandle':'getFileHandle' ](entry.name)
+  // in case of reading too fast, let those using fileHandle that it is not resolved yet
+  entry.fileHandle = promise
+  promise?.then(f=>{
+    entry.fileHandle = f
+  })
 }
 
 export const readEntriesPromise = async directoryReader => cbToPromise(directoryReader, 'readEntries')

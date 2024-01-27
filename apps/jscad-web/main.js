@@ -1,4 +1,12 @@
-import { addToCache, extractEntries, fileDropped, getFile, registerServiceWorker } from '@jscadui/fs-provider'
+import {
+  addToCache,
+  clearFs,
+  extractEntries,
+  fileDropped,
+  getFile,
+  getFileContent,
+  registerServiceWorker,
+} from '@jscadui/fs-provider'
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl } from '@jscadui/orbit'
 import { genParams } from '@jscadui/params'
@@ -45,20 +53,33 @@ ctrl.oninput = state => updateFromCtrl(state)
 gizmo.oncam = ({ cam }) => ctrl.animateToCommonCamera(cam)
 
 let sw
+async function resetFileRefs(){
+  editor.setFiles([])
+  saveMap = {}
+  if(sw){
+    delete sw.fileToRun
+    await clearFs(sw)
+  } 
+}
+
 async function initFs() {
   const getFileWrapper = (path, sw) => {
-    const file = getFile(path, sw)
+    const file = getFileContent(path, sw)
     // notify editor of active files
     file.then(() => editor.setFiles(sw.filesToCheck))
     return file
   }
   let scope = document.location.pathname
-  sw = await registerServiceWorker(`bundle.fs-serviceworker.js?prefix=${scope}swfs/`, getFileWrapper, {scope, prefix:scope+'swfs/'})
+  sw = await registerServiceWorker(`bundle.fs-serviceworker.js?prefix=${scope}swfs/`, getFileWrapper, {
+    scope,
+    prefix: scope + 'swfs/',
+  })
   sw.defProjectName = 'jscad'
   sw.onfileschange = files => {
     sendNotify('clearFileCache', { files })
     if (sw.fileToRun) runScript({ url: sw.fileToRun, base: sw.base })
   }
+  sw.getFile = path => getFile(path, sw)
 }
 const dropModal = byId('dropModal')
 const showDrop = show => {
@@ -68,19 +89,21 @@ const showDrop = show => {
 document.body.ondrop = async ev => {
   try {
     ev.preventDefault()
-    let files = extractEntries(ev.dataTransfer)
+    let files = await extractEntries(ev.dataTransfer)
     if (!files.length) return {}
-
+    await resetFileRefs()
     if (!sw) await initFs()
     showDrop(false)
     sendCmd('clearTempCache', {})
+    saveMap = {}
     const { alias, script } = await fileDropped(sw, files)
     projectName = sw.projectName
     if (alias.length) {
       sendNotify('init', { alias })
     }
-    runScript({ url: sw.fileToRun, base: sw.base })
-    editor.setSource(script, sw.fileToRun)
+    let url = sw.fileToRun
+    runScript({ url, base: sw.base })
+    editor.setSource(script, url)
     editor.setFiles(sw.filesToCheck)
   } catch (error) {
     setError(error)
@@ -133,7 +156,7 @@ const exportModel = async (format, extension) => {
 
 const worker = new Worker('./build/bundle.worker.js')
 const handlers = {
-  entities: ({ entities, mainTime, convertTime}) => {
+  entities: ({ entities, mainTime, convertTime }) => {
     if (!(entities instanceof Array)) entities = [entities]
     viewState.setModel((model = entities))
     console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2))
@@ -147,11 +170,11 @@ let jobs = 0
 let firstJobTimer
 async function sendCmdAndSpin(method, params) {
   jobs++
-  if(jobs === 1){
+  if (jobs === 1) {
     // do not show spinner for fast renders
-    firstJobTimer = setTimeout(()=>{
+    firstJobTimer = setTimeout(() => {
       spinner.style.display = 'block'
-    },300)
+    }, 300)
   }
   try {
     return await sendCmd(method, params)
@@ -167,7 +190,8 @@ async function sendCmdAndSpin(method, params) {
 }
 
 sendCmdAndSpin('init', {
-  bundles: {// local bundled alias for common libs.
+  bundles: {
+    // local bundled alias for common libs.
     '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
     '@jscad/io': toUrl('./build/bundle.jscad_io.js'),
   },
@@ -180,24 +204,24 @@ sendCmdAndSpin('init', {
 let working
 let lastParams
 const paramChangeCallback = async params => {
-  if(!working){
+  if (!working) {
     lastParams = null
-  }else{
+  } else {
     lastParams = params
     return
   }
   working = true
   let result
-  try{
+  try {
     result = await sendCmdAndSpin('runMain', { params })
-  } finally{
+  } finally {
     working = false
   }
   handlers.entities(result)
-  if(lastParams && lastParams != params) paramChangeCallback(lastParams)
+  if (lastParams && lastParams != params) paramChangeCallback(lastParams)
 }
 
-const runScript = async ({ script, url = './index.js', base = currentBase, root }) => {
+const runScript = async ({ script, url = './jscad.model.js', base = currentBase, root }) => {
   currentBase = base
   loadDefault = false // don't load default model if something else was loaded
   const result = await sendCmdAndSpin('runScript', { script, url, base, root })
@@ -205,8 +229,9 @@ const runScript = async ({ script, url = './index.js', base = currentBase, root 
   handlers.entities(result)
 }
 
-const loadExample = (source, base=appBase) => {
-  editor.setSource(source)
+const loadExample = async (source, base = appBase) => {
+  await resetFileRefs()
+  editor.setSource(source, base)
   runScript({ script: source, base })
 }
 
@@ -215,57 +240,65 @@ engine.init().then(viewer => {
   viewState.setEngine(viewer)
 })
 
-const saveMap = {}
+let saveMap = {}
 
-editor.init(defaultCode, async (script, path) => {
-  if (sw && sw.fileToRun) {
-    await addToCache(sw.cache, path, script)
-    // imported script will be also cached by require/import implementation
-    // it is expected if multiple files require same file/module that first time it is loaded
-    // but for others resolved module is returned
-    // if not cleared by calling clearFileCache, require will not try to reload the file
-    await sendCmd('clearFileCache', { files: [path] })
-    if (sw.fileToRun) runScript({ url: sw.fileToRun, base: sw.base })
-  } else {
-    runScript({ script })
-  }
-},async (script, path) => {
-  console.log('save file', path)
-  let fileHandle = saveMap[path]
-  if(!fileHandle){
-    const opts = {
-      excludeAcceptAllOption: true,
-      types: [
-        {
-          description: "Javascript",
-          accept: { "application/javascript": [".js"] },
-        },
-      ],
+editor.init(
+  defaultCode,
+  async (script, path) => {
+    if (sw && sw.fileToRun) {
+      await addToCache(sw.cache, path, script)
+      // imported script will be also cached by require/import implementation
+      // it is expected if multiple files require same file/module that first time it is loaded
+      // but for others resolved module is returned
+      // if not cleared by calling clearFileCache, require will not try to reload the file
+      await sendCmd('clearFileCache', { files: [path] })
+      if (sw.fileToRun) runScript({ url: sw.fileToRun, base: sw.base })
+    } else {
+      runScript({ script })
     }
-    saveMap[path] = fileHandle = await globalThis.showSaveFilePicker?.(opts)
-  }
-  if(fileHandle){
-    saveMap[path] = fileHandle
-    const writable = await fileHandle.createWritable()
-    await writable.write(script)
-    await writable.close()
-    console.log('fileHandle', fileHandle)
-  }
-
-})
+  },
+  async (script, path) => {
+    console.log('save file', path)
+    let pathArr = path.split('/')
+    let fileHandle = (await sw?.getFile(path))?.fileHandle
+    if(!fileHandle) fileHandle = saveMap[path]
+    if (!fileHandle) {
+      const opts = {
+        suggestedName: pathArr[pathArr.length - 1],
+        excludeAcceptAllOption: true,
+        types: [
+          {
+            description: 'Javascript',
+            accept: { 'application/javascript': ['.js'] },
+          },
+        ],
+      }
+      saveMap[path] = fileHandle = await globalThis.showSaveFilePicker?.(opts)
+    }
+    if (fileHandle) {
+      saveMap[path] = fileHandle
+      const writable = await fileHandle.createWritable()
+      await writable.write(script)
+      await writable.close()
+    }
+  },
+)
 menu.init(loadExample)
 welcome.init()
-remote.init((script, url) => {
-  // run remote script
-  editor.setSource(script)
-  runScript({ script, base:url })
-  welcome.dismiss()
-}, (err) => {
-  // show remote script error
-  loadDefault = false
-  setError(err)
-  welcome.dismiss()
-})
+remote.init(
+  (script, url) => {
+    // run remote script
+    editor.setSource(script, url)
+    runScript({ script, base: url })
+    welcome.dismiss()
+  },
+  err => {
+    // show remote script error
+    loadDefault = false
+    setError(err)
+    welcome.dismiss()
+  },
+)
 exporter.init(exportModel)
 
 try {

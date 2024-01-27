@@ -26,9 +26,14 @@ export function extractPathInfo(url) {
   let ext = filename.substring(idx + 1)
   return { url, filename, ext }
 }
+
 export const getFile = async (path, sw) => {
   let arr = splitPath(path)
-  let match = await findFileInRoots(sw.roots, arr)
+  return await findFileInRoots(sw.roots, arr)
+}
+
+export const getFileContent = async (path, sw) => {
+  let match = await getFile(path, sw)
   if (match) {
     fileIsRequested(path, match, sw)
     return readAsArrayBuffer(await filePromise(match))
@@ -75,7 +80,7 @@ export const addPreLoad = async (sw, path, ignoreMissing) => {
  */
 export const registerServiceWorker = async (
   workerScript,
-  _getFile = getFile,
+  _getFile = getFileContent,
   { prefix = '/swfs/', scope = '/' } = {},
 ) => {
   if ('serviceWorker' in navigator) {
@@ -141,7 +146,7 @@ export const clearCache = async cache => {
   ;(await cache.keys()).forEach(key => cache.delete(key))
 }
 
-export const extractEntries = dt => {
+export const extractEntries = async dt => {
   let items = dt.items
   if (!items) return []
 
@@ -156,6 +161,8 @@ export const extractEntries = dt => {
       if (file.webkitGetAsEntry) file = file.webkitGetAsEntry()
       else if (file.getAsEntry) file = file.getAsEntry()
       else file = file.webkitGetAsFile()
+      // we need FileSystemHandle for writing, because old way using createWriter silently ignores writes
+      if(items[i].getAsFileSystemHandle) file.fileHandle = await items[i].getAsFileSystemHandle()
       files.push(file)
     }
   }

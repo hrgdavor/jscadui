@@ -59,7 +59,7 @@ export const init = (defaultCode, fn, _saveFn) => {
     ],
     parent: editorDiv,
   })
-  setSource(defaultCode)
+  setSource(defaultCode, 'jscad.example.js')
 
   // Initialize drawer action
   drawer.init()
@@ -88,7 +88,7 @@ export const setSource = (source, path = '/index.js') => {
 
 export const setFiles = (files) => {
   const editorFiles = document.getElementById('editor-files')
-  if (files.length === 1) {
+  if (files.length < 2) {
     editorNav.classList.remove('visible')
   } else {
     // Update spinner

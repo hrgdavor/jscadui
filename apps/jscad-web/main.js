@@ -77,6 +77,7 @@ async function initFs() {
   sw.defProjectName = 'jscad'
   sw.onfileschange = files => {
     sendNotify('clearFileCache', { files })
+    editor.filesChanged(files)
     if (sw.fileToRun) runScript({ url: sw.fileToRun, base: sw.base })
   }
   sw.getFile = path => getFile(path, sw)
@@ -282,6 +283,7 @@ editor.init(
       await writable.close()
     }
   },
+  path=>sw?.getFile(path)
 )
 menu.init(loadExample)
 welcome.init()

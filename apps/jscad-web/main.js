@@ -21,6 +21,7 @@ import * as remote from './src/remote.js'
 import { formatStacktrace } from './src/stacktrace.js'
 import { ViewState } from './src/viewState.js'
 import * as welcome from './src/welcome.js'
+import { runMain } from '../../packages/worker/worker.js'
 
 export const byId = id => document.getElementById(id)
 const appBase = document.baseURI
@@ -28,6 +29,7 @@ let currentBase = appBase
 const toUrl = path => new URL(path, appBase).toString()
 
 const viewState = new ViewState()
+viewState.onRequireReRender = ()=>paramChangeCallback(lastParams)
 
 const gizmo = (window.gizmo = new Gizmo())
 byId('overlay').parentNode.appendChild(gizmo)
@@ -59,7 +61,7 @@ async function resetFileRefs(){
   if(sw){
     delete sw.fileToRun
     await clearFs(sw)
-  } 
+  }
 }
 
 async function initFs() {
@@ -198,7 +200,7 @@ sendCmdAndSpin('init', {
   },
 }).then(() => {
   if (loadDefault) {
-    runScript({ script: defaultCode })
+    runScript({ script: defaultCode, smooth: viewState.smoothRender })
   }
 })
 
@@ -213,19 +215,19 @@ const paramChangeCallback = async params => {
   }
   working = true
   let result
-  try {
-    result = await sendCmdAndSpin('runMain', { params })
-  } finally {
+  try{
+    result = await sendCmdAndSpin('runMain', { params, smooth: viewState.smoothRender })
+  } finally{
     working = false
   }
-  handlers.entities(result)
-  if (lastParams && lastParams != params) paramChangeCallback(lastParams)
+  handlers.entities(result, {smooth: viewState.smoothRender})
+  if(lastParams && lastParams != params) paramChangeCallback(lastParams)
 }
 
 const runScript = async ({ script, url = './jscad.model.js', base = currentBase, root }) => {
   currentBase = base
   loadDefault = false // don't load default model if something else was loaded
-  const result = await sendCmdAndSpin('runScript', { script, url, base, root })
+  const result = await sendCmdAndSpin('runScript', { script, url, base, root, smooth: viewState.smoothRender })
   genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
   handlers.entities(result)
 }

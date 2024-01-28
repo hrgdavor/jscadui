@@ -16,6 +16,7 @@ export class ViewState {
     const darkMode = byId('dark-mode')
     const showAxis = byId('show-axis')
     const showGrid = byId('show-grid')
+    const smoothRender = byId('smooth-render')
     darkMode.addEventListener('change', () => {
       this.themeName = darkMode.checked ? 'dark' : 'light'
       if (darkMode.checked) {
@@ -24,6 +25,9 @@ export class ViewState {
         document.body.classList.remove('dark')
       }
       this.setTheme(this.themeName)
+    })
+    smoothRender.addEventListener('change', () => {
+      this.setSmoothRender(smoothRender.checked)
     })
     showAxis.addEventListener('change', () => this.setAxes(showAxis.checked))
     showGrid.addEventListener('change', () => this.setGrid(showGrid.checked))
@@ -39,6 +43,12 @@ export class ViewState {
     this.showGrid = visible
     this.updateGrid()
     this.saveState()
+  }
+
+  setSmoothRender(smoothRender, fireEvent = true) {
+    this.smoothRender = smoothRender
+    this.saveState()
+    if(fireEvent) this.onRequireReRender()
   }
 
   setTheme(themeName) {
@@ -86,7 +96,7 @@ export class ViewState {
     if (grid) items.push({ id: 'grid', items: grid })
     if (model) items.push({ id: 'model', items: model })
 
-    this.viewer?.setScene({ items })
+    this.viewer?.setScene({ items }, {smooth:this.smoothRender})
   }
 
   setEngine(viewer) {
@@ -108,6 +118,8 @@ export class ViewState {
     byId('show-axis').checked = this.showAxis
     this.showGrid = localStorage.getItem('engine.showGrid') !== 'false'
     byId('show-grid').checked = this.showGrid
+    this.smoothRender = !!localStorage.getItem('engine.smoothRender')
+    byId('smooth-render').checked = this.smoothRender
     const cameraLocation = localStorage.getItem('camera.location')
     this.camera = cameraLocation ? JSON.parse(cameraLocation) : { position: [180, -180, 220] }
   }
@@ -116,5 +128,8 @@ export class ViewState {
     localStorage.setItem('engine.theme', this.themeName)
     localStorage.setItem('engine.showAxis', this.showAxis)
     localStorage.setItem('engine.showGrid', this.showGrid)
+    localStorage.setItem('engine.smoothRender', this.smoothRender)
   }
+
+  onRequireReRender(){}
 }

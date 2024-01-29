@@ -108,3 +108,5 @@ dist
 build/**
 dist/**
 **/.history
+**/.idea
+

@@ -29,7 +29,7 @@ let currentBase = appBase
 const toUrl = path => new URL(path, appBase).toString()
 
 const viewState = new ViewState()
-viewState.onRequireReRender = ()=>paramChangeCallback(lastParams)
+viewState.onRequireReRender = ()=>paramChangeCallback(lastRunParams)
 
 const gizmo = (window.gizmo = new Gizmo())
 byId('overlay').parentNode.appendChild(gizmo)
@@ -206,6 +206,7 @@ sendCmdAndSpin('init', {
 
 let working
 let lastParams
+let lastRunParams
 const paramChangeCallback = async params => {
   if (!working) {
     lastParams = null
@@ -217,6 +218,7 @@ const paramChangeCallback = async params => {
   let result
   try{
     result = await sendCmdAndSpin('runMain', { params, smooth: viewState.smoothRender })
+    lastRunParams = params
   } finally{
     working = false
   }
@@ -229,6 +231,7 @@ const runScript = async ({ script, url = './jscad.model.js', base = currentBase,
   loadDefault = false // don't load default model if something else was loaded
   const result = await sendCmdAndSpin('runScript', { script, url, base, root, smooth: viewState.smoothRender })
   genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
+  lastRunParams = result.params
   handlers.entities(result)
 }
 

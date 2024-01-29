@@ -199,7 +199,6 @@ export function RenderThreejs({
   }
 
   function setScene(scene,{smooth}={}) {
-    console.warn('options', {smooth})
     groups.forEach(group => {
       _scene.remove(group)
     })

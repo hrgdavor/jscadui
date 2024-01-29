@@ -91,8 +91,10 @@ const runScript = async ({ script, url, base=globalBase, root=base }) => {
   main = scriptModule.main
   // if the main function is the default export
   if(!main && typeof scriptModule == 'function') main = scriptModule
-  let out = await runMain({ params: extractDefaults(def) })
+  let params = extractDefaults(def)
+  let out = await runMain({ params })
   out.def = def
+  out.params = params
   return out
 }
 

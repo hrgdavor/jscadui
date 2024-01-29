@@ -244,6 +244,16 @@ engine.init().then(viewer => {
 })
 
 let saveMap = {}
+setInterval(async ()=>{
+  for(let p in saveMap){
+    let handle = saveMap[p]
+    let file = await handle.getFile()
+    if(file.lastModified > handle.lastMod){
+      handle.lastMod = file.lastModified
+      editor.filesChanged([file])
+    }
+  }
+},500)
 
 editor.init(
   defaultCode,
@@ -276,13 +286,14 @@ editor.init(
           },
         ],
       }
-      saveMap[path] = fileHandle = await globalThis.showSaveFilePicker?.(opts)
+      fileHandle = await globalThis.showSaveFilePicker?.(opts)
     }
     if (fileHandle) {
-      saveMap[path] = fileHandle
       const writable = await fileHandle.createWritable()
       await writable.write(script)
       await writable.close()
+      saveMap[path] = fileHandle
+      fileHandle.lastMod = Date.now()+500
     }
   },
   path=>sw?.getFile(path)

@@ -89,11 +89,18 @@ export const setSource = (source, path = '/index.js') => {
 }
 
 export function filesChanged(files){
+  let file
   files.forEach(async path=>{
     if(path == currentFile){
-      let file = await getFileFn(path)
-      readSource(file, path)
-    } 
+      file = await getFileFn(path)
+      readSource(file, currentFile)
+    }else if(path.name === currentFile){
+      let reader = new FileReader()
+      reader.onloadend = ()=>{
+        setSource(reader.result, currentFile)
+      }
+      reader.readAsText(path)
+    }
   })
 }
 

@@ -154,6 +154,7 @@ export const extractEntries = async dt => {
   let files = []
   // Use DataTransferItemList interface to access the items(s).
   // it is not an array, can not use .filter or othe Array methods
+  // todo remove usage of FileEetry webkitGetAsEntry and use new File_System_API
   for (let i = 0; i < items.length; i++) {
     // If dropped items aren't files, reject them
     if (items[i].kind === 'file') {

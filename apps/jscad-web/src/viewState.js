@@ -118,7 +118,7 @@ export class ViewState {
     byId('show-axis').checked = this.showAxis
     this.showGrid = localStorage.getItem('engine.showGrid') !== 'false'
     byId('show-grid').checked = this.showGrid
-    this.smoothRender = !!localStorage.getItem('engine.smoothRender')
+    this.smoothRender = localStorage.getItem('engine.smoothRender') === 'true'
     byId('smooth-render').checked = this.smoothRender
     const cameraLocation = localStorage.getItem('camera.location')
     this.camera = cameraLocation ? JSON.parse(cameraLocation) : { position: [180, -180, 220] }

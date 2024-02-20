@@ -21,10 +21,10 @@ const bundleDef = {
   format: 'iife',
 }
 
-export const buildBundle = (outDir, bundle, {srcDir='src_bundle', ...options})=>{
+export const buildBundle = (outDir, bundle, {srcDir='src_bundle', skipExisting = true, ...options})=>{
   let file = `${srcDir}/${bundle}`
   let outfile = `${outDir}/${bundle}`
-  return runEsbuild(esbuild,{...bundleDef, ...options, skipExisting: true, entryPoints:[file], outfile})
+  return runEsbuild(esbuild,{...bundleDef, ...options, skipExisting, entryPoints:[file], outfile})
 }
 
 export const buildOneIfNeeded = (outDir, file, options={})=>{

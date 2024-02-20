@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.1.9",
-    "@jscad/io": "2.4.4",
-    "@jscad/modeling": "2.12.0",
+    "@jscad/io": "2.4.7",
+    "@jscad/modeling": "2.12.1",
     "@jscadui/format-jscad": "*",
     "@jscadui/format-threejs": "*",
     "@jscadui/fs-provider": "*",

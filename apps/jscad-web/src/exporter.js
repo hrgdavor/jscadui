@@ -1,4 +1,5 @@
 const exportFormats = [
+  { name: 'scriptUrl', label: 'Share script url' },
   { name: 'stla', extension: 'stl', label: 'STL (ascii)' },
   { name: 'stlb', extension: 'stl', label: 'STL (binary)' },
   { name: 'amf', extension: 'amf', label: 'AMF' },

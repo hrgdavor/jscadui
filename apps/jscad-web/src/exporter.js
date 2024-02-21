@@ -1,5 +1,4 @@
 const exportFormats = [
-  { name: 'scriptUrl', label: 'Share script url' },
   { name: 'stla', extension: 'stl', label: 'STL (ascii)' },
   { name: 'stlb', extension: 'stl', label: 'STL (binary)' },
   { name: 'amf', extension: 'amf', label: 'AMF' },
@@ -9,6 +8,7 @@ const exportFormats = [
   { name: 'x3d', extension: 'x3d', label: 'X3D' },
   { name: 'svg', extension: 'svg', label: 'SVG' },
   { name: '3mf', extension: '3mf', label: '3MF' },
+  { name: 'scriptUrl', label: 'Copy to clipboard script url' },
 ]
 
 export const init = (exportFn) => {

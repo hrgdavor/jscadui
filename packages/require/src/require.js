@@ -99,7 +99,10 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
       exports = JSON.parse(source)
     } else {
       // do not transform bundles that are already cjs ( requireCache.bundleAlias.*)
-      if (transform && !bundleAlias) source = transform(source, resolvedUrl).code
+      if (transform && !bundleAlias){
+        source = transform(source, resolvedUrl).code
+        if(source.includes('import.meta.url')) source = source.replaceAll('import.meta.url','module.meta.url')
+      } 
       // construct require function relative to resolvedUrl
       let requireFunc = newUrl => require(newUrl, transform, readFile, resolvedUrl, root, importData, moduleBase)
       const module = requireModule(url, resolvedUrl, source, requireFunc)
@@ -112,7 +115,7 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
   // TODO research maybe in the future, why going through babel adds __esModule=true
   // this extra reference via defaults helps
   // exports.__esModule = false // this did not help
-  exports.default = {...exports}
+  if(exports.default) exports = exports.default
 
   return exports // require returns object exported by module
 }
@@ -120,12 +123,13 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
 const requireModule = (id, url, source, _require) => {
   try {
     const exports = {}
-    const module = { id, uri: url, exports, source } // according to node.js modules
+    const module = { id, uri: url, url, exports, source, meta:{url, uri:url} } // according to node.js modules
     //module.require = _require
     runModule(_require, exports, module, source)
     return module
   } catch (err) {
     err.message = `failed loading module ${id}\n  ${err}`
+    console.error(url,'\n', source)
     throw err
   }
 }

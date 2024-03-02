@@ -11,8 +11,9 @@ function toMesh(manifold) {
 let Manifold
 async function main({
   // @jscad-params
+  useManifold = true,
   segments = 32, // {type:'slider', min:10, max:64, live:true}
-  radius = 60, // {type:'slider', min:51, max:80, live:true}
+  radius = 60, //16 {type:'slider', min:51, max:80, live:true}
 }) {
   if (ManifoldModule.cached) {
     Manifold = ManifoldModule.cached
@@ -24,18 +25,23 @@ async function main({
   }
   const { cube, sphere } = Manifold.Manifold
 
-  //
-  const box = cube([100, 100, 100], true)
-  const ball = sphere(radius, segments)
-  let result = box.subtract(ball)
-  try {
-    return [toMesh(result)]
-  } finally {
-    box.delete()
-    ball.delete()
-    result.delete()
+  if(useManifold){
+    const box = cube([100, 100, 100], true)
+    const ball = sphere(radius, segments)
+    let result = box.subtract(ball)
+    try {
+      return [toMesh(result)]
+    } finally {
+      box.delete()
+      ball.delete()
+      result.delete()
+    }
+  }else{
+    const box = jscad.primitives.cube({size:100})
+    const ball = jscad.primitives.sphere({ radius, segments })
+    return jscad.booleans.subtract(box,ball)
   }
-  return [jscad.primitives.sphere({ size: 1 })]
+
 }
 
 module.exports = { main }

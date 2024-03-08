@@ -21,3 +21,19 @@ work automatically.
 When running a ESM module it is useful for a module to know it's location to load additional
 resources like WASM file. Try to `eval` ESM script that uses `import.meta.url` and it will fail. Fortunately `module.meta.url` is same length as `import.meta.url` so simply replacing it before evaluation will not affect line numbers in source-maps.
 
+## correct line numbers in console.log & stack traces
+
+Initially attempt used `new Function` was used to run the script and pass parameters: `require, exports, module`. 
+Unfortunately new Functions screws with sourcemaps as it adds a prefix to the source. Next solution is with `eval` to do the same without prefix.
+Then with that we need to be nice to bundlers and use (indirect eval)[https://esbuild.github.io/content-types/#direct-eval]
+Then again `self` is not available in nodejs. A lot of hoops need to be jumped to `eval` the code and get nice stack traces etc.
+
+The final code for our use-case looks like this: 
+
+```js
+export const runModule = (typeof self === 'undefined' ? eval : self.eval)(
+  '(require, exports, module, source)=>eval(source)',
+)
+```
+
+To get the proper file-name along with correct line numbers you must add to the end of the script: `script + '\n//# sourceURL='+url` . You can add more variables to the script environment if needed.

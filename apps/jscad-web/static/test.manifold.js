@@ -8,7 +8,7 @@ function toMesh(manifold) {
   let manifoldMesh = manifold.getMesh()
   return { type: 'mesh', vertices: manifoldMesh.vertProperties, indices: manifoldMesh.triVerts }
 }
-console.log('ManifoldModule',ManifoldModule)
+
 if(!ManifoldModule.get){
   ManifoldModule.get = async function(){
     if (!ManifoldModule.cached) {
@@ -24,12 +24,12 @@ if(!ManifoldModule.get){
 export async function main({
   // @jscad-params
   useManifold = true,
-  segments = 32, // {type:'slider', min:10, max:64, live:true}
+  segments = 32, // {type:'slider', min:10, max:96, live:true}
   radius = 60, //16 {type:'slider', min:51, max:80, live:true}
 }) {
-  const { cube, sphere } = await ManifoldModule.get()
-
+  
   if (useManifold) {
+    const { cube, sphere } = await ManifoldModule.get()
     const box = cube([100, 100, 100], true)
     const ball = sphere(radius, segments)
     let result = box.subtract(ball)

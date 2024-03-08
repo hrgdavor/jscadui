@@ -21,6 +21,7 @@ export { resolveUrl } from './resolveUrl'
 // https://esbuild.github.io/content-types/#direct-eval
 // to be nice to bundlers we need indirect eval
 // also self is not available in nodejs
+// when calling runModule, add '\n//# sourceURL='+url to the script to get nice filename and line numbers
 export const runModule = (typeof self === 'undefined' ? eval : self.eval)(
   '(require, exports, module, source)=>eval(source)',
 )
@@ -125,7 +126,7 @@ const requireModule = (id, url, source, _require) => {
     const exports = {}
     const module = { id, uri: url, url, exports, source, meta:{url, uri:url} } // according to node.js modules
     //module.require = _require
-    runModule(_require, exports, module, source)
+    runModule(_require, exports, module, source + '\n//# sourceURL=' + url)
     return module
   } catch (err) {
     err.message = `failed loading module ${id}\n  ${err}`

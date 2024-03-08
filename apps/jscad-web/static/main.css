@@ -515,10 +515,11 @@ p {
 #paramsDiv .form-line[type="group"]:before {
   content: "\25bc";
   padding-right: 10px;
+  padding-top: 3px;
   cursor: pointer;
 }
 #paramsDiv .form-line[type="group"][closed="1"]:before {
-  content: "\25b6";
+  content: "\25ba";
 }
 #paramsDiv .form-line[type="group"] label {
   font-weight: 500;

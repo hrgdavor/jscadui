@@ -11,7 +11,9 @@ import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl } from '@jscadui/orbit'
 import { genParams } from '@jscadui/params'
 import { initMessaging } from '@jscadui/postmessage'
+import { gunzipSync, gzipSync } from 'fflate'
 
+import { runMain } from '../../packages/worker/worker.js'
 import defaultCode from './examples/jscad.example.js'
 import * as editor from './src/editor.js'
 import * as engine from './src/engine.js'
@@ -19,9 +21,9 @@ import * as exporter from './src/exporter.js'
 import * as menu from './src/menu.js'
 import * as remote from './src/remote.js'
 import { formatStacktrace } from './src/stacktrace.js'
+import { str2ab } from './src/str2ab.js'
 import { ViewState } from './src/viewState.js'
 import * as welcome from './src/welcome.js'
-import { runMain } from '../../packages/worker/worker.js'
 
 export const byId = id => document.getElementById(id)
 const appBase = document.baseURI
@@ -29,7 +31,7 @@ let currentBase = appBase
 const toUrl = path => new URL(path, appBase).toString()
 
 const viewState = new ViewState()
-viewState.onRequireReRender = ()=>paramChangeCallback(lastRunParams)
+viewState.onRequireReRender = () => paramChangeCallback(lastRunParams)
 
 const gizmo = (window.gizmo = new Gizmo())
 byId('overlay').parentNode.appendChild(gizmo)
@@ -55,10 +57,10 @@ ctrl.oninput = state => updateFromCtrl(state)
 gizmo.oncam = ({ cam }) => ctrl.animateToCommonCamera(cam)
 
 let sw
-async function resetFileRefs(){
+async function resetFileRefs() {
   editor.setFiles([])
   saveMap = {}
-  if(sw){
+  if (sw) {
     delete sw.fileToRun
     await clearFs(sw)
   }
@@ -150,6 +152,21 @@ function save(blob, filename) {
 }
 
 const exportModel = async (format, extension) => {
+  if (format === 'scriptUrl') {
+    let src = editor.getSource()
+    let gzipped = gzipSync(str2ab(src))
+    let str = String.fromCharCode.apply(null, gzipped)
+    let url = document.location.origin + '#data:application/gzip;base64,' + btoa(str)
+    console.log('url', url)
+    try {
+      await navigator.clipboard.writeText(url);
+      console.log('copied to clipboard');
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+    }    
+    return
+  }
+
   const { data } = (await sendCmdAndSpin('exportData', { format })) || {}
   if (data) {
     save(new Blob([data], { type: 'text/plain' }), `${projectName}.${extension}`)
@@ -216,14 +233,14 @@ const paramChangeCallback = async params => {
   }
   working = true
   let result
-  try{
+  try {
     result = await sendCmdAndSpin('runMain', { params, smooth: viewState.smoothRender })
     lastRunParams = params
-  } finally{
+  } finally {
     working = false
   }
-  handlers.entities(result, {smooth: viewState.smoothRender})
-  if(lastParams && lastParams != params) paramChangeCallback(lastParams)
+  handlers.entities(result, { smooth: viewState.smoothRender })
+  if (lastParams && lastParams != params) paramChangeCallback(lastParams)
 }
 
 const runScript = async ({ script, url = './jscad.model.js', base = currentBase, root }) => {
@@ -247,16 +264,16 @@ engine.init().then(viewer => {
 })
 
 let saveMap = {}
-setInterval(async ()=>{
-  for(let p in saveMap){
+setInterval(async () => {
+  for (let p in saveMap) {
     let handle = saveMap[p]
     let file = await handle.getFile()
-    if(file.lastModified > handle.lastMod){
+    if (file.lastModified > handle.lastMod) {
       handle.lastMod = file.lastModified
       editor.filesChanged([file])
     }
   }
-},500)
+}, 500)
 
 editor.init(
   defaultCode,
@@ -277,7 +294,7 @@ editor.init(
     console.log('save file', path)
     let pathArr = path.split('/')
     let fileHandle = (await sw?.getFile(path))?.fileHandle
-    if(!fileHandle) fileHandle = saveMap[path]
+    if (!fileHandle) fileHandle = saveMap[path]
     if (!fileHandle) {
       const opts = {
         suggestedName: pathArr[pathArr.length - 1],
@@ -296,10 +313,10 @@ editor.init(
       await writable.write(script)
       await writable.close()
       saveMap[path] = fileHandle
-      fileHandle.lastMod = Date.now()+500
+      fileHandle.lastMod = Date.now() + 500
     }
   },
-  path=>sw?.getFile(path)
+  path => sw?.getFile(path),
 )
 menu.init(loadExample)
 welcome.init()

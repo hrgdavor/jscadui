@@ -573,21 +573,11 @@ p {
   position: absolute;
   bottom: 10px;
   right: 10px;
-  border: 6px solid #f3f3f3;
-  border-top: 6px solid #27c;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  animation: spin 1s linear infinite;
   display: none;
+  accent-color: #27c;
 }
 .dark #spinner {
-  border: 6px solid #222;
-  border-top: 6px solid #16a;
-}
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  accent-color: #2e96ea;
 }
 
 .above-error {

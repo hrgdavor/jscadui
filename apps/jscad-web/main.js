@@ -165,6 +165,7 @@ const handlers = {
     console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2))
     setError(undefined)
   },
+  progress: ({ progress }) => spinner.value = progress,
 }
 const { sendCmd, sendNotify } = initMessaging(worker, handlers)
 

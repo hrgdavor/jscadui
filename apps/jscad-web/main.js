@@ -178,6 +178,7 @@ async function sendCmdAndSpin(method, params) {
     // do not show spinner for fast renders
     firstJobTimer = setTimeout(() => {
       spinner.style.display = 'block'
+      spinner.removeAttribute('value')
     }, 300)
   }
   try {

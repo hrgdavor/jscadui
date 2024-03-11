@@ -83,13 +83,15 @@ const result = await workerApi.runScript({ script})
 // result is now known to be ScriptResponse and you get autocomplete
 ```
 
-
-
-
 ## transferable
 
 It is simple to send transferable objects when sending a message to the worker by adding a parameter to `postMessage`.
 It is however more tricky to support transferable for return values without complicating simple use cases that do not need transferable.
 
 If you have a method that can be called and it needs to return transferable then you must use object as a return value.
-When returning such object, include `__transferable` key in the return value. It will not be in the data at the receiving end but will be taken out and passed to postMessage as a transferable parameter.
+When returning such object in call to `withTransferable` before returning the value. 
+It will not be in the data at the receiving end, but will be taken out and passed to postMessage as the transferable parameter.
+
+```js
+  return withTransferable({ entities, mainTime }, transferable)
+```

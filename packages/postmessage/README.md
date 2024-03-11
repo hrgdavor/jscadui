@@ -92,6 +92,7 @@ If you have a method that can be called and it needs to return transferable then
 When returning such object in call to `withTransferable` before returning the value. 
 It will not be in the data at the receiving end, but will be taken out and passed to postMessage as the transferable parameter.
 
+Exmaple from jscad worker
 ```js
   return withTransferable({ entities, mainTime }, transferable)
 ```

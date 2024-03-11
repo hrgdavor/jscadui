@@ -40,6 +40,12 @@ Here is partial sample of jsdoc definitions for jscad worker
 @prop {Array<Alias>} alias - 
 @prop {Array<Alias>} bundles - bundle alias {name:path} 
 
+@typedef RunScriptOptions
+@prop {string} script - script source
+@prop {string} url - script url/name
+@prop {string} base - base url 
+@prop {string} base - root (do not allow paths below that root)  
+
 @typedef ScriptResponse
 @prop {Array<any>} entities  
 @prop {number} mainTime  - script run time
@@ -48,7 +54,7 @@ Here is partial sample of jsdoc definitions for jscad worker
 @typedef JscadWorker
 @prop {String} name
 @prop {(options:InitOptions)=>Promise<void>} init
-@prop {(options:RunMainOptions)=>Promise<ScriptResponse>} runMain
+@prop {(options:RunScriptOptions)=>Promise<ScriptResponse>} runScript
 */
 ```
 

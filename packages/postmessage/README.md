@@ -6,7 +6,7 @@ Calling methods is handled with Promises because the postMessage is async by def
 
 If you use this utility both in your main thread and in the worker you will get the most benefits.
 
-Consider these steps depending on the complexity
+Consider these steps depending on the complexity:
 
 1. **postMessage**: if you have only few messages pushing some data, you do not even need this
 2. **RPC:** if you have messages, and some of them are response to a request(functionally) you should try formalizing a protocol and this RPC here can be a good starting point

@@ -32,6 +32,9 @@ The RPC protocol is inspired by JSONRPC, as I personally found it useful in mult
 With modern JavaScript we can go few steps further and make communication with worker be as simple 
 as calling methods(all of them async ofc.).
 
+If you create a class that handles incomming rpc calls, NOTICE THAT unless all of your methods are actually async, you can not just use the declaration
+of your class for the side that is takling to your class via postMessage. You must create an interface that has all the methods declared async.
+
 Here is partial sample of jsdoc definitions for jscad worker
 ```ts
 /**

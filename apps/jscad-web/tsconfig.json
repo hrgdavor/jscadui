@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "allowJs": true,
+    "skipLibCheck": true,
     "outDir": "build_dev",
     "moduleResolution": "node16"
   },

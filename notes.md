@@ -1,3 +1,9 @@
+# refresh badge after publishing
+
+```sh
+curl -X PURGE BADGE_URL
+```
+
 # libs source for easier integrationd with IDE
 
 Make `index.js` that exports all from `src` to have errors in console or `console.log` display fine lanem taht is not `index.js`. In case where I had multiple libs separated, and because they are simple, code was directly in `index.js`. This caused visibility issues because many trace lines had `index.js` as source and then you need to look closely at full path to find out what lib is causing it.

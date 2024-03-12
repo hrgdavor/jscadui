@@ -128,7 +128,7 @@ document.body.ondrop = async ev => {
     const { alias, script } = await fileDropped(sw, files)
     projectName = sw.projectName
     if (alias.length) {
-      sendNotify('init', [{ alias }])
+      workerApi.init({ alias })
     }
     runScript({ url: sw.fileToRun, base: sw.base })
   } catch (error) {
@@ -246,7 +246,7 @@ async function initFs() {
   sw = await registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/')
   sw.defProjectName = 'jscad'
   sw.onfileschange = files => {
-    sendNotify('clearFileCache', [{ files }])
+    workerApi.clearFileCache({ files })
     if (sw.fileToRun) runScript({ url: sw.fileToRun, base: sw.base })
   }
 }

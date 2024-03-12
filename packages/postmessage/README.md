@@ -62,7 +62,7 @@ Here is partial sample of jsdoc definitions for jscad worker
 
 For me, TypeScript is nicer to write declarations, but I still prefer [JSDoc](https://alexharri.com/blog/jsdoc-as-an-alternative-typescript-syntax) as it requires less tooling and also works in IDE.
 
-You can to it either way you prefer, so here is also typescript version of the sample:
+You can do it either way you prefer, so here is also typescript version of the sample:
 
 ```ts
 export interface InitOptions {

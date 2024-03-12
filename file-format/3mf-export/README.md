@@ -1,4 +1,5 @@
 # 3mf export MVP
+[![npm version](https://badge.fury.io/js/@jscadui%2F3mf-export.svg)](https://badge.fury.io/js/@jscadui%2F3mf-export)
 
 This is a set of functions to generate 3mf content for exporting 3d models and optionally embeding a thumbnail.
 

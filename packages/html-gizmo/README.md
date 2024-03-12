@@ -1,5 +1,7 @@
 # Cube camera gizmo Web Component
 
+[![npm version](https://badge.fury.io/js/@jscadui%2Fhtml-gizmo.svg)](https://badge.fury.io/js/@jscadui%2Fhtml-gizmo)
+
 | ![gizmo in action](docs/gizmo.gif)    | Check the demo at: https://hrgdavor.github.io/jscadui/html-gizmo/    |
 | ---- | ---- |
 

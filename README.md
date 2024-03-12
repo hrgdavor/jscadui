@@ -5,9 +5,10 @@ If you want to discuss jscad or jscadui you can also join us on discord: https:/
 
 Most of the things are work in progres, but some parts are pretty ready to be used
 
-- [packages/html-gizmo](./packages/html-gizmo) - a gizmo to display current camera direction
+- [packages/html-gizmo](./packages/html-gizmo) - [![npm version](https://badge.fury.io/js/@jscadui%2Fhtml-gizmo.svg)](https://badge.fury.io/js/@jscadui%2Fhtml-gizmo) a gizmo to display current camera direction
 - [file-format/3mf-export](./file-format/3mf-export) - [![npm version](https://badge.fury.io/js/@jscadui%2F3mf-export.svg)](https://badge.fury.io/js/@jscadui%2F3mf-export) 3mf-export (also used by mynifold)
-- 
+- [packages/postmessage](./packages/postmessage) - [![npm version](https://badge.fury.io/js/@jscadui%2Fpostmessage.svg)](https://badge.fury.io/js/@jscadui%2Fpostmessage) postMessage quality of life improvement
+
 # demo
 [jscad.app](https://jscad.app) is a nice demo and our attempt at making a an improved version of [openjscad.xyz](https://openjscad.xyz).
 

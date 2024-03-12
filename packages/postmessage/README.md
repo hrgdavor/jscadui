@@ -1,5 +1,5 @@
 # postMessage utility
-[![npm version](https://badge.fury.io/js/@jscadui%2Fpostmessage.svg)](https://badge.fury.io/js/@jscadui%2Fpostmessage)
+[![npm version](https://badge.fury.io/js/@jscadui%2Fpostmessage.svg)](https://www.npmjs.com/package/@jscadui%2Fpostmessage)
 
 Allows for simpler usage of [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Worker/postMessage) by defining a RPC protocol that can send notifications or call methods. 
 Calling methods is handled with Promises because the postMessage is async by definition.

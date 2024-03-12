@@ -13,7 +13,7 @@
     "@jscadui/html-gizmo": "^0.1.0",
     "@jscadui/orbit": "^0.1.0",
     "@jscadui/params": "^0.1.0",
-    "@jscadui/postmessage": "^0.1.0",
+    "@jscadui/postmessage": "^0.2.0",
     "vue": "^3.3.11"
   },
   "devDependencies": {

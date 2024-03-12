@@ -3,7 +3,7 @@ import { JscadToCommon } from '@jscadui/format-jscad'
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl, OrbitState, closerAngle, getCommonRotCombined } from '@jscadui/orbit'
 import { genParams } from '@jscadui/params'
-import { initMessaging } from '@jscadui/postmessage'
+import { initMessaging, messageProxy } from '@jscadui/postmessage'
 import { makeAxes, makeGrid } from '@jscadui/scene'
 import * as themes from '@jscadui/themes'
 
@@ -15,6 +15,8 @@ import {
 import { availableEngines, availableEnginesList } from './src/availableEngines'
 import { CurrentUrl } from './src/currentUrl'
 import { EngineState } from './src/engineState'
+
+/** @typedef {import('@jscadui/worker').JscadWorker} JscadWorker*/
 
 const theme = themes.light
 const { subtract } = booleans
@@ -122,7 +124,7 @@ document.body.ondrop = async ev => {
   
     if (!sw) await initFs()
     showDrop(false)
-    sendCmd('clearTempCache', [{}])
+    workerApi.clearTempCache()
     const { alias, script } = await fileDropped(sw, files)
     projectName = sw.projectName
     if (alias.length) {
@@ -167,14 +169,29 @@ function save(blob, filename) {
 }
 
 function exportModel(format) {
-  sendCmd('exportData', { format }).then(({ data }) => {
+  workerApi.exportData({ format }).then(({ data }) => {
     console.log('save', fileToRun + '.stl', data)
     save(new Blob([data], { type: 'text/plain' }), fileToRun + '.stl')
   }).catch(setError)
 }
 window.exportModel = exportModel
 
+const paramChangeCallback = async params => {
+  console.log('params changed', params)
+  let result = await workerApi.runMain({ params })
+  handlers.entities(result)
+}
+
+const runScript = async ({script, url = './index.js', base, root}) => {
+  const result = await workerApi.runScript({ script, url, base, root })
+  console.log('result', result)
+  genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
+  handlers.entities(result)
+}
+
+/** @type {JscadWorker} */
 const worker = new Worker('./build/bundle.worker.js')
+const workerApi = messageProxy(worker, handlers, { onJobCount: trackJobs })
 const handlers = {
   entities: ({ entities }) => {
     if (!(entities instanceof Array)) entities = [entities]
@@ -182,27 +199,30 @@ const handlers = {
     setError(undefined)
   },
 }
-const { sendCmd, sendNotify } = initMessaging(worker, handlers)
 
 const spinner = byId('spinner')
-async function sendCmdAndSpin(method, params){
-  spinner.style.display = 'block'
-  try{
-    return await sendCmd(method, params)
-  }catch(error){
-    setError(error)
-    throw error
-  }finally{
+let firstJobTimer
+
+function trackJobs(jobs) {
+  if (jobs === 1) {
+    // do not show spinner for fast renders
+    firstJobTimer = setTimeout(() => {
+      spinner.style.display = 'block'
+    }, 300)
+  }
+  if (jobs === 0) {
+    clearTimeout(firstJobTimer)
     spinner.style.display = 'none'
   }
 }
 
-sendCmdAndSpin('init', [{
+await workerApi.init({
   bundles: {
     '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
   },
-}]).then(()=>{
-  runScript({script:`const { sphere, geodesicSphere } = require('@jscad/modeling').primitives
+})
+
+runScript({script:`const { sphere, geodesicSphere } = require('@jscad/modeling').primitives
   const { translate, scale } = require('@jscad/modeling').transforms
   
   const main = () => [
@@ -220,20 +240,6 @@ sendCmdAndSpin('init', [{
   
   module.exports = { main }`
   })
-})
-
-const paramChangeCallback = async params => {
-  console.log('params changed', params)
-  let result = await sendCmdAndSpin('runMain', [{ params }])
-  handlers.entities(result)
-}
-
-const runScript = async ({script, url = './index.js', base, root}) => {
-  const result = await sendCmdAndSpin('runScript', [{ script, url, base, root }])
-  console.log('result', result)
-  genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
-  handlers.entities(result)
-}
 
 let sw
 async function initFs() {

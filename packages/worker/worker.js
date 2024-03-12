@@ -9,12 +9,10 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
 
 /**
 @typedef Alias
-@prop {String} name
-@prop {String} path
-*/
+ @prop {String} name
+ @prop {String} path
 
-/**
- @typedef RunScriptOptions
+@typedef RunScriptOptions
  @prop {string} script - script source
  @prop {string} url - script url/name
  @prop {string} base - base url 

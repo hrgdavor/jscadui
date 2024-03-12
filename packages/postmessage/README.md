@@ -38,13 +38,12 @@ Here is partial sample of jsdoc definitions for jscad worker
 @typedef InitOptions
 @prop {String} baseURI - to resolve inital relative path
 @prop {Array<Alias>} alias - 
-@prop {Array<Alias>} bundles - bundle alias {name:path} 
+@prop {Array<Object>} bundles - bundle alias {name:path} 
 
 @typedef RunScriptOptions
 @prop {string} script - script source
 @prop {string} url - script url/name
 @prop {string} base - base url 
-@prop {string} base - root (do not allow paths below that root)  
 
 @typedef ScriptResponse
 @prop {Array<any>} entities  
@@ -56,6 +55,40 @@ Here is partial sample of jsdoc definitions for jscad worker
 @prop {(options:InitOptions)=>Promise<void>} init
 @prop {(options:RunScriptOptions)=>Promise<ScriptResponse>} runScript
 */
+```
+
+For me, TypeScript is nicer to write declarations, but I still prefer [JSDoc](https://alexharri.com/blog/jsdoc-as-an-alternative-typescript-syntax) as it requires less tooling and also works in IDE.
+
+You can to it either way you prefer, so here is also typescript version of the sample:
+
+```ts
+export interface InitOptions {
+  /** to resolve inital relative path */
+  baseURI:String,
+  alias: Array<Alias>,
+  /** bundle alias {name:path} */
+  bundles: Array<Record<String,String>>, 
+}
+
+export interface RunScriptOptions {
+  /** script source */
+  script: string,
+  /** script url/name */
+  url: string,
+  /** base url */
+  base: string,
+}
+
+export interface ScriptResponse {
+  entities: Array<any>,
+  /** script run time */
+  mainTime: number,
+}
+
+export interface JscadWorker {
+  async init(options:InitOptions):void,
+  async init(options:RunScriptOptions):ScriptResponse,
+}
 ```
 
 Manuall calling `init` worker method documented above, requires sending

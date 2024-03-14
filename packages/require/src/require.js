@@ -126,7 +126,8 @@ const requireModule = (id, url, source, _require) => {
     const exports = {}
     const module = { id, uri: url, url, exports, source, meta:{url, uri:url} } // according to node.js modules
     //module.require = _require
-    runModule(_require, exports, module, source + '\n//# sourceURL=' + url)
+    source += '\n//# sourceURL=' + url
+    runModule(_require, exports, module, source)
     return module
   } catch (err) {
     err.message = `failed loading module ${id}\n  ${err}`

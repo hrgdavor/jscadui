@@ -14,6 +14,7 @@ Any text or code editor will work for this (vi, vim, neovim, notepad++, VSCodium
 - edit the file, save the changes, jscad.app will automatically re-run the script
 
 A chromium based browser is required, as other browser do not allow JS to see changes to the file.
+Firefox plays dumb and will indefinitely give the initial file version, even after it changes on your drive.
 
 ## Enthusiast: a multifile project
 
@@ -42,7 +43,7 @@ I personally prefer to use VSCode and drag/drop my file onto jscad.app to see it
 any editor
 drag and dropping file to openjscad or jscad.app will cause it to be given to the browser with permission to read it.
 You must use Chrome for jscad to be able to check few times a second to see if it changed
-Only Chrome can get change info and read new content ... Firefox plays dumb and will indefinitely give the initial file version, even after it chanes on your drive
+Only Chrome can get change info and read new content ... 
 
 
 

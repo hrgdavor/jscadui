@@ -207,10 +207,14 @@ function trackJobs(jobs) {
 const runScript = async ({ script, url = './jscad.model.js', base = currentBase, root }) => {
   currentBase = base
   loadDefault = false // don't load default model if something else was loaded
-  const result = await workerApi.runScript({ script, url, base, root, smooth: viewState.smoothRender })
-  genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
-  lastRunParams = result.params
-  handlers.entities(result)
+  try{
+    const result = await workerApi.runScript({ script, url, base, root, smooth: viewState.smoothRender })
+    genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
+    lastRunParams = result.params
+    handlers.entities(result)
+  }catch(err){
+    setError(err)    
+  }
 }
 
 const bundles = {

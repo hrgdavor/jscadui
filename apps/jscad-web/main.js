@@ -2,6 +2,7 @@ import {
   addToCache,
   clearFs,
   extractEntries,
+  analyzeProject,
   fileDropped,
   getFile,
   getFileContent,
@@ -80,8 +81,13 @@ async function initFs() {
   })
   sw.defProjectName = 'jscad'
   sw.onfileschange = files => {
-    workerApi.clearFileCache({ files })
-    editor.filesChanged(files)
+    console.log('files', files)
+    if(files.includes('/package.json')){
+      reloadProject()
+    }else{
+      workerApi.clearFileCache({ files })
+      editor.filesChanged(files)
+    }
     if (sw.fileToRun) runScript({ url: sw.fileToRun, base: sw.base })
   }
   sw.getFile = path => getFile(path, sw)
@@ -100,20 +106,28 @@ document.body.ondrop = async ev => {
     if (!sw) await initFs()
     showDrop(false)
     workerApi.clearTempCache()
-    saveMap = {}
-    const { alias, script } = await fileDropped(sw, files)
-    projectName = sw.projectName
-    if (alias.length) {
-      workerApi.init({ alias })
-    }
-    let url = sw.fileToRun
-    runScript({ url, base: sw.base })
-    editor.setSource(script, url)
-    editor.setFiles(sw.filesToCheck)
+
+    await fileDropped(sw, files)
+
+    reloadProject()
+
   } catch (error) {
     setError(error)
     console.error(error)
   }
+}
+
+async function reloadProject(){
+  saveMap = {}
+  const { alias, script } = await analyzeProject(sw)
+  projectName = sw.projectName
+  if (alias.length) {
+    workerApi.init({ alias })
+  }
+  let url = sw.fileToRun
+  runScript({ url, base: sw.base })
+  editor.setSource(script, url)
+  editor.setFiles(sw.filesToCheck)
 }
 
 document.body.ondragover = ev => {
@@ -176,7 +190,9 @@ const spinner = byId('spinner')
 let firstJobTimer
 
 function trackJobs(jobs) {
+  console.log('jobs', jobs)
   if (jobs === 1) {
+    clearTimeout(firstJobTimer)    
     // do not show spinner for fast renders
     firstJobTimer = setTimeout(() => {
       spinner.style.display = 'block'
@@ -191,10 +207,14 @@ function trackJobs(jobs) {
 const runScript = async ({ script, url = './jscad.model.js', base = currentBase, root }) => {
   currentBase = base
   loadDefault = false // don't load default model if something else was loaded
-  const result = await workerApi.runScript({ script, url, base, root, smooth: viewState.smoothRender })
-  genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
-  lastRunParams = result.params
-  handlers.entities(result)
+  try{
+    const result = await workerApi.runScript({ script, url, base, root, smooth: viewState.smoothRender })
+    genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
+    lastRunParams = result.params
+    handlers.entities(result)
+  }catch(err){
+    setError(err)    
+  }
 }
 
 const bundles = {

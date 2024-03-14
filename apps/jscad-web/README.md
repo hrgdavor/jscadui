@@ -20,6 +20,15 @@ To start the local development server, go to the `apps/jscad-web` directory and 
 npm start
 ```
 
+this will start the dev server without generating jscad docs, which is like ok 99% of time.
+
+to start dev server that also has docs run
+
+```
+npm run start:full
+```
+
+
 ## Deployment
 
 To start the production server run:

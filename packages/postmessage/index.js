@@ -137,7 +137,7 @@ export const initMessaging = (_self, handlers, {onJobCount}={}) => {
  * @param {*} handlers 
  * @returns {object}
 */
-export const messageProxy = (_self, handlers, {sender, onJobCount}) => {
+export const messageProxy = (_self, handlers, {sender, onJobCount}={}) => {
   const { sendCmd, sendNotify, getRpcJobCount} = sender || initMessaging(_self, handlers,{onJobCount})
 
   return new Proxy({

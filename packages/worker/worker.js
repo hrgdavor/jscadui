@@ -120,7 +120,7 @@ export async function runMain({ params } = {}) {
 const importReg = /import(?:(?:(?:[ \n\t]+([^ *\n\t\{\},]+)[ \n\t]*(?:,|[ \n\t]+))?([ \n\t]*\{(?:[ \n\t]*[^ \n\t"'\{\}]+[ \n\t]*,?)+\})?[ \n\t]*)|[ \n\t]*\*[ \n\t]*as[ \n\t]+([^ \n\t\{\}]+)[ \n\t]+)from[ \n\t]*(?:['"])([^'"\n]+)(['"])/
 const exportReg = /export.*from/
 
-const runScript = async ({ script, url, base=globalBase, root=base }) => {
+const runScript = async ({ script, url='jscad.js', base=globalBase, root=base }) => {
   console.log('run script with base:', base)
   if(!script) script = readFileWeb(resolveUrl(url, base, root).url)
 

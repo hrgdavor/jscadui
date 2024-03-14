@@ -7,7 +7,8 @@
  */
 export const formatStacktrace = (error) => {
   // error.stack is not standard but works on chrome and firefox
-  if (!error.stack) return error.toString()
+  const stack = error.stack
+  if (!stack) return error.toString()
 
   // chrome stacktrace (script error, syntax error):
   //  ReferenceError: gggggg is not defined
@@ -16,9 +17,10 @@ export const formatStacktrace = (error) => {
   //  at ve (http://localhost:5120/build/bundle.worker.js:28:2964)
   //  at Pt (http://localhost:5120/build/bundle.worker.js:28:3731)
   //  at async http://localhost:5120/build/bundle.worker.js:14:3218
-  const cleaned = error.stack
+  const cleaned = stack
     .split('\n')
     .filter(line => !line.includes('bundle.worker.js'))
 
-  return [error.message, ...cleaned].join('\n')
+  if(!stack.includes(error.message)) cleaned.unshift(error.message)
+  return cleaned.join('\n')
 }

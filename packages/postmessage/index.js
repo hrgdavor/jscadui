@@ -82,7 +82,6 @@ export const initMessaging = (_self, handlers, {onJobCount}={}) => {
 
   const listener = async (e) => {
     const { method, params, id, error } = e.data
-    console.log('error', error)
     if (id && method === RESPONSE) {
       const p = reqMap.get(id)
 
@@ -117,7 +116,6 @@ export const initMessaging = (_self, handlers, {onJobCount}={}) => {
         sendResponse(out, id)
       }
     } catch (error) {
-      console.log('ERR', error)
       console.error(`error executing command ${method}`, params, error)
       sendError(error, id)
     }

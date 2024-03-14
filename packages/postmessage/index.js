@@ -37,7 +37,7 @@ export const initMessaging = (_self, handlers, {onJobCount}={}) => {
     try {
       // serialize stacktrace so it isn't lost in transit
       const stack = error.stack
-      ___self.postMessage({ method: RESPONSE, error, stack, id })
+      ___self.postMessage({ method: RESPONSE, error: {message: error.message, name:error.name, stack}, id })
     } catch (error) {
       console.error('failed to send ', error)
       throw error
@@ -81,7 +81,8 @@ export const initMessaging = (_self, handlers, {onJobCount}={}) => {
   }
 
   const listener = async (e) => {
-    const { method, params, id, error, stack } = e.data
+    const { method, params, id, error } = e.data
+    console.log('error', error)
     if (id && method === RESPONSE) {
       const p = reqMap.get(id)
 
@@ -92,8 +93,11 @@ export const initMessaging = (_self, handlers, {onJobCount}={}) => {
       const [resolve, reject] = p
       if (error) {
         // restore stacktrace
-        error.stack = stack
-        reject(error)
+        // if(typeof error === 'string') 
+        const _error = new Error(error.message)
+        _error.stack = error.stack
+        _error.name = error.name
+        reject(_error)
       } else {
         resolve(params)
       }
@@ -113,6 +117,7 @@ export const initMessaging = (_self, handlers, {onJobCount}={}) => {
         sendResponse(out, id)
       }
     } catch (error) {
+      console.log('ERR', error)
       console.error(`error executing command ${method}`, params, error)
       sendError(error, id)
     }

@@ -190,7 +190,6 @@ const spinner = byId('spinner')
 let firstJobTimer
 
 function trackJobs(jobs) {
-  console.log('jobs', jobs)
   if (jobs === 1) {
     clearTimeout(firstJobTimer)    
     // do not show spinner for fast renders

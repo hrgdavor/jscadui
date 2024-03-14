@@ -122,6 +122,7 @@ const requireModule = (id, url, source, _require) => {
     const exports = {}
     const module = { id, uri: url, exports, source } // according to node.js modules
     //module.require = _require
+    source += '\n//# sourceURL=' + url
     runModule(_require, exports, module, source)
     return module
   } catch (err) {

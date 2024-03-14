@@ -127,7 +127,16 @@ const runScript = async ({ script, url='jscad.js', base=globalBase, root=base })
   const shouldTransform = url.endsWith('.ts') || script.includes('import') && (importReg.test(script) || exportReg.test(script))
   let def = []
   
-  const scriptModule = require({url,script}, shouldTransform ? transformFunc : undefined, readFileWeb, base, root, importData)
+  let scriptModule
+  try{
+    scriptModule = require({url,script}, shouldTransform ? transformFunc : undefined, readFileWeb, base, root, importData)
+  }catch(e){
+    // with syntax error in browser we do not get nice stack trace
+    // we then try to parse the script to let transform function generate nice error with nice trace
+    if(e.name === 'SyntaxError') transformFunc(script, url)
+    // if error is not SyntaxError or if transform func does not find sysntax err (very unlikely)
+    throw e
+  }
   const fromSource = getParameterDefinitionsFromSource(script)
   def = combineParameterDefinitions(fromSource, await scriptModule.getParameterDefinitions?.())
   main = scriptModule.main

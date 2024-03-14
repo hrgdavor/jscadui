@@ -144,7 +144,6 @@ document.body.ondragleave = document.body.ondragend = ev => {
 const setError = error => {
   const errorBar = byId('error-bar')
   if (error) {
-    console.error(error)
     const name = (error.name || 'Error') + ': '
     byId('error-name').innerText = name
     const message = formatStacktrace(error)

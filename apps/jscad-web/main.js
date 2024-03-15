@@ -172,7 +172,7 @@ const exportModel = async (format, extension) => {
   }
 }
 
-const onProgress = ([value, note]) => {
+const onProgress = (value, note) => {
   const el = progress.querySelector('progress')
   if (value == undefined) {
     el.removeAttribute('value')

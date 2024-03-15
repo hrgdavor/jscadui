@@ -7,6 +7,48 @@ import { combineParameterDefinitions, getParameterDefinitionsFromSource } from '
 import { extractDefaults } from './src/extractDefaults.js'
 import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/fs-provider.js'
 
+/**
+@typedef Alias
+ @prop {String} name
+ @prop {String} path
+
+@typedef RunScriptOptions
+ @prop {string} script - script source
+ @prop {string} url - script url/name
+ @prop {string} base - base url 
+ @prop {string} base - root (do not allow paths below that root)  
+
+ @typedef ExportDataOptions
+ @prop {string} format
+
+ @typedef ClearFileCacheOptions
+ @prop {Array<String>} files
+
+ @typedef RunMainOptions
+ @prop {Object} params
+
+ @typedef InitOptions
+ @prop {String} baseURI - to resolve inital relative path
+ @prop {Array<Alias>} alias - 
+ @prop {Array<Alias>} bundle - bundle alias {name:path} 
+ 
+ @typedef ScriptResponse
+ @prop {Array<any>} entities  
+ @prop {number} mainTime  - script run time
+ @prop {number} convertTime  - tim converting script output to gl data
+
+
+@typedef JscadWorker
+@prop {String} name
+@prop {(options:InitOptions)=>Promise<void>} init
+@prop {(options:RunMainOptions)=>Promise<ScriptResponse>} runMain
+@prop {(options:RunScriptOptions)=>Promise<ScriptResponse>} runScript
+@prop {(options:ExportDataOptions)=>Promise<void>} exportData
+@prop {(options:ClearFileCacheOptions)=>Promise<void>} clearFileCache
+@prop {()=>Promise<void>} clearTempCache
+
+*/
+
 let main
 self.JSCAD_WORKER_ENV = {}
 let transformFunc = x => x
@@ -29,8 +71,8 @@ export const flatten = arr=>{
   return out
 }
 
-export const init = params => {
-  let { baseURI, alias = [], bundles = {} } = params
+export const init = options => {
+  let { baseURI, alias = [], bundles = {} } = options
   if (baseURI) globalBase = baseURI
 
   if (bundles) Object.assign(requireCache.bundleAlias, bundles)
@@ -39,7 +81,7 @@ export const init = params => {
     requireCache.alias[name] = path
   })
   console.log('init alias', alias, 'bundles',bundles)
-  userInstances = params.userInstances
+  userInstances = options.userInstances
 }
 
 async function readFileFile(file, {bin=false}={}){
@@ -78,14 +120,23 @@ export async function runMain({ params } = {}) {
 const importReg = /import(?:(?:(?:[ \n\t]+([^ *\n\t\{\},]+)[ \n\t]*(?:,|[ \n\t]+))?([ \n\t]*\{(?:[ \n\t]*[^ \n\t"'\{\}]+[ \n\t]*,?)+\})?[ \n\t]*)|[ \n\t]*\*[ \n\t]*as[ \n\t]+([^ \n\t\{\}]+)[ \n\t]+)from[ \n\t]*(?:['"])([^'"\n]+)(['"])/
 const exportReg = /export.*from/
 
-const runScript = async ({ script, url, base=globalBase, root=base }) => {
+const runScript = async ({ script, url='jscad.js', base=globalBase, root=base }) => {
   console.log('run script with base:', base)
   if(!script) script = readFileWeb(resolveUrl(url, base, root).url)
 
   const shouldTransform = url.endsWith('.ts') || script.includes('import') && (importReg.test(script) || exportReg.test(script))
   let def = []
   
-  const scriptModule = require({url,script}, shouldTransform ? transformFunc : undefined, readFileWeb, base, root, importData)
+  let scriptModule
+  try{
+    scriptModule = require({url,script}, shouldTransform ? transformFunc : undefined, readFileWeb, base, root, importData)
+  }catch(e){
+    // with syntax error in browser we do not get nice stack trace
+    // we then try to parse the script to let transform function generate nice error with nice trace
+    if(e.name === 'SyntaxError') transformFunc(script, url)
+    // if error is not SyntaxError or if transform func does not find sysntax err (very unlikely)
+    throw e
+  }
   const fromSource = getParameterDefinitionsFromSource(script)
   def = combineParameterDefinitions(fromSource, await scriptModule.getParameterDefinitions?.())
   main = scriptModule.main
@@ -128,3 +179,5 @@ export const initWorker = (transform, exportData, _importData) => {
 
   client = initMessaging(self, handlers)
 }
+
+

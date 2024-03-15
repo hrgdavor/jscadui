@@ -190,7 +190,7 @@ p {
   height: calc(100vh - 60px);
   flex: 1;
 }
-#editor-hint {
+#editor-hint, #editor-hint2 {
   position: absolute;
   bottom: 10px;
   right: calc(min(10px, 100% - 180px)); /* push right when editor is small */
@@ -198,6 +198,9 @@ p {
   white-space: nowrap;
   font-size: 10pt;
   user-select: none;
+}
+#editor-hint {
+  bottom: 30px;
 }
 .dark #editor-hint {
   color: #dddddd88;

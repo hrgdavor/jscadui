@@ -225,13 +225,12 @@ export const checkFiles = sw => {
 export async function fileDropped(sw, files) {
   sw.filesToCheck.length = 0
   sw.fileToRun = 'index.js'
-  let folderName
   clearFs(sw)
   let rootFiles = []
   if (files.length === 1) {
     const file = files[0]
     if (file.isDirectory) {
-      folderName = file.name
+      sw.folderName = file.name
       file.fsDir = '/'
       rootFiles = await readDir(file)
     } else {
@@ -243,16 +242,17 @@ export async function fileDropped(sw, files) {
   }
   rootFiles = rootFiles.map(e => fileToFsEntry(e, '/'))
   sw.roots.push(rootFiles)
+}
 
+export async function analyzeProject(sw){
   const alias = await getWorkspaceAliases(sw)
 
-  let time = Date.now()
   const preLoad = ['/' + sw.fileToRun, '/package.json']
   const loaded = await addPreLoadAll(sw, preLoad, true)
 
   sw.projectName = sw.defProjectName
   if (sw.fileToRun !== 'index.js') sw.projectName = sw.fileToRun.replace(/\.js$/, '')
-  if (folderName) sw.projectName = folderName
+  if (sw.folderName) sw.projectName = sw.folderName
 
   let script = ''
   if (sw.fileToRun) {
@@ -266,6 +266,7 @@ export async function fileDropped(sw, files) {
     }
   }
   return { alias, script }
+
 }
 
 /**
@@ -280,6 +281,7 @@ const getWorkspaceAliases = async sw => {
   let pkgFile = await findFileInRoots(sw.roots, 'package.json')
   if (pkgFile) {
     try {
+      sw.filesToCheck.push(pkgFile)
       const pack = JSON.parse(await readAsText(pkgFile))
       if (pack.main) sw.fileToRun = pack.main
       if (pack.workspaces)

@@ -2,6 +2,7 @@ import {
   addToCache,
   clearFs,
   extractEntries,
+  analyzeProject,
   fileDropped,
   getFile,
   getFileContent,
@@ -10,7 +11,7 @@ import {
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl } from '@jscadui/orbit'
 import { genParams } from '@jscadui/params'
-import { initMessaging } from '@jscadui/postmessage'
+import { initMessaging, messageProxy } from '@jscadui/postmessage'
 
 import defaultCode from './examples/jscad.example.js'
 import * as editor from './src/editor.js'
@@ -21,15 +22,17 @@ import * as remote from './src/remote.js'
 import { formatStacktrace } from './src/stacktrace.js'
 import { ViewState } from './src/viewState.js'
 import * as welcome from './src/welcome.js'
-import { runMain } from '../../packages/worker/worker.js'
 
 export const byId = id => document.getElementById(id)
+
+/** @typedef {import('@jscadui/worker').JscadWorker} JscadWorker*/
+
 const appBase = document.baseURI
 let currentBase = appBase
 const toUrl = path => new URL(path, appBase).toString()
 
 const viewState = new ViewState()
-viewState.onRequireReRender = ()=>paramChangeCallback(lastRunParams)
+viewState.onRequireReRender = () => paramChangeCallback(lastRunParams)
 
 const gizmo = (window.gizmo = new Gizmo())
 byId('overlay').parentNode.appendChild(gizmo)
@@ -55,10 +58,10 @@ ctrl.oninput = state => updateFromCtrl(state)
 gizmo.oncam = ({ cam }) => ctrl.animateToCommonCamera(cam)
 
 let sw
-async function resetFileRefs(){
+async function resetFileRefs() {
   editor.setFiles([])
   saveMap = {}
-  if(sw){
+  if (sw) {
     delete sw.fileToRun
     await clearFs(sw)
   }
@@ -78,8 +81,13 @@ async function initFs() {
   })
   sw.defProjectName = 'jscad'
   sw.onfileschange = files => {
-    sendNotify('clearFileCache', { files })
-    editor.filesChanged(files)
+    console.log('files', files)
+    if(files.includes('/package.json')){
+      reloadProject()
+    }else{
+      workerApi.clearFileCache({ files })
+      editor.filesChanged(files)
+    }
     if (sw.fileToRun) runScript({ url: sw.fileToRun, base: sw.base })
   }
   sw.getFile = path => getFile(path, sw)
@@ -97,21 +105,29 @@ document.body.ondrop = async ev => {
     await resetFileRefs()
     if (!sw) await initFs()
     showDrop(false)
-    sendCmd('clearTempCache', {})
-    saveMap = {}
-    const { alias, script } = await fileDropped(sw, files)
-    projectName = sw.projectName
-    if (alias.length) {
-      sendNotify('init', { alias })
-    }
-    let url = sw.fileToRun
-    runScript({ url, base: sw.base })
-    editor.setSource(script, url)
-    editor.setFiles(sw.filesToCheck)
+    workerApi.clearTempCache()
+
+    await fileDropped(sw, files)
+
+    reloadProject()
+
   } catch (error) {
     setError(error)
     console.error(error)
   }
+}
+
+async function reloadProject(){
+  saveMap = {}
+  const { alias, script } = await analyzeProject(sw)
+  projectName = sw.projectName
+  if (alias.length) {
+    workerApi.init({ alias })
+  }
+  let url = sw.fileToRun
+  runScript({ url, base: sw.base })
+  editor.setSource(script, url)
+  editor.setFiles(sw.filesToCheck)
 }
 
 document.body.ondragover = ev => {
@@ -128,7 +144,6 @@ document.body.ondragleave = document.body.ondragend = ev => {
 const setError = error => {
   const errorBar = byId('error-bar')
   if (error) {
-    console.error(error)
     const name = (error.name || 'Error') + ': '
     byId('error-name').innerText = name
     const message = formatStacktrace(error)
@@ -150,7 +165,7 @@ function save(blob, filename) {
 }
 
 const exportModel = async (format, extension) => {
-  const { data } = (await sendCmdAndSpin('exportData', { format })) || {}
+  const { data } = (await workerApi.exportData({ format })) || {}
   if (data) {
     save(new Blob([data], { type: 'text/plain' }), `${projectName}.${extension}`)
     console.log('save', `${projectName}.${extension}`, data)
@@ -177,44 +192,52 @@ const handlers = {
   },
   onProgress,
 }
-const { sendCmd, sendNotify } = initMessaging(worker, handlers)
+
+/** @type {JscadWorker} */
+const workerApi = messageProxy(worker, handlers, { onJobCount: trackJobs })
 
 const progress = byId('progress')
 let jobs = 0
 let firstJobTimer
-async function sendCmdAndSpin(method, params) {
-  jobs++
+
+function trackJobs(jobs) {
   if (jobs === 1) {
     // do not show progress for fast renders
+    clearTimeout(firstJobTimer)    
     firstJobTimer = setTimeout(() => {
       onProgress([])
       progress.style.display = 'block'
     }, 300)
   }
-  try {
-    return await sendCmd(method, params)
-  } catch (error) {
-    setError(error)
-    throw error
-  } finally {
-    if (--jobs === 0) {
-      clearTimeout(firstJobTimer)
-      progress.style.display = 'none'
-    }
+  if (jobs === 0) {
+    clearTimeout(firstJobTimer)
+    progress.style.display = 'none'
   }
 }
 
-sendCmdAndSpin('init', {
-  bundles: {
-    // local bundled alias for common libs.
-    '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
-    '@jscad/io': toUrl('./build/bundle.jscad_io.js'),
-  },
-}).then(() => {
-  if (loadDefault) {
-    runScript({ script: defaultCode, smooth: viewState.smoothRender })
+const runScript = async ({ script, url = './jscad.model.js', base = currentBase, root }) => {
+  currentBase = base
+  loadDefault = false // don't load default model if something else was loaded
+  try{
+    const result = await workerApi.runScript({ script, url, base, root, smooth: viewState.smoothRender })
+    genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
+    lastRunParams = result.params
+    handlers.entities(result)
+  }catch(err){
+    setError(err)    
   }
-})
+}
+
+const bundles = {
+  // local bundled alias for common libs.
+  '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
+  '@jscad/io': toUrl('./build/bundle.jscad_io.js'),
+}
+
+await workerApi.init({ bundles })
+if (loadDefault) {
+  runScript({ script: defaultCode, smooth: viewState.smoothRender })
+}
 
 let working
 let lastParams
@@ -228,23 +251,14 @@ const paramChangeCallback = async params => {
   }
   working = true
   let result
-  try{
-    result = await sendCmdAndSpin('runMain', { params, smooth: viewState.smoothRender })
+  try {
+    result = await workerApi.runMain({ params, smooth: viewState.smoothRender })
     lastRunParams = params
-  } finally{
+  } finally {
     working = false
   }
-  handlers.entities(result, {smooth: viewState.smoothRender})
-  if(lastParams && lastParams != params) paramChangeCallback(lastParams)
-}
-
-const runScript = async ({ script, url = './jscad.model.js', base = currentBase, root }) => {
-  currentBase = base
-  loadDefault = false // don't load default model if something else was loaded
-  const result = await sendCmdAndSpin('runScript', { script, url, base, root, smooth: viewState.smoothRender })
-  genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
-  lastRunParams = result.params
-  handlers.entities(result)
+  handlers.entities(result, { smooth: viewState.smoothRender })
+  if (lastParams && lastParams != params) paramChangeCallback(lastParams)
 }
 
 const loadExample = async (source, base = appBase) => {
@@ -254,21 +268,19 @@ const loadExample = async (source, base = appBase) => {
 }
 
 // Initialize three engine
-engine.init().then(viewer => {
-  viewState.setEngine(viewer)
-})
+viewState.setEngine(await engine.init())
 
 let saveMap = {}
-setInterval(async ()=>{
-  for(let p in saveMap){
+setInterval(async () => {
+  for (let p in saveMap) {
     let handle = saveMap[p]
     let file = await handle.getFile()
-    if(file.lastModified > handle.lastMod){
+    if (file.lastModified > handle.lastMod) {
       handle.lastMod = file.lastModified
       editor.filesChanged([file])
     }
   }
-},500)
+}, 500)
 
 editor.init(
   defaultCode,
@@ -279,7 +291,7 @@ editor.init(
       // it is expected if multiple files require same file/module that first time it is loaded
       // but for others resolved module is returned
       // if not cleared by calling clearFileCache, require will not try to reload the file
-      await sendCmd('clearFileCache', { files: [path] })
+      await workerApi.clearFileCache({ files: [path] })
       if (sw.fileToRun) runScript({ url: sw.fileToRun, base: sw.base })
     } else {
       runScript({ script })
@@ -289,7 +301,7 @@ editor.init(
     console.log('save file', path)
     let pathArr = path.split('/')
     let fileHandle = (await sw?.getFile(path))?.fileHandle
-    if(!fileHandle) fileHandle = saveMap[path]
+    if (!fileHandle) fileHandle = saveMap[path]
     if (!fileHandle) {
       const opts = {
         suggestedName: pathArr[pathArr.length - 1],
@@ -308,10 +320,10 @@ editor.init(
       await writable.write(script)
       await writable.close()
       saveMap[path] = fileHandle
-      fileHandle.lastMod = Date.now()+500
+      fileHandle.lastMod = Date.now() + 500
     }
   },
-  path=>sw?.getFile(path)
+  path => sw?.getFile(path),
 )
 menu.init(loadExample)
 welcome.init()

@@ -205,7 +205,7 @@ function trackJobs(jobs) {
     // do not show progress for fast renders
     clearTimeout(firstJobTimer)    
     firstJobTimer = setTimeout(() => {
-      onProgress([])
+      onProgress()
       progress.style.display = 'block'
     }, 300)
   }

@@ -569,15 +569,19 @@ p {
   border-top-left-radius: 4px;
 }
 
-#spinner {
+#progress {
   position: absolute;
   bottom: 10px;
   right: 10px;
   display: none;
   accent-color: #27c;
 }
-.dark #spinner {
+.dark #progress {
   accent-color: #2e96ea;
+}
+#progress > div {
+  font-size: small;
+  text-align: right;
 }
 
 .above-error {

@@ -157,6 +157,16 @@ const exportModel = async (format, extension) => {
   }
 }
 
+const onProgress = ([value, note]) => {
+  const el = progress.querySelector('progress')
+  if (value == undefined) {
+    el.removeAttribute('value')
+  } else {
+    el.value = value
+  }
+  progress.querySelector('div').innerText = note ?? ''
+}
+
 const worker = new Worker('./build/bundle.worker.js')
 const handlers = {
   entities: ({ entities, mainTime, convertTime }) => {
@@ -165,20 +175,20 @@ const handlers = {
     console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2))
     setError(undefined)
   },
-  progress: ({ progress }) => spinner.value = progress,
+  onProgress,
 }
 const { sendCmd, sendNotify } = initMessaging(worker, handlers)
 
-const spinner = byId('spinner')
+const progress = byId('progress')
 let jobs = 0
 let firstJobTimer
 async function sendCmdAndSpin(method, params) {
   jobs++
   if (jobs === 1) {
-    // do not show spinner for fast renders
+    // do not show progress for fast renders
     firstJobTimer = setTimeout(() => {
-      spinner.style.display = 'block'
-      spinner.removeAttribute('value')
+      onProgress([])
+      progress.style.display = 'block'
     }, 300)
   }
   try {
@@ -189,7 +199,7 @@ async function sendCmdAndSpin(method, params) {
   } finally {
     if (--jobs === 0) {
       clearTimeout(firstJobTimer)
-      spinner.style.display = 'none'
+      progress.style.display = 'none'
     }
   }
 }

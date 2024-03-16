@@ -172,6 +172,16 @@ const exportModel = async (format, extension) => {
   }
 }
 
+const onProgress = (value, note) => {
+  const el = progress.querySelector('progress')
+  if (value == undefined) {
+    el.removeAttribute('value')
+  } else {
+    el.value = value
+  }
+  progress.querySelector('div').innerText = note ?? ''
+}
+
 const worker = new Worker('./build/bundle.worker.js')
 const handlers = {
   entities: ({ entities, mainTime, convertTime }) => {
@@ -180,25 +190,28 @@ const handlers = {
     console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2))
     setError(undefined)
   },
+  onProgress,
 }
 
 /** @type {JscadWorker} */
 const workerApi = messageProxy(worker, handlers, { onJobCount: trackJobs })
 
-const spinner = byId('spinner')
+const progress = byId('progress')
+let jobs = 0
 let firstJobTimer
 
 function trackJobs(jobs) {
   if (jobs === 1) {
+    // do not show progress for fast renders
     clearTimeout(firstJobTimer)    
-    // do not show spinner for fast renders
     firstJobTimer = setTimeout(() => {
-      spinner.style.display = 'block'
+      onProgress()
+      progress.style.display = 'block'
     }, 300)
   }
   if (jobs === 0) {
     clearTimeout(firstJobTimer)
-    spinner.style.display = 'none'
+    progress.style.display = 'none'
   }
 }
 

@@ -144,7 +144,7 @@ export const clearFileCache = async ({files}) => {
 /**
  * Clear project-specific cache
  */
-export const clearTempCache = () => {
+export const jscadClearTempCache = () => {
   requireCache.local = {}
   requireCache.alias = {}
 }

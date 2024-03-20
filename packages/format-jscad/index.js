@@ -20,7 +20,10 @@ function CSG2Vertices (csg) {
   let posOffset = 0
   let first = 0
   for (const poly of csg.polygons) {
-    const arr = poly.vertices
+    let arr = poly.vertices
+    if(arr[0].pos) arr = arr.map(({pos})=>{
+      return [pos.x, pos.y, pos.z]
+    })
     const normal = calculateNormal(arr)
     const len = arr.length
     first = posOffset
@@ -158,7 +161,6 @@ JscadToCommon.prepare = (list, transferable, useInstances) => {
         // transparent objects need ordering,  and that breaks thing for rendering instances
         if (useInstances && obj.type === 'mesh' && obj.id && (!csg.color || csg.color.length === 3 || csg.color[3] === 1)) {
           let old = instanceMap.get(obj.id)
-          //console.log('instance', old, obj)
           if (!old) {
             old = { csg, ...obj, list: [] }
             instanceMap.set(obj.id, old)

@@ -8,7 +8,7 @@ const {css2rgb, color, rgb2hsl, hsl2rgb, rgb2hsv, hsv2rgb, html2rgb, rgb2html} =
 const {sin, cos, asin, acos, tan, atan, atan2, ceil, floor, abs, min, max, rands, log, lookup, pow, sign, sqrt, round} = csg.maths
 const {vector_char, vector_text, vectorChar, vectorText} = csg.text
 // lines above are a JS shim, to make .jscad scripts work as regular JS
-// ------------------------------ JS SHIM HEADER ---------------------------------------------------------------------------------------
+// ------------------------------ JS V1 SHIM HEADER ---------------------------------------------------------------------------------------
 
 function main() {
   return cube({size:[20,20,20],center:true})
@@ -28,7 +28,7 @@ function main() {
     );
 }
 
-// ---------------------------- JS SHIM FOOTER -----------------------------------------------------------------------------------------
+// ---------------------------- JS V1 SHIM FOOTER -----------------------------------------------------------------------------------------
 // this is footer of the JS shim, to export the main and getParameterDefinitions
 module.exports = { main }
 // some scripts will not have parameters, so we silently ignore the error line below would cause

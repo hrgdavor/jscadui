@@ -6,21 +6,62 @@ const setPoints = (points, p, i) => {
 
 function CSG2Vertices (csg) {
   let vLen = 0; let iLen = 0
-  for (const poly of csg.polygons) {
+
+  let hasVertexColors// v1 colors support
+  for (const poly of csg.polygons) {// v1 colors support
+    if(poly.shared?.color) hasVertexColors = true
     const len = poly.vertices.length
     vLen += len * 3
     iLen += 3 * (len - 2)
   }
-  const vertices = new Float32Array(vLen)
-  const normals = new Float32Array(vLen)
-  const indices = vLen > 65535 ? new Uint32Array(iLen) : new Uint16Array(iLen)
-
+  
+  let vertices = new Float32Array(vLen)
+  let normals = new Float32Array(vLen)
+  let indices = vLen > 65535 ? new Uint32Array(iLen) : new Uint16Array(iLen)
+  let colors
+  let color
   let vertOffset = 0
   let indOffset = 0
   let posOffset = 0
   let first = 0
+
+  if(hasVertexColors){// v1 colors support
+    let lastColor = [1,0.5,0.5,1]
+    // color is fore each index
+    colors = new Float32Array(iLen*4)
+    for (const poly of csg.polygons) {
+      color = poly.shared?.color || lastColor
+      // lastColor = color
+      let count = poly.vertices.length
+      for(var i=0; i<count-2; i++){
+        colors[vertOffset++] = color[0]
+        colors[vertOffset++] = color[1]
+        colors[vertOffset++] = color[2]
+        colors[vertOffset++] = color[3] ?? 1
+
+        colors[vertOffset++] = color[0]
+        colors[vertOffset++] = color[1]
+        colors[vertOffset++] = color[2]
+        colors[vertOffset++] = color[3] ?? 1
+
+        colors[vertOffset++] = color[0]
+        colors[vertOffset++] = color[1]
+        colors[vertOffset++] = color[2]
+        colors[vertOffset++] = color[3] ?? 1
+
+        // colors[vertOffset++] = color[3] || 1
+      }
+  	}
+  }
+
+  vertOffset = 0
   for (const poly of csg.polygons) {
-    const arr = poly.vertices
+    let arr = poly.vertices
+    if(arr[0].pos){// v1 polygon with pos:{x,y,z} support, bu converting to array
+      arr = arr.map(({pos})=>{
+        return [pos.x, pos.y, pos.z]
+      })
+    }
     const normal = calculateNormal(arr)
     const len = arr.length
     first = posOffset
@@ -42,7 +83,8 @@ function CSG2Vertices (csg) {
       posOffset += 1
     }
   }
-  return { type: 'mesh', vertices, indices, normals }
+
+  return { type: 'mesh', vertices, indices, normals, colors, isTransparent:hasVertexColors }
 }
 
 const calculateNormal = (vertices) => {
@@ -158,7 +200,6 @@ JscadToCommon.prepare = (list, transferable, useInstances) => {
         // transparent objects need ordering,  and that breaks thing for rendering instances
         if (useInstances && obj.type === 'mesh' && obj.id && (!csg.color || csg.color.length === 3 || csg.color[3] === 1)) {
           let old = instanceMap.get(obj.id)
-          //console.log('instance', old, obj)
           if (!old) {
             old = { csg, ...obj, list: [] }
             instanceMap.set(obj.id, old)

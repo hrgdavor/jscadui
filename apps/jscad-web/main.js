@@ -7,6 +7,9 @@ import {
   getFile,
   getFileContent,
   registerServiceWorker,
+  findFile,
+  findFileInRoots,
+  readAsText,
 } from '@jscadui/fs-provider'
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl } from '@jscadui/orbit'
@@ -18,6 +21,7 @@ import * as editor from './src/editor.js'
 import * as engine from './src/engine.js'
 import * as exporter from './src/exporter.js'
 import * as menu from './src/menu.js'
+import { addV1Shim } from './src/addV1Shim.js'
 import * as remote from './src/remote.js'
 import { formatStacktrace } from './src/stacktrace.js'
 import { ViewState } from './src/viewState.js'
@@ -108,7 +112,6 @@ document.body.ondrop = async ev => {
     workerApi.jscadClearTempCache()
 
     await fileDropped(sw, files)
-
     reloadProject()
 
   } catch (error) {
@@ -119,12 +122,18 @@ document.body.ondrop = async ev => {
 
 async function reloadProject(){
   saveMap = {}
-  const { alias, script } = await analyzeProject(sw)
+  let { alias, script } = await analyzeProject(sw)
   projectName = sw.projectName
   if (alias.length) {
     workerApi.jscadInit({ alias })
   }
   let url = sw.fileToRun
+  // inject jscad v1 shim, and also inject changed script to cache
+  // so worker and editor have the same code
+  if(sw.fileToRun?.endsWith('.jscad')){
+    script = addV1Shim(script)
+    addToCache(sw.cache, sw.fileToRun, script)
+  }
   jscadScript({ url, base: sw.base })
   editor.setSource(script, url)
   editor.setFiles(sw.filesToCheck)
@@ -232,6 +241,7 @@ const bundles = {
   // local bundled alias for common libs.
   '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
   '@jscad/io': toUrl('./build/bundle.jscad_io.js'),
+ '@jscad/csg': toUrl('./build/bundle.V1_api.js'),
 }
 
 await workerApi.jscadInit({ bundles })

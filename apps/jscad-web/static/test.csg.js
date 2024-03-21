@@ -13,10 +13,11 @@ function echo(){console.warn("echo() will be deprecated in the near future: plea
 // lines above are a JS shim, to make .jscad scripts work as regular JS
 // ------------------------------ JS V1 SHIM HEADER ---------------------------------------------------------------------------------------
 
+//https://neorama.de
+
 let res = 32;
 
 function main() {
-
    return union(
       difference(
          cube({size: 3, center: true, fn:res}),

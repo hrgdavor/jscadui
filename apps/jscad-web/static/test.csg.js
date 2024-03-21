@@ -13,22 +13,20 @@ function echo(){console.warn("echo() will be deprecated in the near future: plea
 // lines above are a JS shim, to make .jscad scripts work as regular JS
 // ------------------------------ JS V1 SHIM HEADER ---------------------------------------------------------------------------------------
 
-function main() {
-  return cube({size:[20,20,20],center:true})
+let res = 32;
 
-  return difference(
-    union(
-      cube({size:[20,20,20],center:true}),
-      cube({size:[50,8,8],center:true}).translate([0,0,14]),
-      cube({size:[20,8.5,8.5],center:true}).rotateX(45).translate([0,4,10]),
-      cube({size:[20,8.5,8.5],center:true}).rotateX(45).translate([0,-4,10]),
-      // cylinder({start: [-10,5,10], end: [10,5,10], r: 5, fn: 20}),
-      // cylinder({start: [-10,-5,10], end: [10,-5,10], r: 5, fn: 20}),
-      cube({size:[10,8,20],center:true}).rotateY(20).translate([9,0,5]),
-      cube({size:[10,8,20],center:true}).rotateY(-20).translate([-9,0,5])
-     ).expand(2,20),
-      cube({size:[20,20,40],center:true}).translate([0,0,-10])
-    );
+function main() {
+
+   return union(
+      difference(
+         cube({size: 3, center: true, fn:res}),
+         sphere({r:2, center: true, fn:res})
+      ),
+      intersection(
+          sphere({r: 1.3, center: true,fn:res}),
+          cube({size: 2.1, center: true, fn:res})
+      )
+   ).translate([0,0,1.5]).scale(10);
 }
 
 // ---------------------------- JS V1 SHIM FOOTER -----------------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 import { JscadToCommon } from '@jscadui/format-jscad'
 import { initMessaging, withTransferable } from '@jscadui/postmessage'
-import { clearFileCache, clearTempCache, readFileWeb, require, requireCache, resolveUrl } from '@jscadui/require'
+import { clearFileCache, jscadClearTempCache, readFileWeb, require, requireCache, resolveUrl } from '@jscadui/require'
 
 import { exportStlText } from './src/exportStlText.js'
 import { combineParameterDefinitions, getParameterDefinitionsFromSource } from './src/getParameterDefinitionsFromSource.js'
@@ -39,13 +39,12 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
 
 
 @typedef JscadWorker
-@prop {String} name
-@prop {(options:InitOptions)=>Promise<void>} init
-@prop {(options:RunMainOptions)=>Promise<ScriptResponse>} runMain
-@prop {(options:RunScriptOptions)=>Promise<ScriptResponse>} runScript
-@prop {(options:ExportDataOptions)=>Promise<void>} exportData
-@prop {(options:ClearFileCacheOptions)=>Promise<void>} clearFileCache
-@prop {()=>Promise<void>} clearTempCache
+@prop {(options:InitOptions)=>Promise<void>} jscadInit
+@prop {(options:RunMainOptions)=>Promise<ScriptResponse>} jscadMain - run the main method of the loaded script
+@prop {(options:RunScriptOptions)=>Promise<ScriptResponse>} jscadScript - run a jscad script
+@prop {(options:ExportDataOptions)=>Promise<void>} jscadExportData
+@prop {(options:ClearFileCacheOptions)=>Promise<void>} jscadClearFileCache
+@prop {()=>Promise<void>} jscadClearTempCache
 
 */
 
@@ -71,7 +70,7 @@ export const flatten = arr=>{
   return out
 }
 
-export const init = options => {
+export const jscadInit = options => {
   let { baseURI, alias = [], bundles = {} } = options
   if (baseURI) globalBase = baseURI
 
@@ -90,7 +89,7 @@ async function readFileFile(file, {bin=false}={}){
 }
 
 solids = []
-export async function runMain({ params } = {}) {
+export async function jscadMain({ params } = {}) {
   params = {...params}
   for(let p in params){
     if(params[p] instanceof File && importData){
@@ -99,7 +98,7 @@ export async function runMain({ params } = {}) {
       params[p] = importData.deserialize(info, content)
     }
   }
-  console.log('runMain with params', params)
+  console.log('jscadMain with params', params)
   let entities = []
   const transferable = []
 
@@ -120,7 +119,7 @@ export async function runMain({ params } = {}) {
 const importReg = /import(?:(?:(?:[ \n\t]+([^ *\n\t\{\},]+)[ \n\t]*(?:,|[ \n\t]+))?([ \n\t]*\{(?:[ \n\t]*[^ \n\t"'\{\}]+[ \n\t]*,?)+\})?[ \n\t]*)|[ \n\t]*\*[ \n\t]*as[ \n\t]+([^ \n\t\{\}]+)[ \n\t]+)from[ \n\t]*(?:['"])([^'"\n]+)(['"])/
 const exportReg = /export.*from/
 
-const runScript = async ({ script, url='jscad.js', base=globalBase, root=base }) => {
+const jscadScript = async ({ script, url='jscad.js', base=globalBase, root=base }) => {
   console.log('run script with base:', base)
   if(!script) script = readFileWeb(resolveUrl(url, base, root).url)
 
@@ -143,7 +142,7 @@ const runScript = async ({ script, url='jscad.js', base=globalBase, root=base })
   // if the main function is the default export
   if(!main && typeof scriptModule == 'function') main = scriptModule
   let params = extractDefaults(def)
-  let out = await runMain({ params })
+  let out = await jscadMain({ params })
   out.def = def
   out.params = params
   return out
@@ -153,7 +152,7 @@ const runScript = async ({ script, url='jscad.js', base=globalBase, root=base })
 // this is interesting in regards to exporting to stl, and 3mf which actually need vertex data, 
 // and not jcad geometry polygons. So it will be interesting to can give back transferable buffers
 // instead of re-running conversion. or move export to main thread where the data already is, as it is needed for rendering
-const exportData = async (params) => {
+const jscadExportData = async (params) => {
   if(self.exportData) return self.exportData(params)
 
   const { format } = params
@@ -170,11 +169,11 @@ const exportData = async (params) => {
 
 export const currentSolids = ()=>solids
 
-const handlers = { runScript, init, runMain, clearTempCache, clearFileCache, exportData }
+const handlers = { jscadScript, jscadInit, jscadMain, jscadClearTempCache, jscadClearFileCache:clearFileCache, jscadExportData }
 
-export const initWorker = (transform, exportData, _importData) => {
+export const initWorker = (transform, jscadExportData, _importData) => {
   if (transform) transformFunc = transform
-  if(exportData) handlers.exportData = exportData
+  if(jscadExportData) handlers.jscadExportData = jscadExportData
   importData = _importData
 
   client = initMessaging(self, handlers)

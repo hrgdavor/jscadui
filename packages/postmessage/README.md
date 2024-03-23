@@ -55,9 +55,8 @@ Here is partial sample of jsdoc definitions for jscad worker
 @prop {number} convertTime  - tim converting script output to gl data
 
 @typedef JscadWorker
-@prop {String} name
-@prop {(options:InitOptions)=>Promise<void>} init
-@prop {(options:RunScriptOptions)=>Promise<ScriptResponse>} runScript
+@prop {(options:InitOptions)=>Promise<void>} jscadInit
+@prop {(options:RunScriptOptions)=>Promise<ScriptResponse>} jscadScript
 */
 ```
 
@@ -90,21 +89,21 @@ export interface ScriptResponse {
 }
 
 export interface JscadWorker {
-  async init(options:InitOptions):void,
-  async init(options:RunScriptOptions):ScriptResponse,
+  async jscadInit(options:InitOptions):void,
+  async jscadScript(options:RunScriptOptions):ScriptResponse,
 }
 ```
 
-Manuall calling `init` worker method documented above, requires sending
-`worker.postMessage({method:'init', params:[{bundles}]})` just to trigger the method.
+Manuall calling `jscadInit` worker method documented above, requires sending
+`worker.postMessage({method:'jscadInit', params:[{bundles}]})` just to trigger the method.
 Then you would also need to handle response, and wrap it  all into a promise
 
 If you do not want to be fancy with typed code you can just use `initMessaging` and call worker methods using `sendCmd`.
 
 ```js
 const {sendCmd } = initMessaging(worker, handlers, { onJobCount: trackJobs })
-await sendCmd('init',[{ bundles }])
-const result = await sendCmd('runScript', [{ script}])
+await sendCmd('jscadInit',[{ bundles }])
+const result = await sendCmd('jscadScript', [{ script}])
 // IDE does not know type of the result
 ```
 
@@ -115,8 +114,8 @@ You can then import and use the definition
 
 /** @type {JscadWorker} */
 const workerApi = messageProxy(worker, handlers, { onJobCount: trackJobs })
-await workerApi.init({ bundles })
-const result = await workerApi.runScript({ script})
+await workerApi.jscadInit({ bundles })
+const result = await workerApi.jscadScript({ script})
 // result is now known to be ScriptResponse and you get autocomplete
 ```
 

@@ -85,10 +85,10 @@ async function initFs() {
     if(files.includes('/package.json')){
       reloadProject()
     }else{
-      workerApi.clearFileCache({ files })
+      workerApi.jscadClearFileCache({ files })
       editor.filesChanged(files)
     }
-    if (sw.fileToRun) runScript({ url: sw.fileToRun, base: sw.base })
+    if (sw.fileToRun) jscadScript({ url: sw.fileToRun, base: sw.base })
   }
   sw.getFile = path => getFile(path, sw)
 }
@@ -105,7 +105,7 @@ document.body.ondrop = async ev => {
     await resetFileRefs()
     if (!sw) await initFs()
     showDrop(false)
-    workerApi.clearTempCache()
+    workerApi.jscadClearTempCache()
 
     await fileDropped(sw, files)
 
@@ -122,10 +122,10 @@ async function reloadProject(){
   const { alias, script } = await analyzeProject(sw)
   projectName = sw.projectName
   if (alias.length) {
-    workerApi.init({ alias })
+    workerApi.jscadInit({ alias })
   }
   let url = sw.fileToRun
-  runScript({ url, base: sw.base })
+  jscadScript({ url, base: sw.base })
   editor.setSource(script, url)
   editor.setFiles(sw.filesToCheck)
 }
@@ -165,11 +165,21 @@ function save(blob, filename) {
 }
 
 const exportModel = async (format, extension) => {
-  const { data } = (await workerApi.exportData({ format })) || {}
+  const { data } = (await workerApi.jscadExportData({ format })) || {}
   if (data) {
     save(new Blob([data], { type: 'text/plain' }), `${projectName}.${extension}`)
     console.log('save', `${projectName}.${extension}`, data)
   }
+}
+
+const onProgress = (value, note) => {
+  const el = progress.querySelector('progress')
+  if (value == undefined) {
+    el.removeAttribute('value')
+  } else {
+    el.value = value
+  }
+  progress.querySelector('div').innerText = note ?? ''
 }
 
 const worker = new Worker('./build/bundle.worker.js')
@@ -180,33 +190,36 @@ const handlers = {
     console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2))
     setError(undefined)
   },
+  onProgress,
 }
 
 /** @type {JscadWorker} */
 const workerApi = messageProxy(worker, handlers, { onJobCount: trackJobs })
 
-const spinner = byId('spinner')
+const progress = byId('progress')
+let jobs = 0
 let firstJobTimer
 
 function trackJobs(jobs) {
   if (jobs === 1) {
+    // do not show progress for fast renders
     clearTimeout(firstJobTimer)    
-    // do not show spinner for fast renders
     firstJobTimer = setTimeout(() => {
-      spinner.style.display = 'block'
+      onProgress()
+      progress.style.display = 'block'
     }, 300)
   }
   if (jobs === 0) {
     clearTimeout(firstJobTimer)
-    spinner.style.display = 'none'
+    progress.style.display = 'none'
   }
 }
 
-const runScript = async ({ script, url = './jscad.model.js', base = currentBase, root }) => {
+const jscadScript = async ({ script, url = './jscad.model.js', base = currentBase, root }) => {
   currentBase = base
   loadDefault = false // don't load default model if something else was loaded
   try{
-    const result = await workerApi.runScript({ script, url, base, root, smooth: viewState.smoothRender })
+    const result = await workerApi.jscadScript({ script, url, base, root, smooth: viewState.smoothRender })
     genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
     lastRunParams = result.params
     handlers.entities(result)
@@ -222,9 +235,9 @@ const bundles = {
   'manifold-3d': toUrl('./manifold-3d.js'),
 }
 
-await workerApi.init({ bundles })
+await workerApi.jscadInit({ bundles })
 if (loadDefault) {
-  runScript({ script: defaultCode, smooth: viewState.smoothRender })
+  jscadScript({ script: defaultCode, smooth: viewState.smoothRender })
 }
 
 let working
@@ -240,7 +253,7 @@ const paramChangeCallback = async params => {
   working = true
   let result
   try {
-    result = await workerApi.runMain({ params, smooth: viewState.smoothRender })
+    result = await workerApi.jscadMain({ params, smooth: viewState.smoothRender })
     lastRunParams = params
   } finally {
     working = false
@@ -252,7 +265,7 @@ const paramChangeCallback = async params => {
 const loadExample = async (source, base = appBase) => {
   await resetFileRefs()
   editor.setSource(source, base)
-  runScript({ script: source, base })
+  jscadScript({ script: source, base })
 }
 
 // Initialize three engine
@@ -278,11 +291,11 @@ editor.init(
       // imported script will be also cached by require/import implementation
       // it is expected if multiple files require same file/module that first time it is loaded
       // but for others resolved module is returned
-      // if not cleared by calling clearFileCache, require will not try to reload the file
-      await workerApi.clearFileCache({ files: [path] })
-      if (sw.fileToRun) runScript({ url: sw.fileToRun, base: sw.base })
+      // if not cleared by calling jscadClearFileCache, require will not try to reload the file
+      await workerApi.jscadClearFileCache({ files: [path] })
+      if (sw.fileToRun) jscadScript({ url: sw.fileToRun, base: sw.base })
     } else {
-      runScript({ script })
+      jscadScript({ script })
     }
   },
   async (script, path) => {
@@ -319,7 +332,7 @@ remote.init(
   (script, url) => {
     // run remote script
     editor.setSource(script, url)
-    runScript({ script, base: url })
+    jscadScript({ script, base: url })
     welcome.dismiss()
   },
   err => {

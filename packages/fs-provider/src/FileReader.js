@@ -1,5 +1,3 @@
-import { filePromise } from "./FileEntry"
-
 export const readAsArrayBuffer = async f => readAs(f, 'readAsArrayBuffer')
 export const readAsBinaryString = async f => readAs(f, 'readAsBinaryString')
 export const readAsDataURL = async f => readAs(f, 'readAsDataURL')
@@ -14,7 +12,17 @@ const readAs = async (f, as) =>
       console.error(msg, f, error)
       reject(msg)
     }
-    // if we are given a FileEntry instead of a resolved file
-    if(typeof f.file === 'function') f = await filePromise(f)
-    reader[as](f)
+    try{
+      if(f.handle){
+        const tmp = await f.handle.getFile()
+        f.lastModified = tmp.lastModified
+        f.size = tmp.size
+        f = tmp 
+      } 
+
+      reader[as](f)
+    }catch(e){
+      console.warn(as, f)
+      throw e
+    }
   })

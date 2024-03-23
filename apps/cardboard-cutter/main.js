@@ -111,7 +111,7 @@ function save(blob, filename) {
 }
 
 function exportModel(format) {
-  sendCmd('exportData', { format }).then(({ data }) => {
+  sendCmd('jscadExportData', [{ format }]).then(({ data }) => {
     console.log('save', fileToRun + '.stl', data)
     save(new Blob([data], { type: 'text/plain' }), fileToRun + '.stl')
   })
@@ -123,12 +123,12 @@ const { sendCmd, sendNotify } = initMessaging(worker, handlers)
 
 const paramChangeCallback = params => {
   console.log('params', params)
-  sendCmd('runMain', { params })
+  sendCmd('jscadMain', [{ params }])
 }
 
-export const runScript = file => {
+export const jscadScript = file => {
   fileToRun = file.replace(/.*\//, '').replace(/\..*/, '')
-  sendCmd('runScript', { url: file }).then(result => {
+  sendCmd('jscadScript', [{ url: file }]).then(result => {
     console.log('result', result)
     genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
   })
@@ -141,5 +141,5 @@ export const initEngine = async (THREE, elem, workerOptions) => {
   updateFromCtrl(ctrl)
   setTheme(theme)
 
-  await sendCmd('init', workerOptions)
+  await sendCmd('jscadInit', [workerOptions])
 }

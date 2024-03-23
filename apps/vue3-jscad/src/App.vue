@@ -157,10 +157,10 @@ onMounted(async () => {
     const sw = serviceWorker.value
     if (sw && sw.fileToRun) {
       await addToCache(sw.cache, path, script)
-      await sendCmd('clearFileCache', { files: [path] })
-      if (sw.fileToRun) runScript({ url: sw.fileToRun, base: sw.base })
+      await sendCmd('jscadClearFileCache', { files: [path] })
+      if (sw.fileToRun) jscadScript({ url: sw.fileToRun, base: sw.base })
     } else {
-      runScript({ script })
+      jscadScript({ script })
     }
   })
 
@@ -168,7 +168,7 @@ onMounted(async () => {
   remote.init((script) => {
     // run remote script
     editor.setSource(script)
-    runScript({ script })
+    jscadScript({ script })
   }, (err) => {
     // show remote script error
     loadDefault = false
@@ -176,12 +176,12 @@ onMounted(async () => {
   })
   exporter.init(exportModel)
 
-  runScript({ script: defaultCode })
+  jscadScript({ script: defaultCode })
 });
 
 const loadExample = source => {
   editor.setSource(source)
-  runScript({ script: source })
+  jscadScript({ script: source })
 }
 
 const exportModel = async (format, extension) => {
@@ -209,7 +209,7 @@ const paramChangeCallback = async (params) => {
   working.value = true;
   let result;
   try {
-    result = await sendCmdAndSpin('runMain', { params });
+    result = await sendCmdAndSpin('jscadMain', { params });
   } finally {
     working.value = false;
   }
@@ -221,10 +221,10 @@ watch(lastParams, (newParams) => {
   paramChangeCallback(newParams);
 });
 
-const runScript = async ({ script, url = './index.js', base, root }) => {
-  const result = await sendCmdAndSpin('runScript', { script, url, base, root })
+const jscadScript = async ({ script, url = './index.js', base, root }) => {
+  const result = await sendCmdAndSpin('jscadScript', { script, url, base, root })
   loadDefault = false // don't load default model if something else was loaded
-  console.log('runScript', result)
+  console.log('jscadScript', result)
   genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
   handlers.entities(result)
 }
@@ -262,14 +262,14 @@ async function sendCmdAndSpin(method, params) {
   }
 }
 
-sendCmdAndSpin('init', {
+sendCmdAndSpin('jscadInit', {
   bundles: {// local bundled alias for common libs.
     '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
     '@jscad/io': toUrl('./build/bundle.jscad_io.js'),
   },
 }).then(() => {
   if (loadDefault) {
-    runScript({ script: defaultCode })
+    jscadScript({ script: defaultCode })
   }
 })
 
@@ -890,11 +890,12 @@ p {
 #paramsDiv .form-line[type="group"]:before {
   content: "\25bc";
   padding-right: 10px;
+  padding-top: 3px;
   cursor: pointer;
 }
 
 #paramsDiv .form-line[type="group"][closed="1"]:before {
-  content: "\25b6";
+  content: "\25ba";
 }
 
 #paramsDiv .form-line[type="group"] label {

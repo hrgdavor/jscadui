@@ -63,7 +63,7 @@ self.addEventListener('fetch', async event => {
           return (done = true)
         }
 
-        let resp = await clientWrapper.sendCmd('getFile', { path: path })
+        let resp = await clientWrapper.sendCmd('getFile', [{ path: path }])
         rCached = await clientWrapper.cache.match(fileReq)
         done = true
         resolve(rCached || new Response(path + ' not in cache', { status: rCached ? 200 : 404 }))

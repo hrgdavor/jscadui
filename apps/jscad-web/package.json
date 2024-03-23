@@ -3,15 +3,16 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start": "node build.js --dev",
+    "start": "node build.js --dev --skipDocs",
+    "start:full": "node build.js --dev",
     "build": "node build.js",
     "serve": "node build.js --serve",
     "test": "ava"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.1.9",
-    "@jscad/io": "2.4.4",
-    "@jscad/modeling": "2.12.0",
+    "@jscad/io": "2.4.7",
+    "@jscad/modeling": "2.12.1",
     "@jscadui/format-jscad": "*",
     "@jscadui/format-threejs": "*",
     "@jscadui/fs-provider": "*",

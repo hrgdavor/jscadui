@@ -7,12 +7,12 @@ import {serve} from './serve.js'
 import { buildBundle, buildOne } from './src_build/esbuildUtil.js'
 
 // *************** read parameters **********************
-const { dev, port = 5120, serve:serveBuild=false } = parseArgs()
+const { dev, port = 5120, serve:serveBuild=false, skipDocs=false } = parseArgs()
 const watch = dev
 const outDir = dev ? 'build_dev' : 'build'
 const docsDir = 'jscad/docs'
 // if docs dir does not exist, then clone jscad and run `npm run docs` to generate it
-if (!existsSync(docsDir)) {
+if (!skipDocs &&!existsSync(docsDir)) {
   console.log('generating docs')
   if (!existsSync('jscad')) {
     // TODO: faster to fetch https://github.com/jscad/OpenJSCAD.org/archive/refs/heads/master.zip
@@ -29,16 +29,16 @@ mkdirSync(outDir, { recursive: true })
 copyTask('static', outDir, { include: [], exclude: [], watch, filters: [] })
 copyTask('examples', outDir+'/examples', { include: [], exclude: [], watch, filters: [] })
 //in dev mode dont try to sync docs, just copy the first time 
-if(!(dev & existsSync(outDir + "/docs"))){
+if(!skipDocs && !(dev & existsSync(outDir + "/docs"))){
   // this task is heavy
   copyTask(docsDir, outDir + "/docs", { include: [], exclude: [], watch:false, filters: [] })
 }
 
 /**************************** BUILD JS that is static *************/
-await buildBundle(outDir + '/build', 'bundle.threejs.js', { globalName: 'THREE' })
-await buildBundle(outDir + '/build', 'bundle.jscad_modeling.js', { format: 'cjs' })
-await buildBundle(outDir + '/build', 'bundle.jscad_io.js', { format:'cjs' })
-await buildBundle(outDir + '/build', 'bundle.jscadui.transform-babel.js', { globalName: 'jscadui_transform_babel' })
+await buildBundle(outDir + '/build', 'bundle.threejs.js', { globalName: 'THREE', skipExisting: dev })
+await buildBundle(outDir + '/build', 'bundle.jscad_modeling.js', { format: 'cjs', skipExisting: dev })
+await buildBundle(outDir + '/build', 'bundle.jscad_io.js', { format:'cjs', skipExisting: dev })
+await buildBundle(outDir + '/build', 'bundle.jscadui.transform-babel.js', { globalName: 'jscadui_transform_babel', skipExisting: dev })
 
 /**************************** BUILD JS THAT can change and watch if in dev mode *************/
 await buildOne('src_bundle', outDir + '/build', 'bundle.worker.js', watch, { format: 'iife' })

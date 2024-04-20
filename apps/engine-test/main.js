@@ -28,7 +28,7 @@ const toUrl = path => new URL(path, document.baseURI).toString()
 const currentUrl = new CurrentUrl()
 
 const engineState = new EngineState(availableEngines, theme, makeAxes, makeGrid)
-const useEngines = currentUrl.initGet('engines', 'three').split(',')
+const useEngines = currentUrl.initGet('engines', 'three,regl,babylon').split(',')
 
 const gizmo = (window.gizmo = new Gizmo())
 byId('layout').appendChild(gizmo)

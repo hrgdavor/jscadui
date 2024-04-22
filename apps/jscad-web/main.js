@@ -11,7 +11,7 @@ import {
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl } from '@jscadui/orbit'
 import { genParams } from '@jscadui/params'
-import { initMessaging, messageProxy } from '@jscadui/postmessage'
+import { messageProxy } from '@jscadui/postmessage'
 
 import defaultCode from './examples/jscad.example.js'
 import * as editor from './src/editor.js'
@@ -194,7 +194,7 @@ const handlers = {
 }
 
 /** @type {JscadWorker} */
-const workerApi = messageProxy(worker, handlers, { onJobCount: trackJobs })
+const workerApi = globalThis.workerApi = messageProxy(worker, handlers, { onJobCount: trackJobs })
 
 const progress = byId('progress')
 let jobs = 0

@@ -1,5 +1,5 @@
 import { JscadToCommon } from '@jscadui/format-jscad'
-import { initMessaging, withTransferable } from '@jscadui/postmessage'
+import { messageProxy, withTransferable } from '@jscadui/postmessage'
 import { clearFileCache, jscadClearTempCache, readFileWeb, require, requireCache, resolveUrl } from '@jscadui/require'
 
 import { exportStlText } from './src/exportStlText.js'
@@ -49,9 +49,9 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
 */
 
 let main
-self.JSCAD_WORKER_ENV = {}
+let scriptModule = {}
+globalThis.JSCAD_WORKER_ENV = {}
 let transformFunc = x => x
-let client
 let globalBase = location.origin
 let userInstances
 let importData
@@ -126,7 +126,6 @@ const jscadScript = async ({ script, url='jscad.js', base=globalBase, root=base 
   const shouldTransform = url.endsWith('.ts') || script.includes('import') && (importReg.test(script) || exportReg.test(script))
   let def = []
   
-  let scriptModule
   try{
     scriptModule = require({url,script}, shouldTransform ? transformFunc : undefined, readFileWeb, base, root, importData)
   }catch(e){
@@ -170,13 +169,18 @@ const jscadExportData = async (params) => {
 export const currentSolids = ()=>solids
 
 const handlers = { jscadScript, jscadInit, jscadMain, jscadClearTempCache, jscadClearFileCache:clearFileCache, jscadExportData }
-
+// allow main thread to call worker methods and any method from the loaded script
+const handlersProxy = new Proxy(handlers, {
+  get(target, prop, receiver) {
+    return target[prop] || scriptModule[prop]
+  }
+})
 export const initWorker = (transform, jscadExportData, _importData) => {
   if (transform) transformFunc = transform
   if(jscadExportData) handlers.jscadExportData = jscadExportData
   importData = _importData
 
-  client = initMessaging(self, handlers)
+  JSCAD_WORKER_ENV.client = messageProxy(self, handlersProxy)
 }
 
 

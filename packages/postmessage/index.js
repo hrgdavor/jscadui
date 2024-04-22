@@ -148,7 +148,7 @@ export const messageProxy = (_self, handlers, {sender, onJobCount}={}) => {
   },{
     get(target, prop, receiver) {
       if(prop in target)  return target[prop]
-      if(prop.startsWith('on')){
+      if(prop.startsWith('on') && (prop.length == 2 || prop[2] == prop[2].toUpperCase())){
         return target[prop] = function(...params){
           sendNotify(prop, params)
         }  

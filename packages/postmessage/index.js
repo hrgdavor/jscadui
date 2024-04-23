@@ -140,16 +140,18 @@ export const initMessaging = (_self, handlers, {onJobCount}={}) => {
  * @param {*} handlers 
  * @returns {object}
 */
-export const messageProxy = (_self, handlers, {onJobCount, proxyBase={}}={}) => {
+export const messageProxy = (_self, handlers, {onJobCount}={}) => {
   const { sendCmd, sendNotify, getRpcJobCount} = initMessaging(_self, handlers,{onJobCount})
   // creating error is not too expensive in our context as tehre will not be millions
   // methods produced, and info on how the proxy is created an when called is indispensible for debug
   let crated = new Error('proxy')
-    
-  let proxy = new Proxy(proxyBase, {
+  
+  return new Proxy({getRpcJobCount}, {
     get(target, prop, receiver) {
-      if(prop === 'getRpcJobCount') return getRpcJobCount
-      if(prop in target)  return target[prop]
+      // then is used to recognize if object is a promise, we do not want 
+      // to create a them method for postMessage, it would break async functions
+      // that return the proxy
+      if(prop in target || prop === 'then')  return target[prop]
       if(prop.startsWith('on') && (prop.length == 2 || prop[2] == prop[2].toUpperCase())){
         return target[prop] = function(...params){
           sendNotify(prop, params)
@@ -166,7 +168,4 @@ export const messageProxy = (_self, handlers, {onJobCount, proxyBase={}}={}) => 
       }
     },
   })
-  // when proxy is used as return value for async
-  if(!proxyBase.then) proxyBase.then = function(cb){return this}
-  return proxy
 }

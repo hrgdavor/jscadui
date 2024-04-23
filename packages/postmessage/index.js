@@ -17,7 +17,6 @@ const fixTransfer = trans => (trans ? trans.map(a => a.buffer || a) : [])
  * @returns
  */
 export const initMessaging = (_self, handlers, { onJobCount, debug } = {}) => {
-  console.warn('debug', debug)
   // on service worker, postMessage is on the controller
   const ___self = _self.postMessage ? _self : _self.controller
   const sendResponse = (result, id) => {

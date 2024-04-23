@@ -62,14 +62,14 @@ export const initMessaging = (_self, handlers, { onJobCount, debug } = {}) => {
    *
    * @param {string} method
    * @param {object} params
-   * @param {Array} trans
+   * @param {Array} transferable
    * @param {number?} timeout
    * @returns {Promise} resolves when response is received
    */
-  const sendCmd = (method, params = [], trans = [], timeout) => {
+  const sendCmd = (method, params = [], transferable = [], timeout) => {
     const id = seq++
     if (debug) console.log(debug, 'sendCmd', id, method, params)
-    ___self.postMessage({ method, params, id }, fixTransfer(trans))
+    ___self.postMessage({ method, params, id }, fixTransfer(transferable))
 
     const out = new Promise((resolve, reject) => {
       reqMap.set(id, [resolve, reject])

@@ -4,8 +4,10 @@ import { messageProxy } from '@jscadui/postmessage'
 
 const version = 'SW7'
 const clientMap = {}
-let prefix = new URL(location.toString()).searchParams.get('prefix')
+const searchParams = new URL(location.toString()).searchParams
+let prefix = searchParams.get('prefix')
 let initPath = prefix + 'init'
+let debug = searchParams.get('debug')
 
 self.addEventListener('activate', event => {
   event.waitUntil(clients.claim())
@@ -27,7 +29,7 @@ self.addEventListener('install', event => {
 const getClientWrapper = async clientId => {
   let clientWrapper = clientMap[clientId]
   if (!clientWrapper) {
-    clientWrapper = clientMap[clientId] = { api: messageProxy(await clients.get(clientId), {}, { debug: 'SW::' }) }
+    clientWrapper = clientMap[clientId] = { api: messageProxy(await clients.get(clientId), {}, { debug }) }
     clientWrapper.cache = await caches.open(prefix + clientId)
   }
   return clientWrapper

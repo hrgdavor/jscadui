@@ -1,4 +1,4 @@
-import { initMessaging } from '@jscadui/postmessage'
+import { messageProxy } from '@jscadui/postmessage'
 
 import { entryCheckPromise, filePromise, fileToFsEntry, readDir } from './src/FileEntry.js'
 import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
@@ -97,7 +97,8 @@ export const registerServiceWorker = async (
     }
 
     /** @type {SwHandler} */
-    const sw = initMessaging(navigator.serviceWorker, {
+    const sw = {roots:[], libRoots:[]}
+    sw.api = messageProxy(navigator.serviceWorker, {
       getFile: async ({ path }) => {
         const file = await _getFile(path, sw)
         if (file) {
@@ -108,8 +109,7 @@ export const registerServiceWorker = async (
         }
       },
     })
-    sw.roots = []
-    sw.libRoots = []
+    
 
     // id is important as we use it to name the temporary cache instance
     // for now we use fetch to extract our id, but a better way could be found later

@@ -140,22 +140,33 @@ export const initMessaging = (_self, handlers, {onJobCount}={}) => {
  * @param {*} handlers 
  * @returns {object}
 */
-export const messageProxy = (_self, handlers, {sender, onJobCount}={}) => {
-  const { sendCmd, sendNotify, getRpcJobCount} = sender || initMessaging(_self, handlers,{onJobCount})
-
-  return new Proxy({
-    getRpcJobCount
-  },{
+export const messageProxy = (_self, handlers, {onJobCount, proxyBase={}}={}) => {
+  const { sendCmd, sendNotify, getRpcJobCount} = initMessaging(_self, handlers,{onJobCount})
+  // creating error is not too expensive in our context as tehre will not be millions
+  // methods produced, and info on how the proxy is created an when called is indispensible for debug
+  let crated = new Error('proxy')
+    
+  let proxy = new Proxy(proxyBase, {
     get(target, prop, receiver) {
+      if(prop === 'getRpcJobCount') return getRpcJobCount
       if(prop in target)  return target[prop]
       if(prop.startsWith('on') && (prop.length == 2 || prop[2] == prop[2].toUpperCase())){
         return target[prop] = function(...params){
           sendNotify(prop, params)
         }  
       }
+      // same as above Error for debugging
+      let methodCreated = new Error('methodCreated')
       return target[prop] = function(...params){
-        return sendCmd(prop, params)
+        try {
+          return sendCmd(prop, params)
+        }catch(e){
+          console.error('faild to call '+prop,params,'\n', e, '\ncreated', crated, '\nmethodCreated', methodCreated)
+        }
       }
     },
   })
+  // when proxy is used as return value for async
+  if(!proxyBase.then) proxyBase.then = function(cb){return this}
+  return proxy
 }

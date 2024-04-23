@@ -1,4 +1,4 @@
-import { initMessaging } from '@jscadui/postmessage'
+import { messageProxy } from '@jscadui/postmessage'
 
 // https://gomakethings.com/series/service-workers/
 
@@ -27,7 +27,7 @@ self.addEventListener('install', event => {
 const getClientWrapper = async clientId =>{
   let clientWrapper = clientMap[clientId]
   if(!clientWrapper){
-    clientWrapper = clientMap[clientId] = initMessaging(await clients.get(clientId), {})
+    clientWrapper = clientMap[clientId] = messageProxy(await clients.get(clientId), {})
     clientWrapper.cache = await caches.open(prefix + clientId)
   }
   return clientWrapper
@@ -63,7 +63,7 @@ self.addEventListener('fetch', async event => {
           return (done = true)
         }
 
-        let resp = await clientWrapper.sendCmd('getFile', [{ path: path }])
+        let resp = await clientWrapper.getFile({ path: path })
         rCached = await clientWrapper.cache.match(fileReq)
         done = true
         resolve(rCached || new Response(path + ' not in cache', { status: rCached ? 200 : 404 }))

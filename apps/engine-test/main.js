@@ -3,7 +3,7 @@ import { JscadToCommon } from '@jscadui/format-jscad'
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl, OrbitState, closerAngle, getCommonRotCombined } from '@jscadui/orbit'
 import { genParams } from '@jscadui/params'
-import { initMessaging, messageProxy } from '@jscadui/postmessage'
+import { messageProxy } from '@jscadui/postmessage'
 import { makeAxes, makeGrid } from '@jscadui/scene'
 import * as themes from '@jscadui/themes'
 

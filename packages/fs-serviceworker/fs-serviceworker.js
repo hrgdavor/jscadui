@@ -18,16 +18,16 @@ self.addEventListener('install', event => {
 
 /** Create a client wrapper, or return one from cahce. It is important to know
  * that cache can dissapear (likely due to browser suspending the worker when idle).
- * page calling init will createa a cached instance, but if dev tools in chrome 
+ * page calling init will createa a cached instance, but if dev tools in chrome
  * are nto open, after about 10 seconds, looks like cache is gone (likely worker got suspended)
- * 
- * @param {string} clientId 
- * @returns 
+ *
+ * @param {string} clientId
+ * @returns
  */
-const getClientWrapper = async clientId =>{
+const getClientWrapper = async clientId => {
   let clientWrapper = clientMap[clientId]
-  if(!clientWrapper){
-    clientWrapper = clientMap[clientId] = messageProxy(await clients.get(clientId), {})
+  if (!clientWrapper) {
+    clientWrapper = clientMap[clientId] = { api: messageProxy(await clients.get(clientId), {}, { debug: 'SW::' }) }
     clientWrapper.cache = await caches.open(prefix + clientId)
   }
   return clientWrapper
@@ -55,7 +55,6 @@ self.addEventListener('fetch', async event => {
           if (!done) resolve(new Response('timeout for ' + path, { status: 404 }))
         }, 1000)
 
-        let time = Date.now()
         const fileReq = new Request(path)
         let rCached = await clientWrapper.cache.match(fileReq)
         if (rCached) {
@@ -63,7 +62,7 @@ self.addEventListener('fetch', async event => {
           return (done = true)
         }
 
-        let resp = await clientWrapper.getFile({ path: path })
+        let resp = await clientWrapper.api.getFile({ path: path })
         rCached = await clientWrapper.cache.match(fileReq)
         done = true
         resolve(rCached || new Response(path + ' not in cache', { status: rCached ? 200 : 404 }))
@@ -74,13 +73,5 @@ self.addEventListener('fetch', async event => {
 
 self.addEventListener('message', event => {
   const client = clientMap[event.source.id]
-  client?.listener(event)
+  if (client) client.api.onmessage(event)
 })
-
-// clients.matchAll({
-//   includeUncontrolled: true
-// }).then(clients=>{
-//   clients.forEach(client => {
-//     console.log('client', client)
-//   });
-// });

@@ -1,3 +1,10 @@
+# TODO do/explain/explore
+
+- service worker has multiple clients but one self to receive mesages and must route them by clientId
+- then must not bi autocreated as rpc method or async usage will fail in strange ways
+- using proxy along with additional properties on it
+- explain debug parameter that helps track flow
+
 # postMessage utility
 [![npm version](https://badge.fury.io/js/@jscadui%2Fpostmessage.svg)](https://www.npmjs.com/package/@jscadui%2Fpostmessage)
 

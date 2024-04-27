@@ -2,7 +2,7 @@ import { examples } from './examples.js'
 
 const menu = document.getElementById('menu')
 
-export const init = loadExample => {
+export const init = () => {
   const button = document.getElementById('menu-button')
   const content = document.getElementById('menu-content')
 
@@ -27,8 +27,8 @@ export const init = loadExample => {
     const a = document.createElement('a')
     a.innerText = name
     a.addEventListener('click', async () => {
-      console.log(`load example ${name}`)
-      loadExample(await (await fetch(source)).text(), new URL(source, document.baseURI).toString())
+      console.log(`load example ${name} from ${source}`)
+      document.location.hash = '#'+source
     })
     const li = document.createElement('li')
     li.appendChild(a)

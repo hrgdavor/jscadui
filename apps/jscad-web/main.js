@@ -325,7 +325,7 @@ editor.init(
   },
   path => sw?.getFile(path),
 )
-menu.init(loadExample)
+menu.init()
 welcome.init()
 remote.init(
   (script, url) => {

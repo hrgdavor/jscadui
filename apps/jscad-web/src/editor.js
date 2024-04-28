@@ -2,6 +2,7 @@ import { defaultKeymap } from '@codemirror/commands'
 import { javascript } from '@codemirror/lang-javascript'
 import { keymap } from '@codemirror/view'
 import { EditorView, basicSetup } from 'codemirror'
+import { readAsText } from '@jscadui/fs-provider'
 
 import * as drawer from './drawer.js'
 
@@ -70,6 +71,9 @@ export const init = (defaultCode, fn, _saveFn, _getFileFn) => {
   document.getElementById('editor-hint').addEventListener('click', () => {
     compile(view.state.doc.toString(), currentFile)
   })
+  document.getElementById('editor-hint2').addEventListener('click', () => {
+    save(view.state.doc.toString(), currentFile)
+  })
 
   // Setup file selector
   editorFile.addEventListener('click', () => {
@@ -93,28 +97,18 @@ export const setSource = (source, path = '/index.js') => {
 export function filesChanged(files){
   let file
   files.forEach(async path=>{
+    console.log('path', path)
     if(path == currentFile){
       file = await getFileFn(path)
       readSource(file, currentFile)
     }else if(path.name === currentFile){
-      let reader = new FileReader()
-      reader.onloadend = ()=>{
-        setSource(reader.result, currentFile)
-      }
-      reader.readAsText(path)
+      setSource(await readAsText(path), currentFile)
     }
   })
 }
 
 async function readSource(file, currentFile){
-    // Read FileEntry
-    file.file((file) => {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setSource(reader.result, currentFile)
-      }
-      reader.readAsText(file)
-    })
+  setSource(await readAsText(file), currentFile)
 }
 
 export const setFiles = (files) => {
@@ -128,9 +122,9 @@ export const setFiles = (files) => {
     files.forEach((file) => {
       const item = document.createElement('li')
       const button = document.createElement('button')
-      button.innerText = file.fsPath
+      button.innerText = file.fullPath
       button.addEventListener('click', () => {
-        currentFile = file.fsPath
+        currentFile = file.fullPath
         editorFile.innerHTML = currentFile
         readSource(file, currentFile)
       })

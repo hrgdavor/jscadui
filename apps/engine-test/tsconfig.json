@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "allowJs": true,
+    "skipLibCheck": true,
     "moduleResolution": "node16"
   },
   "exclude": ["node_modules", "build_dev", "build", "dist"]

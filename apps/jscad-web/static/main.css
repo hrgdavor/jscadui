@@ -190,7 +190,7 @@ p {
   height: calc(100vh - 60px);
   flex: 1;
 }
-#editor-hint {
+#editor-hint, #editor-hint2 {
   position: absolute;
   bottom: 10px;
   right: calc(min(10px, 100% - 180px)); /* push right when editor is small */
@@ -198,6 +198,9 @@ p {
   white-space: nowrap;
   font-size: 10pt;
   user-select: none;
+}
+#editor-hint {
+  bottom: 30px;
 }
 .dark #editor-hint {
   color: #dddddd88;
@@ -515,10 +518,11 @@ p {
 #paramsDiv .form-line[type="group"]:before {
   content: "\25bc";
   padding-right: 10px;
+  padding-top: 3px;
   cursor: pointer;
 }
 #paramsDiv .form-line[type="group"][closed="1"]:before {
-  content: "\25b6";
+  content: "\25ba";
 }
 #paramsDiv .form-line[type="group"] label {
   font-weight: 500;
@@ -568,25 +572,21 @@ p {
   border-top-left-radius: 4px;
 }
 
-#spinner {
+#progress progress{
+  display: none;
+}
+#progress {
   position: absolute;
   bottom: 10px;
   right: 10px;
-  border: 6px solid #f3f3f3;
-  border-top: 6px solid #27c;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  animation: spin 1s linear infinite;
-  display: none;
+  accent-color: #27c;
 }
-.dark #spinner {
-  border: 6px solid #222;
-  border-top: 6px solid #16a;
+.dark #progress {
+  accent-color: #2e96ea;
 }
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+#progressText {
+  font-size: small;
+  text-align: right;
 }
 
 .above-error {

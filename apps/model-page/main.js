@@ -1,11 +1,13 @@
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl, OrbitState, closerAngle, getCommonRotCombined } from '@jscadui/orbit'
-import { initMessaging } from '@jscadui/postmessage'
+import { messageProxy } from '@jscadui/postmessage'
 import { makeAxes, makeGrid } from '@jscadui/scene'
 import * as themes from '@jscadui/themes'
 
 import { genParams } from '../../packages/params-form/src/params'
 import { initTestThree } from './src/testThree'
+
+/** @typedef {import('@jscadui/worker').JscadWorker} JscadWorker*/
 
 const theme = themes.light
 let fileToRun
@@ -111,7 +113,7 @@ function save(blob, filename) {
 }
 
 function exportModel(format) {
-  sendCmd('exportData', { format }).then(({ data }) => {
+  sendCmd('jscadExportData', [{ format }]).then(({ data }) => {
     console.log('save', fileToRun + '.stl', data)
     save(new Blob([data], { type: 'text/plain' }), fileToRun + '.stl')
   })
@@ -119,16 +121,17 @@ function exportModel(format) {
 window.exportModel = exportModel
 
 var worker = new Worker('./build/bundle.worker.js')
-const { sendCmd, sendNotify } = initMessaging(worker, handlers)
+/** @type {JscadWorker} */
+const workerApi = globalThis.workerApi = messageProxy(worker, handlers, {  })
 
 const paramChangeCallback = params => {
   console.log('params', params)
-  sendCmd('runMain', { params })
+  workerApi.jscadMain({ params })
 }
 
-export const runScript = file => {
+export const jscadScript = file => {
   fileToRun = file.replace(/.*\//, '').replace(/\..*/, '')
-  sendCmd('runScript', { url: file }).then(result => {
+  workerApi.jscadScript({ url: file }).then(result => {
     console.log('result', result)
     genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
   })
@@ -141,5 +144,5 @@ export const initEngine = async (THREE, elem, workerOptions) => {
   updateFromCtrl(ctrl)
   setTheme(theme)
 
-  await sendCmd('init', workerOptions)
+  await workerApi.jscadInit(workerOptions)
 }

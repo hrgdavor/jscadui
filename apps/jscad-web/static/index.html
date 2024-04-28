@@ -44,7 +44,10 @@
 
         <div id="overlay">
           <div class="above-error">
-            <div id="spinner" title="Processing..."></div>
+            <div id="progress">
+              <div id="progressText">....</div>
+              <progress title="Processing..."></progress>
+            </div>
 
             <div id="model-options">
               <div id="paramsDiv"></div>
@@ -70,6 +73,7 @@
           </nav>
           <div id="editor-container"></div>
           <a id="editor-hint">Shift-enter to update</a>
+          <a id="editor-hint2">CTRL+S to save and update</a>
         </div>
         <div id="editor-toggle"></div>
       </div>

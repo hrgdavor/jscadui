@@ -70,7 +70,7 @@ import { addToCache, extractEntries, fileDropped, getFile, registerServiceWorker
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl } from '@jscadui/orbit';
 import { genParams } from '@jscadui/params';
-import { initMessaging } from '@jscadui/postmessage';
+import { messageProxy } from '@jscadui/postmessage';
 
 import * as editor from './jscad/editor.js'
 import * as engine from './jscad/engine.js'
@@ -78,6 +78,8 @@ import * as exporter from './jscad/exporter.js'
 import * as menu from './jscad/menu.js'
 import * as remote from './jscad/remote.js'
 import { ViewState } from './jscad/viewState.js';
+
+/** @typedef {import('@jscadui/worker').JscadWorker} JscadWorker*/
 
 const defaultCode = `import * as jscad from '@jscad/modeling'
 const { intersect, subtract } = jscad.booleans
@@ -157,7 +159,7 @@ onMounted(async () => {
     const sw = serviceWorker.value
     if (sw && sw.fileToRun) {
       await addToCache(sw.cache, path, script)
-      await sendCmd('jscadClearFileCache', { files: [path] })
+      await workerApi.jscadClearFileCache({ files: [path] })
       if (sw.fileToRun) jscadScript({ url: sw.fileToRun, base: sw.base })
     } else {
       jscadScript({ script })
@@ -185,7 +187,7 @@ const loadExample = source => {
 }
 
 const exportModel = async (format, extension) => {
-  const { data } = (await sendCmdAndSpin('exportData', { format })) || {}
+  const { data } = (await workerApi.exportData({ format })) || {}
   if (data) {
     save(new Blob([data], { type: 'text/plain' }), `${projectName}.${extension}`)
     console.log('save', `${projectName}.${extension}`, data)
@@ -209,7 +211,7 @@ const paramChangeCallback = async (params) => {
   working.value = true;
   let result;
   try {
-    result = await sendCmdAndSpin('jscadMain', { params });
+    result = await workerApi.jscadMain({ params });
   } finally {
     working.value = false;
   }
@@ -222,7 +224,7 @@ watch(lastParams, (newParams) => {
 });
 
 const jscadScript = async ({ script, url = './index.js', base, root }) => {
-  const result = await sendCmdAndSpin('jscadScript', { script, url, base, root })
+  const result = await workerApi.jscadScript({ script, url, base, root })
   loadDefault = false // don't load default model if something else was loaded
   console.log('jscadScript', result)
   genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
@@ -237,32 +239,27 @@ const handlers = {
     setError(undefined)
   },
 }
-const { sendCmd, sendNotify } = initMessaging(worker, handlers)
+/** @type {JscadWorker} */
+const workerApi = globalThis.workerApi = messageProxy(worker, handlers, { onJobCount: trackJobs })
 
 let jobs = 0;
 let firstJobTimer = null;
-async function sendCmdAndSpin(method, params) {
-  jobs++;
+function trackJobs(jobs) {
   if (jobs === 1) {
-    // do not show spinner for fast renders
+    // do not show progress for fast renders
+    clearTimeout(firstJobTimer)    
     firstJobTimer = setTimeout(() => {
-      spinner.value.style.display = 'block';
-    }, 300);
+      onProgress()
+      progress.style.display = 'block'
+    }, 300)
   }
-  try {
-    return await sendCmd(method, params);
-  } catch (error) {
-    setError(error);
-    throw error;
-  } finally {
-    if (--jobs === 0) {
-      clearTimeout(firstJobTimer);
-      spinner.value.style.display = 'none';
-    }
+  if (jobs === 0) {
+    clearTimeout(firstJobTimer)
+    progress.style.display = 'none'
   }
 }
 
-sendCmdAndSpin('jscadInit', {
+workerApi.jscadInit({
   bundles: {// local bundled alias for common libs.
     '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
     '@jscad/io': toUrl('./build/bundle.jscad_io.js'),
@@ -272,17 +269,6 @@ sendCmdAndSpin('jscadInit', {
     jscadScript({ script: defaultCode })
   }
 })
-
-// async function sendCmd(method, params) {
-//   // Implement your command sending logic here
-//   // This is just a placeholder
-//   return new Promise((resolve, reject) => {
-//     // Simulate async operation
-//     setTimeout(() => {
-//       resolve({ success: true });
-//     }, 1000);
-//   });
-// }
 
 </script>
 

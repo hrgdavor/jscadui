@@ -30,7 +30,7 @@ const exportData = ({format, options={}})=>{
 }
 
 const importData = {
-  isBinaryExt: ext=>ext === 'stl' ? 'bin':'text',
+  isBinaryExt: ext=>ext === 'stl',
   deserialize: ({url, filename, ext}, fileContent)=>{
     try {
       const jscad_io = require('./bundle.jscad_io.js', null, readFileWeb)

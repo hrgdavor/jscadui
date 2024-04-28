@@ -13,4 +13,5 @@ export const examples = [
   { name: 'Import AMF', source: './examples/AMFImport/index.js' },
   { name: 'Import STL', source: './examples/STLImport/index.js' },
   { name: 'Import SVG', source: './examples/SVGImport/index.js' },
+  { name: 'Test SVG before Etrude', source: './examples/svg.tester.js' },
 ]

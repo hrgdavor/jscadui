@@ -1,12 +1,14 @@
-import { initMessaging } from '@jscadui/postmessage'
+import { messageProxy } from '@jscadui/postmessage'
 
-import { entryCheckPromise, filePromise, fileToFsEntry, readDir } from './src/FileEntry.js'
+import { toFSEntry, entryCheckPromise } from './src/FileEntry.js'
 import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
 
 /**
- * @typedef {Cache}
  *
- * @typedef {SwHandler}
+ *
+ * @typedef Cache
+ *
+ * @typedef SwHandler
  * @prop {Cache} cache
  *
  */
@@ -36,8 +38,16 @@ export const getFileContent = async (path, sw) => {
   let match = await getFile(path, sw)
   if (match) {
     fileIsRequested(path, match, sw)
-    return readAsArrayBuffer(await filePromise(match))
+    return readAsArrayBuffer(match)
   }
+}
+
+export const readDir = async dir => {
+  let out = []
+  for await (const [key, value] of dir.handle.entries()) {
+    out.push(toFSEntry(value, dir))
+  }
+  return out
 }
 
 /** add path to cache, with content that can be anything that response allows
@@ -66,7 +76,9 @@ export const addPreLoad = async (sw, path, ignoreMissing) => {
     if (!ignoreMissing) throw new Error('File not found ' + path)
     return
   }
-  let f = await filePromise(match)
+  if(match.isDirectory) return
+  let f = await match.handle.getFile()
+  match.lastModified = f.lastModified
   await addToCache(sw.cache, path, await readAsArrayBuffer(f))
   return match
 }
@@ -97,7 +109,8 @@ export const registerServiceWorker = async (
     }
 
     /** @type {SwHandler} */
-    const sw = initMessaging(navigator.serviceWorker, {
+    const sw = {roots:[], libRoots:[]}
+    sw.api = messageProxy(navigator.serviceWorker, {
       getFile: async ({ path }) => {
         const file = await _getFile(path, sw)
         if (file) {
@@ -108,8 +121,7 @@ export const registerServiceWorker = async (
         }
       },
     })
-    sw.roots = []
-    sw.libRoots = []
+    
 
     // id is important as we use it to name the temporary cache instance
     // for now we use fetch to extract our id, but a better way could be found later
@@ -146,29 +158,46 @@ export const clearCache = async cache => {
   ;(await cache.keys()).forEach(key => cache.delete(key))
 }
 
+
+
+/**
+ *
+ * @param {Array<FSEntry>} dt
+ * @returns
+ */
 export const extractEntries = async dt => {
   let items = dt.items
   if (!items) return []
 
+  const root = {
+    name: '',
+    fsDir: '',
+    fullPath: '',
+  }
+
+  /** @type {FSEntry} */
   let file
+  /** @type {Array<FSEntry>} */
   let files = []
   // Use DataTransferItemList interface to access the items(s).
   // it is not an array, can not use .filter or othe Array methods
+  // todo remove usage of FileEetry webkitGetAsEntry and use new File_System_API
   for (let i = 0; i < items.length; i++) {
     // If dropped items aren't files, reject them
     if (items[i].kind === 'file') {
-      file = items[i]
-      if (file.webkitGetAsEntry) file = file.webkitGetAsEntry()
-      else if (file.getAsEntry) file = file.getAsEntry()
-      else file = file.webkitGetAsFile()
-      // we need FileSystemHandle for writing, because old way using createWriter silently ignores writes
-      if(items[i].getAsFileSystemHandle) file.fileHandle = await items[i].getAsFileSystemHandle()
+      file = toFSEntry(await items[i].getAsFileSystemHandle(), root)
       files.push(file)
     }
   }
   return files
 }
 
+/**
+ * 
+ * @param {*} roots 
+ * @param {*} path 
+ * @returns {FSEntry}
+ */
 export const findFileInRoots = async (roots, path) => {
   path = splitPath(path)
   let out
@@ -208,7 +237,7 @@ export const checkFiles = sw => {
         const todo = []
         const files = result.map(([entry, file]) => {
           todo.push(addToCache(sw.cache, entry.fsPath, file))
-          return entry.fsPath
+          return entry.fullPath
         })
         Promise.all(todo).then(result => {
           sw.onfileschange?.(files)
@@ -231,7 +260,7 @@ export async function fileDropped(sw, files) {
     const file = files[0]
     if (file.isDirectory) {
       sw.folderName = file.name
-      file.fsDir = '/'
+      file.fullPath = ''
       rootFiles = await readDir(file)
     } else {
       rootFiles.push(file)
@@ -240,11 +269,10 @@ export async function fileDropped(sw, files) {
   } else {
     rootFiles = Array.from(files)
   }
-  rootFiles = rootFiles.map(e => fileToFsEntry(e, '/'))
   sw.roots.push(rootFiles)
 }
 
-export async function analyzeProject(sw){
+export async function analyzeProject(sw) {
   const alias = await getWorkspaceAliases(sw)
 
   const preLoad = ['/' + sw.fileToRun, '/package.json']
@@ -266,7 +294,6 @@ export async function analyzeProject(sw){
     }
   }
   return { alias, script }
-
 }
 
 /**
@@ -302,13 +329,13 @@ const getWorkspaceAliases = async sw => {
   return alias
 }
 
-export const findByFsPath = (arr, file) => {
-  const path = typeof file === 'string' ? file : file.fsPath
-  return arr.find(f => f.fsPath === path)
+export const findByFullPath = (arr, file) => {
+  const path = typeof file === 'string' ? file : file.fullPath
+  return arr.find(f => f.fullPath === path)
 }
 
 export const fileIsRequested = (path, file, sw) => {
   let match
-  if ((match = findByFsPath(sw.filesToCheck, file))) return
+  if ((match = findByFullPath(sw.filesToCheck, file))) return
   sw.filesToCheck.push(file)
 }

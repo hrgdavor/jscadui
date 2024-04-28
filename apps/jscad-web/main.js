@@ -1,27 +1,27 @@
 import {
   addToCache,
+  analyzeProject,
   clearFs,
   extractEntries,
-  analyzeProject,
   fileDropped,
-  getFile,
-  getFileContent,
-  registerServiceWorker,
   findFile,
   findFileInRoots,
+  getFile,
+  getFileContent,
   readAsText,
+  registerServiceWorker,
 } from '@jscadui/fs-provider'
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl } from '@jscadui/orbit'
 import { genParams } from '@jscadui/params'
-import { initMessaging, messageProxy } from '@jscadui/postmessage'
+import { messageProxy } from '@jscadui/postmessage'
 
 import defaultCode from './examples/jscad.example.js'
+import { addV1Shim } from './src/addV1Shim.js'
 import * as editor from './src/editor.js'
 import * as engine from './src/engine.js'
 import * as exporter from './src/exporter.js'
 import * as menu from './src/menu.js'
-import { addV1Shim } from './src/addV1Shim.js'
 import * as remote from './src/remote.js'
 import { formatStacktrace } from './src/stacktrace.js'
 import { ViewState } from './src/viewState.js'
@@ -85,10 +85,9 @@ async function initFs() {
   })
   sw.defProjectName = 'jscad'
   sw.onfileschange = files => {
-    console.log('files', files)
-    if(files.includes('/package.json')){
+    if (files.includes('/package.json')) {
       reloadProject()
-    }else{
+    } else {
       workerApi.jscadClearFileCache({ files })
       editor.filesChanged(files)
     }
@@ -113,16 +112,16 @@ document.body.ondrop = async ev => {
 
     await fileDropped(sw, files)
     reloadProject()
-
   } catch (error) {
     setError(error)
     console.error(error)
   }
 }
 
-async function reloadProject(){
+async function reloadProject() {
   saveMap = {}
   let { alias, script } = await analyzeProject(sw)
+  sw.filesToCheck = []
   projectName = sw.projectName
   if (alias.length) {
     workerApi.jscadInit({ alias })
@@ -130,7 +129,7 @@ async function reloadProject(){
   let url = sw.fileToRun
   // inject jscad v1 shim, and also inject changed script to cache
   // so worker and editor have the same code
-  if(sw.fileToRun?.endsWith('.jscad')){
+  if (sw.fileToRun?.endsWith('.jscad')) {
     script = addV1Shim(script)
     addToCache(sw.cache, sw.fileToRun, script)
   }
@@ -182,13 +181,12 @@ const exportModel = async (format, extension) => {
 }
 
 const onProgress = (value, note) => {
-  const el = progress.querySelector('progress')
   if (value == undefined) {
-    el.removeAttribute('value')
+    progress.removeAttribute('value')
   } else {
-    el.value = value
+    progress.value = value
   }
-  progress.querySelector('div').innerText = note ?? ''
+  progressText.innerText = note ?? ''
 }
 
 const worker = new Worker('./build/bundle.worker.js')
@@ -198,21 +196,23 @@ const handlers = {
     viewState.setModel((model = entities))
     console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2))
     setError(undefined)
+    onProgress(undefined, mainTime?.toFixed(2) + ' ms')
   },
   onProgress,
 }
 
 /** @type {JscadWorker} */
-const workerApi = messageProxy(worker, handlers, { onJobCount: trackJobs })
+const workerApi = (globalThis.workerApi = messageProxy(worker, handlers, { onJobCount: trackJobs }))
 
-const progress = byId('progress')
+const progress = byId('progress').querySelector('progress')
+const progressText = byId('progressText')
 let jobs = 0
 let firstJobTimer
 
 function trackJobs(jobs) {
   if (jobs === 1) {
     // do not show progress for fast renders
-    clearTimeout(firstJobTimer)    
+    clearTimeout(firstJobTimer)
     firstJobTimer = setTimeout(() => {
       onProgress()
       progress.style.display = 'block'
@@ -227,13 +227,13 @@ function trackJobs(jobs) {
 const jscadScript = async ({ script, url = './jscad.model.js', base = currentBase, root }) => {
   currentBase = base
   loadDefault = false // don't load default model if something else was loaded
-  try{
+  try {
     const result = await workerApi.jscadScript({ script, url, base, root, smooth: viewState.smoothRender })
     genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
     lastRunParams = result.params
     handlers.entities(result)
-  }catch(err){
-    setError(err)    
+  } catch (err) {
+    setError(err)
   }
 }
 
@@ -241,7 +241,7 @@ const bundles = {
   // local bundled alias for common libs.
   '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
   '@jscad/io': toUrl('./build/bundle.jscad_io.js'),
- '@jscad/csg': toUrl('./build/bundle.V1_api.js'),
+  '@jscad/csg': toUrl('./build/bundle.V1_api.js'),
 }
 
 await workerApi.jscadInit({ bundles })
@@ -308,9 +308,9 @@ editor.init(
     }
   },
   async (script, path) => {
-    console.log('save file', path)
     let pathArr = path.split('/')
-    let fileHandle = (await sw?.getFile(path))?.fileHandle
+    let fileHandle = (await sw?.getFile(path))?.handle
+    console.log('save file', path, fileHandle)
     if (!fileHandle) fileHandle = saveMap[path]
     if (!fileHandle) {
       const opts = {
@@ -335,7 +335,7 @@ editor.init(
   },
   path => sw?.getFile(path),
 )
-menu.init(loadExample)
+menu.init()
 welcome.init()
 remote.init(
   (script, url) => {

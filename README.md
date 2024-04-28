@@ -7,7 +7,7 @@ Most of the things are work in progres, but some parts are pretty ready to be us
 
 - [file-format/3mf-export](./file-format/3mf-export) - [![npm version](https://badge.fury.io/js/@jscadui%2F3mf-export.svg)](https://www.npmjs.com/package/@jscadui%2F3mf-export) 3mf-export (also used by manifold)
 - [packages/html-gizmo](./packages/html-gizmo) - [![npm version](https://badge.fury.io/js/@jscadui%2Fhtml-gizmo.svg)](https://www.npmjs.com/package/@jscadui%2Fhtml-gizmo) a gizmo to display current camera direction
-- [packages/orbit](./packages/orbit) - [![npm version](https://badge.fury.io/js/@jscadui%2Forbit.svg)](https://www.npmjs.com/package/@jscadui%2Forbit) orbit controls for multiple 3d engines, and for use in jscad
+- [packages/orbit](./packages/orbit) - [![npm version](https://badge.fury.io/js/@jscadui%2Forbit.svg)](https://www.npmjs.com/package/@jscadui%2Forbit) orbit controls for css and multiple 3d engines, also for use in jscad
 - [packages/postmessage](./packages/postmessage) - [![npm version](https://badge.fury.io/js/@jscadui%2Fpostmessage.svg)](https://www.npmjs.com/package/@jscadui%2Fpostmessage) postMessage quality of life improvement
 
 # demo

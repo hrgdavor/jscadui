@@ -5,8 +5,9 @@ If you want to discuss jscad or jscadui you can also join us on discord: https:/
 
 Most of the things are work in progres, but some parts are pretty ready to be used
 
+- [file-format/3mf-export](./file-format/3mf-export) - [![npm version](https://badge.fury.io/js/@jscadui%2F3mf-export.svg)](https://www.npmjs.com/package/@jscadui%2F3mf-export) 3mf-export (also used by manifold)
 - [packages/html-gizmo](./packages/html-gizmo) - [![npm version](https://badge.fury.io/js/@jscadui%2Fhtml-gizmo.svg)](https://www.npmjs.com/package/@jscadui%2Fhtml-gizmo) a gizmo to display current camera direction
-- [file-format/3mf-export](./file-format/3mf-export) - [![npm version](https://badge.fury.io/js/@jscadui%2F3mf-export.svg)](https://www.npmjs.com/package/@jscadui%2F3mf-export) 3mf-export (also used by mynifold)
+- [packages/orbit](./packages/orbit) - [![npm version](https://badge.fury.io/js/@jscadui%2Forbit.svg)](https://www.npmjs.com/package/@jscadui%2Forbit) orbit controls for multiple 3d engines, and for use in jscad
 - [packages/postmessage](./packages/postmessage) - [![npm version](https://badge.fury.io/js/@jscadui%2Fpostmessage.svg)](https://www.npmjs.com/package/@jscadui%2Fpostmessage) postMessage quality of life improvement
 
 # demo
@@ -26,8 +27,8 @@ Most of the things are work in progres, but some parts are pretty ready to be us
 
 A jscad UI playground developed here and meant to be later contributed into jscad. This way this is not limited by jscad release cycle.
  - support Three.js Babylon.js regl
- - create nodep pure js parameters
- - allow to be easily used within React, angula, Vue,Solidj ... or whatever is popular at some point.
+ - create no-dep pure js parameters
+ - allow to be easily used within React, Angular, Vue, Solidj ... or whatever is popular at some point.
  - simplify integrating worker 
 
 

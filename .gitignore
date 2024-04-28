@@ -107,3 +107,6 @@ dist
 .turbo
 build/**
 dist/**
+**/.history
+**/.idea
+

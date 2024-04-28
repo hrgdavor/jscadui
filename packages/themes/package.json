@@ -1,9 +1,10 @@
 {
+  "type":"module",
+  "sideEffects": false,
   "name": "@jscadui/themes",
   "version": "0.1.0",
   "description": "JSCAD Themes",
   "main": "index.ts",
-  "type": "module",
   "scripts": {
     "test": "vitest",
     "coverage": "vitest run --coverage",

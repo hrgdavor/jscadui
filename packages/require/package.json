@@ -1,0 +1,39 @@
+{
+  "type": "module",
+  "sideEffects": false,
+  "name": "@jscadui/require",
+  "version": "0.1.0",
+  "description": "require utility for worker and main window",
+  "keywords": [
+    "postMessage",
+    "serviceworker",
+    "rpc",
+    "async",
+    "promise",
+    "worker"
+  ],
+  "main": "index.js",
+  "unpkg": "cjs/index.js",
+  "module": "./index.js",
+  "files": [
+    "index.js",
+    "esm",
+    "cjs"
+  ],
+  "scripts": {
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "build": "esbuild index.js --outdir=esm --bundle --sourcemap --minify --loader:.js=jsx --format=esm",
+    "build-cjs": "esbuild index.js --outdir=cjs --bundle --sourcemap --minify --loader:.js=jsx --format=cjs",
+    "prepublishOnly": "npm run build && npm run build-cjs"
+  },
+  "devDependencies": {
+    "@jscadui/transform-babel": "*",
+    "@trivago/prettier-plugin-sort-imports": "~3.3.0",
+    "@types/node": "18.11.9",
+    "@vitest/browser": "^0.26.3",
+    "esbuild": "^0.16.7",
+    "vitest": "0.24.5"
+  },
+  "license": "MIT"
+}

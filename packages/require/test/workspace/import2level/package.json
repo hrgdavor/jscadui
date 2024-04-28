@@ -1,0 +1,11 @@
+{
+  "type": "module",
+  "version": "1.0.0",
+  "name": "workspace1",
+  "workspaces":[
+    "util"
+  ],
+  "dependencies": {
+    "util":"*"
+  }
+}

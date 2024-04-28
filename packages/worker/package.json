@@ -1,0 +1,34 @@
+{
+  "type":"module",
+  "sideEffects": false,
+  "name": "@jscadui/worker",
+  "version": "0.1.0",
+  "description": "worker for executing jscad scripts",
+  "main": "worker.js",
+  "unpkg": "cjs/worker.js",
+  "module": "./worker.js",
+  "files": [
+    "worker.js",
+    "src",
+    "esm",
+    "cjs"
+  ],
+  "scripts": {
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "build": "esbuild worker.js --outdir=esm --bundle --sourcemap --minify --loader:.js=jsx --format=esm",
+    "build-cjs": "esbuild worker.js --outdir=cjs --bundle --sourcemap --minify --loader:.js=jsx --format=cjs",
+    "prepublishOnly": "npm run build && npm run build-cjs"
+  },
+  "dependencies": {
+    "@jscadui/postmessage": "*",
+    "@jscadui/require": "*"
+  },
+  "devDependencies": {
+    "esbuild": "^0.16.7",
+    "@types/node": "18.11.9",
+    "@trivago/prettier-plugin-sort-imports": "~3.3.0",
+    "vitest": "0.24.5"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,30 @@
+{
+  "type": "module",
+  "sideEffects": false,
+  "name": "@jscadui/3mf-export",
+  "version": "0.5.0",
+  "description": "3mf export",
+  "main": "index.js",
+  "unpkg": "cjs/index.js",
+  "module": "./index.js",
+  "files": [
+    "index.js",
+    "src",
+    "esm",
+    "iife",
+    "cjs"
+  ],
+  "scripts": {
+    "build": "esbuild index.js --outdir=esm --bundle --sourcemap --minify --loader:.js=jsx --format=esm",
+    "build-cjs": "esbuild index.js --outdir=cjs --bundle --sourcemap --minify --loader:.js=jsx --format=cjs",
+    "build-iife": "esbuild index.js --outdir=iife --bundle --sourcemap --minify --loader:.js=jsx --format=iife --global-name=juExport3mf",
+    "prepublishOnly": "npm run build && npm run build-cjs && npm run build-iife"
+  },
+  "devDependencies": {
+    "fflate": "0.8.0",
+    "esbuild": "^0.16.7",
+    "@types/node": "18.11.9",
+    "@trivago/prettier-plugin-sort-imports": "~3.3.0"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,12 @@
+{
+  "type": "module",
+  "sideEffects": false,
+  "name": "@jscadui/format-common",
+  "version": "0.1.0",
+  "description": "common format definition for jscadui",
+  "scripts": {
+  },
+  "devDependencies": {
+  },
+  "license": "MIT"
+}

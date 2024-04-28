@@ -81,7 +81,6 @@ async function initFs() {
   })
   sw.defProjectName = 'jscad'
   sw.onfileschange = files => {
-    console.log('files', files)
     if(files.includes('/package.json')){
       reloadProject()
     }else{
@@ -119,6 +118,7 @@ document.body.ondrop = async ev => {
 
 async function reloadProject(){
   saveMap = {}
+  sw.filesToCheck = []
   const { alias, script } = await analyzeProject(sw)
   projectName = sw.projectName
   if (alias.length) {
@@ -173,13 +173,12 @@ const exportModel = async (format, extension) => {
 }
 
 const onProgress = (value, note) => {
-  const el = progress.querySelector('progress')
   if (value == undefined) {
-    el.removeAttribute('value')
+    progress.removeAttribute('value')
   } else {
-    el.value = value
+    progress.value = value
   }
-  progress.querySelector('div').innerText = note ?? ''
+  progressText.innerText = note ?? ''
 }
 
 const worker = new Worker('./build/bundle.worker.js')
@@ -189,6 +188,7 @@ const handlers = {
     viewState.setModel((model = entities))
     console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2))
     setError(undefined)
+    onProgress(undefined, mainTime?.toFixed(2)+' ms')
   },
   onProgress,
 }
@@ -196,7 +196,8 @@ const handlers = {
 /** @type {JscadWorker} */
 const workerApi = globalThis.workerApi = messageProxy(worker, handlers, { onJobCount: trackJobs })
 
-const progress = byId('progress')
+const progress = byId('progress').querySelector('progress')
+const progressText =  byId('progressText')
 let jobs = 0
 let firstJobTimer
 
@@ -298,9 +299,9 @@ editor.init(
     }
   },
   async (script, path) => {
-    console.log('save file', path)
     let pathArr = path.split('/')
-    let fileHandle = (await sw?.getFile(path))?.fileHandle
+    let fileHandle = (await sw?.getFile(path))?.handle
+    console.log('save file', path, fileHandle)
     if (!fileHandle) fileHandle = saveMap[path]
     if (!fileHandle) {
       const opts = {

@@ -572,17 +572,19 @@ p {
   border-top-left-radius: 4px;
 }
 
+#progress progress{
+  display: none;
+}
 #progress {
   position: absolute;
   bottom: 10px;
   right: 10px;
-  display: none;
   accent-color: #27c;
 }
 .dark #progress {
   accent-color: #2e96ea;
 }
-#progress > div {
+#progressText {
   font-size: small;
   text-align: right;
 }

@@ -16,7 +16,7 @@
       <div id="root" style="overflow: hidden"></div>
     </div>
     <script type="module">
-      import { initEngine, jscadScript } from './build/main.js'
+      import { initEngine, jscadScript } from './main.js'
       // you can define bundles that are loaded by the worker and not bundled width a script
       // not bundling @jscad/modeling makes sense as soon as you have more than one script you want to show
       // esbuild howto: to bundle all imports except @jscad/modeling use: --external:@jscad/modeling
@@ -27,7 +27,7 @@
         },
       }
       initEngine(THREE, 'root', workerOptions).then(() => {
-        jscadScript('./jscad/planter.mesh.js')
+        jscadScript('./planter.mesh.js')
       })
     </script>
   </body>

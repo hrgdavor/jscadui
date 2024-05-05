@@ -96,13 +96,6 @@ const doAnim = () => {
 let animDuration = 200
 let animTimer, stateStart, stateEnd, startTime
 
-const handlers = {
-  entities: ({ entities }) => {
-    if (!(entities instanceof Array)) entities = [entities]
-    setViewerScene(entities)
-  },
-}
-
 const link = document.createElement('a')
 link.style.display = 'none'
 document.body.appendChild(link)
@@ -122,19 +115,20 @@ window.exportModel = exportModel
 
 var worker = new Worker('./build/bundle.worker.js')
 /** @type {JscadWorker} */
-const workerApi = globalThis.workerApi = messageProxy(worker, handlers, {  })
+const workerApi = globalThis.workerApi = messageProxy(worker, {}, {  })
 
-const paramChangeCallback = params => {
+const paramChangeCallback = async params => {
   console.log('params', params)
-  workerApi.jscadMain({ params })
+  let result = await workerApi.jscadMain({ params })
+  console.log('result', result)
+  setViewerScene(result.entities)
 }
 
-export const jscadScript = file => {
+export const jscadScript = async file => {
   fileToRun = file.replace(/.*\//, '').replace(/\..*/, '')
-  workerApi.jscadScript({ url: file }).then(result => {
-    console.log('result', result)
-    genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
-  })
+  let result = await workerApi.jscadScript({ url: file })
+  genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
+  setViewerScene(result.entities)
 }
 
 // ************ init ui     *********************************

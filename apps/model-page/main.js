@@ -4,8 +4,10 @@ import { messageProxy } from '@jscadui/postmessage'
 import { makeAxes, makeGrid } from '@jscadui/scene'
 import * as themes from '@jscadui/themes'
 
-import { genParams } from '../../packages/params-form/src/params'
-import { initTestThree } from './src/testThree'
+import { genParams } from '@jscadui/params'
+import { initTestThree } from './src/testThree.js'
+
+import './src/main.css'
 
 /** @typedef {import('@jscadui/worker').JscadWorker} JscadWorker*/
 
@@ -113,7 +115,7 @@ function exportModel(format) {
 }
 window.exportModel = exportModel
 
-var worker = new Worker('./build/bundle.worker.js')
+var worker = new Worker('./assets/bundle.worker.js')
 /** @type {JscadWorker} */
 const workerApi = globalThis.workerApi = messageProxy(worker, {}, {  })
 
@@ -124,12 +126,13 @@ const paramChangeCallback = async params => {
   setViewerScene(result.entities)
 }
 
-export const jscadScript = async file => {
+export const jscadScript = async (file, script) => {
   fileToRun = file.replace(/.*\//, '').replace(/\..*/, '')
-  let result = await workerApi.jscadScript({ url: file })
+  let result = await workerApi.jscadScript({ url: file, script })
   genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
   setViewerScene(result.entities)
 }
+
 
 // ************ init ui     *********************************
 

@@ -21,7 +21,7 @@ const bundleDef = {
   format: 'iife',
 }
 
-export const buildBundle = (outDir, bundle, {srcDir='src_bundle', skipExisting = true, ...options})=>{
+export const buildBundle = (outDir, bundle, {srcDir='src/bundle', skipExisting = true, ...options})=>{
   let file = `${srcDir}/${bundle}`
   let outfile = `${outDir}/${bundle}`
   return runEsbuild(esbuild,{...bundleDef, ...options, skipExisting, entryPoints:[file], outfile})

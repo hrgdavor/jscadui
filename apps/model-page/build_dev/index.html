@@ -11,7 +11,8 @@
     <div class="layout" id="layout">
       <div>
         <button onclick="exportModel('stl')">Export stl</button>
-        <button onclick="jscadScript('./models/planter.mesh.js')">model from file</button>
+        <button onclick="runTextArea()">run textarea</button>
+        <button onclick="jscadScript('./models/planter.mesh.js')">run model from file</button>
         <div id="paramsDiv"></div>
 <textarea id="demoScript">
 const jscad = require('@jscad/modeling')
@@ -39,21 +40,26 @@ module.exports = { main }
       </div>
       <div id="root" style="overflow: hidden"></div>
     </div>
-    <script type="module">
-      import { initEngine, jscadScript } from './assets/main.js'
-      // module is is isolated, we must expose to window functions we want to call for example onclick on a button
-      window.jscadScript = jscadScript 
-      // you can define bundles that are loaded by the worker and not bundled width a script
-      // not bundling @jscad/modeling makes sense as soon as you have more than one script you want to show
-      // esbuild howto: to bundle all imports except @jscad/modeling use: --external:@jscad/modeling
-      const workerOptions = {
-        baseURI: document.baseURI.toString(),
-        bundles: {
-          '@jscad/modeling': document.baseURI+'assets/bundle.jscad_modeling.js',
-        },
-      }
-      await initEngine(THREE, 'root', workerOptions)
-      jscadScript('textarea.js', document.getElementById('demoScript').value)
-    </script>
   </body>
 </html>
+
+<script type="module">
+  import { initEngine, jscadScript } from './assets/main.js'
+  // module is is isolated, we must expose to window functions we want to call for example onclick on a button
+  window.jscadScript = jscadScript
+  window.runTextArea = function(){
+    jscadScript('textarea.js', document.getElementById('demoScript').value)
+  }
+  // you can define bundles that are loaded by the worker and not bundled width a script
+  // not bundling @jscad/modeling makes sense as soon as you have more than one script you want to show
+  // esbuild howto: to bundle all imports except @jscad/modeling use: --external:@jscad/modeling
+  const workerOptions = {
+    baseURI: document.baseURI.toString(),
+    bundles: {
+      '@jscad/modeling': document.baseURI+'assets/bundle.jscad_modeling.js',
+    },
+  }
+  await initEngine(THREE, 'root', workerOptions)
+  runTextArea()
+</script>
+

@@ -1,8 +1,10 @@
-importScripts('./bundle.jscadui.transform-babel.js')
+try{
+  importScripts('./bundle.jscadui.transform-babel.js')
+}catch(e){
+  console.log('running typescript and ESM modules is disabled because: ', e.message)
+}
 
 // import io from '@jscad/io'
-const {transformcjs} = jscadui_transform_babel
-// import {transformcjs} from '@jscadui/transform-babel'
 
 import {currentSolids, initWorker} from '@jscadui/worker'
 import {readFileWeb, require} from '@jscadui/require'
@@ -45,4 +47,4 @@ const importData = {
   }
 }
 
-initWorker(transformcjs, exportData, importData)
+initWorker(globalThis.jscadui_transform_babel?.transformcjs, exportData, importData)

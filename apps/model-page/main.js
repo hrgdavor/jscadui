@@ -107,13 +107,12 @@ function save(blob, filename) {
   link.click()
 }
 
-function exportModel(format) {
-  sendCmd('jscadExportData', [{ format }]).then(({ data }) => {
+export function exportModel(format) {
+  workerApi.jscadExportData({ format }).then(({ data }) => {
     console.log('save', fileToRun + '.stl', data)
     save(new Blob([data], { type: 'text/plain' }), fileToRun + '.stl')
   })
 }
-window.exportModel = exportModel
 
 var worker = new Worker('./assets/bundle.worker.js?transpile=1')
 /** @type {JscadWorker} */

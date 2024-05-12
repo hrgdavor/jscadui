@@ -10,7 +10,7 @@
   <body>
     <div class="layout" id="layout">
       <div>
-        <button onclick="exportModel('stl')">Export stl</button>
+        <button onclick="exportModel('stla')">Export stl</button>
         <button onclick="runTextArea()">run textarea</button>
         <button onclick="jscadScript('./models/planter.mesh.js')">run model from file</button>
         <div id="paramsDiv"></div>
@@ -46,9 +46,10 @@ module.exports = { main }
 <script type="module">
   import * as mod from './mod.test.js'
   console.log('mod', mod.default, mod)
-  import { initEngine, jscadScript } from './assets/main.js'
+  import { initEngine, jscadScript, exportModel } from './assets/main.js'
   // module is is isolated, we must expose to window functions we want to call for example onclick on a button
   window.jscadScript = jscadScript
+  window.exportModel = exportModel
   window.runTextArea = function(){
     jscadScript('textarea.js', document.getElementById('demoScript').value)
   }

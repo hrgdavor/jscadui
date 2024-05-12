@@ -44,6 +44,8 @@ module.exports = { main }
 </html>
 
 <script type="module">
+  import * as mod from './mod.test.js'
+  console.log('mod', mod.default, mod)
   import { initEngine, jscadScript } from './assets/main.js'
   // module is is isolated, we must expose to window functions we want to call for example onclick on a button
   window.jscadScript = jscadScript

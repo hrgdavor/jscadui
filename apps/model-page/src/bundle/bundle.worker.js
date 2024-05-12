@@ -1,5 +1,7 @@
 try{
-  importScripts('./bundle.jscadui.transform-babel.js')
+  if(self.location.search.includes('transpile=1')){
+    importScripts('./bundle.jscadui.transform-babel.js')
+  }
 }catch(e){
   console.log('running typescript and ESM modules is disabled because: ', e.message)
 }

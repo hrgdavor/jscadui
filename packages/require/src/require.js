@@ -109,10 +109,6 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
   }
 
   if (cache && cacheUrl) cache[cacheUrl] = exports // cache obj exported by module
-  // TODO research maybe in the future, why going through babel adds __esModule=true
-  // this extra reference via defaults helps
-  // exports.__esModule = false // this did not help
-  exports.default = {...exports}
 
   return exports // require returns object exported by module
 }

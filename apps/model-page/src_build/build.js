@@ -28,7 +28,7 @@ await buildBundle(assetDir, 'bundle.jscadui.transform-babel.js', {
 })
 
 /**************************** BUILD JS THAT can change and watch if in dev mode *************/
-await buildOne('src/bundle', assetDir, 'bundle.worker.js', watch, { format: 'iife' })
+await buildOne('src/bundle', assetDir, 'bundle.worker.js', watch, { format: 'esm' })
 
 /**************************** BUILD MAIN JS and watch if in dev mode *************/
 await buildOne('.', assetDir, 'main.js', watch, { format: 'esm', outbase:'src' })

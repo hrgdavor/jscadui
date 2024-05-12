@@ -115,7 +115,7 @@ function exportModel(format) {
 }
 window.exportModel = exportModel
 
-var worker = new Worker('./assets/bundle.worker.js')
+var worker = new Worker('./assets/bundle.worker.js?transpile=1')
 /** @type {JscadWorker} */
 const workerApi = globalThis.workerApi = messageProxy(worker, {}, {  })
 

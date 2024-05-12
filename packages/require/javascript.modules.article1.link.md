@@ -1,17 +1,6 @@
-# js modules
+# the original article
 
-TODO shorter version more related to jscadui ...
-
-
-
-
-
-
-## more details
-
-here is a link to an excellent article: https://javascript.works-hub.com/learn/javascript-modules-358ee
-
-and below is copy of the article for archive purpose.
+https://javascript.works-hub.com/learn/javascript-modules-358ee
 
 ## intro
 

@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "init": "npx @neutralinojs/neu update",
     "start": "node build.js --dev --skipDocs",
     "start:full": "node build.js --dev",
     "build": "node build.js",

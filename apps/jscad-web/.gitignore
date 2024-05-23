@@ -5,3 +5,5 @@ build_dev
 jscad
 deploy
 bin
+.tmp
+.history

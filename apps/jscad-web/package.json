@@ -11,7 +11,7 @@
   "dependencies": {
     "@codemirror/lang-javascript": "^6.1.9",
     "@jscad/io": "2.4.7",
-    "@jscad/modeling": "2.12.1",
+    "@jscad/modeling": "2.12.2",
     "@jscadui/format-jscad": "*",
     "@jscadui/format-threejs": "*",
     "@jscadui/fs-provider": "*",

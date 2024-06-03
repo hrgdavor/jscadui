@@ -105,6 +105,11 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
       const module = requireModule(url, resolvedUrl, source, requireFunc)
       module.local = isRelativeFile
       exports = module.exports
+      // import jscad from "@jscad/modeling"; 
+      // will be effectively transformed to 
+      // const jscad = require('@jscad/modeling').default
+      // we need to plug-in default if missing
+      if(!('default' in exports)) exports.default = exports
     }
   }
 

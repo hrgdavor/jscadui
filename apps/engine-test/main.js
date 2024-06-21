@@ -9,8 +9,8 @@ import { makeAxes, makeGrid } from '@jscadui/scene'
 import * as themes from '@jscadui/themes'
 
 import { availableEngines, availableEnginesList } from './src/availableEngines'
-import { CurrentUrl } from './src/currentUrl'
-import { EngineState } from './src/engineState'
+import { urlInit, urlReplace } from './src/urlUtil.js'
+import { EngineState } from './src/engineState.js'
 
 /** @typedef {import('@jscadui/worker').JscadWorker} JscadWorker*/
 
@@ -21,10 +21,10 @@ const { colorize } = colors
 
 export const byId = id => document.getElementById(id)
 const toUrl = path => new URL(path, document.baseURI).toString()
-const currentUrl = new CurrentUrl()
 
 const engineState = new EngineState(availableEngines, theme, makeAxes, makeGrid)
-const useEngines = currentUrl.initGet('engines', 'three,regl,babylon').split(',')
+const useEngines = urlInit('engines', 'three,regl,babylon').split(',')
+urlReplace()// use the new url with defaults applied
 
 const gizmo = (window.gizmo = new Gizmo())
 byId('layout').appendChild(gizmo)

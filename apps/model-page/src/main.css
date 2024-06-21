@@ -119,7 +119,7 @@ body {
 	#paramsDiv .form-line input[type="range"]{
 		width: 100%;
 	}
-
+.jscad-param-buttons{display: none;}
 jscadui-gizmo{
   position: absolute;
   top: 0; right: 0;
@@ -133,4 +133,9 @@ jscadui-gizmo{
   --cube-bg-hover: #444;
   --cube-fg-hover: #aaa;
   --cube-corner-radius: 5px;*/
+}
+
+#demoScript{
+	width: 450px;
+	height: 650px;
 }

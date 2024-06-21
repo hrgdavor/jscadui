@@ -89,8 +89,8 @@ async function initFs() {
     } else {
       workerApi.jscadClearFileCache({ files })
       editor.filesChanged(files)
+      if (sw.fileToRun) jscadScript({ url: sw.fileToRun, base: sw.base })
     }
-    if (sw.fileToRun) jscadScript({ url: sw.fileToRun, base: sw.base })
   }
   sw.getFile = path => getFile(path, sw)
 }
@@ -111,7 +111,8 @@ document.body.ondrop = async ev => {
 
     await fileDropped(sw, files)
 
-    reloadProject()
+   reloadProject()
+
   } catch (error) {
     setError(error)
     console.error(error)
@@ -295,7 +296,8 @@ setInterval(async () => {
     let file = await handle.getFile()
     if (file.lastModified > handle.lastMod) {
       handle.lastMod = file.lastModified
-      editor.filesChanged([file])
+      await editor.filesChanged([file])
+      editor.runScript();
     }
   }
 }, 500)

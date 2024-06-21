@@ -61,6 +61,7 @@ export const readDir = async dir => {
  */
 export const addToCache = async (cache, path, content) => cache.put(new Request(path), new Response(content))
 
+
 export const addPreLoadAll = async (sw, paths, ignoreMissing) => {
   const out = []
   for (let i = 0; i < paths.length; i++) {
@@ -236,7 +237,7 @@ export const checkFiles = sw => {
       if (result.length) {
         const todo = []
         const files = result.map(([entry, file]) => {
-          todo.push(addToCache(sw.cache, entry.fsPath, file))
+          todo.push(addToCache(sw.cache, entry.fullPath, file))
           return entry.fullPath
         })
         Promise.all(todo).then(result => {
@@ -275,7 +276,11 @@ export async function fileDropped(sw, files) {
 export async function analyzeProject(sw) {
   const alias = await getWorkspaceAliases(sw)
 
-  const preLoad = ['/' + sw.fileToRun, '/package.json']
+  if (sw.fileToRun && sw.fileToRun[0]!='/') {
+    sw.fileToRun = `/${sw.fileToRun}`
+  }
+
+  const preLoad = [sw.fileToRun, '/package.json']
   const loaded = await addPreLoadAll(sw, preLoad, true)
 
   sw.projectName = sw.defProjectName
@@ -284,7 +289,6 @@ export async function analyzeProject(sw) {
 
   let script = ''
   if (sw.fileToRun) {
-    sw.fileToRun = `/${sw.fileToRun}`
     const file = await findFileInRoots(sw.roots, sw.fileToRun)
     if (file) {
       sw.filesToCheck.push(file)

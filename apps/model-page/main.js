@@ -4,8 +4,10 @@ import { messageProxy } from '@jscadui/postmessage'
 import { makeAxes, makeGrid } from '@jscadui/scene'
 import * as themes from '@jscadui/themes'
 
-import { genParams } from '../../packages/params-form/src/params'
-import { initTestThree } from './src/testThree'
+import { genParams } from '@jscadui/params'
+import { initTestThree } from './src/testThree.js'
+
+import './src/main.css'
 
 /** @typedef {import('@jscadui/worker').JscadWorker} JscadWorker*/
 
@@ -96,13 +98,6 @@ const doAnim = () => {
 let animDuration = 200
 let animTimer, stateStart, stateEnd, startTime
 
-const handlers = {
-  entities: ({ entities }) => {
-    if (!(entities instanceof Array)) entities = [entities]
-    setViewerScene(entities)
-  },
-}
-
 const link = document.createElement('a')
 link.style.display = 'none'
 document.body.appendChild(link)
@@ -112,30 +107,31 @@ function save(blob, filename) {
   link.click()
 }
 
-function exportModel(format) {
-  sendCmd('jscadExportData', [{ format }]).then(({ data }) => {
+export function exportModel(format) {
+  workerApi.jscadExportData({ format }).then(({ data }) => {
     console.log('save', fileToRun + '.stl', data)
     save(new Blob([data], { type: 'text/plain' }), fileToRun + '.stl')
   })
 }
-window.exportModel = exportModel
 
-var worker = new Worker('./build/bundle.worker.js')
+var worker = new Worker('./assets/bundle.worker.js?transpile=1')
 /** @type {JscadWorker} */
-const workerApi = globalThis.workerApi = messageProxy(worker, handlers, {  })
+const workerApi = globalThis.workerApi = messageProxy(worker, {}, {  })
 
-const paramChangeCallback = params => {
+const paramChangeCallback = async params => {
   console.log('params', params)
-  workerApi.jscadMain({ params })
+  let result = await workerApi.jscadMain({ params })
+  console.log('result', result)
+  setViewerScene(result.entities)
 }
 
-export const jscadScript = file => {
+export const jscadScript = async (file, script) => {
   fileToRun = file.replace(/.*\//, '').replace(/\..*/, '')
-  workerApi.jscadScript({ url: file }).then(result => {
-    console.log('result', result)
-    genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
-  })
+  let result = await workerApi.jscadScript({ url: file, script })
+  genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
+  setViewerScene(result.entities)
 }
+
 
 // ************ init ui     *********************************
 

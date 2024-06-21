@@ -12,10 +12,8 @@
     "doc": "docs"
   },
   "scripts": {
-    "build": "turbo run build",
-    "test": "turbo run test",
-    "lint": "turbo run lint",
-    "dev": "turbo run dev"
+    "start": "echo This is a monorepo, that holds jsadui libraries and example apps. && echo If you want to try some apps made with jscadui go to apps folder. && echo Please read README for introduction and list of apps and info how ready or usable each is",
+    "dev": " npm run start"
   },
   "repository": {
     "type": "git",

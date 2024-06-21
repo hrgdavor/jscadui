@@ -2,7 +2,7 @@
 
 This is a project that aims to build a simple set of scripts that can be included in a HTML page to show JSCAD models. It is work in progress, but will likely improve based on user feedback.
 
-To run the demo first go to root folder of this repository and run `npm i`
+To run the demo first go to root folder of this repository and run `npm i`. 
 
 then come back to this project and start it
 
@@ -11,9 +11,15 @@ cd apps/model-page
 npm start
 ```
 
-you must run `npm i` only when you freshly checkout the project or deps change
+you must run `npm i` it the project root only when you freshly checkout or after pull.
 
-# if you need to bundle your JSCAD scripts
+
+# bundling and converting scripts
+
+jscad application is complex and can run different flavors of scripts, but it comes with a size cost. It uses babel to convert typescript and ES modules to require syntax, because that is only variant that can be used in eval ATM.
+
+To simplify your application you can write 
+
 
 To bundle your jscad scripts you can use this sample `esbuild` command:
 

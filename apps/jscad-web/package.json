@@ -6,13 +6,12 @@
     "start": "node build.js --dev --skipDocs",
     "start:full": "node build.js --dev",
     "build": "node build.js",
-    "serve": "node build.js --serve",
-    "test": "ava"
+    "serve": "node build.js --serve"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.1.9",
     "@jscad/io": "2.4.7",
-    "@jscad/modeling": "2.12.1",
+    "@jscad/modeling": "2.12.2",
     "@jscadui/format-jscad": "*",
     "@jscadui/format-threejs": "*",
     "@jscadui/fs-provider": "*",

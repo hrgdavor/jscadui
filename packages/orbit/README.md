@@ -1,5 +1,5 @@
 # no-dep OrbitControl
-[![npm version](https://badge.fury.io/js/@jscadui%2Forbit.svg)](https://www.npmjs.com/package/@jscadui%2Forbit)
+[![npm version](https://badge.fury.io/js/@jscadui%2Forbit.svg)](https://www.npmjs.com/package/@jscadui%2Forbit) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A no-dep OrbitControl that can be used with different webgl engines, and as bonus also CSS 3d transform.
 

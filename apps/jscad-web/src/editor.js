@@ -30,6 +30,8 @@ const save = (code, path) => {
   saveFn(code, path)
 }
 
+export const runScript = ()=>compile(view.state.doc.toString(), currentFile)
+
 export const init = (defaultCode, fn, _saveFn, _getFileFn) => {
   // by calling document.getElementById here instead outside of init we allow the flow
   // where javascript is included in the page before the tempalte is loaded into the DOM
@@ -49,7 +51,7 @@ export const init = (defaultCode, fn, _saveFn, _getFileFn) => {
       keymap.of([
         {
           key: 'Shift-Enter',
-          run: () => compile(view.state.doc.toString(), currentFile),
+          run: runScript,
           preventDefault: true,
         },
         {
@@ -92,17 +94,17 @@ export const setSource = (source, path = '/index.js') => {
   currentFile = path
 }
 
-export function filesChanged(files){
+export async function filesChanged(files){
   let file
-  files.forEach(async path=>{
-    console.log('path', path)
+  for(let i=0; i<files.length; i++){
+    let path = files[i]    
     if(path == currentFile){
       file = await getFileFn(path)
       readSource(file, currentFile)
     }else if(path.name === currentFile){
       setSource(await readAsText(path), currentFile)
     }
-  })
+  }
 }
 
 async function readSource(file, currentFile){

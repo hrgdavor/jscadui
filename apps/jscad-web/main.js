@@ -173,12 +173,13 @@ const exportModel = async (format, extension) => {
     let gzipped = gzipSync(str2ab(src))
     let str = String.fromCharCode.apply(null, gzipped)
     let url = document.location.origin + '#data:application/gzip;base64,' + btoa(str)
-    console.log('url', url)
+    console.log('url\n', url)
     try {
       await navigator.clipboard.writeText(url)
-      console.log('copied to clipboard')
-    } catch (err) {
-      console.error('Failed to copy: ', err)
+      alert('URL with gzipped script was succesfully copied to clipboard')
+      } catch (err) {
+        console.error('Failed to copy: ', err)
+        alert('failed to copy to clipboard\n'+err.message)
     }
     return
   }
@@ -254,9 +255,6 @@ const bundles = {
 }
 
 await workerApi.jscadInit({ bundles })
-if (loadDefault) {
-  jscadScript({ script: defaultCode, smooth: viewState.smoothRender })
-}
 
 let working
 let lastParams
@@ -347,21 +345,29 @@ editor.init(
 )
 menu.init()
 welcome.init()
-remote.init(
-  (script, url) => {
-    // run remote script
-    editor.setSource(script, url)
-    jscadScript({ script, base: url })
-    welcome.dismiss()
-  },
-  err => {
-    // show remote script error
-    loadDefault = false
-    setError(err)
-    welcome.dismiss()
-  },
-)
+let hasRemoteScript
+try{
+  hasRemoteScript = await remote.init(
+    (script, url) => {
+      // run remote script
+      editor.setSource(script, url)
+      jscadScript({ script, base: url })
+      welcome.dismiss()
+    },
+    err => {
+      // show remote script error
+      loadDefault = false
+      setError(err)
+      welcome.dismiss()
+    },
+  )
+}catch(e){
+  console.error(e)  
+}
 exporter.init(exportModel)
+if (loadDefault && !hasRemoteScript) {
+  jscadScript({ script: defaultCode, smooth: viewState.smoothRender })
+}
 
 try {
   await initFs()

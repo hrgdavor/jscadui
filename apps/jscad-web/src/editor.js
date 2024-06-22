@@ -113,8 +113,13 @@ async function readSource(file, currentFile){
   setSource(await readAsText(file), currentFile)
 }
 
+let editorFilesArr = []
+
+export const getEditorFiles = ()=>editorFilesArr
+
 export const setFiles = (files) => {
   const editorFiles = document.getElementById('editor-files')
+  editorFilesArr = files
   if (files.length < 2) {
     editorNav.classList.remove('visible')
   } else {

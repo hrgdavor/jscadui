@@ -169,6 +169,10 @@ function save(blob, filename) {
 
 const exportModel = async (format, extension) => {
   if (format === 'scriptUrl') {
+    if(editor.getEditorFiles().length > 1) {
+      alert('Can not export multifile projects as url')
+      return
+    }
     let src = editor.getSource()
     let gzipped = gzipSync(str2ab(src))
     let str = String.fromCharCode.apply(null, gzipped)

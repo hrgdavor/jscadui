@@ -1,8 +1,8 @@
 import {
   addToCache,
+  analyzeProject,
   clearFs,
   extractEntries,
-  analyzeProject,
   fileDropped,
   getFile,
   getFileContent,
@@ -12,7 +12,9 @@ import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl } from '@jscadui/orbit'
 import { genParams } from '@jscadui/params'
 import { messageProxy } from '@jscadui/postmessage'
+import { gzipSync } from 'fflate'
 
+import { runMain } from '../../packages/worker/worker.js'
 import defaultCode from './examples/jscad.example.js'
 import * as editor from './src/editor.js'
 import * as engine from './src/engine.js'
@@ -20,6 +22,7 @@ import * as exporter from './src/exporter.js'
 import * as menu from './src/menu.js'
 import * as remote from './src/remote.js'
 import { formatStacktrace } from './src/stacktrace.js'
+import { str2ab } from './src/str2ab.js'
 import { ViewState } from './src/viewState.js'
 import * as welcome from './src/welcome.js'
 
@@ -81,9 +84,9 @@ async function initFs() {
   })
   sw.defProjectName = 'jscad'
   sw.onfileschange = files => {
-    if(files.includes('/package.json')){
+    if (files.includes('/package.json')) {
       reloadProject()
-    }else{
+    } else {
       workerApi.jscadClearFileCache({ files })
       editor.filesChanged(files)
       if (sw.fileToRun) jscadScript({ url: sw.fileToRun, base: sw.base })
@@ -116,7 +119,7 @@ document.body.ondrop = async ev => {
   }
 }
 
-async function reloadProject(){
+async function reloadProject() {
   saveMap = {}
   sw.filesToCheck = []
   const { alias, script } = await analyzeProject(sw)
@@ -165,6 +168,26 @@ function save(blob, filename) {
 }
 
 const exportModel = async (format, extension) => {
+  if (format === 'scriptUrl') {
+    if(editor.getEditorFiles().length > 1) {
+      alert('Can not export multifile projects as url')
+      return
+    }
+    let src = editor.getSource()
+    let gzipped = gzipSync(str2ab(src))
+    let str = String.fromCharCode.apply(null, gzipped)
+    let url = document.location.origin + '#data:application/gzip;base64,' + btoa(str)
+    console.log('url\n', url)
+    try {
+      await navigator.clipboard.writeText(url)
+      alert('URL with gzipped script was succesfully copied to clipboard')
+      } catch (err) {
+        console.error('Failed to copy: ', err)
+        alert('failed to copy to clipboard\n'+err.message)
+    }
+    return
+  }
+
   const { data } = (await workerApi.jscadExportData({ format })) || {}
   if (data) {
     save(new Blob([data], { type: 'text/plain' }), `${projectName}.${extension}`)
@@ -188,23 +211,23 @@ const handlers = {
     viewState.setModel((model = entities))
     console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2))
     setError(undefined)
-    onProgress(undefined, mainTime?.toFixed(2)+' ms')
+    onProgress(undefined, mainTime?.toFixed(2) + ' ms')
   },
   onProgress,
 }
 
 /** @type {JscadWorker} */
-const workerApi = globalThis.workerApi = messageProxy(worker, handlers, { onJobCount: trackJobs })
+const workerApi = (globalThis.workerApi = messageProxy(worker, handlers, { onJobCount: trackJobs }))
 
 const progress = byId('progress').querySelector('progress')
-const progressText =  byId('progressText')
+const progressText = byId('progressText')
 let jobs = 0
 let firstJobTimer
 
 function trackJobs(jobs) {
   if (jobs === 1) {
     // do not show progress for fast renders
-    clearTimeout(firstJobTimer)    
+    clearTimeout(firstJobTimer)
     firstJobTimer = setTimeout(() => {
       onProgress()
       progress.style.display = 'block'
@@ -219,13 +242,13 @@ function trackJobs(jobs) {
 const jscadScript = async ({ script, url = './jscad.model.js', base = currentBase, root }) => {
   currentBase = base
   loadDefault = false // don't load default model if something else was loaded
-  try{
+  try {
     const result = await workerApi.jscadScript({ script, url, base, root, smooth: viewState.smoothRender })
     genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
     lastRunParams = result.params
     handlers.entities(result)
-  }catch(err){
-    setError(err)    
+  } catch (err) {
+    setError(err)
   }
 }
 
@@ -236,9 +259,6 @@ const bundles = {
 }
 
 await workerApi.jscadInit({ bundles })
-if (loadDefault) {
-  jscadScript({ script: defaultCode, smooth: viewState.smoothRender })
-}
 
 let working
 let lastParams
@@ -329,21 +349,29 @@ editor.init(
 )
 menu.init()
 welcome.init()
-remote.init(
-  (script, url) => {
-    // run remote script
-    editor.setSource(script, url)
-    jscadScript({ script, base: url })
-    welcome.dismiss()
-  },
-  err => {
-    // show remote script error
-    loadDefault = false
-    setError(err)
-    welcome.dismiss()
-  },
-)
+let hasRemoteScript
+try{
+  hasRemoteScript = await remote.init(
+    (script, url) => {
+      // run remote script
+      editor.setSource(script, url)
+      jscadScript({ script, base: url })
+      welcome.dismiss()
+    },
+    err => {
+      // show remote script error
+      loadDefault = false
+      setError(err)
+      welcome.dismiss()
+    },
+  )
+}catch(e){
+  console.error(e)  
+}
 exporter.init(exportModel)
+if (loadDefault && !hasRemoteScript) {
+  jscadScript({ script: defaultCode, smooth: viewState.smoothRender })
+}
 
 try {
   await initFs()

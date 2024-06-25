@@ -392,3 +392,5 @@ if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
   }
   setError('cannot start service worker, reload required')
 }
+
+window.Neutralino.init();

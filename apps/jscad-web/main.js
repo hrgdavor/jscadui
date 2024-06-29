@@ -78,10 +78,18 @@ async function initFs() {
     return file
   }
   let scope = document.location.pathname
-  sw = await registerServiceWorker(`bundle.fs-serviceworker.js?prefix=${scope}swfs/`, getFileWrapper, {
-    scope,
-    prefix: scope + 'swfs/',
-  })
+  try{
+    sw = await registerServiceWorker(`bundle.fs-serviceworker.js?prefix=${scope}swfs/`, getFileWrapper, {
+      scope,
+      prefix: scope + 'swfs/',
+    })
+  }catch(e){
+    const lastReload = localStorage.getItem('lastReload')
+    if (!lastReload || Date.now() - lastReload > 3000) {
+      localStorage.setItem('lastReload', Date.now())
+      location.reload()
+    }
+  }
   sw.defProjectName = 'jscad'
   sw.onfileschange = files => {
     if (files.includes('/package.json')) {
@@ -386,7 +394,7 @@ if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
   if (!lastReload || Date.now() - lastReload > 3000) {
     setError('cannot start service worker, reloading')
     localStorage.setItem('lastReload', Date.now())
-    location.reload()
+    //location.reload()
   } else {
     console.error('cannot start service worker, reload required')
   }

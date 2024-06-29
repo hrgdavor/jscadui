@@ -2,6 +2,7 @@ import { defaultKeymap } from '@codemirror/commands'
 import { javascript } from '@codemirror/lang-javascript'
 import { keymap } from '@codemirror/view'
 import { EditorView, basicSetup } from 'codemirror'
+import { readAsText } from '@jscadui/fs-provider'
 
 import * as drawer from './drawer.js'
 
@@ -29,6 +30,8 @@ const save = (code, path) => {
   saveFn(code, path)
 }
 
+export const runScript = ()=>compile(view.state.doc.toString(), currentFile)
+
 export const init = (defaultCode, fn, _saveFn, _getFileFn) => {
   // by calling document.getElementById here instead outside of init we allow the flow
   // where javascript is included in the page before the tempalte is loaded into the DOM
@@ -48,7 +51,7 @@ export const init = (defaultCode, fn, _saveFn, _getFileFn) => {
       keymap.of([
         {
           key: 'Shift-Enter',
-          run: () => compile(view.state.doc.toString(), currentFile),
+          run: runScript,
           preventDefault: true,
         },
         {
@@ -86,40 +89,37 @@ export const init = (defaultCode, fn, _saveFn, _getFileFn) => {
   })
 }
 
+export const getSource = () => view.state.doc.toString()
+
 export const setSource = (source, path = '/index.js') => {
   view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: source } })
   currentFile = path
 }
 
-export function filesChanged(files){
+export async function filesChanged(files){
   let file
-  files.forEach(async path=>{
+  for(let i=0; i<files.length; i++){
+    let path = files[i]    
     if(path == currentFile){
       file = await getFileFn(path)
       readSource(file, currentFile)
     }else if(path.name === currentFile){
-      let reader = new FileReader()
-      reader.onloadend = ()=>{
-        setSource(reader.result, currentFile)
-      }
-      reader.readAsText(path)
+      setSource(await readAsText(path), currentFile)
     }
-  })
+  }
 }
 
 async function readSource(file, currentFile){
-    // Read FileEntry
-    file.file((file) => {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setSource(reader.result, currentFile)
-      }
-      reader.readAsText(file)
-    })
+  setSource(await readAsText(file), currentFile)
 }
+
+let editorFilesArr = []
+
+export const getEditorFiles = ()=>editorFilesArr
 
 export const setFiles = (files) => {
   const editorFiles = document.getElementById('editor-files')
+  editorFilesArr = files
   if (files.length < 2) {
     editorNav.classList.remove('visible')
   } else {
@@ -129,9 +129,9 @@ export const setFiles = (files) => {
     files.forEach((file) => {
       const item = document.createElement('li')
       const button = document.createElement('button')
-      button.innerText = file.fsPath
+      button.innerText = file.fullPath
       button.addEventListener('click', () => {
-        currentFile = file.fsPath
+        currentFile = file.fullPath
         editorFile.innerHTML = currentFile
         readSource(file, currentFile)
       })

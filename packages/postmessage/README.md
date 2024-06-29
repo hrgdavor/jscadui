@@ -1,5 +1,12 @@
+# TODO do/explain/explore
+
+- service worker has multiple clients but one self to receive mesages and must route them by clientId
+- then must not bi autocreated as rpc method or async usage will fail in strange ways
+- using proxy along with additional properties on it
+- explain debug parameter that helps track flow
+
 # postMessage utility
-[![npm version](https://badge.fury.io/js/@jscadui%2Fpostmessage.svg)](https://www.npmjs.com/package/@jscadui%2Fpostmessage)
+[![npm version](https://badge.fury.io/js/@jscadui%2Fpostmessage.svg)](https://www.npmjs.com/package/@jscadui%2Fpostmessage) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Allows for simpler usage of [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Worker/postMessage) by defining a RPC protocol that can send notifications or call methods. 
 Calling methods is handled with Promises because the postMessage is async by definition.

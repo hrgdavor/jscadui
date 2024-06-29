@@ -1,20 +1,16 @@
 import { booleans, colors, primitives, transforms } from '@jscad/modeling'
 import { JscadToCommon } from '@jscadui/format-jscad'
+import { extractEntries, fileDropped, registerServiceWorker } from '@jscadui/fs-provider'
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl, OrbitState, closerAngle, getCommonRotCombined } from '@jscadui/orbit'
 import { genParams } from '@jscadui/params'
-import { initMessaging, messageProxy } from '@jscadui/postmessage'
+import { messageProxy } from '@jscadui/postmessage'
 import { makeAxes, makeGrid } from '@jscadui/scene'
 import * as themes from '@jscadui/themes'
 
-import {
-  fileDropped,
-  extractEntries,
-  registerServiceWorker,
-} from '@jscadui/fs-provider'
 import { availableEngines, availableEnginesList } from './src/availableEngines'
-import { CurrentUrl } from './src/currentUrl'
-import { EngineState } from './src/engineState'
+import { urlInit, urlReplace } from './src/urlUtil.js'
+import { EngineState } from './src/engineState.js'
 
 /** @typedef {import('@jscadui/worker').JscadWorker} JscadWorker*/
 
@@ -25,10 +21,10 @@ const { colorize } = colors
 
 export const byId = id => document.getElementById(id)
 const toUrl = path => new URL(path, document.baseURI).toString()
-const currentUrl = new CurrentUrl()
 
 const engineState = new EngineState(availableEngines, theme, makeAxes, makeGrid)
-const useEngines = currentUrl.initGet('engines', 'three').split(',')
+const useEngines = urlInit('engines', 'three,regl,babylon').split(',')
+urlReplace()// use the new url with defaults applied
 
 const gizmo = (window.gizmo = new Gizmo())
 byId('layout').appendChild(gizmo)
@@ -121,7 +117,7 @@ document.body.ondrop = async ev => {
     ev.preventDefault()
     let files = extractEntries(ev.dataTransfer)
     if (!files.length) return {}
-  
+
     if (!sw) await initFs()
     showDrop(false)
     workerApi.jscadClearTempCache()
@@ -151,11 +147,11 @@ document.body.ondragleave = document.body.ondragend = ev => {
 function setError(error) {
   const errorBar = byId('error-bar')
   if (error) {
-    errorBar.style.display = "block"
+    errorBar.style.display = 'block'
     const errorMessage = byId('error-message')
     errorMessage.innerText = error
   } else {
-    errorBar.style.display = "none"
+    errorBar.style.display = 'none'
   }
 }
 
@@ -169,10 +165,13 @@ function save(blob, filename) {
 }
 
 function exportModel(format) {
-  workerApi.jscadExportData({ format }).then(({ data }) => {
-    console.log('save', fileToRun + '.stl', data)
-    save(new Blob([data], { type: 'text/plain' }), fileToRun + '.stl')
-  }).catch(setError)
+  workerApi
+    .jscadExportData({ format })
+    .then(({ data }) => {
+      console.log('save', fileToRun + '.stl', data)
+      save(new Blob([data], { type: 'text/plain' }), fileToRun + '.stl')
+    })
+    .catch(setError)
 }
 window.exportModel = exportModel
 
@@ -182,7 +181,7 @@ const paramChangeCallback = async params => {
   handlers.entities(result)
 }
 
-const jscadScript = async ({script, url = './index.js', base, root}) => {
+const jscadScript = async ({ script, url = './index.js', base, root }) => {
   const result = await workerApi.jscadScript({ script, url, base, root })
   console.log('result', result)
   genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
@@ -222,7 +221,8 @@ await workerApi.jscadInit({
   },
 })
 
-jscadScript({script:`const { sphere, geodesicSphere } = require('@jscad/modeling').primitives
+jscadScript({
+  script: `const { sphere, geodesicSphere } = require('@jscad/modeling').primitives
   const { translate, scale } = require('@jscad/modeling').transforms
   
   const main = () => [
@@ -238,8 +238,8 @@ jscadScript({script:`const { sphere, geodesicSphere } = require('@jscad/modeling
     scale([0.5, 2, 1], translate([-30, 25, 0], geodesicSphere({ radius: 10, frequency: 18 })))
   ]
   
-  module.exports = { main }`
-  })
+  module.exports = { main }`,
+})
 
 let sw
 async function initFs() {
@@ -252,10 +252,6 @@ async function initFs() {
 }
 
 // ************ init ui     *********************************
-
-window.boxInfoClick = function (event, box) {
-  console.log('boxInfoClick', box, event.target)
-}
 
 Promise.all(useEngines.map(engine => engineState.initEngine(byId('box_' + engine), engine, ctrl))).then(() => {
   //

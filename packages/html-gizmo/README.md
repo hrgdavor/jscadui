@@ -1,6 +1,6 @@
 # Cube camera gizmo Web Component
 
-[![npm version](https://badge.fury.io/js/@jscadui%2Fhtml-gizmo.svg)](https://www.npmjs.com/package/@jscadui%2Fhtml-gizmo)
+[![npm version](https://badge.fury.io/js/@jscadui%2Fhtml-gizmo.svg)](https://www.npmjs.com/package/@jscadui%2Fhtml-gizmo) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 | ![gizmo in action](docs/gizmo.gif)    | Check the demo at: https://hrgdavor.github.io/jscadui/html-gizmo/    |
 | ---- | ---- |

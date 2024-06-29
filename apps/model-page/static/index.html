@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./assets/main.css" />
+    <script src="./assets/bundle.threejs.js"></script>
+    <title>jscad model demo page</title>
+  </head>
+  <body>
+    <div class="layout" id="layout">
+      <div>
+        <button onclick="exportModel('stla')">Export stl</button>
+        <button onclick="runTextArea()">run textarea</button>
+        <button onclick="jscadScript('./models/planter.mesh.js')">run model from file</button>
+        <div id="paramsDiv"></div>
+<textarea id="demoScript">
+const jscad = require('@jscad/modeling')
+const { intersect, subtract } = jscad.booleans
+const { colorize } = jscad.colors
+const { cube, sphere } = jscad.primitives
+
+function main() {
+  const outer = subtract(
+    cube({ size: 10 }),
+    sphere({ radius: 6.8 })
+  )
+  const inner = intersect(
+    sphere({ radius: 4 }),
+    cube({ size: 7 })
+  )
+  return [
+    colorize([0.65, 0.25, 0.8], outer),
+    colorize([0.7, 0.7, 0.1], inner),
+  ]
+}
+
+module.exports = { main }          
+</textarea>
+      </div>
+      <div id="root" style="overflow: hidden"></div>
+    </div>
+  </body>
+</html>
+
+<script type="module">
+  import { initEngine, jscadScript, exportModel } from './assets/main.js'
+  // module is is isolated, we must expose to window functions we want to call for example onclick on a button
+  window.jscadScript = jscadScript
+  window.exportModel = exportModel
+  window.runTextArea = function(){
+    jscadScript('textarea.js', document.getElementById('demoScript').value)
+  }
+  // you can define bundles that are loaded by the worker and not bundled width a script
+  // not bundling @jscad/modeling makes sense as soon as you have more than one script you want to show
+  // esbuild howto: to bundle all imports except @jscad/modeling use: --external:@jscad/modeling
+  const workerOptions = {
+    baseURI: document.baseURI.toString(),
+    bundles: {
+      '@jscad/modeling': document.baseURI+'assets/bundle.jscad_modeling.js',
+    },
+  }
+  await initEngine(THREE, 'root', workerOptions)
+  runTextArea()
+</script>
+

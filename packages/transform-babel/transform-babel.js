@@ -37,3 +37,5 @@ export const transformcjs = (code, filename, options = {}, append = {}) => {
   combineAppend(append, { plugins: ['transform-modules-commonjs'] })
   return _transform(code, filename, options, append)
 }
+
+export default transformcjs

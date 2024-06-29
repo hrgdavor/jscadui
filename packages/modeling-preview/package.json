@@ -1,0 +1,29 @@
+{
+  "type": "module",
+  "sideEffects": false,
+  "name": "@jscadui/modeling-preview",
+  "version": "0.1.0",
+  "description": "@jscad/modeling wrapper to allow faster development by turning on/off boleans and previewing them instead",
+  "main": "index.js",
+  "unpkg": "cjs/index.js",
+  "module": "./index.js",
+  "files": [
+    "index.js",
+    "src",
+    "esm",
+    "cjs"
+  ],
+  "scripts": {
+    "build": "esbuild index.js --outdir=esm --bundle --sourcemap --minify --loader:.js=jsx --format=esm",
+    "build-cjs": "esbuild index.js --outdir=cjs --bundle --sourcemap --minify --loader:.js=jsx --format=cjs",
+    "prepublishOnly": "npm run build && npm run build-cjs"
+  },
+  "peerDependencies": {
+    "@jscad/modeling": "2.12.2"
+  },
+  "devDependencies": {
+    "esbuild": "0.21.5",
+    "@types/node": "18.11.9"
+  },
+  "license": "MIT"
+}

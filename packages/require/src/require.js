@@ -103,20 +103,21 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
       if (transform && !bundleAlias){
         source = transform(source, resolvedUrl).code
         if(source.includes('import.meta.url')) source = source.replaceAll('import.meta.url','module.meta.url')
-      } 
+      }
       // construct require function relative to resolvedUrl
       let requireFunc = newUrl => require(newUrl, transform, readFile, resolvedUrl, root, importData, moduleBase)
       const module = requireModule(url, resolvedUrl, source, requireFunc)
       module.local = isRelativeFile
       exports = module.exports
+      // import jscad from "@jscad/modeling";
+      // will be effectively transformed to
+      // const jscad = require('@jscad/modeling').default
+      // we need to plug-in default if missing
+      if(!('default' in exports)) exports.default = exports
     }
   }
 
   if (cache && cacheUrl) cache[cacheUrl] = exports // cache obj exported by module
-  // TODO research maybe in the future, why going through babel adds __esModule=true
-  // this extra reference via defaults helps
-  // exports.__esModule = false // this did not help
-  if(exports.default) exports = exports.default
 
   return exports // require returns object exported by module
 }

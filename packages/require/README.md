@@ -1,4 +1,15 @@
 # require
+
+
+## import.meta.url
+
+- [swc impl](https://github.com/swc-project/swc/pull/4670) - explore, seems nodejs specific `require("url").pathToFileURL(__filename).toString()`
+
+
+## import.meta.resolve
+
+MDN https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta/resolve
+
 This is an implementation of import/require to be able to run JavaScript(and TypeScript) files.
 It is primarily used in jscad.app to execute the scripts.
 

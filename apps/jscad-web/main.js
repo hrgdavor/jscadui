@@ -196,10 +196,15 @@ const exportModel = async (format, extension) => {
     return
   }
 
-  const { data } = (await workerApi.jscadExportData({ format })) || {}
+  let { data } = (await workerApi.jscadExportData({ format })) || {}
   if (data) {
-    save(new Blob([data], { type: 'text/plain' }), `${projectName}.${extension}`)
+    if(!(data instanceof Array)) data = [data]
     console.log('save', `${projectName}.${extension}`, data)
+    let type = 'text/plain'
+    if(format == '3mf') type = 'application/zip'
+
+    // save(data, `${projectName}.${extension}`)
+    save(new Blob(data, { type }), `${projectName}.${extension}`)
   }
 }
 

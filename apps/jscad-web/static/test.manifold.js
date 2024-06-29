@@ -1,8 +1,33 @@
 import * as jscad from '@jscad/modeling'
-// import * as ManifoldModule from 'manifold-3d'
+import * as ManifoldModule from 'manifold-3d'
 
-//const jscad = require('@jscad/modeling')
-let ManifoldModule = require('manifold-3d')
+export async function main({// @jscad-params
+  useManifold = true,
+  segments = 32,
+  radius = 60, // {type:'slider', min:51, max:80, live:true}
+}) {
+
+  return useManifold ? mainManifold({segments,radius}) :  mainJscad({segments,radius})
+}
+function mainJscad({segments = 32, radius = 60}){
+    const box = jscad.primitives.cube({ size: 100 })
+    const ball = jscad.primitives.sphere({ radius, segments })
+    return jscad.booleans.subtract(box, ball)  
+}
+
+async function mainManifold({segments = 32, radius = 60}){
+    const { cube, sphere } = await ManifoldModule.get()
+    const box = cube([100, 100, 100], true)
+    const ball = sphere(radius, segments)
+    let result = box.subtract(ball)
+    try {
+      return [toMesh(result)]
+    } finally {
+      box.delete()
+      ball.delete()
+      result.delete()
+    }  
+}
 
 function toMesh(manifold) {
   let manifoldMesh = manifold.getMesh()
@@ -18,32 +43,6 @@ if(!ManifoldModule.get){
       ManifoldModule.cached = Manifold
     }
     return ManifoldModule.cached.Manifold
-  }
-}
-
-export async function main({
-  // @jscad-params
-  useManifold = true,
-  segments = 32,
-  radius = 60, // {type:'slider', min:51, max:80, live:true}
-}) {
-  
-  if (useManifold) {
-    const { cube, sphere } = await ManifoldModule.get()
-    const box = cube([100, 100, 100], true)
-    const ball = sphere(radius, segments)
-    let result = box.subtract(ball)
-    try {
-      return [toMesh(result)]
-    } finally {
-      box.delete()
-      ball.delete()
-      result.delete()
-    }
-  } else {
-    const box = jscad.primitives.cube({ size: 100 })
-    const ball = jscad.primitives.sphere({ radius, segments })
-    return jscad.booleans.subtract(box, ball)
   }
 }
 

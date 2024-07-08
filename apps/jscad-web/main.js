@@ -78,10 +78,18 @@ async function initFs() {
     return file
   }
   let scope = document.location.pathname
-  sw = await registerServiceWorker(`bundle.fs-serviceworker.js?prefix=${scope}swfs/`, getFileWrapper, {
-    scope,
-    prefix: scope + 'swfs/',
-  })
+  try{
+    sw = await registerServiceWorker(`bundle.fs-serviceworker.js?prefix=${scope}swfs/`, getFileWrapper, {
+      scope,
+      prefix: scope + 'swfs/',
+    })
+  }catch(e){
+    const lastReload = localStorage.getItem('lastReload')
+    if (!lastReload || Date.now() - lastReload > 3000) {
+      localStorage.setItem('lastReload', Date.now())
+      location.reload()
+    }
+  }
   sw.defProjectName = 'jscad'
   sw.onfileschange = files => {
     if (files.includes('/package.json')) {
@@ -188,10 +196,15 @@ const exportModel = async (format, extension) => {
     return
   }
 
-  const { data } = (await workerApi.jscadExportData({ format })) || {}
+  let { data } = (await workerApi.jscadExportData({ format })) || {}
   if (data) {
-    save(new Blob([data], { type: 'text/plain' }), `${projectName}.${extension}`)
+    if(!(data instanceof Array)) data = [data]
     console.log('save', `${projectName}.${extension}`, data)
+    let type = 'text/plain'
+    if(format == '3mf') type = 'application/zip'
+
+    // save(data, `${projectName}.${extension}`)
+    save(new Blob(data, { type }), `${projectName}.${extension}`)
   }
 }
 
@@ -386,7 +399,7 @@ if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
   if (!lastReload || Date.now() - lastReload > 3000) {
     setError('cannot start service worker, reloading')
     localStorage.setItem('lastReload', Date.now())
-    location.reload()
+    //location.reload()
   } else {
     console.error('cannot start service worker, reload required')
   }

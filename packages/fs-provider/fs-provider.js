@@ -128,6 +128,7 @@ export const registerServiceWorker = async (
     // for now we use fetch to extract our id, but a better way could be found later
     const id = await fetch(prefix + 'init').then(res => {
       if (!res.ok) {
+        console.error(res)
         throw new Error('failed to start service worker')
       }
       return res.text()

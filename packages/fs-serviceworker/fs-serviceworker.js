@@ -18,7 +18,6 @@ self.addEventListener('install', event => {
   self.skipWaiting()
 })
 
-
 /** Create a client wrapper, or return one from cache. It is important to know
  * that cache can disappear (likely due to browser suspending the worker when idle).
  * page calling init will create a cached instance, but if dev tools in chrome
@@ -74,7 +73,12 @@ self.addEventListener('fetch', async event => {
   }
 })
 
-self.addEventListener('message', event => {
-  const client = clientMap[event.source.id]
-  if (client) client.api.onmessage(event)
+self.addEventListener('message', async event => {
+  if (event.data?.type == 'CLAIM_CLIENTS') { // handling hard refresh
+    await self.clients.claim();
+    event.ports[0].postMessage(true)
+  } else {
+    const client = clientMap[event.source.id]
+    if (client) client.api.onmessage(event)
+  }
 })

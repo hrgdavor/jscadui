@@ -18,9 +18,10 @@ self.addEventListener('install', event => {
   self.skipWaiting()
 })
 
-/** Create a client wrapper, or return one from cahce. It is important to know
- * that cache can dissapear (likely due to browser suspending the worker when idle).
- * page calling init will createa a cached instance, but if dev tools in chrome
+
+/** Create a client wrapper, or return one from cache. It is important to know
+ * that cache can disappear (likely due to browser suspending the worker when idle).
+ * page calling init will create a cached instance, but if dev tools in chrome
  * are nto open, after about 10 seconds, looks like cache is gone (likely worker got suspended)
  *
  * @param {string} clientId

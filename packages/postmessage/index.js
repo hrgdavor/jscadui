@@ -146,7 +146,7 @@ export const initMessaging = (_self, handlers, { onJobCount, debug } = {}) => {
  */
 export const messageProxy = (_self, handlers, { onJobCount, debug } = {}) => {
   const { sendCmd, sendNotify, getRpcJobCount, listener } = initMessaging(_self, handlers, { onJobCount, debug })
-  // creating error is not too expensive in our context as tehre will not be millions
+  // creating error is not too expensive in our context as there will not be millions
   // methods produced, and info on how the proxy is created an when called is indispensible for debug
   let crated = new Error('proxy')
 

@@ -87,7 +87,7 @@ async function initFs() {
     const lastReload = localStorage.getItem('lastReload')
     if (!lastReload || Date.now() - lastReload > 3000) {
       localStorage.setItem('lastReload', Date.now())
-      location.reload()
+      //location.reload()
     }
   }
   sw.defProjectName = 'jscad'

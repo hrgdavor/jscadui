@@ -406,4 +406,6 @@ if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
   setError('cannot start service worker, reload required')
 }
 
-window.Neutralino.init();
+if(window.NL_PORT){
+  Neutralino.init();
+}

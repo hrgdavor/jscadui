@@ -491,13 +491,23 @@ p {
 #paramsDiv .form-line i {
   display: none;
 }
+#paramsDiv .form-line[type="range"] .i-locker,
+#paramsDiv .form-line[type="slider"] .i-locker {
+  display: inline-block;
+  width: 60px;
+  text-align: right;
+}
 #paramsDiv .form-line[type="color"] i,
 #paramsDiv .form-line[type="range"] i,
 #paramsDiv .form-line[type="slider"] i {
-  display: inline-block;
+  display: inline;
   padding: 0 5px;
   margin-left: 5px;
   border: solid 1px #eee;
+}
+#paramsDiv .form-line[type="range"] input,
+#paramsDiv .form-line[type="slider"] input {
+  padding: 2px 0;
 }
 .dark #paramsDiv .form-line[type="color"] i,
 .dark #paramsDiv .form-line[type="range"] i,

@@ -10,9 +10,10 @@ export const forEachButton = (el, cb) => forQS(el, BUTTON_SELECTOR, cb)
 const numeric = { number: 1, float: 1, int: 1, range: 1, slider: 1 }
 
 function applyRange(inp) {
-  const info = inp.previousElementSibling
-  if (info && info.tagName === 'I') {
-    info.innerText = inp.value
+  let info = inp.previousElementSibling
+  if (info) {
+    if (info.tagName === 'SPAN') { info = info.querySelector('i') }
+    if (info.tagName === 'I') info.innerText = inp.value
   }
 }
 
@@ -115,7 +116,13 @@ export const genParams = ({
     html += `>${caption}</label>`
 
     // value
-    html += `<i>${def.value}</i>`
+    let valHtml = `<i>${def.value}</i>`
+    if (type == 'slider' || type == 'range')
+      valHtml = `<span class='i-locker'>${valHtml}</span>`
+    //
+    //console.log(type)
+    //
+    html += valHtml
 
     const inputFunc = funcs[type] || inputDefault
     if (inputFunc) html += inputFunc(def)
@@ -146,7 +153,8 @@ export const genParams = ({
       applyRange(inp)
       if (inp.getAttribute('live') === '1') _callback('live')
     })
-    if (inp.getAttribute('live') !== '1') inp.addEventListener('change', () => _callback('change'))
+    if (inp.getAttribute('live') !== '1')
+      inp.addEventListener('change', () => _callback('change'))
   })
 
   function groupClick(evt) {

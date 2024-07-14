@@ -148,6 +148,16 @@ input[type="range"] {
   margin: 0 5px;
   cursor: pointer;
 }
+.nospin{
+  appearance:textfield;
+  -moz-appearance: textfield;
+}
+.nospin::-webkit-outer-spin-button, 
+.nospin::-webkit-inner-spin-button{
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+
 p {
   margin-bottom: 10px;
 }

@@ -11,7 +11,7 @@ Most of the things are work in progres, but some parts are pretty ready to be us
 - [packages/orbit](./packages/orbit) - [![npm version](https://badge.fury.io/js/@jscadui%2Forbit.svg)](https://www.npmjs.com/package/@jscadui%2Forbit) orbit controls for css and multiple 3d engines, also for use in jscad
 - [packages/postmessage](./packages/postmessage) - [![npm version](https://badge.fury.io/js/@jscadui%2Fpostmessage.svg)](https://www.npmjs.com/package/@jscadui%2Fpostmessage) postMessage quality of life improvement
 
-# demo apps
+# jscad.app prototype
 - [apps/jscad-web](apps/jscad-web) - code for  [jscad.app](https://jscad.app) . It is a nice demo and our attempt at making a an improved version of [openjscad.xyz](https://openjscad.xyz).
 - other example apps are much work in progress, you can try them out but they may or may not even work
 

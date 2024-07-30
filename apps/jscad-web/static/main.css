@@ -114,8 +114,7 @@ a:hover {
 .dark a:focus-visible {
   outline: 1px solid #eee;
 }
-button,
-select {
+button, select, input {
   padding: 4px 6px;
   border: 1px solid #888;
   border-radius: 2px;
@@ -138,7 +137,6 @@ h2 {
 input {
   border: 1px solid #999;
   border-radius: 3px;
-  padding: 2px 4px;
   transition: border 0.3s;
 }
 input:focus {

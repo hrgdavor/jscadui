@@ -153,8 +153,33 @@ export const genParams = ({
 
   target.innerHTML = html
 
+  function animStatus(status){
+    forEachInput(target, inp => {
+      let p = inp.parentNode
+      let button = querySelector(p,'BUTTON[action]')
+
+      // TODO change button to play/pause depending on animation status
+    })
+  }
+
+  function setSomeValues(v){
+    setValue(v, true)
+  }
+  function setValue(v, skipUndefined){
+    forEachInput(target, inp => {
+      let name = inp.getAttribute('name')
+      if(name){
+        if(skipUndefined && v[name] === undefined) return
+        inp.value = v[name]
+        applyRange(inp)
+      }
+    })
+  }
+
   forEachInput(target, inp => {
     let p = inp.parentNode
+    let name = inp.getAttribute('name')
+    inp.def = params.find(def=>def.name == name)
     // live value for attribute is set to 1 regardless if config used 1 or true
     let isLiveInput = inp.getAttribute('live') === '1'
     // we lsiten to live changes to update value preview
@@ -168,6 +193,12 @@ export const genParams = ({
       inp.addEventListener('change', () => _callback('change'))
     }
     let button = querySelector(p,'BUTTON[action]')
+    if(button && !button.clickAdded){
+      button?.addEventListener?.('click',e=>{
+        startAnim(inp.def, inp.value)
+      })
+      button.clickAdded = 1  
+    } 
   })
 
   function groupClick(evt) {
@@ -184,6 +215,8 @@ export const genParams = ({
   forEachGroup(target, div => {
     div.onclick = groupClick
   })
+
+  return {animStatus, setValue, setSomeValues}
 }
 
 export const getParams = target => {

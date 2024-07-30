@@ -7,7 +7,8 @@ const {PI} = Math
 // two test* inputs are used to see how layout for slider fits other inputs 
 function main({// @jscad-params
   testTextInput='a',
-  t=0.1,// Animation {type:"slider", min:0, max:4, step:0.016, fps:60, live:true, autostart:true}
+  t=0,// Animation {type:"slider", min:0, max:2, step:0.020, fps:50, live:true, autostart:true, loop:'reverse'}
+  fps=2,
   testNumInput=12,
 }){
   return rotate([0,PI*t,0],cached)

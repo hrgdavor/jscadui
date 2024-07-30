@@ -141,7 +141,12 @@ export const genParams = ({
   if (missingKeys.length) console.log('missing param impl', missingKeys)
 
   function _callback(source = 'change') {
-    callback(getParams(target), source)
+    let out = getParams(target)
+    console.log('out.fps', out.fps, target.anims)
+    if(out.fps && target.anims?.length){
+      target.anims.forEach(inp=>inp.setAttribute('step', 1/out.fps))
+    }
+    callback(out, source)
   }
 
   html += '<div class="jscad-param-buttons"><div>'
@@ -175,10 +180,12 @@ export const genParams = ({
       }
     })
   }
-
+  target.anims = []
   forEachInput(target, inp => {
     let p = inp.parentNode
     let name = inp.getAttribute('name')
+    let type = inp.getAttribute('type')
+    if(type == 'range') target.anims.push(inp)
     inp.def = params.find(def=>def.name == name)
     // live value for attribute is set to 1 regardless if config used 1 or true
     let isLiveInput = inp.getAttribute('live') === '1'

@@ -8,8 +8,7 @@ const {PI} = Math
 function main({// @jscad-params
   testTextInput='a',
   t=0,// Animation {type:"slider", min:0, max:2, step:0.020, fps:50, live:true, autostart:true, loop:'reverse'}
-  fps=2,
-  testNumInput=12,
+  fps=50,
 }){
   return rotate([0,PI*t,0],cached)
 }

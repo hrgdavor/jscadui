@@ -288,7 +288,6 @@ let working
 let lastParams
 let lastRunParams
 const paramChangeCallback = async params => {
-  console.log('paramChangeCallback', params)
   stopCurrentAnim()
   if (!working) {
     lastParams = null
@@ -316,9 +315,7 @@ function stopCurrentAnim(){
   currentAnim = null
   return true
 }
-const startAnimCallback = async (def,value) => {
-  console.log('startAnimCallback', def, value)
-  
+const startAnimCallback = async (def,value) => {  
   if(stopCurrentAnim()) return
 
   const handleEntities = (result, paramValues, times)=>{

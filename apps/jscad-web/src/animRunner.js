@@ -47,7 +47,6 @@ export class AnimRunner{
       delta = now - lastTime
       t = (now - offset)/1000
       if(t>max){
-        console.log('dir', dir)
         while( t> max) t -= minMaxDelta
 
         // this formula is a better compromise, works well for small fps, 

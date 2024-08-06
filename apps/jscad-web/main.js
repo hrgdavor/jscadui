@@ -287,7 +287,12 @@ await workerApi.jscadInit({ bundles })
 let working
 let lastParams
 let lastRunParams
-const paramChangeCallback = async params => {
+const paramChangeCallback = async (params, source) => {
+  if(source == 'group'){
+    // TODO make sure when saving param state is implemented
+    // this change is saved, but skip param re-render
+    return
+  }
   stopCurrentAnim()
   if (!working) {
     lastParams = null

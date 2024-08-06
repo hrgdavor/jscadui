@@ -367,6 +367,7 @@ try{
   hasRemoteScript = await remote.init(
     (script, url) => {
       // run remote script
+      url = new URL(url, appBase).toString()
       editor.setSource(script, url)
       jscadScript({ script, base: url })
       welcome.dismiss()

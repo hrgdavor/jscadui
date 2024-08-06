@@ -65,6 +65,7 @@ export const genParams = ({
 
   function inputDefault(def) {
     let { name, type, value, min, max, step, placeholder, live, fps } = def
+    if(fps <= 0) fps = 1
     if(!step && fps) step = 1/fps
 
     if (value === null || value === undefined) value = numeric[type] ? 0 : ''
@@ -140,9 +141,11 @@ export const genParams = ({
   const missingKeys = Object.keys(missing)
   if (missingKeys.length) console.log('missing param impl', missingKeys)
 
-  function _callback(source = 'change') {
+  function _callback(source = 'change', inp, name) {
+    if(name == 'fps' && target.anims?.length && parseFloat(inp.value) <=0){
+      inp.value = inp.step || '1'
+    }
     let out = getParams(target)
-    console.log('out.fps', out.fps, target.anims)
     if(out.fps && target.anims?.length){
       target.anims.forEach(inp=>inp.setAttribute('step', 1/out.fps))
     }
@@ -185,6 +188,10 @@ export const genParams = ({
     let p = inp.parentNode
     let name = inp.getAttribute('name')
     let type = inp.getAttribute('type')
+    // only if there is animation and we have a fps input, and no min defined
+    if(name == 'fps' && target.anims?.length && !inp.min){
+      inp.min = inp.step || '1'
+    }
     if(type == 'range') target.anims.push(inp)
     inp.def = params.find(def=>def.name == name)
     // live value for attribute is set to 1 regardless if config used 1 or true
@@ -193,11 +200,11 @@ export const genParams = ({
     // an anslo then we can trigger param event if live option is chosen
     inp.addEventListener('input', function (evt) {
       applyRange(inp)
-      if (isLiveInput) _callback('live')
+      if (isLiveInput) _callback('live', inp, name)
     })
     // regular input we only react on change
     if (!isLiveInput){
-      inp.addEventListener('change', () => _callback('change'))
+      inp.addEventListener('change', () => _callback('change', inp, name))
     }
     let button = querySelector(p,'BUTTON[action]')
     if(button && !button.clickAdded){
@@ -216,7 +223,7 @@ export const genParams = ({
       groupDiv.setAttribute('closed', closed)
       groupDiv = groupDiv.nextElementSibling
     } while (groupDiv && groupDiv.getAttribute('type') != 'group')
-    _callback('group')
+    _callback('group', groupDiv,'')
   }
 
   forEachGroup(target, div => {

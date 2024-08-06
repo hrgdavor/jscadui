@@ -23,52 +23,52 @@ export class AnimRunner{
 
   async start(def, value, params){
     this.running = true
-    let {fps, min=0, max, loop} = def
+    this.shouldPause = false
+
+    let {fps, min=0, max, loop, name} = def
     if(params.fps) fps = params.fps
+    let step = 1/fps
     let minMaxDelta = max - min
     let fpsMs = 1000 / fps - 1
-    this.shouldPause = false
+    value = parseFloat(value) + step
+
     let lastTime, now, delta, resp, paramValues, times
     let startTime = lastTime = now = Date.now()
-    let offset = startTime - (value * 1000)
-    let name = def.name
     let t = value
     let i=1;
     let dir = loop == 'reverse' ? 1 : 0
 
 
     while(!this.shouldPause){
-      times = {[name]:t}
-      paramValues = {...params, ...times}
-      resp = await this.worker.jscadMain({params:paramValues, skipLog:true})
-      if(this.shouldPause) break
-
-      now = Date.now()
-      delta = now - lastTime
-      t = (now - offset)/1000
       if(t>max){
         while( t> max) t -= minMaxDelta
-
-        // this formula is a better compromise, works well for small fps, 
-        // but should not make visible issues to faster fps
-        offset = now
-        // this old formula(commented below) is more precise but was problematic for low fps as
-        // introduced drifting due to sleep and animation frame is difficult to align to exact time
-        // offset = now - (t * 1000)
         
         if(loop == 'reverse'){
           dir *= -1
         } else if(loop != 'restart'){
+          // end animation
           break
         }
       }
 
-      if(dir == -1) t = max - t
+      times = {[name]: (dir == 1) ? t : max - t}
+      console.warn('t', times[name], t)
+      paramValues = {...params, ...times}
+      resp = await this.worker.jscadMain({params:paramValues, skipLog:true})
+      console.warn('resp', times[name], t)
+      if(this.shouldPause) break
+
+      now = Date.now()
+      delta = now - lastTime
       if(delta < fpsMs){
-        await waitTime(fpsMs - delta)
-        if(this.shouldPause) break
+        await waitTime(fpsMs - delta - 1)
+        if(this.shouldPause){
+          console.log('Animation stopped between generating frame for '+name+'='+times[name]+' and rendering it. Discarding the result.')
+          break
+        } 
       }
-      lastTime = now
+      lastTime = Date.now()
+      t += step
       this.options?.handleEntities?.(resp, paramValues, times)
     }
     this.options?.handleEnd?.()

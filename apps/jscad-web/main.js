@@ -325,6 +325,7 @@ const startAnimCallback = async (def,value) => {
 
   const handleEntities = (result, paramValues, times)=>{
     lastRunParams = paramValues
+    console.log('render', times, paramValues)
     setParamValues(times || {}, true)
     handlers.entities(result, { smooth: viewState.smoothRender, skipLog:true })
   }

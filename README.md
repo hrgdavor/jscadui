@@ -15,17 +15,6 @@ Most of the things are work in progres, but some parts are pretty ready to be us
 - [apps/jscad-web](apps/jscad-web) - code for  [jscad.app](https://jscad.app) . It is a nice demo and our attempt at making a an improved version of [openjscad.xyz](https://openjscad.xyz).
 - other example apps are much work in progress, you can try them out but they may or may not even work
 
-# Missing features
-Missing features that are in openjscad.xyz and not in jscad.app
- - auto zoom (zoom to fit)
- - auto rotate
- - button to open a project
- - language selector
- - pick other themes, aside from light/dark
- - worker timeout (or a button to kill worker if taking too long)
- - keyboard commands and ability to change them
- - warning when leaving / refreshing the page
-
 ## Improvements
 Things that work better in jscad.app than openjscad.xyz
  - [x] can run remote scripts that import stuff. works on [jscad.app](https://jscad.app/#https://raw.githubusercontent.com/jscad/OpenJSCAD.org/master/packages/examples/import/STLImport/index.js) but not on [openjscad.xyz](https://openjscad.xyz/#https://raw.githubusercontent.com/jscad/OpenJSCAD.org/master/packages/examples/import/STLImport/index.js)

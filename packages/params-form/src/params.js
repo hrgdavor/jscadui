@@ -162,10 +162,13 @@ export const genParams = ({
   target.innerHTML = html
 
   function animStatus(status){
+    console.log('status', status)
     forEachInput(target, inp => {
       let p = inp.parentNode
       let button = querySelector(p,'BUTTON[action]')
-
+      if(button){
+        button.innerHTML = status == 'running' ? 'S' : 'P'
+      }
       // TODO change button to play/pause depending on animation status
     })
   }

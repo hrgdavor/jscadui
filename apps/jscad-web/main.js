@@ -43,7 +43,7 @@ byId('overlay').parentNode.appendChild(gizmo)
 
 let projectName = 'jscad'
 let model = []
-let setParamValues
+let setParamValues, setAnimStatus
 
 // load default model unless another model was already loaded
 let loadDefault = true
@@ -261,6 +261,7 @@ const jscadScript = async ({ script, url = './jscad.model.js', base = currentBas
     const result = await workerApi.jscadScript({ script, url, base, root, smooth: viewState.smoothRender })
     let tmp = genParams({ target: byId('paramsDiv'), params: result.def || [], callback: paramChangeCallback, pauseAnim: pauseAnimCallback, startAnim: startAnimCallback })
     setParamValues = tmp.setValue
+    setAnimStatus = tmp.animStatus
     lastRunParams = result.params
     handlers.entities(result)
     if(result.def){
@@ -318,14 +319,14 @@ function stopCurrentAnim(){
   if(!currentAnim) return false
   currentAnim.pause()
   currentAnim = null
+  setAnimStatus('')
   return true
 }
 const startAnimCallback = async (def,value) => {  
   if(stopCurrentAnim()) return
-
+  setAnimStatus('running')
   const handleEntities = (result, paramValues, times)=>{
     lastRunParams = paramValues
-    console.log('render', times, paramValues)
     setParamValues(times || {}, true)
     handlers.entities(result, { smooth: viewState.smoothRender, skipLog:true })
   }
@@ -337,7 +338,7 @@ const startAnimCallback = async (def,value) => {
 }
 
 const pauseAnimCallback = async (def,value) => {
-
+  stopCurrentAnim()
 }
 
 const loadExample = async (source, base = appBase) => {

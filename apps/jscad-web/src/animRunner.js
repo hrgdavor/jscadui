@@ -52,10 +52,8 @@ export class AnimRunner{
       }
 
       times = {[name]: (dir == 1) ? t : max - t}
-      console.warn('t', times[name], t)
       paramValues = {...params, ...times}
       resp = await this.worker.jscadMain({params:paramValues, skipLog:true})
-      console.warn('resp', times[name], t)
       if(this.shouldPause) break
 
       now = Date.now()

@@ -2,6 +2,7 @@ const GROUP_SELECTOR = 'DIV[type="group"]'
 const INPUT_SELECTOR = 'INPUT, SELECT'
 const BUTTON_SELECTOR = 'BUTTON'
 
+export const querySelector = (el, selector) => el.querySelector(selector)
 export const forQS = (el, selector, cb) => el.querySelectorAll(selector).forEach(cb)
 export const forEachInput = (el, cb) => forQS(el, INPUT_SELECTOR, cb)
 export const forEachGroup = (el, cb) => forQS(el, GROUP_SELECTOR, cb)
@@ -10,17 +11,17 @@ export const forEachButton = (el, cb) => forQS(el, BUTTON_SELECTOR, cb)
 const numeric = { number: 1, float: 1, int: 1, range: 1, slider: 1 }
 
 function applyRange(inp) {
-  let info = inp.previousElementSibling
-  if (info) {
-    if (info.tagName === 'SPAN') { info = info.querySelector('i') }
-    if (info.tagName === 'I') info.innerText = inp.value
-  }
+  forEachInput(inp.parentNode,inp2=>{
+    if(inp != inp2) inp2.value = inp.value
+  })
 }
 
 export const genParams = ({
   params,
   target,
   callback,
+  startAnim,
+  pauseAnim,
   storedValues = {},
   buttons = ['reset', 'save', 'load', 'edit', 'link'],
 }) => {
@@ -63,7 +64,10 @@ export const genParams = ({
   }
 
   function inputDefault(def) {
-    let { name, type, value, min, max, step, placeholder, live } = def
+    let { name, type, value, min, max, step, placeholder, live, fps } = def
+    if(fps <= 0) fps = 1
+    if(!step && fps) step = 1/fps
+
     if (value === null || value === undefined) value = numeric[type] ? 0 : ''
     let inputType = type
     if (type == 'int' || type == 'float') inputType = 'number'
@@ -83,7 +87,7 @@ export const genParams = ({
   const missing = {}
 
   params.forEach(def => {
-    let { type, caption, name } = def
+    let { type, caption, name, fps, live } = def
 
     if (!caption) caption = name
 
@@ -106,7 +110,7 @@ export const genParams = ({
     }
     def.closed = closed
 
-    html += `<div class="form-line" type="${def.type}" closed="${closed ? 1 : 0}" `
+    html += `<div class="form-line ${fps ? 'param-anim-area':''}" type="${def.type}" closed="${closed ? 1 : 0}" `
     if (type == 'group') html += ` name="${name}"`
     html += `">`
 
@@ -116,9 +120,12 @@ export const genParams = ({
     html += `>${caption}</label>`
 
     // value
-    let valHtml = `<i>${def.value}</i>`
-    if (type == 'slider' || type == 'range')
-      valHtml = `<span class='i-locker'>${valHtml}</span>`
+    let valHtml = ``
+    if (type == 'slider' || type == 'range'){
+      if(fps) valHtml += `<button action="play" code="${name}">P</button>`
+      valHtml += `<input name="${name}" value="${value}" live="${live ? 1 : 0}"/>`
+    }
+
     //
     //console.log(type)
     //
@@ -134,8 +141,15 @@ export const genParams = ({
   const missingKeys = Object.keys(missing)
   if (missingKeys.length) console.log('missing param impl', missingKeys)
 
-  function _callback(source = 'change') {
-    callback(getParams(target), source)
+  function _callback(source = 'change', inp, name) {
+    if(name == 'fps' && target.anims?.length && parseFloat(inp.value) <=0){
+      inp.value = inp.step || '1'
+    }
+    let out = getParams(target)
+    if(out.fps && target.anims?.length){
+      target.anims.forEach(inp=>inp.setAttribute('step', 1/out.fps))
+    }
+    callback(out, source)
   }
 
   html += '<div class="jscad-param-buttons"><div>'
@@ -147,14 +161,60 @@ export const genParams = ({
 
   target.innerHTML = html
 
+  function animStatus(status){
+    forEachInput(target, inp => {
+      let p = inp.parentNode
+      let button = querySelector(p,'BUTTON[action]')
+      if(button){
+        button.innerHTML = status == 'running' ? 'S' : 'P'
+      }
+      // TODO change button to play/pause depending on animation status
+    })
+  }
+
+  function setSomeValues(v){
+    setValue(v, true)
+  }
+  function setValue(v, skipUndefined){
+    forEachInput(target, inp => {
+      let name = inp.getAttribute('name')
+      if(name){
+        if(skipUndefined && v[name] === undefined) return
+        inp.value = v[name]
+        applyRange(inp)
+      }
+    })
+  }
+  target.anims = []
   forEachInput(target, inp => {
-    const type = inp.type
+    let p = inp.parentNode
+    let name = inp.getAttribute('name')
+    let type = inp.getAttribute('type')
+    // only if there is animation and we have a fps input, and no min defined
+    if(name == 'fps' && target.anims?.length && !inp.min){
+      inp.min = inp.step || '1'
+    }
+    if(type == 'range') target.anims.push(inp)
+    inp.def = params.find(def=>def.name == name)
+    // live value for attribute is set to 1 regardless if config used 1 or true
+    let isLiveInput = inp.getAttribute('live') === '1'
+    // we lsiten to live changes to update value preview
+    // an anslo then we can trigger param event if live option is chosen
     inp.addEventListener('input', function (evt) {
       applyRange(inp)
-      if (inp.getAttribute('live') === '1') _callback('live')
+      if (isLiveInput) _callback('live', inp, name)
     })
-    if (inp.getAttribute('live') !== '1')
-      inp.addEventListener('change', () => _callback('change'))
+    // regular input we only react on change
+    if (!isLiveInput){
+      inp.addEventListener('change', () => _callback('change', inp, name))
+    }
+    let button = querySelector(p,'BUTTON[action]')
+    if(button && !button.clickAdded){
+      button?.addEventListener?.('click',e=>{
+        startAnim(inp.def, inp.value)
+      })
+      button.clickAdded = 1  
+    } 
   })
 
   function groupClick(evt) {
@@ -165,12 +225,14 @@ export const genParams = ({
       groupDiv.setAttribute('closed', closed)
       groupDiv = groupDiv.nextElementSibling
     } while (groupDiv && groupDiv.getAttribute('type') != 'group')
-    _callback('group')
+    _callback('group', groupDiv,'')
   }
 
   forEachGroup(target, div => {
     div.onclick = groupClick
   })
+
+  return {animStatus, setValue, setSomeValues}
 }
 
 export const getParams = target => {

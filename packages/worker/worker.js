@@ -26,6 +26,7 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
 
  @typedef RunMainOptions
  @prop {Object} params
+ @prop {boolean} skipLog
 
  @typedef InitOptions
  @prop {String} baseURI - to resolve inital relative path
@@ -89,7 +90,7 @@ async function readFileFile(file, {bin=false}={}){
 }
 
 solids = []
-export async function jscadMain({ params } = {}) {
+export async function jscadMain({ params, skipLog } = {}) {
   params = {...params}
   for(let p in params){
     if(params[p] instanceof File && importData){
@@ -98,7 +99,7 @@ export async function jscadMain({ params } = {}) {
       params[p] = importData.deserialize(info, content)
     }
   }
-  console.log('jscadMain with params', params)
+  if(!skipLog) console.log('jscadMain with params', params)
   let entities = []
   const transferable = []
 

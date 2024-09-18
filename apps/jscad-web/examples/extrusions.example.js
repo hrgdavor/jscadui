@@ -1,3 +1,4 @@
+"use strict"
 /**
  * Demonstrates the types of extrusions, and the variety of objects they can create.
  */

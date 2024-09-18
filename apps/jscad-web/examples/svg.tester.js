@@ -1,3 +1,4 @@
+"use strict"
 /*
  if you do not see the shape, it couldbe that it is out os view, so zoom out to check
  if you have a single shape svg that is red, it is inverted

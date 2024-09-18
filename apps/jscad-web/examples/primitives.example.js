@@ -1,3 +1,4 @@
+"use strict"
 /**
  * JSCAD Primitives Demonstration
  * Demonstrates the basics of a variety of 2D and 3D primitives

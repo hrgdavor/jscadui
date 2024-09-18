@@ -1,3 +1,4 @@
+"use strict"
 /**
  * Demonstrates Hull and Hull Chain operations in 2D and 3D
  */

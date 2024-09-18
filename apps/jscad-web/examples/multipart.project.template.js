@@ -1,3 +1,4 @@
+"use strict"
 /**
  * Demonstrates a multipart project with part select input.
  * 

@@ -1,3 +1,4 @@
+"use strict"
 /**
  * SVG Import Demonstration
  * @category Imports

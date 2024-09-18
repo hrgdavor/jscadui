@@ -1,3 +1,4 @@
+"use strict"
 /**
  * Nuts and Bolts
  * Demonstrates advanced extrusion using slices to generate screw threads.

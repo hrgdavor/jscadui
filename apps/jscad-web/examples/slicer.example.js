@@ -1,3 +1,4 @@
+"use strict"
 /**
  * Slice a geometry object into layers
  */

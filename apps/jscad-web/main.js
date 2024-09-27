@@ -281,6 +281,7 @@ const bundles = {
   // local bundled alias for common libs.
   '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
   '@jscad/io': toUrl('./build/bundle.jscad_io.js'),
+  'manifold-3d': toUrl('./manifold-3d.js'),
 }
 
 await workerApi.jscadInit({ bundles })

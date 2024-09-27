@@ -21,6 +21,7 @@ export { resolveUrl } from './resolveUrl'
 // https://esbuild.github.io/content-types/#direct-eval
 // to be nice to bundlers we need indirect eval
 // also self is not available in nodejs
+// when calling runModule, add '\n//# sourceURL='+url to the script to get nice filename and line numbers
 export const runModule = (typeof self === 'undefined' ? eval : self.eval)(
   '(require, exports, module, source)=>eval(source)',
 )
@@ -99,14 +100,17 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
       exports = JSON.parse(source)
     } else {
       // do not transform bundles that are already cjs ( requireCache.bundleAlias.*)
-      if (transform && !bundleAlias) source = transform(source, resolvedUrl).code
+      if (transform && !bundleAlias){
+        source = transform(source, resolvedUrl).code
+        if(source.includes('import.meta.url')) source = source.replaceAll('import.meta.url','module.meta.url')
+      }
       // construct require function relative to resolvedUrl
       let requireFunc = newUrl => require(newUrl, transform, readFile, resolvedUrl, root, importData, moduleBase)
       const module = requireModule(url, resolvedUrl, source, requireFunc)
       module.local = isRelativeFile
       exports = module.exports
-      // import jscad from "@jscad/modeling"; 
-      // will be effectively transformed to 
+      // import jscad from "@jscad/modeling";
+      // will be effectively transformed to
       // const jscad = require('@jscad/modeling').default
       // we need to plug-in default if missing
       if(!('default' in exports)) exports.default = exports
@@ -121,7 +125,7 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
 const requireModule = (id, url, source, _require) => {
   try {
     const exports = {}
-    const module = { id, uri: url, exports, source } // according to node.js modules
+    const module = { id, uri: url, url, exports, source, meta:{url, uri:url} } // according to node.js modules
     //module.require = _require
     source += '\n//# sourceURL=' + url
     runModule(_require, exports, module, source)

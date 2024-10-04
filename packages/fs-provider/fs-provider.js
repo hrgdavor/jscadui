@@ -214,7 +214,7 @@ export const extractEntries = async dt => {
  * 
  * @param {*} roots 
  * @param {*} path 
- * @returns {FSEntry}
+ * @returns {Promise<FSEntry>}
  */
 export const findFileInRoots = async (roots, path) => {
   path = splitPath(path)

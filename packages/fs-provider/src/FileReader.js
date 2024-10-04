@@ -12,16 +12,16 @@ const readAs = async (f, as) =>
       console.error(msg, f, error)
       reject(msg)
     }
-    try{
-      if(f.handle){
+    try {
+      if (f.handle) {
         const tmp = await f.handle.getFile()
         f.lastModified = tmp.lastModified
         f.size = tmp.size
-        f = tmp 
-      } 
+        f = tmp
+      }
 
       reader[as](f)
-    }catch(e){
+    } catch (e) {
       console.warn(as, f)
       throw e
     }

@@ -14,7 +14,7 @@
  *
  * @param {FileSystemHandle} handle
  * @param {FSEntry} parent
- * @returns
+ * @returns {FSEntry}
  */
 export const toFSEntry = (handle, parent) => {
   let isDirectory = handle.kind === 'directory'

@@ -106,7 +106,7 @@ export const registerServiceWorker = async (
         await new Promise((resolve) => {
           const messageChannel = new MessageChannel()
           messageChannel.port1.onmessage = (event) => resolve(event.data)
-          reg.active.postMessage({type: 'CLAIM_CLIENTS'}, [messageChannel.port2])
+          reg.active.postMessage({ type: 'CLAIM_CLIENTS' }, [messageChannel.port2])
         })
       }
     } catch (error) {
@@ -127,7 +127,7 @@ export const registerServiceWorker = async (
     }
 
     /** @type {SwHandler} */
-    const sw = {roots:[], libRoots:[]}
+    const sw = { roots: [], libRoots: [] }
     sw.api = messageProxy(navigator.serviceWorker, {
       getFile: async ({ path }) => {
         const file = await _getFile(path, sw)
@@ -173,7 +173,7 @@ export const clearFs = async sw => {
 }
 
 export const clearCache = async cache => {
-  ;(await cache.keys()).forEach(key => cache.delete(key))
+  ; (await cache.keys()).forEach(key => cache.delete(key))
 }
 
 
@@ -293,7 +293,7 @@ export async function fileDropped(sw, files) {
 export async function analyzeProject(sw) {
   const alias = await getWorkspaceAliases(sw)
 
-  if (sw.fileToRun && sw.fileToRun[0]!='/') {
+  if (sw.fileToRun && sw.fileToRun[0] != '/') {
     sw.fileToRun = `/${sw.fileToRun}`
   }
 

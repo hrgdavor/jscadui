@@ -180,8 +180,8 @@ export const clearCache = async cache => {
 
 /**
  *
- * @param {Array<FSEntry>} dt
- * @returns
+ * @param {DataTransfer} dt
+ * @returns {Promise<Array<FSEntry>>}
  */
 export const extractEntries = async dt => {
   let items = dt.items

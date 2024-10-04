@@ -4,7 +4,7 @@ import { toFSEntry, entryCheckPromise } from './src/FileEntry.js'
 import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
 
 /**
- *
+ * @typedef {import('./src/FileEntry.js').FSEntry} FSEntry
  *
  * @typedef Cache
  *

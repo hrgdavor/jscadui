@@ -55,9 +55,9 @@ export const readDir = async dir => {
  * @param {Cache} cache
  * @param {string} path
  * @param {Blob|ArrayBuffer|TypedArray|DataView|FormData|ReadableStream|URLSearchParams|string} content
- * @returns {Promise<undefined>}
+ * @returns {Promise<void>}
  */
-export const addToCache = async (cache, path, content) => cache.put(new Request(path), new Response(content))
+export const addToCache = async (cache, path, content) => await cache.put(new Request(path), new Response(content))
 
 
 export const addPreLoadAll = async (sw, paths, ignoreMissing) => {

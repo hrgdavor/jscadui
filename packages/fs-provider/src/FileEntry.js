@@ -17,12 +17,12 @@
  * @returns {FSEntry}
  */
 export const toFSEntry = (handle, parent) => {
-  let isDirectory = handle.kind === 'directory'
+  const isDirectory = handle.kind === 'directory'
   return {
     handle,
     name: handle.name,
     fsDir: parent.fullPath + '/',
-    fullPath: parent.fullPath + '/'+ handle.name,
+    fullPath: parent.fullPath + '/' + handle.name,
     isDirectory,
     isFile: !isDirectory,
   }
@@ -34,14 +34,14 @@ export const toFSEntry = (handle, parent) => {
  * @param {*} entry 
  * @returns 
  */
-export const entryCheckPromise = async entry =>{
+export const entryCheckPromise = async entry => {
   entry._lastModified = entry.lastModified
   entry._size = entry.size
   return new Promise((resolve, reject) => {
-      entry.handle.getFile().then(file=>{
-        entry.lastModified = file.lastModified
-        entry.size = file.size
-        resolve([entry, file])
-      }).catch(reject)
-    })
+    entry.handle.getFile().then(file => {
+      entry.lastModified = file.lastModified
+      entry.size = file.size
+      resolve([entry, file])
+    }).catch(reject)
+  })
 }

@@ -89,7 +89,7 @@ export const addPreLoad = async (sw, path, ignoreMissing) => {
  * @param {*} workerScript
  * @param {*} _getFile
  * @param {*} param2
- * @returns {SwHandler}
+ * @returns {Promise<SwHandler>}
  */
 export const registerServiceWorker = async (
   workerScript,
@@ -322,7 +322,7 @@ export async function analyzeProject(sw) {
  * Also parses the main file to run, if any.
  *
  * @param {SwHandler} sw
- * @returns {Array}
+ * @returns {Promise<Array>}
  */
 const getWorkspaceAliases = async sw => {
   const alias = []

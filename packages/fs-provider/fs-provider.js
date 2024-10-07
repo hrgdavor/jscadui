@@ -10,6 +10,7 @@ import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
 * @prop {string} id
  * @prop {string} fileToRun
  * @prop {string} folderName
+* @prop {string} projectName
  * @prop {string} defProjectName
  * @prop {Array<FSEntry>} filesToCheck
  * @prop {Array<Array<FSEntry>>} roots
@@ -29,7 +30,7 @@ export * from './src/FileReader.js'
 export * from './src/FileEntry.js'
 
 /**
- * @param {string} path
+ * @param {string | Array<string>} path
  * @returns {Array<string>}
  */
 export const splitPath = path => (typeof path === 'string' ? path.split('/').filter(p => p && p !== '.') : path)
@@ -41,8 +42,13 @@ export function extractPathInfo(url) {
   return { url, filename, ext }
 }
 
+/**
+ * @param {string} path
+ * @param {SwHandler} sw
+ * @returns {Promise<FSEntry | undefined>}
+ */
 export const getFile = async (path, sw) => {
-  let arr = splitPath(path)
+  const arr = splitPath(path)
   return await findFileInRoots(sw.roots, arr)
 }
 
@@ -54,8 +60,12 @@ export const getFileContent = async (path, sw) => {
   }
 }
 
+/**
+ * @param {unknown} dir
+ * @returns {Promise<Array<FSEntry>>}
+ */
 export const readDir = async dir => {
-  let out = []
+  const out = []
   for await (const [key, value] of dir.handle.entries()) {
     out.push(toFSEntry(value, dir))
   }
@@ -224,23 +234,30 @@ export const extractEntries = async dt => {
 
 /**
  * 
- * @param {*} roots 
- * @param {*} path 
- * @returns {Promise<FSEntry>}
+ * @param {Array<Array<FSEntry>>} roots 
+ * @param {Array<string> | string} path 
+ * @returns {Promise<FSEntry | undefined>}
  */
 export const findFileInRoots = async (roots, path) => {
-  path = splitPath(path)
+const paths = splitPath(path)
   let out
   for (let i = 0; i < roots.length; i++) {
-    out = await findFile(roots[i], path, 0)
+    out = await findFile(roots[i], paths, 0)
     if (out) break
   }
   return out
 }
 
+/**
+ * 
+ * @param {Array<FSEntry>} arr 
+ * @param {Array<string>} path 
+ * @param {number} i 
+ * @returns {Promise<FSEntry | undefined>}
+ */
 export const findFile = async (arr, path, i) => {
-  let name = path[i]
-  let match = arr.find(f => f.name === name)
+  const name = path[i]
+  const match = arr.find(f => f.name === name)
   if (match) {
     if (i >= path.length - 1) {
       return match
@@ -249,6 +266,10 @@ export const findFile = async (arr, path, i) => {
   }
 }
 
+/**
+ * @param {FSEntry} dir 
+ * @returns 
+ */
 export const loadDir = async dir => {
   if (dir.isDirectory && !dir.children) {
     dir.children = await readDir(dir)
@@ -312,6 +333,9 @@ export async function fileDropped(sw, files) {
   sw.roots.push(rootFiles)
 }
 
+/**
+ * @param {SwHandler} sw 
+ */
 export async function analyzeProject(sw) {
   const alias = await getWorkspaceAliases(sw)
 

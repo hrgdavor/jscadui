@@ -6,8 +6,10 @@
  * @prop {FileSystemHandle} handle
  * @prop {boolean} isFile
  * @prop {boolean} isDirectory
- * @prop {number} lastModified - may not be present if not read
-
+ * @prop {number} [size]
+ * @prop {number} [lastModified]
+ * @prop {number} [_size] - may not be present if not read
+* @prop {number} [_lastModified] - may not be present if not read
  */
 
 /**
@@ -31,8 +33,8 @@ export const toFSEntry = (handle, parent) => {
 /** Check file for changes and write previous values to the entry into ._lastModified and ._size.
  *  This simplifies checking because the entry itself has all the information about the prev and new state
  *   so when result is consumed, the consumer can see if there was a change, without having own internal tracking
- * @param {*} entry 
- * @returns 
+ * @param {FSEntry} entry 
+ * @returns {Promise<[FSEntry,FileSystemFileHandle]>} 
  */
 export const entryCheckPromise = async entry => {
   entry._lastModified = entry.lastModified

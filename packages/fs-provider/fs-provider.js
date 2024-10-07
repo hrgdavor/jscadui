@@ -18,6 +18,10 @@ import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
  * @prop {unknown} api
  * @prop {Cache} cache
 * @prop {Array<undefined>} libRoots This is never used. TODO Remove
+* 
+ * @typedef WorkspaceAlias
+ * @prop {string} name
+ * @prop {string} path
  *
  */
 
@@ -340,9 +344,10 @@ export async function analyzeProject(sw) {
  * Also parses the main file to run, if any.
  *
  * @param {SwHandler} sw
- * @returns {Promise<Array>}
+ * @returns {Promise<Array<WorkspaceAlias>>}
  */
 const getWorkspaceAliases = async sw => {
+/** @type {Array<WorkspaceAlias>} */
   const alias = []
   let pkgFile = await findFileInRoots(sw.roots, 'package.json')
   if (pkgFile) {

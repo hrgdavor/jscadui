@@ -7,7 +7,17 @@ import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
  * @typedef {import('./src/FileEntry.js').FSEntry} FSEntry
   *
  * @typedef SwHandler
+* @prop {string} id
+ * @prop {string} fileToRun
+ * @prop {string} folderName
+ * @prop {string} defProjectName
+ * @prop {Array<FSEntry>} filesToCheck
+ * @prop {Array<Array<FSEntry>>} roots
+ * @prop {number} lastCheck
+ * @prop {string} base
+ * @prop {unknown} api
  * @prop {Cache} cache
+* @prop {Array<undefined>} libRoots This is never used. TODO Remove
  *
  */
 
@@ -242,6 +252,10 @@ export const loadDir = async dir => {
   return dir.children || []
 }
 
+/**
+ * 
+ * @param {SwHandler} sw 
+ */
 export const checkFiles = sw => {
   const now = Date.now()
   if (now - sw.lastCheck > 300 && sw.filesToCheck.length != 0) {
@@ -267,10 +281,16 @@ export const checkFiles = sw => {
   requestAnimationFrame(() => checkFiles(sw))
 }
 
+/**
+ * 
+ * @param {SwHandler} sw 
+ * @param {Array<FSEntry>} files 
+ */
 export async function fileDropped(sw, files) {
   sw.filesToCheck.length = 0
   sw.fileToRun = 'index.js'
   clearFs(sw)
+/** @type {Array<FSEntry>}*/
   let rootFiles = []
   if (files.length === 1) {
     const file = files[0]

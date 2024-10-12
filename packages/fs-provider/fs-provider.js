@@ -1,10 +1,10 @@
 import { messageProxy } from '@jscadui/postmessage'
 
-import { toFSEntry, entryCheckPromise } from './src/FileEntry.js'
+import { toFSEntry, entryCheckPromise } from './src/FSEntry.js'
 import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
 
 /**
- * @typedef {import('./src/FileEntry.js').FSEntry} FSEntry
+ * @typedef {import('./src/FSEntry.js').FSEntry} FSEntry
   *
  * @typedef SwHandler
 * @prop {string} id
@@ -27,7 +27,7 @@ import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
  */
 
 export * from './src/FileReader.js'
-export * from './src/FileEntry.js'
+export * from './src/FSEntry.js'
 
 /**
  * @param {string | Array<string>} path

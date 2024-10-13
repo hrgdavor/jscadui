@@ -4,8 +4,11 @@ import {
   clearFs,
   extractEntries,
   fileDropped,
+  findFile,
+  findFileInRoots,
   getFile,
   getFileContent,
+  readAsText,
   registerServiceWorker,
 } from '@jscadui/fs-provider'
 import { Gizmo } from '@jscadui/html-gizmo'
@@ -16,6 +19,7 @@ import { gzipSync } from 'fflate'
 
 import { runMain } from '../../packages/worker/worker.js'
 import defaultCode from './examples/jscad.example.js'
+import { addV1Shim } from './src/addV1Shim.js'
 import * as editor from './src/editor.js'
 import * as engine from './src/engine.js'
 import * as exporter from './src/exporter.js'
@@ -131,13 +135,19 @@ document.body.ondrop = async ev => {
 
 async function reloadProject() {
   saveMap = {}
+  let { alias, script } = await analyzeProject(sw)
   sw.filesToCheck = []
-  const { alias, script } = await analyzeProject(sw)
   projectName = sw.projectName
   if (alias.length) {
     workerApi.jscadInit({ alias })
   }
   let url = sw.fileToRun
+  // inject jscad v1 shim, and also inject changed script to cache
+  // so worker and editor have the same code
+  if (sw.fileToRun?.endsWith('.jscad')) {
+    script = addV1Shim(script)
+    addToCache(sw.cache, sw.fileToRun, script)
+  }
   jscadScript({ url, base: sw.base })
   editor.setSource(script, url)
   editor.setFiles(sw.filesToCheck)
@@ -281,6 +291,7 @@ const bundles = {
   // local bundled alias for common libs.
   '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
   '@jscad/io': toUrl('./build/bundle.jscad_io.js'),
+  '@jscad/csg': toUrl('./build/bundle.V1_api.js'),
 }
 
 await workerApi.jscadInit({ bundles })

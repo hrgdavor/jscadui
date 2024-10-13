@@ -271,7 +271,8 @@ export const checkFiles = sw => {
 
 export async function fileDropped(sw, files) {
   sw.filesToCheck.length = 0
-  sw.fileToRun = 'index.js'
+  const candidates = ['index.js', 'index.ts']
+  sw.fileToRun = candidates[0]
   clearFs(sw)
   let rootFiles = []
   if (files.length === 1) {
@@ -279,7 +280,16 @@ export async function fileDropped(sw, files) {
     if (file.isDirectory) {
       sw.folderName = file.name
       file.fullPath = ''
+      candidates.push(sw.folderName+'.js')
+      candidates.push(sw.folderName+'.ts')
       rootFiles = await readDir(file)
+      for(let i=0; i<candidates.length;i++){
+        let found = await findFileInRoots([rootFiles], candidates[i])
+        if(found){
+          sw.fileToRun = candidates[i]
+          break
+        }
+      }
     } else {
       rootFiles.push(file)
       sw.fileToRun = file.name
@@ -292,7 +302,7 @@ export async function fileDropped(sw, files) {
 
 export async function analyzeProject(sw) {
   const alias = await getWorkspaceAliases(sw)
-
+  
   if (sw.fileToRun && sw.fileToRun[0]!='/') {
     sw.fileToRun = `/${sw.fileToRun}`
   }
@@ -301,8 +311,11 @@ export async function analyzeProject(sw) {
   const loaded = await addPreLoadAll(sw, preLoad, true)
 
   sw.projectName = sw.defProjectName
-  if (sw.fileToRun !== 'index.js') sw.projectName = sw.fileToRun.replace(/\.js$/, '')
-  if (sw.folderName) sw.projectName = sw.folderName
+  if (sw.folderName){
+    sw.projectName = sw.folderName
+  } else if (sw.fileToRun !== 'index.js'){
+    sw.projectName = sw.fileToRun.replace(/\.js$/, '')
+  }
 
   let script = ''
   if (sw.fileToRun) {
@@ -322,7 +335,7 @@ export async function analyzeProject(sw) {
  * Also parses the main file to run, if any.
  *
  * @param {SwHandler} sw
- * @returns {Array}
+ * @returns {Promise<Array>}
  */
 const getWorkspaceAliases = async sw => {
   const alias = []

@@ -1,5 +1,5 @@
 import * as jscad from '@jscad/modeling'
-import * as ManifoldModule from 'manifold-3d'
+import ManifoldModule from 'manifold-3d'
 
 export async function main({// @jscad-params
   useManifold = true,

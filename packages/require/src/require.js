@@ -25,8 +25,11 @@ export { resolveUrl } from './resolveUrl'
 export const runModule = (typeof self === 'undefined' ? eval : self.eval)(
   '(require, exports, module, source)=>eval(source)',
 )
+const jsExtensions = new Set(['js','ts','cjs','mjs'])
+const lastOf = arr=>arr?.length ? arr[arr.length-1] : '' 
 
 export const require = (urlOrSource, transform, readFile, base, root, importData = null, moduleBase = MODULE_BASE) => {
+  console.log('require', urlOrSource)
   let source
   let url
   let isRelativeFile
@@ -42,16 +45,17 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
   }
   let exports
   let resolvedUrl = url
-
+  if(urlOrSource == './colors') debugger
   if (source === undefined) {
     bundleAlias = requireCache.bundleAlias[url]
     const aliasedUrl = bundleAlias || requireCache.alias[url] || url
 
     const resolved = resolveUrl(aliasedUrl, base, root, moduleBase)
     const resolvedStr = resolved.url.toString()
-    const arr = resolvedStr.split('/')
     // no file ext is usually module from CDN
-    const isJs = !arr[arr.length-1].includes('.') || resolvedStr.endsWith('.ts') || resolvedStr.endsWith('.js')
+    let fileName = lastOf(resolvedStr.split('/'))  
+    let ext = lastOf(fileName.split('.'))  
+    const isJs = ext == fileName || jsExtensions.has(ext)
     if(!isJs && importData){
       const info = extractPathInfo(resolvedStr)
       let content = readFile(resolvedStr,{output: importData.isBinaryExt(info.ext)})
@@ -67,15 +71,21 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
     if (!exports) {
       // not cached
       try {
+        const fromCdn = resolvedUrl.includes('jsdelivr.net')
+        console.warn('readFile', readFile, resolvedUrl)
         source = readFile(resolvedUrl)
-        if (resolvedUrl.includes('jsdelivr.net')) {
-          // jsdelivr will read package.json and tell us what the main file is
-          const srch = ' * Original file: '
-          let idx = source.indexOf(srch)
-          if (idx != -1) {
-            const idx2 = source.indexOf('\n', idx+srch.length+1)
-            const realFile = new URL(source.substring(idx+srch.length, idx2), resolvedUrl).toString()
-            resolvedUrl = base = realFile
+        
+        if (fromCdn && ext == fileName) {
+          try{
+            let pkg = JSON.parse(readFile(resolvedUrl+'/package.json'))
+            let alias = pkg.unpkg || pkg.main
+            if(alias){
+              const realFile = new URL(alias, resolvedUrl+'/').toString()
+              source = readFile(realFile)
+              resolvedUrl = base = realFile
+            }
+          }catch(e){
+            console.log(e)
           }
         }
       } catch (e) {
@@ -102,7 +112,9 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
       // do not transform bundles that are already cjs ( requireCache.bundleAlias.*)
       if (transform && !bundleAlias){
         source = transform(source, resolvedUrl).code
-        if(source.includes('import.meta.url')) source = source.replaceAll('import.meta.url','module.meta.url')
+        if(source.includes('import.meta.url')){
+          source = source.replaceAll('import.meta.url','module.meta.url')
+        } 
       }
       // construct require function relative to resolvedUrl
       let requireFunc = newUrl => require(newUrl, transform, readFile, resolvedUrl, root, importData, moduleBase)

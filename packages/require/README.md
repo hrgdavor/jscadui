@@ -48,3 +48,15 @@ export const runModule = (typeof self === 'undefined' ? eval : self.eval)(
 ```
 
 To get the proper file-name along with correct line numbers you must add to the end of the script: `script + '\n//# sourceURL='+url` . You can add more variables to the script environment if needed.
+
+## loading from CDN
+
+### jscad/modeling
+
+It contains `unpkg` entry in package.json that point to bundled file.
+
+### pantograph2d
+
+This library defines `main` in package.json, and using that instead of bundled jsdelivr allowed
+our require function to load the lib and internal deps it has.
+

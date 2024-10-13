@@ -1,3 +1,4 @@
+"use strict"
 /**
  * Birthday Balloons with interactive parameters
  * @authors Z3 Dev, Simon Clark

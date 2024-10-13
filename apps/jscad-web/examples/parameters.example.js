@@ -1,3 +1,4 @@
+"use strict"
 /**
  * Demonstrate all available parameter types
  */

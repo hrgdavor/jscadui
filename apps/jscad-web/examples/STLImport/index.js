@@ -1,3 +1,4 @@
+"use strict"
 /**
  * STL Import Demonstration
  * @category Imports

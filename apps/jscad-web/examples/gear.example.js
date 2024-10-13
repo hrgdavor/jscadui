@@ -1,3 +1,4 @@
+"use strict"
 /**
  * Build a Parametric Involute Gear as a parametric design.
  * @authors Joost Nieuwenhuijse, Simon Clark

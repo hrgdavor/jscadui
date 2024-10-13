@@ -31,7 +31,7 @@ export function RenderThreejs({
   let renderTimer
   let meshColor = new Color(1, 1, 1)
 
-  const entities = []
+  let entities = []
   const groups = []
   let canvas
 
@@ -202,10 +202,12 @@ export function RenderThreejs({
     groups.forEach(group => {
       _scene.remove(group)
     })
-    entities.forEach(ent => {
-      if (ent.geometry) ent.geometry.dispose()
-    })
-    entities.length = 0
+    let old = entities
+    entities = []
+    groups.length = 0
+    setTimeout(()=>{
+      old.forEach(ent => ent.geometry?.dispose?.())
+    },0)
     scene.items.forEach(item => {
       const group = new Group()
       groups.push(group)

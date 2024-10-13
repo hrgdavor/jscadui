@@ -1,3 +1,4 @@
+"use strict"
 /**
  * Demonstrates methods of building 3D text
  * @authors Simon Clark

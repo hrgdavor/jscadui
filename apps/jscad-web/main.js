@@ -13,9 +13,11 @@ import {
 } from '@jscadui/fs-provider'
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl } from '@jscadui/orbit'
-import { genParams } from '@jscadui/params'
+import { genParams, getParams } from '@jscadui/params'
 import { messageProxy } from '@jscadui/postmessage'
+import { gzipSync } from 'fflate'
 
+import { runMain } from '../../packages/worker/worker.js'
 import defaultCode from './examples/jscad.example.js'
 import { addV1Shim } from './src/addV1Shim.js'
 import * as editor from './src/editor.js'
@@ -24,7 +26,9 @@ import * as exporter from './src/exporter.js'
 import * as menu from './src/menu.js'
 import * as remote from './src/remote.js'
 import { formatStacktrace } from './src/stacktrace.js'
+import { str2ab } from './src/str2ab.js'
 import { ViewState } from './src/viewState.js'
+import { AnimRunner } from './src/animRunner.js'
 import * as welcome from './src/welcome.js'
 
 export const byId = id => document.getElementById(id)
@@ -43,6 +47,7 @@ byId('overlay').parentNode.appendChild(gizmo)
 
 let projectName = 'jscad'
 let model = []
+let setParamValues, setAnimStatus
 
 // load default model unless another model was already loaded
 let loadDefault = true
@@ -79,10 +84,18 @@ async function initFs() {
     return file
   }
   let scope = document.location.pathname
-  sw = await registerServiceWorker(`bundle.fs-serviceworker.js?prefix=${scope}swfs/`, getFileWrapper, {
-    scope,
-    prefix: scope + 'swfs/',
-  })
+  try{
+    sw = await registerServiceWorker(`bundle.fs-serviceworker.js?prefix=${scope}swfs/`, getFileWrapper, {
+      scope,
+      prefix: scope + 'swfs/',
+    })
+  }catch(e){
+    const lastReload = localStorage.getItem('lastReload')
+    if (!lastReload || Date.now() - lastReload > 3000) {
+      localStorage.setItem('lastReload', Date.now())
+      //location.reload()
+    }
+  }
   sw.defProjectName = 'jscad'
   sw.onfileschange = files => {
     if (files.includes('/package.json')) {
@@ -175,10 +188,35 @@ function save(blob, filename) {
 }
 
 const exportModel = async (format, extension) => {
-  const { data } = (await workerApi.jscadExportData({ format })) || {}
+  if (format === 'scriptUrl') {
+    if(editor.getEditorFiles().length > 1) {
+      alert('Can not export multifile projects as url')
+      return
+    }
+    let src = editor.getSource()
+    let gzipped = gzipSync(str2ab(src))
+    let str = String.fromCharCode.apply(null, gzipped)
+    let url = document.location.origin + '#data:application/gzip;base64,' + btoa(str)
+    console.log('url\n', url)
+    try {
+      await navigator.clipboard.writeText(url)
+      alert('URL with gzipped script was succesfully copied to clipboard')
+      } catch (err) {
+        console.error('Failed to copy: ', err)
+        alert('failed to copy to clipboard\n'+err.message)
+    }
+    return
+  }
+
+  let { data } = (await workerApi.jscadExportData({ format })) || {}
   if (data) {
-    save(new Blob([data], { type: 'text/plain' }), `${projectName}.${extension}`)
+    if(!(data instanceof Array)) data = [data]
     console.log('save', `${projectName}.${extension}`, data)
+    let type = 'text/plain'
+    if(format == '3mf') type = 'application/zip'
+
+    // save(data, `${projectName}.${extension}`)
+    save(new Blob(data, { type }), `${projectName}.${extension}`)
   }
 }
 
@@ -193,10 +231,10 @@ const onProgress = (value, note) => {
 
 const worker = new Worker('./build/bundle.worker.js')
 const handlers = {
-  entities: ({ entities, mainTime, convertTime }) => {
+  entities: ({ entities, mainTime, convertTime },{skipLog}={}) => {
     if (!(entities instanceof Array)) entities = [entities]
     viewState.setModel((model = entities))
-    console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2))
+    if(!skipLog) console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2), entities)
     setError(undefined)
     onProgress(undefined, mainTime?.toFixed(2) + ' ms')
   },
@@ -231,9 +269,19 @@ const jscadScript = async ({ script, url = './jscad.model.js', base = currentBas
   loadDefault = false // don't load default model if something else was loaded
   try {
     const result = await workerApi.jscadScript({ script, url, base, root, smooth: viewState.smoothRender })
-    genParams({ target: byId('paramsDiv'), params: result.def || {}, callback: paramChangeCallback })
+    let tmp = genParams({ target: byId('paramsDiv'), params: result.def || [], callback: paramChangeCallback, pauseAnim: pauseAnimCallback, startAnim: startAnimCallback })
+    setParamValues = tmp.setValue
+    setAnimStatus = tmp.animStatus
     lastRunParams = result.params
     handlers.entities(result)
+    if(result.def){
+      result.def.find(def=>{
+        if(def.fps && def.autostart){
+          startAnimCallback(def, lastRunParams[def.name] || 0)
+          return true
+        }
+      })
+    }
   } catch (err) {
     setError(err)
   }
@@ -247,14 +295,17 @@ const bundles = {
 }
 
 await workerApi.jscadInit({ bundles })
-if (loadDefault) {
-  jscadScript({ script: defaultCode, smooth: viewState.smoothRender })
-}
 
 let working
 let lastParams
 let lastRunParams
-const paramChangeCallback = async params => {
+const paramChangeCallback = async (params, source) => {
+  if(source == 'group'){
+    // TODO make sure when saving param state is implemented
+    // this change is saved, but skip param re-render
+    return
+  }
+  stopCurrentAnim()
   if (!working) {
     lastParams = null
   } else {
@@ -271,6 +322,34 @@ const paramChangeCallback = async params => {
   }
   handlers.entities(result, { smooth: viewState.smoothRender })
   if (lastParams && lastParams != params) paramChangeCallback(lastParams)
+}
+/** @type {AnimRunner} */
+let currentAnim
+
+function stopCurrentAnim(){
+  if(!currentAnim) return false
+  currentAnim.pause()
+  currentAnim = null
+  setAnimStatus('')
+  return true
+}
+const startAnimCallback = async (def,value) => {  
+  if(stopCurrentAnim()) return
+  setAnimStatus('running')
+  const handleEntities = (result, paramValues, times)=>{
+    lastRunParams = paramValues
+    setParamValues(times || {}, true)
+    handlers.entities(result, { smooth: viewState.smoothRender, skipLog:true })
+  }
+
+  const handleEnd = ()=>stopCurrentAnim()
+
+  currentAnim = new AnimRunner(workerApi, {handleEntities, handleEnd})
+  currentAnim.start(def, value, getParams(byId('paramsDiv')))
+}
+
+const pauseAnimCallback = async (def,value) => {
+  stopCurrentAnim()
 }
 
 const loadExample = async (source, base = appBase) => {
@@ -340,21 +419,30 @@ editor.init(
 )
 menu.init()
 welcome.init()
-remote.init(
-  (script, url) => {
-    // run remote script
-    editor.setSource(script, url)
-    jscadScript({ script, base: url })
-    welcome.dismiss()
-  },
-  err => {
-    // show remote script error
-    loadDefault = false
-    setError(err)
-    welcome.dismiss()
-  },
-)
+let hasRemoteScript
+try{
+  hasRemoteScript = await remote.init(
+    (script, url) => {
+      // run remote script
+      url = new URL(url, appBase).toString()
+      editor.setSource(script, url)
+      jscadScript({ script, base: url })
+      welcome.dismiss()
+    },
+    err => {
+      // show remote script error
+      loadDefault = false
+      setError(err)
+      welcome.dismiss()
+    },
+  )
+}catch(e){
+  console.error(e)  
+}
 exporter.init(exportModel)
+if (loadDefault && !hasRemoteScript) {
+  jscadScript({ script: defaultCode, smooth: viewState.smoothRender })
+}
 
 try {
   await initFs()
@@ -369,7 +457,7 @@ if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
   if (!lastReload || Date.now() - lastReload > 3000) {
     setError('cannot start service worker, reloading')
     localStorage.setItem('lastReload', Date.now())
-    location.reload()
+    //location.reload()
   } else {
     console.error('cannot start service worker, reload required')
   }

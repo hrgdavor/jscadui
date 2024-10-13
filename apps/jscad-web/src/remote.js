@@ -4,8 +4,8 @@ const gzipPrefix = 'data:application/gzip;base64,'
 
 export const init = (compileFn, setError) => {
   const load = loadFromUrl(compileFn, setError)
-  load() // on load
   window.addEventListener('hashchange', load) // on change
+  return load() // on load
 }
 
 /**
@@ -19,6 +19,7 @@ export const loadFromUrl = (compileFn, setError) => async () => {
     try {
       const script = await fetchUrl(url)
       compileFn(script, url)
+      return true
     } catch (err) {
       setError(err)
     }

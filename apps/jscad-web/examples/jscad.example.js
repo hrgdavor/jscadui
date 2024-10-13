@@ -1,3 +1,4 @@
+"use strict"
 const jscad = require('@jscad/modeling')
 const { intersect, subtract } = jscad.booleans
 const { colorize } = jscad.colors

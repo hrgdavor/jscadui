@@ -89,6 +89,8 @@ export const init = (defaultCode, fn, _saveFn, _getFileFn) => {
   })
 }
 
+export const getSource = () => view.state.doc.toString()
+
 export const setSource = (source, path = '/index.js') => {
   view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: source } })
   currentFile = path
@@ -111,8 +113,13 @@ async function readSource(file, currentFile){
   setSource(await readAsText(file), currentFile)
 }
 
+let editorFilesArr = []
+
+export const getEditorFiles = ()=>editorFilesArr
+
 export const setFiles = (files) => {
   const editorFiles = document.getElementById('editor-files')
+  editorFilesArr = files
   if (files.length < 2) {
     editorNav.classList.remove('visible')
   } else {

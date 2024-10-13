@@ -1,22 +1,26 @@
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body, html {
-  width: 100%;
-  height: 100%;
-}
-
-body {
-  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  background-color: #fbfbfb;
-  color: #333;
-  overflow: hidden;
-  display: flex;
-  justify-content: stretch;
-  align-items: stretch;
+@layer reset, theme;
+@layer reset{
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body, html {
+    width: 100%;
+    height: 100%;
+  }
+  
+  body {
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background-color: #fbfbfb;
+    color: #333;
+    overflow: hidden;
+    display: flex;
+    justify-content: stretch;
+    align-items: stretch;
+  }
+  
 }
 
 body.dark {
@@ -110,8 +114,7 @@ a:hover {
 .dark a:focus-visible {
   outline: 1px solid #eee;
 }
-button,
-select {
+button, select, input {
   padding: 4px 6px;
   border: 1px solid #888;
   border-radius: 2px;
@@ -134,7 +137,6 @@ h2 {
 input {
   border: 1px solid #999;
   border-radius: 3px;
-  padding: 2px 4px;
   transition: border 0.3s;
 }
 input:focus {
@@ -148,6 +150,16 @@ input[type="range"] {
   margin: 0 5px;
   cursor: pointer;
 }
+.nospin{
+  appearance:textfield;
+  -moz-appearance: textfield;
+}
+.nospin::-webkit-outer-spin-button, 
+.nospin::-webkit-inner-spin-button{
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+
 p {
   margin-bottom: 10px;
 }
@@ -461,6 +473,16 @@ p {
   background: rgba(40, 40, 40, 0.5);
   border: 1px solid #33333344;
 }
+
+@layer reset{
+  #paramsDiv {
+    button{
+      padding: 0;
+      background: none;
+    }
+  }
+}
+
 #paramsDiv {
   overflow: auto;
   display: flex;
@@ -494,11 +516,12 @@ p {
 #paramsDiv .form-line[type="color"] i,
 #paramsDiv .form-line[type="range"] i,
 #paramsDiv .form-line[type="slider"] i {
-  display: inline-block;
+  display: inline;
   padding: 0 5px;
   margin-left: 5px;
   border: solid 1px #eee;
 }
+#paramsDiv .form-line[type="range"] input,
 .dark #paramsDiv .form-line[type="color"] i,
 .dark #paramsDiv .form-line[type="range"] i,
 .dark #paramsDiv .form-line[type="slider"] i {
@@ -553,6 +576,22 @@ p {
 }
 #paramsDiv .jscad-param-buttons {
   display: none;
+}
+#paramsDiv{
+  .form-line[type="range"],.form-line[type="slider"]{
+    margin-bottom: 20px;
+    position: relative;
+    input{
+      text-align: right;
+    }
+    input:last-child{
+      position: absolute;
+      bottom: -18px;
+      width: 100%;
+      left: 0;
+      margin-left: 0;      
+    }
+  }
 }
 .export-panel  {
   margin: 5px;

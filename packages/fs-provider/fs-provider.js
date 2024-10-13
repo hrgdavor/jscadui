@@ -98,15 +98,32 @@ export const registerServiceWorker = async (
 ) => {
   if ('serviceWorker' in navigator) {
     try {
-      let registration = await navigator.serviceWorker.register(workerScript, {
-        scope,
-      })
-      for (let i = 1; i <= 10; i++) {
-        if (registration.active) break
-        registration = await navigator.serviceWorker.getRegistration()
+      let reg = await navigator.serviceWorker.getRegistration()
+      if (!reg) { // no sw register yet, go for it
+        await navigator.serviceWorker.register(workerScript, { scope, })
+      } else if (!navigator.serviceWorker.controller) {
+        // handling hard refresh here
+        await new Promise((resolve) => {
+          const messageChannel = new MessageChannel()
+          messageChannel.port1.onmessage = (event) => resolve(event.data)
+          reg.active.postMessage({type: 'CLAIM_CLIENTS'}, [messageChannel.port2])
+        })
       }
     } catch (error) {
       console.error(`service worker registration failed with ${error}`)
+    }
+
+    // this code handle app first load, when the serviceWorker is still activating
+    // here we force it to wait until it switch to 'ativated' state
+    const rdy = await navigator.serviceWorker.ready
+    if (rdy.active.state != 'activated') {
+      await new Promise((resolve) => {
+        const listener = () => {
+          rdy.active.removeEventListener('statechange', listener)
+          resolve()
+        }
+        rdy.active.addEventListener('statechange', listener)
+      })
     }
 
     /** @type {SwHandler} */
@@ -122,12 +139,12 @@ export const registerServiceWorker = async (
         }
       },
     })
-    
 
     // id is important as we use it to name the temporary cache instance
     // for now we use fetch to extract our id, but a better way could be found later
     const id = await fetch(prefix + 'init').then(res => {
       if (!res.ok) {
+        console.error(res)
         throw new Error('failed to start service worker')
       }
       return res.text()

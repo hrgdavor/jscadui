@@ -364,10 +364,10 @@ export async function fileDropped(sw, files) {
       candidates.push(sw.folderName + '.js')
       candidates.push(sw.folderName + '.ts')
       rootFiles = await readDir(file)
-      for (let i = 0; i < candidates.length; i++) {
-        let found = await findFileInRoots([rootFiles], candidates[i])
+      for (const candidate of candidates) {
+        const found = await findFileInRoots([rootFiles], candidate)
         if (found) {
-          sw.fileToRun = candidates[i]
+          sw.fileToRun = candidate
           break
         }
       }

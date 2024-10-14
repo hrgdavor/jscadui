@@ -403,7 +403,7 @@ export const findByFullPath = (arr, file) => {
 }
 
 export const fileIsRequested = (path, file, sw) => {
-  let match
-  if ((match = findByFullPath(sw.filesToCheck, file))) return
+  const match = findByFullPath(sw.filesToCheck, file)
+  if (match) return
   sw.filesToCheck.push(file)
 }

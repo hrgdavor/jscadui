@@ -30,7 +30,7 @@ const readAs = async (f, as) =>
     const reader = new FileReader()
     reader.onload = event => resolve(event.target?.result)
     reader.onerror = error => {
-      let msg = 'error reading ' + f.name
+      const msg = 'error reading ' + f.name
       console.error(msg, f, error)
       reject(msg)
     }

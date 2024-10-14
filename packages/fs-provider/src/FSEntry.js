@@ -39,11 +39,8 @@ export const toFSEntry = (handle, parent) => {
 export const entryCheckPromise = async entry => {
   entry._lastModified = entry.lastModified
   entry._size = entry.size
-  return new Promise((resolve, reject) => {
-    entry.handle.getFile().then(file => {
+  const file = await     entry.handle.getFile()
       entry.lastModified = file.lastModified
       entry.size = file.size
-      resolve([entry, file])
-    }).catch(reject)
-  })
+      return [entry, file]
 }

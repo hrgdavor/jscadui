@@ -276,28 +276,22 @@ export const loadDir = async dir => {
 }
 
 /**
- * 
+ * This function is async but it is intentionally called without await 
  * @param {SwHandler} sw 
  */
-export const checkFiles = sw => {
+export const checkFiles = async sw => {
   const now = Date.now()
   if (now - sw.lastCheck > 300 && sw.filesToCheck.length != 0) {
     sw.lastCheck = now
-    let todo = sw.filesToCheck.map(entryCheckPromise)
-    Promise.all(todo).then(result => {
-      result = result.filter(([entry, file]) => entry.lastModified != entry._lastModified)
-      if (result.length) {
-        const todo = []
-        const files = result.map(([entry, file]) => {
-          todo.push(addToCache(sw.cache, entry.fullPath, file))
-          return entry.fullPath
-        })
-        Promise.all(todo).then(result => {
+    let filesToCheck = await Promise.all(sw.filesToCheck.map(entryCheckPromise))
+    filesToCheck = filesToCheck.filter(([entry, _file]) => entry.lastModified != entry._lastModified)
+      if (filesToCheck.length) {
+        const addToCachePromises = filesToCheck.map(([entry, file]) => addToCache(sw.cache, entry.fullPath, file))
+          const files = filesToCheck.map(([entry, _file]) => entry.fullPath)
+      await         Promise.all(addToCachePromises)//All files must be added to cache
           sw.onfileschange?.(files)
-        })
-      }
-    })
-
+              }
+    
     // TODO clear sw cache
     // TODO sendCmd jscadClearFileCache {files}
   }

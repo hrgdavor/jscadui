@@ -205,8 +205,12 @@ export const clearFs = async sw => {
   await clearCache(sw.cache)
 }
 
+/**
+ * @param {Cache} cache 
+ */
 export const clearCache = async cache => {
-  ; (await cache.keys()).forEach(key => cache.delete(key))
+  const keys = await cache.keys()
+  await Promise.all(keys.map(key => cache.delete(key)))
 }
 
 

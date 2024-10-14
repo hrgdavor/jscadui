@@ -247,10 +247,10 @@ const     out = await findFile(root, paths, 0)
 }
 
 /**
- * 
+ * Finds a file or a directory by path 
  * @param {Array<FSEntry>} arr 
  * @param {Array<string>} path 
- * @param {number} i 
+ * @param {number} i The current position in the path 
  * @returns {Promise<FSEntry | undefined>}
  */
 export const findFile = async (arr, path, i) => {

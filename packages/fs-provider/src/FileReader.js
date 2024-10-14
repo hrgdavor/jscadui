@@ -6,14 +6,14 @@ export const readAsText = async f => readAs(f, 'readAsText')
 const readAs = async (f, as) =>
   new Promise(async (resolve, reject) => {
     const reader = new FileReader()
-    reader.onload = event => resolve(event.target.result)
+    reader.onload = event => resolve(event.target?.result)
     reader.onerror = error => {
       let msg = 'error reading ' + f.name
       console.error(msg, f, error)
       reject(msg)
     }
     try {
-      if (f.handle) {
+      if ('handle' in f) {
         const tmp = await f.handle.getFile()
         f.lastModified = tmp.lastModified
         f.size = tmp.size

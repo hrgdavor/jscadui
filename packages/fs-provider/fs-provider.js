@@ -240,12 +240,10 @@ export const extractEntries = async dt => {
  */
 export const findFileInRoots = async (roots, path) => {
 const paths = splitPath(path)
-  let out
-  for (let i = 0; i < roots.length; i++) {
-    out = await findFile(roots[i], paths, 0)
-    if (out) break
-  }
-  return out
+    for (const root of roots) {
+const     out = await findFile(root, paths, 0)
+    if (out)   return out
+}
 }
 
 /**

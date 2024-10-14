@@ -63,7 +63,7 @@ export function extractPathInfo(url) {
 /**
  * @param {string} path
  * @param {SwHandler} sw
- * @returns {Promise<FSEntry | undefined>}
+ * @returns {Promise<FSFileEntry | undefined>}
  */
 export const getFile = async (path, sw) => {
   const arr = splitPath(path)
@@ -78,7 +78,6 @@ export const getFile = async (path, sw) => {
 export const getFileContent = async (path, sw) => {
   const match = await getFile(path, sw)
   if (match) {
-    //todo Match could be a directory. This error should be handled
     fileIsRequested(path, match, sw)
     return readAsArrayBuffer(match)
   }
@@ -137,7 +136,6 @@ export const addPreLoad = async (sw, path, ignoreMissing) => {
     if (!ignoreMissing) throw new Error('File not found ' + path)
     return
   }
-  if (match.isDirectory) return
   const f = await match.handle.getFile()
   match.lastModified = f.lastModified
   await addToCache(sw.cache, path, await readAsArrayBuffer(f))
@@ -281,7 +279,7 @@ export const extractEntries = async dt => {
  * 
  * @param {Array<Array<FSEntry>>} roots 
  * @param {Array<string> | string} path 
- * @returns {Promise<FSEntry | undefined>}
+ * @returns {Promise<FSFileEntry | undefined>}
  */
 export const findFileInRoots = async (roots, path) => {
   const paths = splitPath(path)
@@ -292,21 +290,30 @@ export const findFileInRoots = async (roots, path) => {
 }
 
 /**
- * Finds a file or a directory by path
+ * Finds a file by path
  * @param {Array<FSEntry>} arr 
  * @param {Array<string>} path 
  * @param {number} i The current position in the path
- * @returns {Promise<FSEntry | undefined>}
+ * @returns {Promise<FSFileEntry | undefined>}
  */
 export const findFile = async (arr, path, i) => {
   const name = path[i]
   const match = arr.find(f => f.name === name)
   if (match) {
     if (i >= path.length - 1) {
-      return match
+      if (match.isFile) {
+        return match
+      } else {
+        return undefined
+      }
     }
-    //todo the match could be a directory. This error should be handled
-    return findFile(await loadDir(match), path, i + 1)
+
+    if (match.isDirectory) {
+      const children = await loadDir(match)
+      return findFile(children, path, i + 1)
+    } else {
+      return undefined
+    }
   }
 }
 
@@ -425,7 +432,6 @@ const getWorkspaceAliases = async sw => {
   /** @type {Array<WorkspaceAlias>} */
   const alias = []
   const pkgFile = await findFileInRoots(sw.roots, 'package.json')
-  //todo check if pkfFile is a directory
   if (pkgFile) {
     try {
       sw.filesToCheck.push(pkgFile)
@@ -434,7 +440,6 @@ const getWorkspaceAliases = async sw => {
       if (pack.workspaces)
         for (const workspace of pack.workspaces) {
           const workspacePackageFile = await findFileInRoots(sw.roots, `/${workspace}/package.json`)
-          //todo check if workspacePackageFile is a directory
           let workspacePackageJson
           if (workspacePackageFile) workspacePackageJson = JSON.parse(await readAsText(workspacePackageFile))
           const name = workspacePackageJson?.name ?? workspace

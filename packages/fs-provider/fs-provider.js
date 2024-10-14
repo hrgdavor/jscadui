@@ -315,7 +315,7 @@ export const loadDir = async dir => {
   if (dir.isDirectory && !dir.children) {
     dir.children = await readDir(dir)
   }
-  return dir.children || []
+  return dir.children ?? []
 }
 
 /**

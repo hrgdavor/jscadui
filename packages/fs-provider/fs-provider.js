@@ -20,7 +20,12 @@ import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
  * @prop {string} base
  * @prop {unknown} api
  * @prop {Cache} cache
+* @prop {OnFilesChangeHandler} onfileschange
  * @prop {Array<undefined>} libRoots This is never used. TODO Remove
+* 
+ * @typedef {Function} OnFilesChangeHandler
+ * @param {Array<FSFileEntry>} files
+ * @returns {void}
  * 
  * @typedef WorkspaceAlias
  * @prop {string} name

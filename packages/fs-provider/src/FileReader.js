@@ -22,7 +22,7 @@ export const readAsText = async f => readAs(f, 'readAsText')
 /**
  * 
  * @param {import("./FSEntry").FSFileEntry | Blob} f 
- * @param {*} as 
+ * @param {string} as 
  * @returns 
  */
 const readAs = async (f, as) =>

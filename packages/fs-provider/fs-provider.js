@@ -77,8 +77,8 @@ export const getFileContent = async (path, sw) => {
  */
 export const readDir = async dir => {
   const out = []
-  for await (const [key, value] of dir.handle.entries()) {
-    out.push(toFSEntry(value, dir))
+  for await (const fileHandles of dir.handle.values()) {
+    out.push(toFSEntry(fileHandles, dir))
   }
   return out
 }

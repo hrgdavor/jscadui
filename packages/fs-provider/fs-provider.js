@@ -191,7 +191,7 @@ export const registerServiceWorker = async (
 export const clearFs = async sw => {
   sw.roots = []
   sw.libRoots = []
-  return clearCache(sw.cache)
+  await clearCache(sw.cache)
 }
 
 export const clearCache = async cache => {

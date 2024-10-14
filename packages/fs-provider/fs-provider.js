@@ -315,7 +315,7 @@ export const findFile = async (arr, path, i) => {
  * @returns {Promise<Array<FSEntry>>}
  */
 export const loadDir = async dir => {
-  if (dir.isDirectory && !dir.children) {
+  if (dir.isDirectory && dir.children === undefined) {
     dir.children = await readDir(dir)
   }
   return dir.children ?? []

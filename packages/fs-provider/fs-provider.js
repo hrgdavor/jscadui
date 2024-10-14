@@ -24,6 +24,11 @@ import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
  * @prop {string} name
  * @prop {string} path
  *
+* 
+ * @typedef PathInfo
+ * @prop {string} url
+ * @prop {string} filename
+ * @prop {string} ext
  */
 
 export * from './src/FileReader.js'
@@ -34,11 +39,17 @@ export * from './src/FSEntry.js'
  * @returns {Array<string>}
  */
 export const splitPath = path => (typeof path === 'string' ? path.split('/').filter(p => p && p !== '.') : path)
+
+/**
+ * 
+ * @param {string} url 
+ * @returns {PathInfo}
+ */
 export function extractPathInfo(url) {
   let idx = url.lastIndexOf('/')
-  let filename = url.substring(idx + 1)
+  const filename = url.substring(idx + 1)
   idx = filename.lastIndexOf('.')
-  let ext = filename.substring(idx + 1)
+  const ext = filename.substring(idx + 1)
   return { url, filename, ext }
 }
 

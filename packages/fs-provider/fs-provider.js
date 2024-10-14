@@ -373,21 +373,22 @@ export async function analyzeProject(sw) {
 const getWorkspaceAliases = async sw => {
 /** @type {Array<WorkspaceAlias>} */
   const alias = []
-  let pkgFile = await findFileInRoots(sw.roots, 'package.json')
+  const pkgFile = await findFileInRoots(sw.roots, 'package.json')
+//todo check if pkfFile is a directory
   if (pkgFile) {
     try {
       sw.filesToCheck.push(pkgFile)
       const pack = JSON.parse(await readAsText(pkgFile))
       if (pack.main) sw.fileToRun = pack.main
       if (pack.workspaces)
-        for (let i = 0; i < pack.workspaces.length; i++) {
-          const w = pack.workspaces[i]
-          // debugger
-          let pack2 = await findFileInRoots(sw.roots, `/${w}/package.json`)
-          if (pack2) pack2 = JSON.parse(await readAsText(pack2))
-          let name = pack2?.name || w
-          let main = pack2?.main || 'index.js'
-          alias.push({ name, path: `/${w}/${main}` })
+        for (const workspace of pack.workspaces) {
+          const workspacePackageFile = await findFileInRoots(sw.roots, `/${workspace}/package.json`)
+//todo check if workspacePackageFile is a directory
+          let workspacePackageJson
+          if (workspacePackageFile) workspacePackageJson = JSON.parse(await readAsText(workspacePackageFile))
+          const name = workspacePackageJson?.name ?? workspace
+          const main = workspacePackageJson?.main ?? 'index.js'
+          alias.push({ name, path: `/${workspace}/${main}` })
         }
     } catch (error) {
       error.message = `failed to parse package.json\n  ${error}`

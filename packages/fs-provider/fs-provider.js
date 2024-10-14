@@ -5,14 +5,14 @@ import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
 
 /**
  * @typedef {import('./src/FSEntry.js').FSEntry} FSEntry
-* @typedef {import('./src/FSEntry.js').FSDirectoryEntry} FSDirectoryEntry
+ * @typedef {import('./src/FSEntry.js').FSDirectoryEntry} FSDirectoryEntry
  * @typedef {import('./src/FSEntry.js').FSFileEntry} FSFileEntry
-  *
+ *
  * @typedef SwHandler
-* @prop {string} id
+ * @prop {string} id
  * @prop {string} fileToRun
  * @prop {string} folderName
-* @prop {string} projectName
+ * @prop {string} projectName
  * @prop {string} defProjectName
  * @prop {Array<FSFileEntry>} filesToCheck
  * @prop {Array<Array<FSEntry>>} roots
@@ -20,13 +20,13 @@ import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
  * @prop {string} base
  * @prop {unknown} api
  * @prop {Cache} cache
-* @prop {Array<undefined>} libRoots This is never used. TODO Remove
-* 
+ * @prop {Array<undefined>} libRoots This is never used. TODO Remove
+ * 
  * @typedef WorkspaceAlias
  * @prop {string} name
  * @prop {string} path
  *
-* 
+ * 
  * @typedef PathInfo
  * @prop {string} url
  * @prop {string} filename
@@ -73,7 +73,7 @@ export const getFile = async (path, sw) => {
 export const getFileContent = async (path, sw) => {
   const match = await getFile(path, sw)
   if (match) {
-//todo Match could be a directory. This error should be handled
+    //todo Match could be a directory. This error should be handled
     fileIsRequested(path, match, sw)
     return readAsArrayBuffer(match)
   }
@@ -110,10 +110,10 @@ export const addToCache = async (cache, path, content) => await cache.put(new Re
  * @returns {Promise<[string, FSFileEntry | undefined][]>}
  */
 export const addPreLoadAll = async (sw, paths, ignoreMissing) => {
-/** @type {[string, FSFileEntry | undefined][]}*/
+  /** @type {[string, FSFileEntry | undefined][]}*/
   const out = []
   for (const path of paths) {
-//todo load parallel
+    //todo load parallel
     const match = await addPreLoad(sw, path, ignoreMissing)
     out.push([path, match])
   }
@@ -238,8 +238,6 @@ export const clearCache = async cache => {
   await Promise.all(keys.map(key => cache.delete(key)))
 }
 
-
-
 /**
  *
  * @param {DataTransfer} dt
@@ -255,7 +253,7 @@ export const extractEntries = async dt => {
     fullPath: '',
   }
 
-    /** @type {Array<FSEntry>} */
+  /** @type {Array<FSEntry>} */
   const fsEntries = []
   // Use DataTransferItemList interface to access the items(s).
   // todo remove usage of FileEntry webkitGetAsEntry and use new File_System_API
@@ -264,7 +262,7 @@ export const extractEntries = async dt => {
   // DataTransferItemList is not an array by default
   for (const item of Array.from(items)) {
     // If dropped items aren't files or directories, reject them
-// Directories also have kind === 'file'
+    // Directories also have kind === 'file'
     if (item.kind === 'file') {
       const handle = await item.getAsFileSystemHandle()
       const fsEntry = toFSEntry(handle, root)
@@ -281,18 +279,18 @@ export const extractEntries = async dt => {
  * @returns {Promise<FSEntry | undefined>}
  */
 export const findFileInRoots = async (roots, path) => {
-const paths = splitPath(path)
-    for (const root of roots) {
-const     out = await findFile(root, paths, 0)
-    if (out)   return out
-}
+  const paths = splitPath(path)
+  for (const root of roots) {
+    const out = await findFile(root, paths, 0)
+    if (out) return out
+  }
 }
 
 /**
- * Finds a file or a directory by path 
+ * Finds a file or a directory by path
  * @param {Array<FSEntry>} arr 
  * @param {Array<string>} path 
- * @param {number} i The current position in the path 
+ * @param {number} i The current position in the path
  * @returns {Promise<FSEntry | undefined>}
  */
 export const findFile = async (arr, path, i) => {
@@ -302,14 +300,14 @@ export const findFile = async (arr, path, i) => {
     if (i >= path.length - 1) {
       return match
     }
-//todo the match could be a directory. This error should be handled
+    //todo the match could be a directory. This error should be handled
     return findFile(await loadDir(match), path, i + 1)
   }
 }
 
 /**
  * @param {FSDirectoryEntry} dir 
- * @returns {Promise<Array<FSEntry>>} 
+ * @returns {Promise<Array<FSEntry>>}
  */
 export const loadDir = async dir => {
   if (dir.isDirectory && !dir.children) {
@@ -319,7 +317,7 @@ export const loadDir = async dir => {
 }
 
 /**
- * This function is async but it is intentionally called without await 
+ * This function is async but it is intentionally called without await
  * @param {SwHandler} sw 
  */
 export const checkFiles = async sw => {
@@ -328,13 +326,13 @@ export const checkFiles = async sw => {
     sw.lastCheck = now
     let filesToCheck = await Promise.all(sw.filesToCheck.map(entryCheckPromise))
     filesToCheck = filesToCheck.filter(([entry, _file]) => entry.lastModified != entry._lastModified)
-      if (filesToCheck.length) {
-        const addToCachePromises = filesToCheck.map(([entry, file]) => addToCache(sw.cache, entry.fullPath, file))
-          const files = filesToCheck.map(([entry, _file]) => entry.fullPath)
-      await         Promise.all(addToCachePromises)//All files must be added to cache
-          sw.onfileschange?.(files)
-              }
-    
+    if (filesToCheck.length) {
+      const addToCachePromises = filesToCheck.map(([entry, file]) => addToCache(sw.cache, entry.fullPath, file))
+      const files = filesToCheck.map(([entry, _file]) => entry.fullPath)
+      await Promise.all(addToCachePromises)//All files must be added to cache
+      sw.onfileschange?.(files)
+    }
+
     // TODO clear sw cache
     // TODO sendCmd jscadClearFileCache {files}
   }
@@ -350,7 +348,7 @@ export async function fileDropped(sw, files) {
   sw.filesToCheck.length = 0
   sw.fileToRun = 'index.js'
   clearFs(sw)
-/** @type {Array<FSEntry>}*/
+  /** @type {Array<FSEntry>}*/
   let rootFiles = []
   if (files.length === 1) {
     const file = files[0]
@@ -406,10 +404,10 @@ export async function analyzeProject(sw) {
  * @returns {Promise<Array<WorkspaceAlias>>}
  */
 const getWorkspaceAliases = async sw => {
-/** @type {Array<WorkspaceAlias>} */
+  /** @type {Array<WorkspaceAlias>} */
   const alias = []
   const pkgFile = await findFileInRoots(sw.roots, 'package.json')
-//todo check if pkfFile is a directory
+  //todo check if pkfFile is a directory
   if (pkgFile) {
     try {
       sw.filesToCheck.push(pkgFile)
@@ -418,7 +416,7 @@ const getWorkspaceAliases = async sw => {
       if (pack.workspaces)
         for (const workspace of pack.workspaces) {
           const workspacePackageFile = await findFileInRoots(sw.roots, `/${workspace}/package.json`)
-//todo check if workspacePackageFile is a directory
+          //todo check if workspacePackageFile is a directory
           let workspacePackageJson
           if (workspacePackageFile) workspacePackageJson = JSON.parse(await readAsText(workspacePackageFile))
           const name = workspacePackageJson?.name ?? workspace

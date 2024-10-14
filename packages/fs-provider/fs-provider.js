@@ -63,9 +63,15 @@ export const getFile = async (path, sw) => {
   return await findFileInRoots(sw.roots, arr)
 }
 
+/**
+ * @param {string} path
+ * @param {SwHandler} sw
+ * @returns {Promise<ArrayBuffer | undefined>}
+ */
 export const getFileContent = async (path, sw) => {
-  let match = await getFile(path, sw)
+  const match = await getFile(path, sw)
   if (match) {
+//todo Match could be a directory. This error should be handled
     fileIsRequested(path, match, sw)
     return readAsArrayBuffer(match)
   }
@@ -199,6 +205,9 @@ export const registerServiceWorker = async (
   }
 }
 
+/**
+ * @param {SwHandler} sw 
+ */
 export const clearFs = async sw => {
   sw.roots = []
   sw.libRoots = []

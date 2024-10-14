@@ -5,6 +5,8 @@ import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
 
 /**
  * @typedef {import('./src/FSEntry.js').FSEntry} FSEntry
+* @typedef {import('./src/FSEntry.js').FSDirectoryEntry} FSDirectoryEntry
+ * @typedef {import('./src/FSEntry.js').FSFileEntry} FSFileEntry
   *
  * @typedef SwHandler
 * @prop {string} id
@@ -12,7 +14,7 @@ import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
  * @prop {string} folderName
 * @prop {string} projectName
  * @prop {string} defProjectName
- * @prop {Array<FSEntry>} filesToCheck
+ * @prop {Array<FSFileEntry>} filesToCheck
  * @prop {Array<Array<FSEntry>>} roots
  * @prop {number} lastCheck
  * @prop {string} base
@@ -78,7 +80,7 @@ export const getFileContent = async (path, sw) => {
 }
 
 /**
- * @param {unknown} dir
+ * @param {FSDirectoryEntry} dir
  * @returns {Promise<Array<FSEntry>>}
  */
 export const readDir = async dir => {
@@ -101,23 +103,37 @@ export const readDir = async dir => {
 export const addToCache = async (cache, path, content) => await cache.put(new Request(path), new Response(content))
 
 
+/**
+ * @param {SwHandler} sw 
+ * @param {Array<string>} paths 
+ * @param {boolean} ignoreMissing 
+ * @returns {Promise<[string, FSFileEntry | undefined][]>}
+ */
 export const addPreLoadAll = async (sw, paths, ignoreMissing) => {
+/** @type {[string, FSFileEntry | undefined][]}*/
   const out = []
-  for (let i = 0; i < paths.length; i++) {
-    const match = await addPreLoad(sw, paths[i], ignoreMissing)
-    out.push([paths[i], match])
+  for (const path of paths) {
+//todo load parallel
+    const match = await addPreLoad(sw, path, ignoreMissing)
+    out.push([path, match])
   }
   return out
 }
 
+/**
+ * @param {SwHandler} sw 
+ * @param {string} path 
+ * @param {boolean} ignoreMissing 
+ * @returns {Promise<FSFileEntry | undefined>}
+ */
 export const addPreLoad = async (sw, path, ignoreMissing) => {
   const match = await findFileInRoots(sw.roots, path)
   if (!match) {
     if (!ignoreMissing) throw new Error('File not found ' + path)
     return
   }
-  if(match.isDirectory) return
-  let f = await match.handle.getFile()
+  if (match.isDirectory) return
+  const f = await match.handle.getFile()
   match.lastModified = f.lastModified
   await addToCache(sw.cache, path, await readAsArrayBuffer(f))
   return match
@@ -230,7 +246,7 @@ export const clearCache = async cache => {
  * @returns {Promise<Array<FSEntry>>}
  */
 export const extractEntries = async dt => {
-  let items = dt.items
+  const items = dt.items
   if (!items) return []
 
   const root = {
@@ -239,21 +255,23 @@ export const extractEntries = async dt => {
     fullPath: '',
   }
 
-  /** @type {FSEntry} */
-  let file
-  /** @type {Array<FSEntry>} */
-  let files = []
+    /** @type {Array<FSEntry>} */
+  const fsEntries = []
   // Use DataTransferItemList interface to access the items(s).
-  // it is not an array, can not use .filter or othe Array methods
-  // todo remove usage of FileEetry webkitGetAsEntry and use new File_System_API
-  for (let i = 0; i < items.length; i++) {
-    // If dropped items aren't files, reject them
-    if (items[i].kind === 'file') {
-      file = toFSEntry(await items[i].getAsFileSystemHandle(), root)
-      files.push(file)
+  // todo remove usage of FileEntry webkitGetAsEntry and use new File_System_API
+  // todo load files parallel
+
+  // DataTransferItemList is not an array by default
+  for (const item of Array.from(items)) {
+    // If dropped items aren't files or directories, reject them
+// Directories also have kind === 'file'
+    if (item.kind === 'file') {
+      const handle = await item.getAsFileSystemHandle()
+      const fsEntry = toFSEntry(handle, root)
+      fsEntries.push(fsEntry)
     }
   }
-  return files
+  return fsEntries
 }
 
 /**
@@ -284,13 +302,14 @@ export const findFile = async (arr, path, i) => {
     if (i >= path.length - 1) {
       return match
     }
+//todo the match could be a directory. This error should be handled
     return findFile(await loadDir(match), path, i + 1)
   }
 }
 
 /**
- * @param {FSEntry} dir 
- * @returns 
+ * @param {FSDirectoryEntry} dir 
+ * @returns {Promise<Array<FSEntry>>} 
  */
 export const loadDir = async dir => {
   if (dir.isDirectory && !dir.children) {
@@ -414,11 +433,21 @@ const getWorkspaceAliases = async sw => {
   return alias
 }
 
+/**
+ * @param {Array<FSFileEntry>} arr 
+ * @param {FSFileEntry | string} file 
+ * @returns 
+ */
 export const findByFullPath = (arr, file) => {
   const path = typeof file === 'string' ? file : file.fullPath
   return arr.find(f => f.fullPath === path)
 }
 
+/**
+ * @param {string} path 
+ * @param {FSFileEntry} file 
+ * @param {SwHandler} sw 
+ */
 export const fileIsRequested = (path, file, sw) => {
   const match = findByFullPath(sw.filesToCheck, file)
   if (match) return

@@ -135,9 +135,9 @@ const requireModule = (id, url, source, _require) => {
  */
 export const clearFileCache = ({ files }) => {
   const cache = requireCache.local
-  files.forEach(f => {
-    delete cache[f]
-  })
+for (const file of   files) {
+    delete cache[file]
+  }
 }
 
 /**

@@ -50,7 +50,7 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
     const isJs = !arr[arr.length - 1].includes('.') || resolvedStr.endsWith('.ts') || resolvedStr.endsWith('.js')
     if (!isJs && importData) {
       const info = extractPathInfo(resolvedStr)
-      let content = readFile(resolvedStr, { output: importData.isBinaryExt(info.ext) })
+      const content = readFile(resolvedStr, { output: importData.isBinaryExt(info.ext) })
       return importData.deserialize(info, content)
     }
 
@@ -90,7 +90,7 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
     }
   }
   if (source !== undefined) {
-    let extension = getExtension(resolvedUrl)
+    const extension = getExtension(resolvedUrl)
     // https://cdn.jsdelivr.net/npm/@jscad/svg-serializer@2.3.13/index.js uses require to read package.json
     if (extension === 'json') {
       exports = JSON.parse(source)
@@ -98,7 +98,7 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
       // do not transform bundles that are already cjs ( requireCache.bundleAlias.*)
       if (transform && !bundleAlias) source = transform(source, resolvedUrl).code
       // construct require function relative to resolvedUrl
-      let requireFunc = newUrl => require(newUrl, transform, readFile, resolvedUrl, root, importData, moduleBase)
+      const requireFunc = newUrl => require(newUrl, transform, readFile, resolvedUrl, root, importData, moduleBase)
       const module = requireModule(url, resolvedUrl, source, requireFunc)
       module.local = isRelativeFile
       exports = module.exports

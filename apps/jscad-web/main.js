@@ -101,7 +101,7 @@ async function initFs() {
     if (files.includes('/package.json')) {
       reloadProject()
     } else {
-      workerApi.jscadClearFileCache({ files })
+      workerApi.jscadClearFileCache({ files, root: sw.base })
       editor.filesChanged(files)
       if (sw.fileToRun) jscadScript({ url: sw.fileToRun, base: sw.base })
     }
@@ -383,7 +383,7 @@ editor.init(
       // it is expected if multiple files require same file/module that first time it is loaded
       // but for others resolved module is returned
       // if not cleared by calling jscadClearFileCache, require will not try to reload the file
-      await workerApi.jscadClearFileCache({ files: [path] })
+      await workerApi.jscadClearFileCache({ files: [path] , root: sw.base})
       if (sw.fileToRun) jscadScript({ url: sw.fileToRun, base: sw.base })
     } else {
       jscadScript({ script })

@@ -130,13 +130,24 @@ const requireModule = (id, url, source, _require) => {
 }
 
 /**
- * Clear file cache for specific files. Used when a file has changed.
-* @param {{files:Array<string>}} obj
+ * @typedef ClearFileCacheOptions
+ * @prop {Array<String>} files
+ * @prop {string} root
  */
-export const clearFileCache = ({ files }) => {
+
+/**
+ * Clear file cache for specific files. Used when a file has changed.
+* @param {ClearFileCacheOptions} obj
+ */
+export const clearFileCache = ({ files, root }) => {
   const cache = requireCache.local
-for (const file of   files) {
+for (const file of files) {
     delete cache[file]
+if (root !== undefined) {
+      const path = file.startsWith("/") ? `.${file}` : file;
+      const url = new URL(path, root);
+      delete cache[url.toString()]
+    }
   }
 }
 

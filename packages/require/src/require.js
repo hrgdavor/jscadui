@@ -131,6 +131,7 @@ const requireModule = (id, url, source, _require) => {
 
 /**
  * Clear file cache for specific files. Used when a file has changed.
+* @param {{files:Array<string>}} obj
  */
 export const clearFileCache = ({ files }) => {
   const cache = requireCache.local

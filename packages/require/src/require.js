@@ -132,7 +132,7 @@ const requireModule = (id, url, source, _require) => {
 /**
  * Clear file cache for specific files. Used when a file has changed.
  */
-export const clearFileCache = async ({ files }) => {
+export const clearFileCache = ({ files }) => {
   const cache = requireCache.local
   files.forEach(f => {
     delete cache[f]

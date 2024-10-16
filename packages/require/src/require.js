@@ -32,9 +32,9 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
   let cache
   let cacheUrl
   let bundleAlias
-  if(typeof urlOrSource === 'string'){
+  if (typeof urlOrSource === 'string') {
     url = urlOrSource
-  }else{
+  } else {
     source = urlOrSource.script
     url = urlOrSource.url
     isRelativeFile = true
@@ -50,10 +50,10 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
     const resolvedStr = resolved.url.toString()
     const arr = resolvedStr.split('/')
     // no file ext is usually module from CDN
-    const isJs = !arr[arr.length-1].includes('.') || resolvedStr.endsWith('.ts') || resolvedStr.endsWith('.js')
-    if(!isJs && importData){
+    const isJs = !arr[arr.length - 1].includes('.') || resolvedStr.endsWith('.ts') || resolvedStr.endsWith('.js')
+    if (!isJs && importData) {
       const info = extractPathInfo(resolvedStr)
-      let content = readFile(resolvedStr,{output: importData.isBinaryExt(info.ext)})
+      let content = readFile(resolvedStr, { output: importData.isBinaryExt(info.ext) })
       return importData.deserialize(info, content)
     }
 
@@ -61,7 +61,7 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
     resolvedUrl = resolved.url
     cacheUrl = resolved.url
 
-    cache = requireCache[isRelativeFile ? 'local':'module']
+    cache = requireCache[isRelativeFile ? 'local' : 'module']
     exports = cache[cacheUrl] // get from cache
     if (!exports) {
       // not cached
@@ -72,8 +72,8 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
           const srch = ' * Original file: '
           let idx = source.indexOf(srch)
           if (idx != -1) {
-            const idx2 = source.indexOf('\n', idx+srch.length+1)
-            const realFile = new URL(source.substring(idx+srch.length, idx2), resolvedUrl).toString()
+            const idx2 = source.indexOf('\n', idx + srch.length + 1)
+            const realFile = new URL(source.substring(idx + srch.length, idx2), resolvedUrl).toString()
             resolvedUrl = base = realFile
           }
         }
@@ -109,7 +109,7 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
       // will be effectively transformed to 
       // const jscad = require('@jscad/modeling').default
       // we need to plug-in default if missing
-      if(!('default' in exports)) exports.default = exports
+      if (!('default' in exports)) exports.default = exports
     }
   }
 
@@ -135,9 +135,9 @@ const requireModule = (id, url, source, _require) => {
 /**
  * Clear file cache for specific files. Used when a file has changed.
  */
-export const clearFileCache = async ({files}) => {
+export const clearFileCache = async ({ files }) => {
   const cache = requireCache.local
-  files.forEach(f=>{
+  files.forEach(f => {
     delete cache[f]
   })
 }

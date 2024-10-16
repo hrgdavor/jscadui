@@ -41,7 +41,7 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
 
   if (source === undefined) {
     bundleAlias = requireCache.bundleAlias[url]
-    const aliasedUrl = bundleAlias || requireCache.alias[url] || url
+    const aliasedUrl = bundleAlias ?? requireCache.alias[url] ?? url
 
     const resolved = resolveUrl(aliasedUrl, base, root, moduleBase)
     const resolvedStr = resolved.url.toString()

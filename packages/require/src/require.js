@@ -45,9 +45,9 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
 
     const resolved = resolveUrl(aliasedUrl, base, root, moduleBase)
     const resolvedStr = resolved.url.toString()
-    const arr = resolvedStr.split('/')
+    const urlComponents = resolvedStr.split('/')
     // no file ext is usually module from CDN
-    const isJs = !arr[arr.length - 1].includes('.') || resolvedStr.endsWith('.ts') || resolvedStr.endsWith('.js')
+    const isJs = !urlComponents[urlComponents.length - 1].includes('.') || resolvedStr.endsWith('.ts') || resolvedStr.endsWith('.js')
     if (!isJs && importData) {
       const info = extractPathInfo(resolvedStr)
       const content = readFile(resolvedStr, { output: importData.isBinaryExt(info.ext) })

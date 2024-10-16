@@ -20,10 +20,7 @@ export { resolveUrl } from './resolveUrl'
 // we need eval to do the same without prefix
 // https://esbuild.github.io/content-types/#direct-eval
 // to be nice to bundlers we need indirect eval
-// also self is not available in nodejs
-export const runModule = (typeof self === 'undefined' ? eval : self.eval)(
-  '(require, exports, module, source)=>eval(source)',
-)
+export const runModule = globalThis.eval('(require, exports, module, source)=>eval(source)')
 
 export const require = (urlOrSource, transform, readFile, base, root, importData = null, moduleBase = MODULE_BASE) => {
   let source

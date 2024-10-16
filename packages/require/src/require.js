@@ -22,16 +22,35 @@ export { resolveUrl } from './resolveUrl'
 // to be nice to bundlers we need indirect eval
 export const runModule = globalThis.eval('(require, exports, module, source)=>eval(source)')
 
+/**
+ * @typedef SourceWithUrl
+ * @prop {string} url
+ * @prop {string} script
+ */
+
+/**
+ * 
+ * @param {SourceWithUrl | string} urlOrSource 
+ * @param {*} transform 
+ * @param {(path:string,options?:{base:string,output:string})=>string} readFile 
+ * @param {string} base 
+ * @param {string} root 
+ * @param {*} importData 
+ * @param {*} moduleBase 
+ * @returns 
+ */
 export const require = (urlOrSource, transform, readFile, base, root, importData = null, moduleBase = MODULE_BASE) => {
+  /** @type {string | undefined} */
   let source
+  /** @type {string} */
   let url
   let isRelativeFile
   let cache
   let cacheUrl
   let bundleAlias
-  if (typeof urlOrSource === 'string') {
+  if (typeof urlOrSource === 'string') {//Only the URL is given
     url = urlOrSource
-  } else {
+  } else { //URL and source are given (this is the main file)
     source = urlOrSource.script
     url = urlOrSource.url
     isRelativeFile = true
@@ -57,7 +76,7 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
     isRelativeFile = resolved.isRelativeFile
     resolvedUrl = resolved.url
     cacheUrl = resolved.url
-requireCache.knownDependencies.get(base)?.add(cacheUrl)//Mark this module as a dependency of the base module
+    requireCache.knownDependencies.get(base)?.add(cacheUrl)//Mark this module as a dependency of the base module
 
     cache = requireCache[isRelativeFile ? 'local' : 'module']
     exports = cache[cacheUrl] // get from cache
@@ -141,7 +160,7 @@ const requireModule = (id, url, source, _require) => {
 
 /**
  * Clear file cache for specific files. Used when a file has changed.
-* @param {ClearFileCacheOptions} obj
+ * @param {ClearFileCacheOptions} obj
  */
 export const clearFileCache = ({ files, root }) => {
   const cache = requireCache.local
@@ -157,9 +176,9 @@ export const clearFileCache = ({ files, root }) => {
     }
   }
 
-for (const file of files) {
+  for (const file of files) {
     delete cache[file]
-if (root !== undefined) {
+    if (root !== undefined) {
       const path = file.startsWith("/") ? `.${file}` : file
       const url = new URL(path, root)
       clearDependencies(url.toString())
@@ -175,10 +194,20 @@ export const jscadClearTempCache = () => {
   requireCache.alias = {}
 }
 
+
+/**
+ * @type {{
+ * local:Object.<string,Object>
+ * alias:Object.<string,string>
+ * module:Object.<string,Object>
+ * bundleAlias:Object.<string,string>
+ * knownDependencies:Map.<string,Set<string>>
+ * }}
+ */
 export const requireCache = {
   local: {},
   alias: {},
   module: {},
   bundleAlias: {},
-knownDependencies: new Map(),
+  knownDependencies: new Map(),
 }

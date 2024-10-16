@@ -57,11 +57,15 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
     isRelativeFile = resolved.isRelativeFile
     resolvedUrl = resolved.url
     cacheUrl = resolved.url
+requireCache.knownDependencies.get(base)?.add(cacheUrl)//Mark this module as a dependency of the base module
 
     cache = requireCache[isRelativeFile ? 'local' : 'module']
     exports = cache[cacheUrl] // get from cache
     if (!exports) {
       // not cached
+
+      //Clear the known dependencies of the old version this module      
+      requireCache.knownDependencies.set(cacheUrl, new Set())
       try {
         source = readFile(resolvedUrl)
         if (resolvedUrl.includes('jsdelivr.net')) {
@@ -141,12 +145,24 @@ const requireModule = (id, url, source, _require) => {
  */
 export const clearFileCache = ({ files, root }) => {
   const cache = requireCache.local
+
+  /**
+   * @param {string} url 
+   */
+  const clearDependencies = (url) => {
+    delete cache[url]
+    const dependents = [...requireCache.knownDependencies.entries()].filter(([_, value]) => value.has(url))
+    for (const [dependency, _] of dependents) {
+      clearDependencies(dependency)
+    }
+  }
+
 for (const file of files) {
     delete cache[file]
 if (root !== undefined) {
-      const path = file.startsWith("/") ? `.${file}` : file;
-      const url = new URL(path, root);
-      delete cache[url.toString()]
+      const path = file.startsWith("/") ? `.${file}` : file
+      const url = new URL(path, root)
+      clearDependencies(url.toString())
     }
   }
 }
@@ -164,4 +180,5 @@ export const requireCache = {
   alias: {},
   module: {},
   bundleAlias: {},
+knownDependencies: new Map(),
 }

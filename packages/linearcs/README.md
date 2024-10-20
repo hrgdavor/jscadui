@@ -76,7 +76,7 @@ add more if needed. From build123d link only 2d arcs and lines (no 3d, no spline
 
 # linearc fonts
 
-- define subset of supported chars
+- define subset of supported chars, and implement them with arcs and lines only.
 
 # modeling
 
@@ -90,3 +90,12 @@ Guide is a point [x,y]. `p1 = <Point loc={[10,10]}/>` and `p2 = <Point loc={[15,
 - place a circle on p1 `<Circle loc={p1}>` 
 - place a circle on p1.x,0 `<Circle loc={[p1,0]}>` - we are not just giving, location, we are allo conveying relation that can be visualised
 
+# modeling parameters
+
+Define one or more places where parameter values affects a contraint, which then can be used for user input.
+- a parameter distance between wheels would affect a lot of things on a chasis, but we could define one or few places
+  to visualise it, and allow user to change it there on the model, even by dragging control points
+
+# modeling scenes
+
+allow defining scenes, to allow presenting a development process, or different views of the same project.

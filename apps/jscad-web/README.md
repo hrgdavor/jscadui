@@ -28,6 +28,32 @@ to start dev server that also has docs run
 npm run start:full
 ```
 
+## External editor
+
+You can edit your jscad scripts/projects in editor of your own choice and have jscad.app preview result when you save.
+
+Just save your jscad script/project on your drive, and use drag&drop to drop the project folder or single script onto jscad.app. It will check file changes periodicaly and reload changed files.
+
+For projects, you must drag&drop the folder and jscad.app will look into `package.json` for `main`. If you
+do not have `package.json` then jscad.app will try following.
+
+- index.js
+- index.ts
+- FOLDER_NAME.js
+- FOLDER_NAME.ts
+
+jscad.app does not read node_modules for now, but loads dependencies from jsdelivr, and some modules may be bundled with jscad.app to avoid going to jsdelivr:
+
+```js
+const bundles = {
+  // local bundled alias for common libs.
+  '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
+  '@jscad/io': toUrl('./build/bundle.jscad_io.js'),
+  '@jscad/csg': toUrl('./build/bundle.V1_api.js'),
+}
+```
+
+*you can see which exactly in [main.js](main.js) in case this readme is out of sync with source*
 
 ## Deployment
 

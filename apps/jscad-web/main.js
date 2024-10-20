@@ -1,6 +1,7 @@
 import {
   addToCache,
   analyzeProject,
+  clearCache,
   clearFs,
   extractEntries,
   fileDropped,
@@ -121,8 +122,6 @@ document.body.ondrop = async ev => {
     await resetFileRefs()
     if (!sw) await initFs()
     showDrop(false)
-    workerApi.jscadClearTempCache()
-
     await fileDropped(sw, files)
 
    reloadProject()
@@ -134,6 +133,8 @@ document.body.ondrop = async ev => {
 }
 
 async function reloadProject() {
+  workerApi.jscadClearTempCache()
+  clearCache(sw.cache)
   saveMap = {}
   sw.filesToCheck = []
   let { alias, script } = await analyzeProject(sw)

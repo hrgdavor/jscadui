@@ -135,8 +135,8 @@ document.body.ondrop = async ev => {
 
 async function reloadProject() {
   saveMap = {}
-  let { alias, script } = await analyzeProject(sw)
   sw.filesToCheck = []
+  let { alias, script } = await analyzeProject(sw)
   projectName = sw.projectName
   if (alias.length) {
     workerApi.jscadInit({ alias })

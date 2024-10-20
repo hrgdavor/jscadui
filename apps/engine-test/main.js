@@ -246,7 +246,7 @@ async function initFs() {
   sw = await registerServiceWorker('bundle.fs-serviceworker.js?prefix=/swfs/')
   sw.defProjectName = 'jscad'
   sw.onfileschange = files => {
-    workerApi.jscadClearFileCache({ files })
+    workerApi.jscadClearFileCache({ files, root: sw.base })
     if (sw.fileToRun) jscadScript({ url: sw.fileToRun, base: sw.base })
   }
 }

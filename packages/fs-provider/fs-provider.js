@@ -346,7 +346,6 @@ export const checkFiles = async sw => {
     }
 
     // TODO clear sw cache
-    // TODO sendCmd jscadClearFileCache {files}
   }
   requestAnimationFrame(() => checkFiles(sw))
 }

@@ -1,51 +1,96 @@
 import { messageProxy } from '@jscadui/postmessage'
 
-import { toFSEntry, entryCheckPromise } from './src/FileEntry.js'
+import { toFSEntry, entryCheckPromise } from './src/FSEntry.js'
 import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
 
 /**
- *
- *
- * @typedef Cache
+ * @typedef {import('./src/FSEntry.js').FSEntry} FSEntry
+ * @typedef {import('./src/FSEntry.js').FSDirectoryEntry} FSDirectoryEntry
+ * @typedef {import('./src/FSEntry.js').FSFileEntry} FSFileEntry
  *
  * @typedef SwHandler
+ * @prop {string} id
+ * @prop {string} fileToRun
+ * @prop {string} folderName
+ * @prop {string} projectName
+ * @prop {string} defProjectName
+ * @prop {Array<FSFileEntry>} filesToCheck
+ * @prop {Array<Array<FSEntry>>} roots
+ * @prop {number} lastCheck
+ * @prop {string} base
+ * @prop {unknown} api
  * @prop {Cache} cache
+ * @prop {OnFilesChangeHandler} onfileschange
+ * @prop {Array<undefined>} libRoots This is never used. TODO Remove
+ * 
+ * @typedef {Function} OnFilesChangeHandler
+ * @param {Array<FSFileEntry>} files
+ * @returns {void}
+ * 
+ * @typedef WorkspaceAlias
+ * @prop {string} name
+ * @prop {string} path
  *
+ * 
+ * @typedef PathInfo
+ * @prop {string} url
+ * @prop {string} filename
+ * @prop {string} ext
  */
 
 export * from './src/FileReader.js'
-export * from './src/FileEntry.js'
+export * from './src/FSEntry.js'
 
 /**
- * @param {string} path
+ * @param {string | Array<string>} path
  * @returns {Array<string>}
  */
 export const splitPath = path => (typeof path === 'string' ? path.split('/').filter(p => p && p !== '.') : path)
+
+/**
+ * 
+ * @param {string} url 
+ * @returns {PathInfo}
+ */
 export function extractPathInfo(url) {
   let idx = url.lastIndexOf('/')
-  let filename = url.substring(idx + 1)
+  const filename = url.substring(idx + 1)
   idx = filename.lastIndexOf('.')
-  let ext = filename.substring(idx + 1)
+  const ext = filename.substring(idx + 1)
   return { url, filename, ext }
 }
 
+/**
+ * @param {string} path
+ * @param {SwHandler} sw
+ * @returns {Promise<FSFileEntry | undefined>}
+ */
 export const getFile = async (path, sw) => {
-  let arr = splitPath(path)
+  const arr = splitPath(path)
   return await findFileInRoots(sw.roots, arr)
 }
 
+/**
+ * @param {string} path
+ * @param {SwHandler} sw
+ * @returns {Promise<ArrayBuffer | undefined>}
+ */
 export const getFileContent = async (path, sw) => {
-  let match = await getFile(path, sw)
+  const match = await getFile(path, sw)
   if (match) {
     fileIsRequested(path, match, sw)
     return readAsArrayBuffer(match)
   }
 }
 
+/**
+ * @param {FSDirectoryEntry} dir
+ * @returns {Promise<Array<FSEntry>>}
+ */
 export const readDir = async dir => {
-  let out = []
-  for await (const [key, value] of dir.handle.entries()) {
-    out.push(toFSEntry(value, dir))
+  const out = []
+  for await (const fileHandles of dir.handle.values()) {
+    out.push(toFSEntry(fileHandles, dir))
   }
   return out
 }
@@ -57,28 +102,41 @@ export const readDir = async dir => {
  * @param {Cache} cache
  * @param {string} path
  * @param {Blob|ArrayBuffer|TypedArray|DataView|FormData|ReadableStream|URLSearchParams|string} content
- * @returns {Promise<undefined>}
+ * @returns {Promise<void>}
  */
-export const addToCache = async (cache, path, content) => cache.put(new Request(path), new Response(content))
+export const addToCache = async (cache, path, content) => await cache.put(new Request(path), new Response(content))
 
 
+/**
+ * @param {SwHandler} sw 
+ * @param {Array<string>} paths 
+ * @param {boolean} ignoreMissing 
+ * @returns {Promise<[string, FSFileEntry | undefined][]>}
+ */
 export const addPreLoadAll = async (sw, paths, ignoreMissing) => {
+  /** @type {[string, FSFileEntry | undefined][]}*/
   const out = []
-  for (let i = 0; i < paths.length; i++) {
-    const match = await addPreLoad(sw, paths[i], ignoreMissing)
-    out.push([paths[i], match])
+  for (const path of paths) {
+    //todo load parallel
+    const match = await addPreLoad(sw, path, ignoreMissing)
+    out.push([path, match])
   }
   return out
 }
 
+/**
+ * @param {SwHandler} sw 
+ * @param {string} path 
+ * @param {boolean} ignoreMissing 
+ * @returns {Promise<FSFileEntry | undefined>}
+ */
 export const addPreLoad = async (sw, path, ignoreMissing) => {
   const match = await findFileInRoots(sw.roots, path)
   if (!match) {
     if (!ignoreMissing) throw new Error('File not found ' + path)
     return
   }
-  if(match.isDirectory) return
-  let f = await match.handle.getFile()
+  const f = await match.handle.getFile()
   match.lastModified = f.lastModified
   await addToCache(sw.cache, path, await readAsArrayBuffer(f))
   return match
@@ -89,7 +147,7 @@ export const addPreLoad = async (sw, path, ignoreMissing) => {
  * @param {*} workerScript
  * @param {*} _getFile
  * @param {*} param2
- * @returns {SwHandler}
+ * @returns {Promise<SwHandler>}
  */
 export const registerServiceWorker = async (
   workerScript,
@@ -106,7 +164,7 @@ export const registerServiceWorker = async (
         await new Promise((resolve) => {
           const messageChannel = new MessageChannel()
           messageChannel.port1.onmessage = (event) => resolve(event.data)
-          reg.active.postMessage({type: 'CLAIM_CLIENTS'}, [messageChannel.port2])
+          reg.active.postMessage({ type: 'CLAIM_CLIENTS' }, [messageChannel.port2])
         })
       }
     } catch (error) {
@@ -127,7 +185,7 @@ export const registerServiceWorker = async (
     }
 
     /** @type {SwHandler} */
-    const sw = {roots:[], libRoots:[]}
+    const sw = { roots: [], libRoots: [] }
     sw.api = messageProxy(navigator.serviceWorker, {
       getFile: async ({ path }) => {
         const file = await _getFile(path, sw)
@@ -166,25 +224,30 @@ export const registerServiceWorker = async (
   }
 }
 
+/**
+ * @param {SwHandler} sw 
+ */
 export const clearFs = async sw => {
   sw.roots = []
   sw.libRoots = []
-  return clearCache(sw.cache)
+  await clearCache(sw.cache)
 }
 
+/**
+ * @param {Cache} cache 
+ */
 export const clearCache = async cache => {
-  ;(await cache.keys()).forEach(key => cache.delete(key))
+  const keys = await cache.keys()
+  await Promise.all(keys.map(key => cache.delete(key)))
 }
-
-
 
 /**
  *
- * @param {Array<FSEntry>} dt
- * @returns
+ * @param {DataTransfer} dt
+ * @returns {Promise<Array<FSEntry>>}
  */
 export const extractEntries = async dt => {
-  let items = dt.items
+  const items = dt.items
   if (!items) return []
 
   const root = {
@@ -193,93 +256,127 @@ export const extractEntries = async dt => {
     fullPath: '',
   }
 
-  /** @type {FSEntry} */
-  let file
   /** @type {Array<FSEntry>} */
-  let files = []
+  const fsEntries = []
   // Use DataTransferItemList interface to access the items(s).
-  // it is not an array, can not use .filter or othe Array methods
-  // todo remove usage of FileEetry webkitGetAsEntry and use new File_System_API
-  for (let i = 0; i < items.length; i++) {
-    // If dropped items aren't files, reject them
-    if (items[i].kind === 'file') {
-      file = toFSEntry(await items[i].getAsFileSystemHandle(), root)
-      files.push(file)
+  // todo remove usage of FileEntry webkitGetAsEntry and use new File_System_API
+  // todo load files parallel
+
+  // DataTransferItemList is not an array by default
+  for (const item of Array.from(items)) {
+    // If dropped items aren't files or directories, reject them
+    // Directories also have kind === 'file'
+    if (item.kind === 'file') {
+      const handle = await item.getAsFileSystemHandle()
+      const fsEntry = toFSEntry(handle, root)
+      fsEntries.push(fsEntry)
     }
   }
-  return files
+  return fsEntries
 }
 
 /**
  * 
- * @param {*} roots 
- * @param {*} path 
- * @returns {FSEntry}
+ * @param {Array<Array<FSEntry>>} roots 
+ * @param {Array<string> | string} path 
+ * @returns {Promise<FSFileEntry | undefined>}
  */
 export const findFileInRoots = async (roots, path) => {
-  path = splitPath(path)
-  let out
-  for (let i = 0; i < roots.length; i++) {
-    out = await findFile(roots[i], path, 0)
-    if (out) break
+  const paths = splitPath(path)
+  for (const root of roots) {
+    const out = await findFile(root, paths, 0)
+    if (out) return out
   }
-  return out
 }
 
+/**
+ * Finds a file by path
+ * @param {Array<FSEntry>} arr 
+ * @param {Array<string>} path 
+ * @param {number} i The current position in the path
+ * @returns {Promise<FSFileEntry | undefined>}
+ */
 export const findFile = async (arr, path, i) => {
-  let name = path[i]
-  let match = arr.find(f => f.name === name)
+  const name = path[i]
+  const match = arr.find(f => f.name === name)
   if (match) {
     if (i >= path.length - 1) {
-      return match
+      if (match.isFile) {
+        return match
+      } else {
+        return undefined
+      }
     }
-    return findFile(await loadDir(match), path, i + 1)
+
+    if (match.isDirectory) {
+      const children = await loadDir(match)
+      return findFile(children, path, i + 1)
+    } else {
+      return undefined
+    }
   }
 }
 
+/**
+ * @param {FSDirectoryEntry} dir 
+ * @returns {Promise<Array<FSEntry>>}
+ */
 export const loadDir = async dir => {
-  if (dir.isDirectory && !dir.children) {
+  if (dir.isDirectory && dir.children === undefined) {
     dir.children = await readDir(dir)
   }
-  return dir.children || []
+  return dir.children ?? []
 }
 
-export const checkFiles = sw => {
+/**
+ * This function is async but it is intentionally called without await
+ * @param {SwHandler} sw 
+ */
+export const checkFiles = async sw => {
   const now = Date.now()
   if (now - sw.lastCheck > 300 && sw.filesToCheck.length != 0) {
     sw.lastCheck = now
-    let todo = sw.filesToCheck.map(entryCheckPromise)
-    Promise.all(todo).then(result => {
-      result = result.filter(([entry, file]) => entry.lastModified != entry._lastModified)
-      if (result.length) {
-        const todo = []
-        const files = result.map(([entry, file]) => {
-          todo.push(addToCache(sw.cache, entry.fullPath, file))
-          return entry.fullPath
-        })
-        Promise.all(todo).then(result => {
-          sw.onfileschange?.(files)
-        })
-      }
-    })
+    let filesToCheck = await Promise.all(sw.filesToCheck.map(entryCheckPromise))
+    filesToCheck = filesToCheck.filter(([entry, _file]) => entry.lastModified != entry._lastModified)
+    if (filesToCheck.length) {
+      const addToCachePromises = filesToCheck.map(([entry, file]) => addToCache(sw.cache, entry.fullPath, file))
+      const files = filesToCheck.map(([entry, _file]) => entry.fullPath)
+      await Promise.all(addToCachePromises)//All files must be added to cache
+      sw.onfileschange?.(files)
+    }
 
     // TODO clear sw cache
-    // TODO sendCmd jscadClearFileCache {files}
   }
   requestAnimationFrame(() => checkFiles(sw))
 }
 
+/**
+ * 
+ * @param {SwHandler} sw 
+ * @param {Array<FSEntry>} files 
+ */
 export async function fileDropped(sw, files) {
   sw.filesToCheck.length = 0
-  sw.fileToRun = 'index.js'
+  const candidates = ['index.js', 'index.ts']
+  sw.fileToRun = candidates[0]
   clearFs(sw)
+  /** @type {Array<FSEntry>}*/
   let rootFiles = []
   if (files.length === 1) {
     const file = files[0]
     if (file.isDirectory) {
       sw.folderName = file.name
       file.fullPath = ''
+      candidates.push(sw.folderName + '.js')
+      candidates.push(sw.folderName + '.ts')
       rootFiles = await readDir(file)
+      for (const candidate of candidates) {
+        const found = await findFileInRoots([rootFiles], candidate)
+        if (found) {
+          sw.fileToRun = candidate
+          break
+        }
+      }
     } else {
       rootFiles.push(file)
       sw.fileToRun = file.name
@@ -290,10 +387,13 @@ export async function fileDropped(sw, files) {
   sw.roots.push(rootFiles)
 }
 
+/**
+ * @param {SwHandler} sw 
+ */
 export async function analyzeProject(sw) {
   const alias = await getWorkspaceAliases(sw)
 
-  if (sw.fileToRun && sw.fileToRun[0]!='/') {
+  if (sw.fileToRun && sw.fileToRun[0] != '/') {
     sw.fileToRun = `/${sw.fileToRun}`
   }
 
@@ -301,8 +401,11 @@ export async function analyzeProject(sw) {
   const loaded = await addPreLoadAll(sw, preLoad, true)
 
   sw.projectName = sw.defProjectName
-  if (sw.fileToRun !== 'index.js') sw.projectName = sw.fileToRun.replace(/\.js$/, '')
-  if (sw.folderName) sw.projectName = sw.folderName
+  if (sw.folderName) {
+    sw.projectName = sw.folderName
+  } else if (sw.fileToRun !== 'index.js') {
+    sw.projectName = sw.fileToRun.replace(/\.js$/, '')
+  }
 
   let script = ''
   if (sw.fileToRun) {
@@ -322,25 +425,25 @@ export async function analyzeProject(sw) {
  * Also parses the main file to run, if any.
  *
  * @param {SwHandler} sw
- * @returns {Array}
+ * @returns {Promise<Array<WorkspaceAlias>>}
  */
 const getWorkspaceAliases = async sw => {
+  /** @type {Array<WorkspaceAlias>} */
   const alias = []
-  let pkgFile = await findFileInRoots(sw.roots, 'package.json')
+  const pkgFile = await findFileInRoots(sw.roots, 'package.json')
   if (pkgFile) {
     try {
       sw.filesToCheck.push(pkgFile)
       const pack = JSON.parse(await readAsText(pkgFile))
       if (pack.main) sw.fileToRun = pack.main
       if (pack.workspaces)
-        for (let i = 0; i < pack.workspaces.length; i++) {
-          const w = pack.workspaces[i]
-          // debugger
-          let pack2 = await findFileInRoots(sw.roots, `/${w}/package.json`)
-          if (pack2) pack2 = JSON.parse(await readAsText(pack2))
-          let name = pack2?.name || w
-          let main = pack2?.main || 'index.js'
-          alias.push({ name, path: `/${w}/${main}` })
+        for (const workspace of pack.workspaces) {
+          const workspacePackageFile = await findFileInRoots(sw.roots, `/${workspace}/package.json`)
+          let workspacePackageJson
+          if (workspacePackageFile) workspacePackageJson = JSON.parse(await readAsText(workspacePackageFile))
+          const name = workspacePackageJson?.name ?? workspace
+          const main = workspacePackageJson?.main ?? 'index.js'
+          alias.push({ name, path: `/${workspace}/${main}` })
         }
     } catch (error) {
       error.message = `failed to parse package.json\n  ${error}`
@@ -350,13 +453,23 @@ const getWorkspaceAliases = async sw => {
   return alias
 }
 
+/**
+ * @param {Array<FSFileEntry>} arr 
+ * @param {FSFileEntry | string} file 
+ * @returns 
+ */
 export const findByFullPath = (arr, file) => {
   const path = typeof file === 'string' ? file : file.fullPath
   return arr.find(f => f.fullPath === path)
 }
 
+/**
+ * @param {string} path 
+ * @param {FSFileEntry} file 
+ * @param {SwHandler} sw 
+ */
 export const fileIsRequested = (path, file, sw) => {
-  let match
-  if ((match = findByFullPath(sw.filesToCheck, file))) return
+  const match = findByFullPath(sw.filesToCheck, file)
+  if (match) return
   sw.filesToCheck.push(file)
 }

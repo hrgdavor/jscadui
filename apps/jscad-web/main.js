@@ -1,11 +1,15 @@
 import {
   addToCache,
   analyzeProject,
+  clearCache,
   clearFs,
   extractEntries,
   fileDropped,
+  findFile,
+  findFileInRoots,
   getFile,
   getFileContent,
+  readAsText,
   registerServiceWorker,
 } from '@jscadui/fs-provider'
 import { Gizmo } from '@jscadui/html-gizmo'
@@ -16,6 +20,7 @@ import { gzipSync } from 'fflate'
 
 import { runMain } from '../../packages/worker/worker.js'
 import defaultCode from './examples/jscad.example.js'
+import { addV1Shim } from './src/addV1Shim.js'
 import * as editor from './src/editor.js'
 import * as engine from './src/engine.js'
 import * as exporter from './src/exporter.js'
@@ -97,7 +102,7 @@ async function initFs() {
     if (files.includes('/package.json')) {
       reloadProject()
     } else {
-      workerApi.jscadClearFileCache({ files })
+      workerApi.jscadClearFileCache({ files, root: sw.base })
       editor.filesChanged(files)
       if (sw.fileToRun) jscadScript({ url: sw.fileToRun, base: sw.base })
     }
@@ -117,8 +122,6 @@ document.body.ondrop = async ev => {
     await resetFileRefs()
     if (!sw) await initFs()
     showDrop(false)
-    workerApi.jscadClearTempCache()
-
     await fileDropped(sw, files)
 
    reloadProject()
@@ -130,14 +133,22 @@ document.body.ondrop = async ev => {
 }
 
 async function reloadProject() {
+  workerApi.jscadClearTempCache()
+  clearCache(sw.cache)
   saveMap = {}
   sw.filesToCheck = []
-  const { alias, script } = await analyzeProject(sw)
+  let { alias, script } = await analyzeProject(sw)
   projectName = sw.projectName
   if (alias.length) {
     workerApi.jscadInit({ alias })
   }
   let url = sw.fileToRun
+  // inject jscad v1 shim, and also inject changed script to cache
+  // so worker and editor have the same code
+  if (sw.fileToRun?.endsWith('.jscad')) {
+    script = addV1Shim(script)
+    addToCache(sw.cache, sw.fileToRun, script)
+  }
   jscadScript({ url, base: sw.base })
   editor.setSource(script, url)
   editor.setFiles(sw.filesToCheck)
@@ -281,6 +292,7 @@ const bundles = {
   // local bundled alias for common libs.
   '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
   '@jscad/io': toUrl('./build/bundle.jscad_io.js'),
+  '@jscad/csg': toUrl('./build/bundle.V1_api.js'),
 }
 
 await workerApi.jscadInit({ bundles })
@@ -372,7 +384,7 @@ editor.init(
       // it is expected if multiple files require same file/module that first time it is loaded
       // but for others resolved module is returned
       // if not cleared by calling jscadClearFileCache, require will not try to reload the file
-      await workerApi.jscadClearFileCache({ files: [path] })
+      await workerApi.jscadClearFileCache({ files: [path] , root: sw.base})
       if (sw.fileToRun) jscadScript({ url: sw.fileToRun, base: sw.base })
     } else {
       jscadScript({ script })

@@ -21,8 +21,7 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
  @typedef ExportDataOptions
  @prop {string} format
 
- @typedef ClearFileCacheOptions
- @prop {Array<String>} files
+@typedef {import('@jscadui/require').ClearFileCacheOptions} ClearFileCacheOptions
 
  @typedef RunMainOptions
  @prop {Object} params

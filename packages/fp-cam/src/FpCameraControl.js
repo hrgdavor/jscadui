@@ -93,7 +93,7 @@ export class FpCameraControl {
         el.addEventListener("mousedown", e => {
             this.#lastDragPosition = [e.clientX, e.clientY]
         })
-        el.addEventListener("mouseup", e => {
+        window.addEventListener("mouseup", e => {
             this.#lastDragPosition = undefined
         })
         el.addEventListener("wheel", e => {

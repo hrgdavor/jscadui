@@ -1,0 +1,1 @@
+export { FpCameraControl } from './src/FpCameraControl';

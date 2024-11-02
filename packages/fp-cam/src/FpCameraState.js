@@ -5,7 +5,7 @@ export class FpCameraState {
     /**@type {vec3} */
     position
 
-    /** Yaw / Pitch of the camera in deg
+    /** Yaw / Pitch of the camera in rad
      * @type {[number,number]} */
     rotationYP
 

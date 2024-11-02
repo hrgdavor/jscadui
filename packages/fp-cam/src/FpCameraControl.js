@@ -1,3 +1,4 @@
+import { getCommonRotCombined } from "@jscadui/orbit";
 import { FpCameraState } from "./FpCameraState"
 import { KeyManager } from "./KeyManager";
 
@@ -116,6 +117,22 @@ export class FpCameraControl {
                 this.onchange?.(this)
             }
         })
+    }
+
+
+    /** @param {string} rotation */
+    animateToCommonCamera = (rotation) => {
+        const [rx, rz] = getCommonRotCombined(rotation)
+
+        this.#state.setRotation(
+            rz + (Math.PI / 2),
+            (Math.PI / 2) - rx,
+        )
+
+        this.#state.moveToLookAtCenterAndKeepDistance()
+
+        this.oninput?.(this)
+        this.onchange?.(this)
     }
 }
 

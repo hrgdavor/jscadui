@@ -1,5 +1,5 @@
 import { vec3 } from 'gl-matrix'
-import { rotateZ, rotateY, add } from 'gl-matrix/vec3'
+import { rotateZ, rotateY, add, length, scale } from 'gl-matrix/vec3'
 
 export class FpCameraState {
     /**@type {vec3} */
@@ -61,9 +61,23 @@ export class FpCameraState {
      * @param {number} rp Additional rotation around the pitch axis
      */
     rotate = (ry, rp) => {
-        this.rotationYP[0] += ry;
-        this.rotationYP[1] = clamp(this.rotationYP[1] + rp, -Math.PI / 2, Math.PI / 2);
+        this.setRotation(
+            this.rotationYP[0] + ry,
+            this.rotationYP[1] + rp
+        )
+    }
 
+    /**
+     * @param {number} ry Total rotation around the yaw axis
+     * @param {number} rp Total rotation around the pitch axis
+     */
+    setRotation = (ry, rp) => {
+        this.rotationYP[0] = ry
+        this.rotationYP[1] = clamp(rp, -Math.PI / 2, Math.PI / 2)
+        this.updateLookVector()
+    }
+
+    updateLookVector() {
         /**@type {vec3} */
         const lookVector = [1, 0, 0]
 
@@ -71,6 +85,11 @@ export class FpCameraState {
         rotateZ(lookVector, lookVector, [0, 0, 0], this.rotationYP[0])
 
         this.lookVector = lookVector
+    }
+
+    moveToLookAtCenterAndKeepDistance = () => {
+        const currentDistance = length(this.position)
+        scale(this.position, this.lookVector, -currentDistance)
     }
 
     get target() {

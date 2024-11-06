@@ -5,11 +5,8 @@ import {
   clearFs,
   extractEntries,
   fileDropped,
-  findFile,
-  findFileInRoots,
   getFile,
   getFileContent,
-  readAsText,
   registerServiceWorker,
 } from '@jscadui/fs-provider'
 import { Gizmo } from '@jscadui/html-gizmo'
@@ -18,7 +15,6 @@ import { genParams, getParams } from '@jscadui/params'
 import { messageProxy } from '@jscadui/postmessage'
 import { gzipSync } from 'fflate'
 
-import { runMain } from '../../packages/worker/worker.js'
 import defaultCode from './examples/jscad.example.js'
 import { addV1Shim } from './src/addV1Shim.js'
 import * as editor from './src/editor.js'

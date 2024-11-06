@@ -1,3 +1,22 @@
+const errorBar = document.getElementById('error-bar')
+const errorName = document.getElementById('error-name')
+const errorMessage = document.getElementById('error-message')
+
+/**
+ * @param {Error | string | undefined} error
+ */
+export const setError = error => {
+  if (error) {
+    const name = (error.name || 'Error') + ': '
+    errorName.innerText = name
+    const message = formatStacktrace(error)
+    errorMessage.innerText = message
+    errorBar.classList.add('visible')
+  } else {
+    errorBar.classList.remove('visible')
+  }
+}
+
 /**
  * Extracts the stacktrace for an error thrown from inside an eval function.
  * Returns the stacktrace as a string for just the code running inside eval.
@@ -5,7 +24,7 @@
  * @param {Error} error
  * @returns {string} - stacktrace for code inside eval
  */
-export const formatStacktrace = (error) => {
+const formatStacktrace = (error) => {
   // error.stack is not standard but works on chrome and firefox
   const stack = error.stack
   if (!stack) return error.toString()

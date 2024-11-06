@@ -22,7 +22,7 @@ import * as engine from './src/engine.js'
 import * as exporter from './src/exporter.js'
 import * as menu from './src/menu.js'
 import * as remote from './src/remote.js'
-import { formatStacktrace } from './src/stacktrace.js'
+import { setError } from './src/error.js'
 import { str2ab } from './src/str2ab.js'
 import { ViewState } from './src/viewState.js'
 import { AnimRunner } from './src/animRunner.js'
@@ -158,19 +158,6 @@ document.body.ondragleave = document.body.ondragend = ev => {
   showDrop.timer = setTimeout(() => {
     showDrop(false)
   }, 300)
-}
-
-const setError = error => {
-  const errorBar = byId('error-bar')
-  if (error) {
-    const name = (error.name || 'Error') + ': '
-    byId('error-name').innerText = name
-    const message = formatStacktrace(error)
-    byId('error-message').innerText = message
-    errorBar.classList.add('visible')
-  } else {
-    errorBar.classList.remove('visible')
-  }
 }
 
 /**

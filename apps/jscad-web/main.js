@@ -174,11 +174,13 @@ const setError = error => {
   }
 }
 
-// Dummy link for download action
-const link = document.createElement('a')
-link.style.display = 'none'
-document.body.appendChild(link)
+/**
+ * @param {Blob} blob 
+ * @param {string} filename 
+ */
 function save(blob, filename) {
+// Dummy link for download action
+  const link = document.createElement('a')
   link.href = URL.createObjectURL(blob)
   link.download = filename
   link.click()

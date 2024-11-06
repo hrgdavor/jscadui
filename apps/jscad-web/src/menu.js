@@ -28,7 +28,7 @@ export const init = () => {
     a.innerText = name
     a.addEventListener('click', async () => {
       console.log(`load example ${name} from ${source}`)
-      document.location.hash = '#'+source
+      document.location.hash = '#' + source
     })
     const li = document.createElement('li')
     li.appendChild(a)

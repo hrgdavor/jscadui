@@ -85,12 +85,12 @@ async function initFs() {
     return file
   }
   let scope = document.location.pathname
-  try{
+  try {
     sw = await registerServiceWorker(`bundle.fs-serviceworker.js?prefix=${scope}swfs/`, getFileWrapper, {
       scope,
       prefix: scope + 'swfs/',
     })
-  }catch(e){
+  } catch (e) {
     const lastReload = localStorage.getItem('lastReload')
     if (!lastReload || Date.now() - lastReload > 3000) {
       localStorage.setItem('lastReload', Date.now())
@@ -124,7 +124,7 @@ document.body.ondrop = async ev => {
     showDrop(false)
     await fileDropped(sw, files)
 
-   reloadProject()
+    reloadProject()
 
   } catch (error) {
     setError(error)
@@ -190,7 +190,7 @@ function save(blob, filename) {
 
 const exportModel = async (format, extension) => {
   if (format === 'scriptUrl') {
-    if(editor.getEditorFiles().length > 1) {
+    if (editor.getEditorFiles().length > 1) {
       alert('Can not export multifile projects as url')
       return
     }
@@ -202,19 +202,19 @@ const exportModel = async (format, extension) => {
     try {
       await navigator.clipboard.writeText(url)
       alert('URL with gzipped script was succesfully copied to clipboard')
-      } catch (err) {
-        console.error('Failed to copy: ', err)
-        alert('failed to copy to clipboard\n'+err.message)
+    } catch (err) {
+      console.error('Failed to copy: ', err)
+      alert('failed to copy to clipboard\n' + err.message)
     }
     return
   }
 
   let { data } = (await workerApi.jscadExportData({ format })) || {}
   if (data) {
-    if(!(data instanceof Array)) data = [data]
+    if (!(data instanceof Array)) data = [data]
     console.log('save', `${projectName}.${extension}`, data)
     let type = 'text/plain'
-    if(format == '3mf') type = 'application/zip'
+    if (format == '3mf') type = 'application/zip'
 
     // save(data, `${projectName}.${extension}`)
     save(new Blob(data, { type }), `${projectName}.${extension}`)
@@ -232,10 +232,10 @@ const onProgress = (value, note) => {
 
 const worker = new Worker('./build/bundle.worker.js')
 const handlers = {
-  entities: ({ entities, mainTime, convertTime },{skipLog}={}) => {
+  entities: ({ entities, mainTime, convertTime }, { skipLog } = {}) => {
     if (!(entities instanceof Array)) entities = [entities]
     viewState.setModel((model = entities))
-    if(!skipLog) console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2), entities)
+    if (!skipLog) console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2), entities)
     setError(undefined)
     onProgress(undefined, mainTime?.toFixed(2) + ' ms')
   },
@@ -275,9 +275,9 @@ const jscadScript = async ({ script, url = './jscad.model.js', base = currentBas
     setAnimStatus = tmp.animStatus
     lastRunParams = result.params
     handlers.entities(result)
-    if(result.def){
-      result.def.find(def=>{
-        if(def.fps && def.autostart){
+    if (result.def) {
+      result.def.find(def => {
+        if (def.fps && def.autostart) {
           startAnimCallback(def, lastRunParams[def.name] || 0)
           return true
         }
@@ -301,7 +301,7 @@ let working
 let lastParams
 let lastRunParams
 const paramChangeCallback = async (params, source) => {
-  if(source == 'group'){
+  if (source == 'group') {
     // TODO make sure when saving param state is implemented
     // this change is saved, but skip param re-render
     return
@@ -327,29 +327,29 @@ const paramChangeCallback = async (params, source) => {
 /** @type {AnimRunner} */
 let currentAnim
 
-function stopCurrentAnim(){
-  if(!currentAnim) return false
+function stopCurrentAnim() {
+  if (!currentAnim) return false
   currentAnim.pause()
   currentAnim = null
   setAnimStatus('')
   return true
 }
-const startAnimCallback = async (def,value) => {  
-  if(stopCurrentAnim()) return
+const startAnimCallback = async (def, value) => {
+  if (stopCurrentAnim()) return
   setAnimStatus('running')
-  const handleEntities = (result, paramValues, times)=>{
+  const handleEntities = (result, paramValues, times) => {
     lastRunParams = paramValues
     setParamValues(times || {}, true)
-    handlers.entities(result, { smooth: viewState.smoothRender, skipLog:true })
+    handlers.entities(result, { smooth: viewState.smoothRender, skipLog: true })
   }
 
-  const handleEnd = ()=>stopCurrentAnim()
+  const handleEnd = () => stopCurrentAnim()
 
-  currentAnim = new AnimRunner(workerApi, {handleEntities, handleEnd})
+  currentAnim = new AnimRunner(workerApi, { handleEntities, handleEnd })
   currentAnim.start(def, value, getParams(byId('paramsDiv')))
 }
 
-const pauseAnimCallback = async (def,value) => {
+const pauseAnimCallback = async (def, value) => {
   stopCurrentAnim()
 }
 
@@ -384,7 +384,7 @@ editor.init(
       // it is expected if multiple files require same file/module that first time it is loaded
       // but for others resolved module is returned
       // if not cleared by calling jscadClearFileCache, require will not try to reload the file
-      await workerApi.jscadClearFileCache({ files: [path] , root: sw.base})
+      await workerApi.jscadClearFileCache({ files: [path], root: sw.base })
       if (sw.fileToRun) jscadScript({ url: sw.fileToRun, base: sw.base })
     } else {
       jscadScript({ script })
@@ -421,7 +421,7 @@ editor.init(
 menu.init()
 welcome.init()
 let hasRemoteScript
-try{
+try {
   hasRemoteScript = await remote.init(
     (script, url) => {
       // run remote script
@@ -437,8 +437,8 @@ try{
       welcome.dismiss()
     },
   )
-}catch(e){
-  console.error(e)  
+} catch (e) {
+  console.error(e)
 }
 exporter.init(exportModel)
 if (loadDefault && !hasRemoteScript) {

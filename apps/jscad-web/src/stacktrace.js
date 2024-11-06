@@ -21,6 +21,6 @@ export const formatStacktrace = (error) => {
     .split('\n')
     .filter(line => !line.includes('bundle.worker.js'))
 
-  if(!stack.includes(error.message)) cleaned.unshift(error.message)
+  if (!stack.includes(error.message)) cleaned.unshift(error.message)
   return cleaned.join('\n')
 }

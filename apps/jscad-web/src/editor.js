@@ -30,7 +30,7 @@ const save = (code, path) => {
   saveFn(code, path)
 }
 
-export const runScript = ()=>compile(view.state.doc.toString(), currentFile)
+export const runScript = () => compile(view.state.doc.toString(), currentFile)
 
 export const init = (defaultCode, fn, _saveFn, _getFileFn) => {
   // by calling document.getElementById here instead outside of init we allow the flow
@@ -96,26 +96,26 @@ export const setSource = (source, path = '/index.js') => {
   currentFile = path
 }
 
-export async function filesChanged(files){
+export async function filesChanged(files) {
   let file
-  for(let i=0; i<files.length; i++){
-    let path = files[i]    
-    if(path == currentFile){
+  for (let i = 0; i < files.length; i++) {
+    let path = files[i]
+    if (path == currentFile) {
       file = await getFileFn(path)
       readSource(file, currentFile)
-    }else if(path.name === currentFile){
+    } else if (path.name === currentFile) {
       setSource(await readAsText(path), currentFile)
     }
   }
 }
 
-async function readSource(file, currentFile){
+async function readSource(file, currentFile) {
   setSource(await readAsText(file), currentFile)
 }
 
 let editorFilesArr = []
 
-export const getEditorFiles = ()=>editorFilesArr
+export const getEditorFiles = () => editorFilesArr
 
 export const setFiles = (files) => {
   const editorFiles = document.getElementById('editor-files')

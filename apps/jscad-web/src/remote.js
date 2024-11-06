@@ -31,7 +31,7 @@ export const loadFromUrl = (compileFn, setError) => async () => {
  * then fallback to fetching via server proxy.
  */
 const fetchUrl = async (url) => {
-  if(url.startsWith(gzipPrefix)){
+  if (url.startsWith(gzipPrefix)) {
     const bytes = base64ToArrayBuffer(url.substring(gzipPrefix.length))
     const dec = fflate.gunzipSync(new Uint8Array(bytes))
     return new TextDecoder("utf-8").decode(dec)

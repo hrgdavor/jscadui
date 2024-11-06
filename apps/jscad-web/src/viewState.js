@@ -48,7 +48,7 @@ export class ViewState {
   setSmoothRender(smoothRender, fireEvent = true) {
     this.smoothRender = smoothRender
     this.saveState()
-    if(fireEvent) this.onRequireReRender()
+    if (fireEvent) this.onRequireReRender()
   }
 
   setTheme(themeName) {
@@ -96,7 +96,7 @@ export class ViewState {
     if (grid) items.push({ id: 'grid', items: grid })
     if (model) items.push({ id: 'model', items: model })
 
-    this.viewer?.setScene({ items }, {smooth:this.smoothRender})
+    this.viewer?.setScene({ items }, { smooth: this.smoothRender })
   }
 
   setEngine(viewer) {
@@ -131,5 +131,5 @@ export class ViewState {
     localStorage.setItem('engine.smoothRender', this.smoothRender)
   }
 
-  onRequireReRender(){}
+  onRequireReRender() { }
 }

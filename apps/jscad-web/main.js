@@ -110,23 +110,22 @@ const showDrop = show => {
   clearTimeout(showDrop.timer)
   dropModal.style.display = show ? 'initial' : 'none'
 }
-document.body.ondrop = async ev => {
+document.body.addEventListener('drop', async ev => {
   try {
     ev.preventDefault()
-    let files = await extractEntries(ev.dataTransfer)
-    if (!files.length) return {}
+    const files = await extractEntries(ev.dataTransfer)
+    if (!files.length) return
     await resetFileRefs()
     if (!sw) await initFs()
     showDrop(false)
     await fileDropped(sw, files)
 
     reloadProject()
-
   } catch (error) {
     setError(error)
     console.error(error)
   }
-}
+})
 
 async function reloadProject() {
   workerApi.jscadClearTempCache()

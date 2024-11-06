@@ -34,7 +34,7 @@ export const runScript = () => compile(view.state.doc.toString(), currentFile)
 
 export const init = (defaultCode, fn, _saveFn, _getFileFn) => {
   // by calling document.getElementById here instead outside of init we allow the flow
-  // where javascript is included in the page before the tempalte is loaded into the DOM
+  // where javascript is included in the page before the template is loaded into the DOM
   // it was causing issue to users trying to replicate the app in Vue, and would likely some others too
   editorNav = document.getElementById('editor-nav')
   editorFile = document.getElementById('editor-file')

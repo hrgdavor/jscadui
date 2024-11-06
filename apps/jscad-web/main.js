@@ -244,7 +244,6 @@ const workerApi = (globalThis.workerApi = messageProxy(worker, handlers, { onJob
 
 const progress = byId('progress').querySelector('progress')
 const progressText = byId('progressText')
-let jobs = 0
 let firstJobTimer
 
 function trackJobs(jobs) {
@@ -348,12 +347,6 @@ const startAnimCallback = async (def, value) => {
 
 const pauseAnimCallback = async (def, value) => {
   stopCurrentAnim()
-}
-
-const loadExample = async (source, base = appBase) => {
-  await resetFileRefs()
-  editor.setSource(source, base)
-  jscadScript({ script: source, base })
 }
 
 // Initialize three engine

@@ -39,7 +39,7 @@ const toUrl = path => new URL(path, appBase).toString()
 const viewState = new ViewState()
 viewState.onRequireReRender = () => paramChangeCallback(lastRunParams)
 
-const gizmo = (window.gizmo = new Gizmo())
+const gizmo = new Gizmo()
 byId('overlay').parentNode.appendChild(gizmo)
 
 let projectName = 'jscad'
@@ -49,7 +49,7 @@ let setParamValues, setAnimStatus
 // load default model unless another model was already loaded
 let loadDefault = true
 
-const ctrl = (window.ctrl = new OrbitControl([byId('viewer')], { ...viewState.camera, alwaysRotate: false }))
+const ctrl = new OrbitControl([byId('viewer')], { ...viewState.camera, alwaysRotate: false })
 
 const updateFromCtrl = change => {
   const { position, target, rx, rz, len, ...rest } = change

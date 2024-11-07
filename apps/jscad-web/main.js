@@ -175,17 +175,17 @@ function save(blob, filename) {
 const exportModel = async (format, extension) => {
   if (format === 'scriptUrl') {
     if (editor.getEditorFiles().length > 1) {
-      alert('Can not export multifile projects as url')
+      alert('Can not export multi file projects as url')
       return
     }
-    let src = editor.getSource()
-    let gzipped = gzipSync(str2ab(src))
-    let str = String.fromCharCode.apply(null, gzipped)
-    let url = document.location.origin + '#data:application/gzip;base64,' + btoa(str)
+    const src = editor.getSource()
+    const gzipped = gzipSync(str2ab(src))
+    const str = String.fromCharCode(...gzipped)
+    const url = document.location.origin + '#data:application/gzip;base64,' + btoa(str)
     console.log('url\n', url)
     try {
       await navigator.clipboard.writeText(url)
-      alert('URL with gzipped script was succesfully copied to clipboard')
+      alert('URL with gzipped script was successfully copied to clipboard')
     } catch (err) {
       console.error('Failed to copy: ', err)
       alert('failed to copy to clipboard\n' + err.message)

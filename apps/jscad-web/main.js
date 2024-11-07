@@ -13,7 +13,6 @@ import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl } from '@jscadui/orbit'
 import { genParams, getParams } from '@jscadui/params'
 import { messageProxy } from '@jscadui/postmessage'
-import { gzipSync } from 'fflate'
 
 import defaultCode from './examples/jscad.example.js'
 import { addV1Shim } from './src/addV1Shim.js'
@@ -23,7 +22,6 @@ import * as exporter from './src/exporter.js'
 import * as menu from './src/menu.js'
 import * as remote from './src/remote.js'
 import { setError } from './src/error.js'
-import { str2ab } from './src/str2ab.js'
 import { ViewState } from './src/viewState.js'
 import { AnimRunner } from './src/animRunner.js'
 import * as welcome from './src/welcome.js'
@@ -133,7 +131,7 @@ async function reloadProject() {
   saveMap = {}
   sw.filesToCheck = []
   let { alias, script } = await analyzeProject(sw)
-  projectName = sw.projectName
+exporter.exportConfig.projectName = sw.projectName
   if (alias.length) {
     workerApi.jscadInit({ alias })
   }
@@ -158,51 +156,6 @@ document.body.ondragleave = document.body.ondragend = ev => {
   showDrop.timer = setTimeout(() => {
     showDrop(false)
   }, 300)
-}
-
-/**
- * @param {Blob} blob 
- * @param {string} filename 
- */
-function save(blob, filename) {
-// Dummy link for download action
-  const link = document.createElement('a')
-  link.href = URL.createObjectURL(blob)
-  link.download = filename
-  link.click()
-}
-
-const exportModel = async (format, extension) => {
-  if (format === 'scriptUrl') {
-    if (editor.getEditorFiles().length > 1) {
-      alert('Can not export multi file projects as url')
-      return
-    }
-    const src = editor.getSource()
-    const gzipped = gzipSync(str2ab(src))
-    const str = String.fromCharCode(...gzipped)
-    const url = document.location.origin + '#data:application/gzip;base64,' + btoa(str)
-    console.log('url\n', url)
-    try {
-      await navigator.clipboard.writeText(url)
-      alert('URL with gzipped script was successfully copied to clipboard')
-    } catch (err) {
-      console.error('Failed to copy: ', err)
-      alert('failed to copy to clipboard\n' + err.message)
-    }
-    return
-  }
-
-  let { data } = (await workerApi.jscadExportData({ format })) || {}
-  if (data) {
-    if (!(data instanceof Array)) data = [data]
-    console.log('save', `${projectName}.${extension}`, data)
-    let type = 'text/plain'
-    if (format == '3mf') type = 'application/zip'
-
-    // save(data, `${projectName}.${extension}`)
-    save(new Blob(data, { type }), `${projectName}.${extension}`)
-  }
 }
 
 const onProgress = (value, note) => {
@@ -417,7 +370,7 @@ try {
 } catch (e) {
   console.error(e)
 }
-exporter.init(exportModel)
+exporter.init(workerApi)
 if (loadDefault && !hasRemoteScript) {
   jscadScript({ script: defaultCode, smooth: viewState.smoothRender })
 }

@@ -40,8 +40,6 @@ viewState.onRequireReRender = () => paramChangeCallback(lastRunParams)
 const gizmo = new Gizmo()
 byId('overlay').parentNode.appendChild(gizmo)
 
-let projectName = 'jscad'
-let model = []
 let setParamValues, setAnimStatus
 
 // load default model unless another model was already loaded
@@ -171,7 +169,7 @@ const worker = new Worker('./build/bundle.worker.js')
 const handlers = {
   entities: ({ entities, mainTime, convertTime }, { skipLog } = {}) => {
     if (!(entities instanceof Array)) entities = [entities]
-    viewState.setModel((model = entities))
+    viewState.setModel(entities)
     if (!skipLog) console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2), entities)
     setError(undefined)
     onProgress(undefined, mainTime?.toFixed(2) + ' ms')

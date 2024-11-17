@@ -115,6 +115,7 @@ const showDrop = show => {
 document.body.addEventListener('drop', async ev => {
   try {
     ev.preventDefault()
+if (ev.dataTransfer === null) return
     const files = await extractEntries(ev.dataTransfer)
     if (!files.length) return
     await resetFileRefs()

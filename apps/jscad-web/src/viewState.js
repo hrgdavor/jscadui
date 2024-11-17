@@ -92,9 +92,9 @@ export class ViewState {
   updateScene() {
     const { axes, grid, model } = this
     const items = []
-    if (axes) items.push({ id: 'axes', items: axes })
-    if (grid) items.push({ id: 'grid', items: grid })
-    if (model) items.push({ id: 'model', items: model })
+    if (axes) items.push({ id: 'axes', items: axes, ignoreBB:true })
+    if (grid) items.push({ id: 'grid', items: grid, ignoreBB:true })
+    if (model) items.push({ id: 'model', items: model, ignoreBB:false })
 
     this.viewer?.setScene({ items }, {smooth:this.smoothRender})
   }

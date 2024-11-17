@@ -102,10 +102,16 @@ async function initFs() {
   sw.getFile = path => getFile(path, sw)
 }
 const dropModal = byId('dropModal')
+
+/** @type {number | NodeJS.Timeout | undefined} */
+let showDropTimer
+
+/**@param {boolean} show */
 const showDrop = show => {
-  clearTimeout(showDrop.timer)
+  clearTimeout(showDropTimer)
   dropModal.style.display = show ? 'initial' : 'none'
 }
+
 document.body.addEventListener('drop', async ev => {
   try {
     ev.preventDefault()
@@ -145,17 +151,26 @@ exporter.exportConfig.projectName = sw.projectName
   editor.setFiles(sw.filesToCheck)
 }
 
-document.body.ondragover = ev => {
+document.body.addEventListener("dragover", ev => {
   ev.preventDefault()
   showDrop(true)
-}
-document.body.ondragleave = document.body.ondragend = ev => {
-  clearTimeout(showDrop.timer)
-  showDrop.timer = setTimeout(() => {
+})
+
+
+const dragEndOrLeave = () => {
+  clearTimeout(showDropTimer)
+  showDropTimer = setTimeout(() => {
     showDrop(false)
   }, 300)
 }
 
+document.body.addEventListener("dragend", dragEndOrLeave);
+document.body.addEventListener("dragleave", dragEndOrLeave);
+
+/**
+ * @param {number} [value]
+ * @param {string} [note]
+ */
 const onProgress = (value, note) => {
   if (value == undefined) {
     progress.removeAttribute('value')

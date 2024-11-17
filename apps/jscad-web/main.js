@@ -26,12 +26,26 @@ import { ViewState } from './src/viewState.js'
 import { AnimRunner } from './src/animRunner.js'
 import * as welcome from './src/welcome.js'
 
-export const byId = id => document.getElementById(id)
+/**
+ * @typedef {import('@jscadui/worker').UserParameters} UserParameters
+ */
+
+
+/** 
+ * @param {string} id
+ * @returns {HTMLElement}
+ */
+export const byId = id => /** @type {HTMLElement} */(document.getElementById(id))
 
 /** @typedef {import('@jscadui/worker').JscadWorker} JscadWorker*/
 
 const appBase = document.baseURI
 let currentBase = appBase
+
+/**
+ * @param {string} path
+ * @return {string}
+ */
 const toUrl = path => new URL(path, appBase).toString()
 
 const viewState = new ViewState()
@@ -59,7 +73,9 @@ ctrl.oninput = state => updateFromCtrl(state)
 
 gizmo.oncam = ({ cam }) => ctrl.animateToCommonCamera(cam)
 
+/** @type {import('@jscadui/fs-provider').SwHandler} */
 let sw
+
 async function resetFileRefs() {
   editor.setFiles([])
   saveMap = {}
@@ -70,6 +86,10 @@ async function resetFileRefs() {
 }
 
 async function initFs() {
+/**
+   * @param {string} path
+   * @param {import('@jscadui/fs-provider').SwHandler} sw
+   */
   const getFileWrapper = (path, sw) => {
     const file = getFileContent(path, sw)
     // notify editor of active files
@@ -196,10 +216,16 @@ const handlers = {
 /** @type {JscadWorker} */
 const workerApi = (globalThis.workerApi = messageProxy(worker, handlers, { onJobCount: trackJobs }))
 
-const progress = byId('progress').querySelector('progress')
+const progress = /** @type {HTMLProgressElement} */ (byId('progress').querySelector('progress'))
 const progressText = byId('progressText')
+
+/**@type {NodeJS.Timeout} */
 let firstJobTimer
 
+
+/**
+ * @param {number} jobs
+ */
 function trackJobs(jobs) {
   if (jobs === 1) {
     // do not show progress for fast renders
@@ -215,6 +241,7 @@ function trackJobs(jobs) {
   }
 }
 
+/** @param {{script?:string,url?:string,base?:string,root?:string}} options*/
 const jscadScript = async ({ script, url = './jscad.model.js', base = currentBase, root }) => {
   currentBase = base
   loadDefault = false // don't load default model if something else was loaded
@@ -247,9 +274,14 @@ const bundles = {
 
 await workerApi.jscadInit({ bundles })
 
+/** @type {boolean} */
 let working
+
+/** @type {UserParameters | null} */
 let lastParams
+/** @type {UserParameters} */
 let lastRunParams
+
 const paramChangeCallback = async (params, source) => {
   if (source == 'group') {
     // TODO make sure when saving param state is implemented
@@ -274,7 +306,7 @@ const paramChangeCallback = async (params, source) => {
   handlers.entities(result, { smooth: viewState.smoothRender })
   if (lastParams && lastParams != params) paramChangeCallback(lastParams)
 }
-/** @type {AnimRunner} */
+/** @type {AnimRunner | null} */
 let currentAnim
 
 function stopCurrentAnim() {
@@ -287,6 +319,10 @@ function stopCurrentAnim() {
 const startAnimCallback = async (def, value) => {
   if (stopCurrentAnim()) return
   setAnimStatus('running')
+
+  /**
+   * @param {UserParameters} paramValues 
+   */
   const handleEntities = (result, paramValues, times) => {
     lastRunParams = paramValues
     setParamValues(times || {}, true)
@@ -306,6 +342,7 @@ const pauseAnimCallback = async (def, value) => {
 // Initialize three engine
 viewState.setEngine(await engine.init())
 
+/** @type {Object.<string,FileSystemFileHandle>} */
 let saveMap = {}
 setInterval(async () => {
   for (let p in saveMap) {

@@ -24,25 +24,27 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
 @typedef {import('@jscadui/require').ClearFileCacheOptions} ClearFileCacheOptions
 
  @typedef RunMainOptions
- @prop {Object} params
+ @prop {UserParameters} params
  @prop {boolean} skipLog
 
  @typedef InitOptions
- @prop {String} baseURI - to resolve inital relative path
- @prop {Array<Alias>} alias - 
- @prop {Array<Alias>} bundle - bundle alias {name:path} 
+ @prop {string} [baseURI] - to resolve inital relative path
+ @prop {Array<Alias>} [alias] - 
+ @prop {Object.<string,string>} [bundles] - bundle alias {name:path} 
  
  @typedef ScriptResponse
  @prop {Array<any>} entities  
  @prop {number} mainTime  - script run time
  @prop {number} convertTime  - tim converting script output to gl data
 
+@typedef {Object.<string,unknown>} UserParameters
+
 
 @typedef JscadWorker
 @prop {(options:InitOptions)=>Promise<void>} jscadInit
 @prop {(options:RunMainOptions)=>Promise<ScriptResponse>} jscadMain - run the main method of the loaded script
 @prop {(options:RunScriptOptions)=>Promise<ScriptResponse>} jscadScript - run a jscad script
-@prop {(options:ExportDataOptions)=>Promise<void>} jscadExportData
+@prop {(options:ExportDataOptions)=>Promise<unknown>} jscadExportData
 @prop {(options:ClearFileCacheOptions)=>Promise<void>} jscadClearFileCache
 @prop {()=>Promise<void>} jscadClearTempCache
 

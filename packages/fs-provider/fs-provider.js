@@ -22,7 +22,7 @@ import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
  * @prop {Cache} cache
  * @prop {OnFilesChangeHandler} onfileschange
  * @prop {Array<undefined>} libRoots This is never used. TODO Remove
-* @prop {(path:string)=>Promise<FSFileEntry | undefined>} [getFile]
+ * @prop {(path:string)=>Promise<FSFileEntry | undefined>} getFile
  * 
  * @callback OnFilesChangeHandler
  * @param {Array<string>} files

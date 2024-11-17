@@ -10,7 +10,7 @@ import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
  *
  * @typedef SwHandler
  * @prop {string} id
- * @prop {string} fileToRun
+ * @prop {string} [fileToRun]
  * @prop {string} folderName
  * @prop {string} projectName
  * @prop {string} defProjectName
@@ -22,9 +22,10 @@ import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
  * @prop {Cache} cache
  * @prop {OnFilesChangeHandler} onfileschange
  * @prop {Array<undefined>} libRoots This is never used. TODO Remove
+* @prop {(path:string)=>Promise<FSFileEntry | undefined>} [getFile]
  * 
- * @typedef {Function} OnFilesChangeHandler
- * @param {Array<FSFileEntry>} files
+ * @callback OnFilesChangeHandler
+ * @param {Array<string>} files
  * @returns {void}
  * 
  * @typedef WorkspaceAlias

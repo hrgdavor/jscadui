@@ -60,6 +60,7 @@ let setParamValues, setAnimStatus
 let loadDefault = true
 
 const ctrl = new OrbitControl([byId('viewer')], { ...viewState.camera, alwaysRotate: false })
+window.ctrl = ctrl //The gizmo clicks breaks without this
 
 const updateFromCtrl = change => {
   const { position, target, rx, rz, len, ...rest } = change

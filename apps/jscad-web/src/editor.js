@@ -6,17 +6,43 @@ import { readAsText } from '@jscadui/fs-provider'
 
 import * as drawer from './drawer.js'
 
+/** 
+ * @typedef {import('@jscadui/fs-provider').FSFileEntry} FSFileEntry
+ * 
+ * @callback CompileFn
+ * @param {string} code
+ * @param {string} path
+ * 
+ * @callback SaveFn
+ * @param {string} code
+ * @param {string} path
+ * 
+ * @callback GetFileFn
+ * @param {string} path
+ * @returns {Promise<FSFileEntry | undefined>}
+ */
+
+/** @type {EditorView} */
 let view
 
+/** @type {CompileFn} */
 let compileFn
+/** @type {SaveFn} */
 let saveFn
+/** @type {GetFileFn} */
 let getFileFn
 
 // file selector
 let currentFile = '/index.js'
+/** @type {HTMLElement} */
 let editorNav
+/** @type {HTMLElement} */
 let editorFile
 
+/**
+ * @param {string} code 
+ * @param {string} path 
+ */
 const compile = (code, path) => {
   if (compileFn) {
     compileFn(code, path)
@@ -25,6 +51,10 @@ const compile = (code, path) => {
   }
 }
 
+/**
+* @param {string} code 
+* @param {string} path 
+*/
 const save = (code, path) => {
   compileFn(code, path)
   saveFn(code, path)
@@ -32,10 +62,16 @@ const save = (code, path) => {
 
 export const runScript = () => compile(view.state.doc.toString(), currentFile)
 
+/**
+ * @param {string} defaultCode 
+ * @param {CompileFn} fn 
+ * @param {SaveFn} _saveFn 
+ * @param {GetFileFn} _getFileFn 
+ */
 export const init = (defaultCode, fn, _saveFn, _getFileFn) => {
   // by calling document.getElementById here instead outside of init we allow the flow
   // where javascript is included in the page before the template is loaded into the DOM
-  // it was causing issue to users trying to replicate the app in Vue, and would likely some others too
+  // it was causing issue to users trying to replicate the app in Vue, and would likely some others too  
   editorNav = document.getElementById('editor-nav')
   editorFile = document.getElementById('editor-file')
 
@@ -89,8 +125,13 @@ export const init = (defaultCode, fn, _saveFn, _getFileFn) => {
   })
 }
 
+/** @returns {string} */
 export const getSource = () => view.state.doc.toString()
 
+/** 
+ * @param {string} source 
+ * @param {string} path 
+ */
 export const setSource = (source, path = '/index.js') => {
   view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: source } })
   currentFile = path
@@ -117,6 +158,9 @@ let editorFilesArr = []
 
 export const getEditorFiles = () => editorFilesArr
 
+/**
+ * @param {FSFileEntry[]} files
+ */
 export const setFiles = (files) => {
   const editorFiles = document.getElementById('editor-files')
   editorFilesArr = files

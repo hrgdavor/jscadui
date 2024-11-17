@@ -385,7 +385,7 @@ try {
 }
 exporter.init(workerApi)
 if (loadDefault && !hasRemoteScript) {
-  jscadScript({ script: defaultCode, smooth: viewState.smoothRender })
+  jscadScript({ script: defaultCode })
 }
 
 try {

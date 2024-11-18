@@ -13,10 +13,10 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
  @prop {String} path
 
 @typedef RunScriptOptions
- @prop {string} script - script source
+ @prop {string} [script] - script source
  @prop {string} url - script url/name
  @prop {string} base - base url 
- @prop {string} base - root (do not allow paths below that root)  
+ @prop {string} [root] - root (do not allow paths below that root)  
 
  @typedef ExportDataOptions
  @prop {string} format
@@ -28,14 +28,15 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
  @prop {boolean} skipLog
 
  @typedef InitOptions
- @prop {string} [baseURI] - to resolve inital relative path
+ @prop {string} [baseURI] - to resolve initial relative path
  @prop {Array<Alias>} [alias] - 
  @prop {Object.<string,string>} [bundles] - bundle alias {name:path} 
  
  @typedef ScriptResponse
- @prop {Array<any>} entities  
+ @prop {Array<unknown>} entities  
  @prop {number} mainTime  - script run time
  @prop {number} convertTime  - tim converting script output to gl data
+@prop {UserParameters} params  - tim converting script output to gl data
 
 @typedef {Object.<string,unknown>} UserParameters
 

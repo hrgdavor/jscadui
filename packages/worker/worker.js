@@ -91,7 +91,7 @@ async function readFileFile(file, {bin=false}={}){
   else return readAsText(file)
 }
 
-solids = []
+let solids = []
 export async function jscadMain({ params, skipLog } = {}) {
   params = {...params}
   for(let p in params){

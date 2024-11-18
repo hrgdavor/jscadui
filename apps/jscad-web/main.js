@@ -52,7 +52,7 @@ const viewState = new ViewState()
 viewState.onRequireReRender = () => paramChangeCallback(lastRunParams)
 
 const gizmo = new Gizmo()
-byId('overlay').parentNode.appendChild(gizmo)
+byId('layout').append(gizmo)
 
 let setParamValues, setAnimStatus
 

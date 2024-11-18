@@ -248,7 +248,7 @@ const jscadScript = async ({ script, url = './jscad.model.js', base = currentBas
   currentBase = base
   loadDefault = false // don't load default model if something else was loaded
   try {
-    const result = await workerApi.jscadScript({ script, url, base, root, smooth: viewState.smoothRender })
+    const result = await workerApi.jscadScript({ script, url, base, root })
     let tmp = genParams({ target: byId('paramsDiv'), params: result.def || [], callback: paramChangeCallback, pauseAnim: pauseAnimCallback, startAnim: startAnimCallback })
     setParamValues = tmp.setValue
     setAnimStatus = tmp.animStatus
@@ -328,7 +328,7 @@ const startAnimCallback = async (def, value) => {
   const handleEntities = (result, paramValues, times) => {
     lastRunParams = paramValues
     setParamValues(times || {}, true)
-    handlers.entities(result, { smooth: viewState.smoothRender, skipLog: true })
+    handlers.entities(result, { skipLog: true })
   }
 
   const handleEnd = () => stopCurrentAnim()

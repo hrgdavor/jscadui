@@ -12,7 +12,7 @@ export const init = () => {
 
   /**
    * Set editor width and handle open/closed state
-* @param {number} w 
+   * @param {number} w 
    */
   const setEditorWidth = (w) => {
     if (w > 0) {
@@ -27,9 +27,9 @@ export const init = () => {
     if (!isDragging) {
       editor.classList.add('transition') // animate
       const isClosed = editor.classList.contains('closed')
-      localStorage.setItem('editor.closed', !isClosed)
+      localStorage.setItem('editor.closed', String(!isClosed))
       if (isClosed) {
-        setEditorWidth(localStorage.getItem('editor.width') || 400)
+        setEditorWidth(parseInt(localStorage.getItem('editor.width') ?? "400"))
       } else {
         setEditorWidth(0)
       }
@@ -68,10 +68,10 @@ export const init = () => {
       const width = editor.offsetWidth
       // Minimum width, otherwise snap to closed
       if (width > 50) {
-        localStorage.setItem('editor.width', width)
-        localStorage.setItem('editor.closed', false)
+        localStorage.setItem('editor.width', String(width))
+        localStorage.setItem('editor.closed', "false")
       } else {
-        localStorage.setItem('editor.closed', true)
+        localStorage.setItem('editor.closed', "true")
         editor.classList.add('transition') // snap closed
         setEditorWidth(0)
       }

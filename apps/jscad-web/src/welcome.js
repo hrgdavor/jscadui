@@ -13,7 +13,7 @@ export const init = () => {
   window.addEventListener('dragover', dismiss)
   // permanently hide the welcome menu
   document.getElementById('welcome-dismiss').addEventListener('click', () => {
-    localStorage.setItem('welcome.dismissed', true)
+    localStorage.setItem('welcome.dismissed', "true")
     dismiss()
   })
 }

@@ -13,11 +13,7 @@ import { closerAngle } from './normalizeAngle'
 const { PI } = Math
 
 export class OrbitControl extends OrbitState {
-  // onchange may be debounced, and when animating called at the end when camera stops at a position
-  onchange
-  // oninput may be debounced, and when animating called at the end when camera stops at a position
-  oninput
-  el
+    el
   animDuration = 200
 
   /**
@@ -161,12 +157,11 @@ export class OrbitControl extends OrbitState {
     this.animTimer = requestAnimationFrame(() => this.doAnim())
   }
 
-  animateToCommonCamera(cam) {
-    const [rx, rz] = getCommonRotCombined(cam)
+/**
+   * @param {string} targetRotation 
+   */
+  animateToCommonCamera(targetRotation) {
+    const [rx, rz] = getCommonRotCombined(targetRotation)
     ctrl.animateToCamera({ rx, rz, target: [0, 0, 0] })
-  }
-
-  setCommonCamera(name) {
-    this.setRotate(...getCommonRotCombined(name), [0, 0, 0])
   }
 }

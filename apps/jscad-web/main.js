@@ -10,7 +10,7 @@ import {
   registerServiceWorker,
 } from '@jscadui/fs-provider'
 import { Gizmo } from '@jscadui/html-gizmo'
-import { OrbitControl } from '@jscadui/orbit'
+import { OrbitControl, OrbitState } from '@jscadui/orbit'
 import { genParams, getParams } from '@jscadui/params'
 import { messageProxy } from '@jscadui/postmessage'
 
@@ -62,17 +62,18 @@ let loadDefault = true
 const ctrl = new OrbitControl([byId('viewer')], { ...viewState.camera, alwaysRotate: false })
 window.ctrl = ctrl //The gizmo clicks breaks without this
 
+/** @param {OrbitState} change */
 const updateFromCtrl = change => {
-  const { position, target, rx, rz, len, ...rest } = change
+  const { position, target, rx, rz } = change
   viewState.setCamera({ position, target })
   gizmo.rotateXZ(rx, rz)
 }
 updateFromCtrl(ctrl)
 
-ctrl.onchange = state => viewState.saveCamera(state)
-ctrl.oninput = state => updateFromCtrl(state)
+ctrl.onchange = (/** @type {OrbitState} */ state) => viewState.saveCamera(state)
+ctrl.oninput = (/** @type {OrbitState} */ state) => updateFromCtrl(state)
 
-gizmo.oncam = ({ cam }) => ctrl.animateToCommonCamera(cam)
+gizmo.oncam = (/** @type {string} */ cam) => ctrl.animateToCommonCamera(cam)
 
 /** @type {import('@jscadui/fs-provider').SwHandler} */
 let sw
@@ -87,7 +88,7 @@ async function resetFileRefs() {
 }
 
 async function initFs() {
-/**
+  /**
    * @param {string} path
    * @param {import('@jscadui/fs-provider').SwHandler} sw
    */
@@ -136,7 +137,7 @@ const showDrop = show => {
 document.body.addEventListener('drop', async ev => {
   try {
     ev.preventDefault()
-if (ev.dataTransfer === null) return
+    if (ev.dataTransfer === null) return
     const files = await extractEntries(ev.dataTransfer)
     if (!files.length) return
     await resetFileRefs()
@@ -157,7 +158,7 @@ async function reloadProject() {
   saveMap = {}
   sw.filesToCheck = []
   let { alias, script } = await analyzeProject(sw)
-exporter.exportConfig.projectName = sw.projectName
+  exporter.exportConfig.projectName = sw.projectName
   if (alias.length) {
     workerApi.jscadInit({ alias })
   }

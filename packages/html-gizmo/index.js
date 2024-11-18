@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts-ignore
 import style from './gizmo.css.txt?raw'
 
 export const names = {
@@ -32,10 +32,18 @@ export class Gizmo extends HTMLElement {
    * trigger customElements.define('jscadui-gizmo', this)
    */
   static define() {}
+
+  /** @type {ShadowRoot} */
   #root
+
+  /** @type {HTMLElement} */
   #first
+
   names
-  
+
+  /** @type {((cam:string)=>void) | undefined} */
+  oncam
+
   constructor(_names=names){
     super()
     this.names = _names
@@ -45,13 +53,13 @@ export class Gizmo extends HTMLElement {
     this.#root = this.attachShadow({ mode: 'open' })
     this.#root.innerHTML = `<div class="cube"></div><style>${style}</style>`
 
-    const first = this.#first = this.#root.firstElementChild
+    const first = this.#first = /** @type {HTMLElement} */ (this.#root.firstElementChild)
 
     this.setNames(this.names)
 
     first.addEventListener('click', (e) => {
       const cam = e.target.getAttribute('c')
-      if (cam) this.oncam?.({ cam })
+      if (cam) this.oncam?.(cam)
     })
 
     const mouseover = (el, over) => {
@@ -82,10 +90,17 @@ export class Gizmo extends HTMLElement {
       makeSide(_names, 'W', 'TNW,TW,TSW', 'NW,W,SW', 'BNW,BW,BSW')
   }
 
+  /**
+   * @param {number} size 
+   */
   setSize(size) {
     this.style.setProperty('--cube-size', size + 'px')
   }
 
+  /**
+   * @param {number | string} rx 
+   * @param {number | string} rz 
+   */
   rotateXZ(rx, rz) {
     if(typeof rx === 'number') rx = rx+'rad'
     if(typeof rz === 'number') rz = rz+'rad'

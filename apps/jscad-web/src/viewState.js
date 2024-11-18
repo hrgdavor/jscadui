@@ -2,10 +2,25 @@ import { makeAxes, makeGrid } from '@jscadui/scene'
 
 import { themes } from './themes.js'
 
-const byId = (id) => document.getElementById(id)
+/** 
+ * @param {string} id
+ * @returns {HTMLElement}
+ */
+export const byId = id => /** @type {HTMLElement} */(document.getElementById(id))
+
+
+/**
+ * @typedef {object} ViewStateCamera
+ * @param {[number,number,number]} position
+ * @param {[number,number,number]} target
+ */
+
 
 export class ViewState {
   viewer = undefined
+
+  /** @type {ViewStateCamera} */
+  camera
 
   constructor() {
     this.loadState()
@@ -65,11 +80,17 @@ export class ViewState {
     this.updateScene()
   }
 
+  /**
+   * @param {ViewStateCamera} camera
+   */
   setCamera(camera) {
     this.camera = camera
     this.viewer?.setCamera(camera)
   }
 
+  /**
+   * @param {ViewStateCamera} camera
+   */
   saveCamera(camera) {
     this.camera = camera
     localStorage.setItem('camera.location', JSON.stringify(camera))

@@ -36,9 +36,9 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
  @prop {Array<unknown>} entities  
  @prop {number} mainTime  - script run time
  @prop {number} convertTime  - tim converting script output to gl data
-@prop {UserParameters} params  - tim converting script output to gl data
+ @prop {UserParameters} params  - tim converting script output to gl data
 
-@typedef {Object.<string,unknown>} UserParameters
+ @typedef {Object.<string,unknown>} UserParameters
 
 
 @typedef JscadWorker

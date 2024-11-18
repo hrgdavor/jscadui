@@ -1,16 +1,19 @@
 let isMouseDown = false
 let isDragging = false
-let dragStartX
-let dragStartWidth
-let dragStartTime
+let dragStartX = 0
+let dragStartWidth = 0
+let dragStartTime = 0
 
 // Initialize drawer action
 // Initial open/closed state is in index.html to prevent flash of content
 export const init = () => {
-  const editor = document.getElementById('editor')
-  const toggle = document.getElementById('editor-toggle')
+  const editor = /** @type {HTMLElement} */ (document.getElementById('editor'))
+  const toggle = /** @type {HTMLElement} */ (document.getElementById('editor-toggle'))
 
-  // Set editor width and handle open/closed state
+  /**
+   * Set editor width and handle open/closed state
+* @param {number} w 
+   */
   const setEditorWidth = (w) => {
     if (w > 0) {
       editor.style.width = `${w}px`

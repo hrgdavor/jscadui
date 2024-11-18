@@ -12,8 +12,8 @@ import { closerAngle } from './normalizeAngle.js'
 
 const { PI } = Math
 
-export class OrbitControl extends OrbitState {
-    el
+export class OrbitControl extends OrbitState {  
+  el
   animDuration = 200
 
   /**
@@ -157,7 +157,7 @@ export class OrbitControl extends OrbitState {
     this.animTimer = requestAnimationFrame(() => this.doAnim())
   }
 
-/**
+  /**
    * @param {string} targetRotation 
    */
   animateToCommonCamera(targetRotation) {

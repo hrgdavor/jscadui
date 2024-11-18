@@ -6,9 +6,9 @@
  * https://elalish.blogspot.com/2022/04/3d-interaction.html
  * https://github.com/google/model-viewer/blob/master/packages/model-viewer/src/three-components/SmoothControls.ts
  */
-import { OrbitState } from './OrbitState'
-import { getCommonRotCombined } from './commonCamera'
-import { closerAngle } from './normalizeAngle'
+import { OrbitState } from './OrbitState.js'
+import { getCommonRotCombined } from './commonCamera.js'
+import { closerAngle } from './normalizeAngle.js'
 
 const { PI } = Math
 

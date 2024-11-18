@@ -15,7 +15,7 @@ import {
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl } from '@jscadui/orbit'
 import { genParams, getParams } from '@jscadui/params'
-import { messageProxy } from '@jscadui/postmessage'
+import { messageProxy, withTransferable } from '@jscadui/postmessage'
 import { gzipSync } from 'fflate'
 
 import { runMain } from '../../packages/worker/worker.js'
@@ -208,8 +208,21 @@ const exportModel = async (format, extension) => {
     }
     return
   }
-
-  let { data } = (await workerApi.jscadExportData({ format })) || {}
+  
+  let canvas = document.body.querySelector('canvas')
+  
+  function cavassToPngA8(canvas) {
+    let url = canvas.toDataURL('image/png')
+    url = url.substring(url.indexOf(',') + 1)
+    // string to Uint8Array taken from stackoverflow, and should work in browser
+    return new Uint8Array(
+      atob(url)
+        .split('')
+        .map(c => c.charCodeAt(0)),
+    )
+  }
+  let thumb = cavassToPngA8(canvas)  
+  let { data } = (await workerApi.jscadExportData({ format, thumb })) || {}
   if (data) {
     if(!(data instanceof Array)) data = [data]
     console.log('save', `${projectName}.${extension}`, data)
@@ -232,9 +245,11 @@ const onProgress = (value, note) => {
 
 const worker = new Worker('./build/bundle.worker.js')
 const handlers = {
-  entities: ({ entities, mainTime, convertTime },{skipLog}={}) => {
+  entities: ({ entities, mainTime, convertTime, transferable},{skipLog}={}) => {
     if (!(entities instanceof Array)) entities = [entities]
+    console.log('result.transferable', transferable)
     viewState.setModel((model = entities))
+    workerApi.restoreTransferable(withTransferable(entities, transferable))
     if(!skipLog) console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2), entities)
     setError(undefined)
     onProgress(undefined, mainTime?.toFixed(2) + ' ms')

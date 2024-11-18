@@ -20,6 +20,7 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
 
  @typedef ExportDataOptions
  @prop {string} format
+ @prop {ArrayBuffer} [thumb]
 
 @typedef {import('@jscadui/require').ClearFileCacheOptions} ClearFileCacheOptions
 
@@ -44,6 +45,7 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
 @prop {(options:RunScriptOptions)=>Promise<ScriptResponse>} jscadScript - run a jscad script
 @prop {(options:ExportDataOptions)=>Promise<void>} jscadExportData
 @prop {(options:ClearFileCacheOptions)=>Promise<void>} jscadClearFileCache
+@prop {(transferable:Array)=>Promise<void>} restoreTransferable
 @prop {()=>Promise<void>} jscadClearTempCache
 
 */
@@ -55,6 +57,8 @@ let transformFunc = x => x
 let globalBase = location.origin
 let userInstances
 let importData
+let solids
+let meshes
 
 export const flatten = arr=>{
   const doFlatten = (_in, out)=>{
@@ -100,7 +104,7 @@ export async function jscadMain({ params, skipLog } = {}) {
   }
   if(!skipLog) console.log('jscadMain with params', params)
   let entities = []
-  const transferable = []
+  let transferable = []
 
   if (!main) throw new Error('no main function exported')
 
@@ -112,7 +116,7 @@ export async function jscadMain({ params, skipLog } = {}) {
   JscadToCommon.clearCache()
   entities = JscadToCommon.prepare(solids, transferable, userInstances)
   entities = entities.all
-  return withTransferable({entities, mainTime, convertTime: performance.now() - time}, transferable)
+  return withTransferable({entities, mainTime, convertTime: performance.now() - time, transferable}, transferable)
 }
 
 // https://stackoverflow.com/questions/52086611/regex-for-matching-js-import-statements
@@ -152,7 +156,7 @@ const jscadScript = async ({ script, url='jscad.js', base=globalBase, root=base 
 // and not jcad geometry polygons. So it will be interesting to can give back transferable buffers
 // instead of re-running conversion. or move export to main thread where the data already is, as it is needed for rendering
 const jscadExportData = async (params) => {
-  if(self.exportData) return self.exportData(params)
+  if(self.exportData) return await self.exportData(params)
 
   const { format } = params
   // todo check if it is ok to give back transferables after webgl has used the buffers
@@ -166,9 +170,14 @@ const jscadExportData = async (params) => {
   return withTransferable({ data }, data)
 }
 
-export const currentSolids = ()=>solids
+const restoreTransferable = (params)=>{
+  console.log('restoreTransferable', meshes = params)
+}
 
-const handlers = { jscadScript, jscadInit, jscadMain, jscadClearTempCache, jscadClearFileCache:clearFileCache, jscadExportData }
+export const currentSolids = ()=>solids
+export const currentMeshes = ()=>meshes
+
+const handlers = { jscadScript, jscadInit, jscadMain, jscadClearTempCache, jscadClearFileCache:clearFileCache, jscadExportData, restoreTransferable }
 // allow main thread to call worker methods and any method from the loaded script
 const handlersProxy = new Proxy(handlers, {
   get(target, prop, receiver) {

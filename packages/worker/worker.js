@@ -22,10 +22,11 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
  @prop {string} format
 
 @typedef {import('@jscadui/require').ClearFileCacheOptions} ClearFileCacheOptions
+@typedef {import('./src/parameterDefinition.js').ParameterDefinition} ParameterDefinition
 
  @typedef RunMainOptions
  @prop {UserParameters} params
- @prop {boolean} skipLog
+ @prop {boolean} [skipLog]
 
  @typedef InitOptions
  @prop {string} [baseURI] - to resolve initial relative path
@@ -37,6 +38,7 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
  @prop {number} mainTime  - script run time
  @prop {number} convertTime  - tim converting script output to gl data
  @prop {UserParameters} params  - tim converting script output to gl data
+ @prop {Array<ParameterDefinition>} def
 
  @typedef {Object.<string,unknown>} UserParameters
 

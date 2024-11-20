@@ -215,8 +215,7 @@ const handlers = {
   onProgress,
 }
 
-/** @type {JscadWorker} */
-const workerApi = (globalThis.workerApi = messageProxy(worker, handlers, { onJobCount: trackJobs }))
+const workerApi = /** @type {JscadWorker} */ (messageProxy(worker, handlers, { onJobCount: trackJobs }))
 
 const progress = /** @type {HTMLProgressElement} */ (byId('progress').querySelector('progress'))
 const progressText = byId('progressText')

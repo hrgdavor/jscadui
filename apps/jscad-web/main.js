@@ -54,7 +54,11 @@ viewState.onRequireReRender = () => paramChangeCallback(lastRunParams)
 const gizmo = new Gizmo()
 byId('layout').append(gizmo)
 
-let setParamValues, setAnimStatus
+/** @type {(v:unknown,skipUndefined?:boolean)=>void} */
+let setParamValues
+
+/** @type {(status:"running" | "")=>void} */
+let setAnimStatus
 
 // load default model unless another model was already loaded
 let loadDefault = true
@@ -205,6 +209,10 @@ const onProgress = (value, note) => {
 
 const worker = new Worker('./build/bundle.worker.js')
 const handlers = {
+  /**
+   * @param {{entities:unknown | Array<unknown>,mainTime:number,convertTime:number}} options1 
+   * @param {{skipLog?:boolean }} options2
+   */
   entities: ({ entities, mainTime, convertTime }, { skipLog } = {}) => {
     if (!(entities instanceof Array)) entities = [entities]
     viewState.setModel(entities)
@@ -283,6 +291,11 @@ let lastParams
 /** @type {UserParameters} */
 let lastRunParams
 
+/**
+ * @param {UserParameters} params 
+ * @param {string} [source]
+ * @returns 
+ */
 const paramChangeCallback = async (params, source) => {
   if (source == 'group') {
     // TODO make sure when saving param state is implemented
@@ -310,6 +323,11 @@ const paramChangeCallback = async (params, source) => {
 /** @type {AnimRunner | null} */
 let currentAnim
 
+/**
+ * @typedef {object} AnimationDefinition
+ * @prop {string} type
+ */
+
 function stopCurrentAnim() {
   if (!currentAnim) return false
   currentAnim.pause()
@@ -317,12 +335,19 @@ function stopCurrentAnim() {
   setAnimStatus('')
   return true
 }
+
+/**
+ * @param {AnimationDefinition} def 
+ * @param {string | number} value //TODO check why this is sometimes a string
+ */
 const startAnimCallback = async (def, value) => {
   if (stopCurrentAnim()) return
   setAnimStatus('running')
 
   /**
+   * @param {import('@jscadui/worker').ScriptResponse} result
    * @param {UserParameters} paramValues 
+   * @param {object | undefined} times 
    */
   const handleEntities = (result, paramValues, times) => {
     lastRunParams = paramValues
@@ -336,6 +361,10 @@ const startAnimCallback = async (def, value) => {
   currentAnim.start(def, value, getParams(byId('paramsDiv')))
 }
 
+/**
+ * @param {AnimationDefinition} def 
+ * @param {string} value
+ */
 const pauseAnimCallback = async (def, value) => {
   stopCurrentAnim()
 }

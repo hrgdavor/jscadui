@@ -255,7 +255,7 @@ const jscadScript = async ({ script, url = './jscad.model.js', base = currentBas
     handlers.entities(result)
     if (result.def) {
       result.def.find(def => {
-        if (def.fps && def.autostart) {
+        if (def.type === "slider" && def.fps && def.autostart) {
           startAnimCallback(def, lastRunParams[def.name] || 0)
           return true
         }

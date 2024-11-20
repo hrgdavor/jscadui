@@ -2,6 +2,10 @@ const { PI } = Math
 const PId2 = PI / 2
 export const TAU = PI * 2
 
+/** 
+ * @param {string} name 
+ * @returns {[number,number]}
+ */
 export const getCommonRotCombined = name => {
   name = name.toUpperCase()
   let rx = PId2
@@ -38,8 +42,12 @@ export const getCommonRotCombined = name => {
   return [rx, rz]
 }
 
+/**
+ * @param {string} name 
+ * @returns {[number,number]}
+ */
 export const getCommonRotByName = name => {
-  return commonCameras[name] || commonCameras.top
+  return commonCameras[name] || commonCameras.top //TODO Check .top this looks like a bug
 }
 
 export const commonCameras = {

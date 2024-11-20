@@ -1,3 +1,13 @@
+/**
+ * @typedef {object} Theme
+ * @property {string} name
+ * @property {[number,number,number,number]} color
+ * @property {[number,number,number,number]} bg
+ * @property {[number,number,number,number]} grid1
+ * @property {[number,number,number,number]} grid2
+ */
+
+/** @type {Object.<string,Theme>} */
 export const themes = {
   light: {
     name: 'Light',

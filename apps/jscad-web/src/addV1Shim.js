@@ -1,3 +1,6 @@
+/**
+ * @param {string } script
+ */
 export function addV1Shim(script) {
   if (script.includes('JS V1 SHIM HEADER')) return script
 

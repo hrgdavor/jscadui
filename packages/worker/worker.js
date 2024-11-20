@@ -13,36 +13,41 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
  @prop {String} path
 
 @typedef RunScriptOptions
- @prop {string} script - script source
+ @prop {string} [script] - script source
  @prop {string} url - script url/name
  @prop {string} base - base url 
- @prop {string} base - root (do not allow paths below that root)  
+ @prop {string} [root] - root (do not allow paths below that root)  
 
  @typedef ExportDataOptions
  @prop {string} format
 
 @typedef {import('@jscadui/require').ClearFileCacheOptions} ClearFileCacheOptions
+@typedef {import('./src/parameterDefinition.js').ParameterDefinition} ParameterDefinition
 
  @typedef RunMainOptions
- @prop {Object} params
- @prop {boolean} skipLog
+ @prop {UserParameters} params
+ @prop {boolean} [skipLog]
 
  @typedef InitOptions
- @prop {String} baseURI - to resolve inital relative path
- @prop {Array<Alias>} alias - 
- @prop {Array<Alias>} bundle - bundle alias {name:path} 
+ @prop {string} [baseURI] - to resolve initial relative path
+ @prop {Array<Alias>} [alias] - 
+ @prop {Object.<string,string>} [bundles] - bundle alias {name:path} 
  
  @typedef ScriptResponse
- @prop {Array<any>} entities  
+ @prop {Array<unknown>} entities  
  @prop {number} mainTime  - script run time
  @prop {number} convertTime  - tim converting script output to gl data
+ @prop {UserParameters} params  - tim converting script output to gl data
+ @prop {Array<ParameterDefinition>} def
+
+ @typedef {Object.<string,unknown>} UserParameters
 
 
 @typedef JscadWorker
 @prop {(options:InitOptions)=>Promise<void>} jscadInit
 @prop {(options:RunMainOptions)=>Promise<ScriptResponse>} jscadMain - run the main method of the loaded script
 @prop {(options:RunScriptOptions)=>Promise<ScriptResponse>} jscadScript - run a jscad script
-@prop {(options:ExportDataOptions)=>Promise<void>} jscadExportData
+@prop {(options:ExportDataOptions)=>Promise<unknown>} jscadExportData
 @prop {(options:ClearFileCacheOptions)=>Promise<void>} jscadClearFileCache
 @prop {()=>Promise<void>} jscadClearTempCache
 
@@ -88,7 +93,7 @@ async function readFileFile(file, {bin=false}={}){
   else return readAsText(file)
 }
 
-solids = []
+let solids = []
 export async function jscadMain({ params, skipLog } = {}) {
   params = {...params}
   for(let p in params){

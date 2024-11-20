@@ -15,12 +15,31 @@ const { PI } = Math
  *
  */
 export class OrbitState {
+  /** @type {[number,number,number]} */
   target
+  /** @type {number} */
   rx
+  /** @type {number} */
   rz
+  /** @type {number} */
   len
   /** Position is derived value and calculated if not provided. */
+  /** @type {[number,number,number]} */
   position
+
+
+  // onchange may be debounced, and when animating called at the end when camera stops at a position
+  /**
+   * @type {((state: OrbitState) => void) | undefined}
+   */
+  onchange
+  // oninput may be debounced, and when animating called at the end when camera stops at a position
+  /**
+   * @type {((state: OrbitState) => void) | undefined}
+   */
+  oninput
+
+
   constructor({ target, rx, rz, len, position }, clone = false) {
     this.target = target
     this.rx = rx

@@ -6,17 +6,13 @@
  * https://elalish.blogspot.com/2022/04/3d-interaction.html
  * https://github.com/google/model-viewer/blob/master/packages/model-viewer/src/three-components/SmoothControls.ts
  */
-import { OrbitState } from './OrbitState'
-import { getCommonRotCombined } from './commonCamera'
-import { closerAngle } from './normalizeAngle'
+import { OrbitState } from './OrbitState.js'
+import { getCommonRotCombined } from './commonCamera.js'
+import { closerAngle } from './normalizeAngle.js'
 
 const { PI } = Math
 
-export class OrbitControl extends OrbitState {
-  // onchange may be debounced, and when animating called at the end when camera stops at a position
-  onchange
-  // oninput may be debounced, and when animating called at the end when camera stops at a position
-  oninput
+export class OrbitControl extends OrbitState {  
   el
   animDuration = 200
 
@@ -161,12 +157,11 @@ export class OrbitControl extends OrbitState {
     this.animTimer = requestAnimationFrame(() => this.doAnim())
   }
 
-  animateToCommonCamera(cam) {
-    const [rx, rz] = getCommonRotCombined(cam)
+  /**
+   * @param {string} targetRotation 
+   */
+  animateToCommonCamera(targetRotation) {
+    const [rx, rz] = getCommonRotCombined(targetRotation)
     ctrl.animateToCamera({ rx, rz, target: [0, 0, 0] })
-  }
-
-  setCommonCamera(name) {
-    this.setRotate(...getCommonRotCombined(name), [0, 0, 0])
   }
 }

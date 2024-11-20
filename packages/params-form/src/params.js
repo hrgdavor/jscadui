@@ -161,6 +161,7 @@ export const genParams = ({
 
   target.innerHTML = html
 
+  /** @param {"running" | ""} status */
   function animStatus(status){
     forEachInput(target, inp => {
       let p = inp.parentNode
@@ -175,6 +176,11 @@ export const genParams = ({
   function setSomeValues(v){
     setValue(v, true)
   }
+
+  /**
+   * @param {unknown} v 
+   * @param {boolean} [skipUndefined]
+   */
   function setValue(v, skipUndefined){
     forEachInput(target, inp => {
       let name = inp.getAttribute('name')

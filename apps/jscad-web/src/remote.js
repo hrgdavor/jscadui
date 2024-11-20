@@ -2,6 +2,20 @@ import * as fflate from 'fflate'
 
 const gzipPrefix = 'data:application/gzip;base64,'
 
+/**
+ * @callback CompileFn
+ * @param {string} script
+ * @param {string} url
+ * 
+ * @callback ErrorFn
+ * @param {unknown} error
+ */
+
+/**
+ * @param {CompileFn} compileFn 
+ * @param {ErrorFn} setError 
+ * @returns {unknown}
+ */
 export const init = (compileFn, setError) => {
   const load = loadFromUrl(compileFn, setError)
   window.addEventListener('hashchange', load) // on change
@@ -9,7 +23,9 @@ export const init = (compileFn, setError) => {
 }
 
 /**
- * Handles a url passed in the anchor string
+ * Handles a url passed in the anchor string 
+ * @param {CompileFn} compileFn 
+ * @param {ErrorFn} setError 
  */
 export const loadFromUrl = (compileFn, setError) => async () => {
   const url = window.location.hash.substring(1)
@@ -29,9 +45,10 @@ export const loadFromUrl = (compileFn, setError) => async () => {
 /**
  * Try to fetch a url directly, but if that fails (due to CORS)
  * then fallback to fetching via server proxy.
+ * @param {string} url
  */
 const fetchUrl = async (url) => {
-  if(url.startsWith(gzipPrefix)){
+  if (url.startsWith(gzipPrefix)) {
     const bytes = base64ToArrayBuffer(url.substring(gzipPrefix.length))
     const dec = fflate.gunzipSync(new Uint8Array(bytes))
     return new TextDecoder("utf-8").decode(dec)

@@ -300,12 +300,12 @@ const paramChangeCallback = async (params, source) => {
   working = true
   let result
   try {
-    result = await workerApi.jscadMain({ params, smooth: viewState.smoothRender })
+    result = await workerApi.jscadMain({ params })
     lastRunParams = params
   } finally {
     working = false
   }
-  handlers.entities(result, { smooth: viewState.smoothRender })
+  handlers.entities(result, {})
   if (lastParams && lastParams != params) paramChangeCallback(lastParams)
 }
 /** @type {AnimRunner | null} */

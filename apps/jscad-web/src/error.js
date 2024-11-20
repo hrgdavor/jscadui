@@ -3,7 +3,7 @@ const errorName = document.getElementById('error-name')
 const errorMessage = document.getElementById('error-message')
 
 /**
- * @param {Error | string | undefined} error
+ * @param {unknown} error
  */
 export const setError = error => {
   if (error) {

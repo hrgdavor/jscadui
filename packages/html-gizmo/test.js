@@ -126,7 +126,7 @@ export class Gizmo extends HTMLElement {
 
     first.onclick = e => {
       const cam = e.target.getAttribute('c')
-      if (cam) this.oncam?.({ cam })
+      if (cam) this.oncam?.(cam)
     }
 
     const doHoverClass = (el, over) => {

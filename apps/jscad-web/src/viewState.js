@@ -2,55 +2,104 @@ import { makeAxes, makeGrid } from '@jscadui/scene'
 
 import { themes } from './themes.js'
 
-const byId = (id) => document.getElementById(id)
+/** 
+ * @param {string} id
+ * @returns {HTMLElement}
+ */
+export const byId = id => /** @type {HTMLElement} */(document.getElementById(id))
+
+
+/**
+ * @typedef {object} ViewStateCamera
+ * @param {[number,number,number]} position
+ * @param {[number,number,number]} [target]
+ */
+
 
 export class ViewState {
   viewer = undefined
 
+  /**
+   * @type {ViewStateCamera}
+   */
+  camera = {}
+
+  smoothRender
+  showAxis
+  showGrid
+
+  themeName
+
+  theme
+
+  darkModeInput = /** @type {HTMLInputElement} */ (byId('dark-mode'))
+  showAxisInput = /** @type {HTMLInputElement} */ (byId('show-axis'))
+  showGridInput = /** @type {HTMLInputElement} */ (byId('show-grid'))
+  smoothRenderInput = /** @type {HTMLInputElement} */ (byId('smooth-render'))
+
   constructor() {
-    this.loadState()
+    this.themeName = localStorage.getItem('engine.theme') || 'light'
+    if (this.themeName === 'dark') {
+      this.darkModeInput.checked = true;
+      document.body.classList.add('dark')
+    }
+    this.theme = themes[this.themeName]
+    this.showAxis = localStorage.getItem('engine.showAxis') !== 'false'
+    this.showAxisInput.checked = this.showAxis
+    this.showGrid = localStorage.getItem('engine.showGrid') !== 'false'
+    this.showGridInput.checked = this.showGrid
+    this.smoothRender = localStorage.getItem('engine.smoothRender') === 'true'
+    this.smoothRenderInput.checked = this.smoothRender
+    const cameraLocation = localStorage.getItem('camera.location')
+    this.camera = cameraLocation ? JSON.parse(cameraLocation) : { position: [180, -180, 220] }
+
     this.updateTheme()
     this.updateGrid()
 
     // Bind axis and grid menu options
-    const darkMode = byId('dark-mode')
-    const showAxis = byId('show-axis')
-    const showGrid = byId('show-grid')
-    const smoothRender = byId('smooth-render')
-    darkMode.addEventListener('change', () => {
-      this.themeName = darkMode.checked ? 'dark' : 'light'
-      if (darkMode.checked) {
-        document.body.classList.add('dark')
-      } else {
-        document.body.classList.remove('dark')
-      }
+    this.darkModeInput.addEventListener('change', () => {
+      this.themeName = this.darkModeInput.checked ? 'dark' : 'light'
+      document.body.classList.toggle('dark', this.darkModeInput.checked)      
       this.setTheme(this.themeName)
     })
-    smoothRender.addEventListener('change', () => {
-      this.setSmoothRender(smoothRender.checked)
+    this.smoothRenderInput.addEventListener('change', () => {
+      this.setSmoothRender(this.smoothRenderInput.checked)
     })
-    showAxis.addEventListener('change', () => this.setAxes(showAxis.checked))
-    showGrid.addEventListener('change', () => this.setGrid(showGrid.checked))
+    this.showAxisInput.addEventListener('change', () => this.setAxes(this.showAxisInput.checked))
+    this.showGridInput.addEventListener('change', () => this.setGrid(this.showGridInput.checked))
   }
 
+  /**
+   * @param {boolean} visible
+   */
   setAxes(visible) {
     this.showAxis = visible
     this.updateGrid()
     this.saveState()
   }
 
+  /**
+   * @param {boolean} visible
+   */
   setGrid(visible) {
     this.showGrid = visible
     this.updateGrid()
     this.saveState()
   }
 
+  /**
+   * @param {boolean} smoothRender 
+   * @param {boolean} [fireEvent]
+   */
   setSmoothRender(smoothRender, fireEvent = true) {
     this.smoothRender = smoothRender
     this.saveState()
-    if(fireEvent) this.onRequireReRender()
+    if (fireEvent) this.onRequireReRender()
   }
 
+  /**
+   * @param {string} themeName
+   */
   setTheme(themeName) {
     if (!themes[themeName]) throw new Error(`unknown theme ${themeName}`)
     this.themeName = themeName
@@ -65,11 +114,17 @@ export class ViewState {
     this.updateScene()
   }
 
+  /**
+   * @param {ViewStateCamera} camera
+   */
   setCamera(camera) {
     this.camera = camera
     this.viewer?.setCamera(camera)
   }
 
+  /**
+   * @param {ViewStateCamera} camera
+   */
   saveCamera(camera) {
     this.camera = camera
     localStorage.setItem('camera.location', JSON.stringify(camera))
@@ -96,7 +151,7 @@ export class ViewState {
     if (grid) items.push({ id: 'grid', items: grid })
     if (model) items.push({ id: 'model', items: model })
 
-    this.viewer?.setScene({ items }, {smooth:this.smoothRender})
+    this.viewer?.setScene({ items }, { smooth: this.smoothRender })
   }
 
   setEngine(viewer) {
@@ -105,31 +160,14 @@ export class ViewState {
     this.updateGrid()
     this.updateScene()
     this.setCamera(this.camera)
-  }
-
-  loadState() {
-    this.themeName = localStorage.getItem('engine.theme') || 'light'
-    if (this.themeName === 'dark') {
-      byId('dark-mode').setAttribute('checked', 'checked')
-      document.body.classList.add('dark')
-    }
-    this.theme = themes[this.themeName]
-    this.showAxis = localStorage.getItem('engine.showAxis') !== 'false'
-    byId('show-axis').checked = this.showAxis
-    this.showGrid = localStorage.getItem('engine.showGrid') !== 'false'
-    byId('show-grid').checked = this.showGrid
-    this.smoothRender = localStorage.getItem('engine.smoothRender') === 'true'
-    byId('smooth-render').checked = this.smoothRender
-    const cameraLocation = localStorage.getItem('camera.location')
-    this.camera = cameraLocation ? JSON.parse(cameraLocation) : { position: [180, -180, 220] }
-  }
+  }  
 
   saveState() {
     localStorage.setItem('engine.theme', this.themeName)
-    localStorage.setItem('engine.showAxis', this.showAxis)
-    localStorage.setItem('engine.showGrid', this.showGrid)
-    localStorage.setItem('engine.smoothRender', this.smoothRender)
+    localStorage.setItem('engine.showAxis', String(this.showAxis))
+    localStorage.setItem('engine.showGrid', String(this.showGrid))
+    localStorage.setItem('engine.smoothRender', String(this.smoothRender))
   }
 
-  onRequireReRender(){}
+  onRequireReRender() { }
 }

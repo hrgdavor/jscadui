@@ -1,3 +1,7 @@
+/**
+ * @param {string} str
+ * @returns {Uint8Array}
+ */
 export function str2ab(str) {
   var arrBuff = new ArrayBuffer(str.length);
   var bytes = new Uint8Array(arrBuff);

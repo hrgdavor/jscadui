@@ -99,7 +99,7 @@ const exportAsFile = async (formatName, formatExtension = formatName) => {
 }
 
 function canvasToPngA8() {
-  const canvas = document.body.querySelector('canvas')
+  const canvas = /** @type{HTMLCanvasElement} */ (document.body.querySelector('canvas'))
   let url = canvas.toDataURL('image/png')
   url = url.substring(url.indexOf(',') + 1)
   // string to Uint8Array taken from stackoverflow, and should work in browser

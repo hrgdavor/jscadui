@@ -17,8 +17,8 @@ export class OrbitControl extends OrbitState {
   animDuration = 200
 
   /**
-   * @param {Element|Array<Element>} el
-   * @param {Object} options
+   * @param {HTMLElement|Array<HTMLElement>} el
+   * @param {import('../cameraState.js').OrbitControlInit} options
    */
   constructor(el, { position, target = [0, 0, 0], rx=PI/4, rz=PI/4, len=200, panRatio = 800, rxRatio = 0.01, rzRatio = 0.01, zoomRatio = 0.05 } = {}) {
     super({ position, target, rx, rz, len })
@@ -39,9 +39,14 @@ export class OrbitControl extends OrbitState {
     // Pinch to zoom gesture
 /** @type {Map<number,[number,number]>} */
     const pointers = new Map();
+
+    /** @type {Pinch | undefined} */
     let lastPinch
 
-    // Calculate distance and midpoint of two pointers
+    /**
+     * Calculate distance and midpoint of two pointers
+* @returns {Pinch}
+     */
     const calculatePinch = () => {
       const [p1, p2] = pointers.values();
       const [x1, y1] = p1
@@ -54,6 +59,9 @@ export class OrbitControl extends OrbitState {
       }
     }
 
+/**
+     * @param {HTMLElement} el 
+     */
     const doListen = el => {
       el.addEventListener('pointerdown', e => {
         theButton = e.button
@@ -147,6 +155,9 @@ export class OrbitControl extends OrbitState {
     this.fireChange()
   }
 
+/**
+   * @param {import('../cameraState.js').CameraState} camera 
+   */
   animateToCamera({ target, rx, rz }) {
     // normalize angle to avoid crazy spinning if scene was rotated a lot
     // rx does not need this fix as it only operates inside one half of a rotation
@@ -166,3 +177,9 @@ export class OrbitControl extends OrbitState {
     ctrl.animateToCamera({ rx, rz, target: [0, 0, 0] })
   }
 }
+
+/**
+ * @typedef {object} Pinch
+ * @property {number} distance
+ * @property {[number,number]} midpoint
+ */

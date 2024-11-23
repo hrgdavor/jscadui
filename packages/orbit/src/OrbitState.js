@@ -15,17 +15,12 @@ const { PI } = Math
  *
  */
 export class OrbitState {
-  /** @type {[number,number,number]} */
-  target
-  /** @type {number} */
-  rx
-  /** @type {number} */
-  rz
-  /** @type {number} */
-  len
+    target
+    rx
+    rz
+    len
   /** Position is derived value and calculated if not provided. */
-  /** @type {[number,number,number]} */
-  position
+    position
 
 
   // onchange may be debounced, and when animating called at the end when camera stops at a position
@@ -39,7 +34,10 @@ export class OrbitState {
    */
   oninput
 
-
+/**
+   * @param {import('../cameraState.js').OrbitStateInit} options 
+   * @param {boolean} [clone]
+   */
   constructor({ target, rx, rz, len, position }, clone = false) {
     this.target = target
     this.rx = rx
@@ -54,6 +52,11 @@ export class OrbitState {
     }
   }
 
+/**
+   * @param {[number,number,number]} position 
+   * @param {[number,number,number]} target 
+   * @param {boolean} [fire]
+   */
   set(position, target, fire = true) {
     if (target) this.target = target
     if (position) this.position = position
@@ -65,6 +68,12 @@ export class OrbitState {
     camRotation(this, this.position, this.target)
   }
 
+/**
+   * 
+   * @param {import('../cameraState.js').CameraAnimationState} newState 
+   * @param {number} percent 
+   * @returns {import('../cameraState.js').CameraAnimationState} 
+   */
   calcAnim(newState, percent) {
     const a1 = this.target
     const a2 = newState.target
@@ -77,6 +86,12 @@ export class OrbitState {
     }
   }
 
+/**
+   * @param {number} rx 
+   * @param {number} rz 
+   * @param {[number,number,number]} target 
+   * @param {boolean} [fire]
+   */
   setRotate(rx = 0, rz = 0, target, fire = true) {
     if (target) this.target = target
     this.rx = rx
@@ -94,6 +109,10 @@ export class OrbitState {
     this.fireChange()
   }
 
+/**
+   * @param {number} dx 
+   * @param {number} dy 
+   */
   panBy(dx, dy) {
     const { rx, rz } = this
     let pan = [dx, -dy, 0]
@@ -101,12 +120,14 @@ export class OrbitState {
     this.moveBy(pan)
   }
 
+/** @param {[number,number,number]} vec  */
   moveBy(vec) {
     this.position = vec3.add([], this.position, vec)
     this.target = vec3.add([], this.target, vec)
     this.fireChange()
   }
 
+/** @param {number} amount */
   zoomBy(amount) {
     this.len *= 1 + amount
     this.position = calcCamPos(this)

@@ -37,14 +37,15 @@ export class OrbitControl extends OrbitState {
     let ly = 0
 
     // Pinch to zoom gesture
-    const pointers = {}
+/** @type {Map<number,[number,number]>} */
+    const pointers = new Map();
     let lastPinch
 
     // Calculate distance and midpoint of two pointers
     const calculatePinch = () => {
-      const ids = Object.keys(pointers)
-      const [x1, y1] = pointers[ids[0]]
-      const [x2, y2] = pointers[ids[1]]
+      const [p1, p2] = pointers.values();
+      const [x1, y1] = p1
+      const [x2, y2] = p2
       const dx = x2 - x1
       const dy = y2 - y1
       return {
@@ -59,16 +60,16 @@ export class OrbitControl extends OrbitState {
         lx = e.clientX
         ly = e.clientY
         isDown = true
-        pointers[e.pointerId] = [e.clientX, e.clientY]
-        if (Object.keys(pointers).length === 2) doubleDown = true
+        pointers.set(e.pointerId, [e.clientX, e.clientY])
+        if (pointers.size === 2) doubleDown = true
       })
 
       el.addEventListener('pointerup', e => {
         isDown = false
         if (isMoving) el.releasePointerCapture(e.pointerId)
         isMoving = false
-        delete pointers[e.pointerId]
-        if (Object.keys(pointers).length < 2) {
+        pointers.delete(e.pointerId)
+        if (pointers.size < 2) {
           doubleDown = false
           lastPinch = undefined
         }
@@ -93,7 +94,7 @@ export class OrbitControl extends OrbitState {
         isZoom = e.ctrlKey
         let dx = lx - e.clientX
         let dy = ly - e.clientY
-        pointers[e.pointerId] = [e.clientX, e.clientY]
+        pointers.set(e.pointerId, [e.clientX, e.clientY])
 
         if (isPan) {
           const ratio = this.len / panRatio

@@ -31,7 +31,7 @@ export class Gizmo extends HTMLElement {
   /** Empty method that can be called to trigger static initializer, that will then
    * trigger customElements.define('jscadui-gizmo', this)
    */
-  static define() {}
+  static define() { }
 
   /** @type {ShadowRoot} */
   #root
@@ -44,7 +44,7 @@ export class Gizmo extends HTMLElement {
   /** @type {((cam:string)=>void) | undefined} */
   oncam
 
-  constructor(_names=names){
+  constructor(_names = names) {
     super()
     this.names = _names
   }
@@ -80,7 +80,7 @@ export class Gizmo extends HTMLElement {
     first.addEventListener('dragstart', (e) => e.preventDefault())
   }
 
-  setNames(_names=names){
+  setNames(_names = names) {
     this.#first.innerHTML =
       makeSide(_names, 'T', 'TNW,TN,TNE', 'TW,T,TE', 'TSW,TS,TSE') +
       makeSide(_names, 'B', 'BSW,BS,BSE', 'BW,B,BE', 'BNW,BN,BNE') +
@@ -102,8 +102,8 @@ export class Gizmo extends HTMLElement {
    * @param {number | string} rz 
    */
   rotateXZ(rx, rz) {
-    if(typeof rx === 'number') rx = rx+'rad'
-    if(typeof rz === 'number') rz = rz+'rad'
+    if (typeof rx === 'number') rx = rx + 'rad'
+    if (typeof rz === 'number') rz = rz + 'rad'
     this.style.setProperty('--cube-transform', `scale3d(0.8,0.8,0.8) rotateX(${rx}) rotateZ(${rz})`)
   }
 }

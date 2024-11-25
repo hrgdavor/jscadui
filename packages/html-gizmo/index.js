@@ -21,8 +21,8 @@ export const names = {
   E: 'RIGHT',
 }
 
-/**
-  * If using in HTML as tag <jscadui-gizmo/> you must call the static method Gizmo.define().
+/** 
+ * If using in HTML as tag <jscadui-gizmo/> you must call the static method Gizmo.define().
  * 
  * If creating from code via new Gizmo() static initializer will be triggered automatically.
  * 
@@ -69,12 +69,12 @@ export class Gizmo extends HTMLElement {
 
   setNames(_names = names) {
     this.#first.append(
-this.#makeSide(_names, 'T', 'TNW,TN,TNE', 'TW,T,TE', 'TSW,TS,TSE'),
-this.#makeSide(_names, 'B', 'BSW,BS,BSE', 'BW,B,BE', 'BNW,BN,BNE'),
-this.#makeSide(_names, 'S', 'TSW,TS,TSE', 'SW,S,SE', 'BSW,BS,BSE'),
-this.#makeSide(_names, 'N', 'TNE,TN,TNW', 'NE,N,NW', 'BNE,BN,BNW'),
-this.#makeSide(_names, 'E', 'TSE,TE,TNE', 'SE,E,NE', 'BSE,BE,BNE'),
-this.#makeSide(_names, 'W', 'TNW,TW,TSW', 'NW,W,SW', 'BNW,BW,BSW'),
+      this.#makeSide(_names, 'T', 'TNW,TN,TNE', 'TW,T,TE', 'TSW,TS,TSE'),
+      this.#makeSide(_names, 'B', 'BSW,BS,BSE', 'BW,B,BE', 'BNW,BN,BNE'),
+      this.#makeSide(_names, 'S', 'TSW,TS,TSE', 'SW,S,SE', 'BSW,BS,BSE'),
+      this.#makeSide(_names, 'N', 'TNE,TN,TNW', 'NE,N,NW', 'BNE,BN,BNW'),
+      this.#makeSide(_names, 'E', 'TSE,TE,TNE', 'SE,E,NE', 'BSE,BE,BNE'),
+      this.#makeSide(_names, 'W', 'TNW,TW,TSW', 'NW,W,SW', 'BNW,BW,BSW'),
     )
   }
 

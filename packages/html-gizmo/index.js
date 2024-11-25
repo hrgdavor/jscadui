@@ -64,22 +64,6 @@ export class Gizmo extends HTMLElement {
 
     this.setNames(this.names)
 
-
-    const mouseover = (el, over) => {
-      const cam = el.getAttribute('c')
-      if (cam) {
-        // select all camera links for the same camera (highlight corners)
-        const all = first.querySelectorAll(`[c="${cam}"]`)
-        all.forEach((el) => {
-          // toggle hover class
-          if (over) el.classList.add('hover')
-          else el.classList.remove('hover')
-        })
-      }
-    }
-
-    first.addEventListener('pointerover', (e) => mouseover(e.target, true))
-    first.addEventListener('pointerout', (e) => mouseover(e.target, false))
     first.addEventListener('dragstart', (e) => e.preventDefault())
   }
 
@@ -138,10 +122,24 @@ this.#makeSide(_names, 'W', 'TNW,TW,TSW', 'NW,W,SW', 'BNW,BW,BSW'),
           e.stopPropagation()
           this.oncam?.(c)
         })
+        i.addEventListener('pointerover', (e) => this.#mouseover(c, true))
+        i.addEventListener('pointerout', (e) => this.#mouseover(c, false))
         return i
       }))
     )
 
     return result
+  }
+
+  /**
+   * @param {string} cam 
+   * @param {boolean} over 
+   */
+  #mouseover = (cam, over) => {
+    // select all camera links for the same camera (highlight corners)
+    const all = this.#first.querySelectorAll(`[c="${cam}"]`)
+    for (const el of all) {
+      el.classList.toggle('hover', over)
+    }
   }
 }

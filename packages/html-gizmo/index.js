@@ -103,12 +103,12 @@ export class Gizmo extends HTMLElement {
    */
   #makeSide = (names, name, ...parts) => {
     const result = document.createElement('div')
-    result.setAttribute('part', 'face')
+    result.part.add('face')
     result.classList.add('cube__face', `cube__face--${name}`)
 
     const bg = document.createElement('div')
     bg.classList.add('bg')
-    bg.setAttribute('part', 'face-bg')
+    bg.part.add('face-bg')
 
     result.append(bg)
 

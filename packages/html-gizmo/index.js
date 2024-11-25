@@ -1,6 +1,17 @@
 // @ts-ignore
 import style from './gizmo.css.txt?raw'
 
+/**
+ * @typedef {object} SideNames
+ * @prop {string} T
+ * @prop {string} B
+ * @prop {string} N
+ * @prop {string} S
+ * @prop {string} E
+ * @prop {string} W
+ */
+
+/** @type {SideNames} */
 export const names = {
   T: 'TOP',
   B: 'BOTTOM',
@@ -10,6 +21,12 @@ export const names = {
   E: 'RIGHT',
 }
 
+/**
+ * @param {SideNames} names 
+ * @param {string} name 
+ * @param  {...string} parts 
+ * @returns {HTMLDivElement}
+ */
 const makeSide = (names, name, ...parts) => {
   const out = [`<div part="face" class="cube__face cube__face--${name}"><div class="bg" part="face-bg"></div>`]
   parts.forEach(p => p.split(',').forEach(c => out.push(`<i c="${c}">${names[c] || ''}</i>`)))

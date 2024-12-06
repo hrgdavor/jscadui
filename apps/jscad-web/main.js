@@ -63,7 +63,7 @@ let setAnimStatus
 // load default model unless another model was already loaded
 let loadDefault = true
 
-const ctrl = new OrbitControl([byId('viewer')], { ...viewState.camera, alwaysRotate: false })
+const ctrl = new OrbitControl([byId('viewer')], { ...viewState.camera })
 
 /** @param {OrbitState} change */
 const updateFromCtrl = change => {

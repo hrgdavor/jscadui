@@ -1,6 +1,5 @@
-import { TAU } from './commonCamera.js'
-
 const { PI } = Math
+const TAU = PI * 2
 
 /**
  * Bring angle into range [0...TAU]

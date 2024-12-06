@@ -1,20 +1,22 @@
 const { PI } = Math
 const PId2 = PI / 2
-export const TAU = PI * 2
 
 /** 
- * @param {string} name 
+ * @param {string} rotationName 
  * @returns {[number,number]}
  */
-export const getCommonRotCombined = name => {
-  name = name.toUpperCase()
+export const getCommonRotCombined = rotationName => {
+  rotationName = rotationName.toUpperCase()
   let rx = PId2
   let rz = 0
+  /** @type {number | undefined} */
   let rz1
+  /** @type {number | undefined} */
   let rz2
+  /** @type {"T" | "B" | undefined} */
   let topOrBottom
-  for (let i = 0; i < name.length; i++) {
-    const ch = name[i]
+  for (let i = 0; i < rotationName.length; i++) {
+    const ch = rotationName[i]
     const rot = getCommonRotByName(ch)
     if (ch === 'T' || ch === 'B') {
       rx = rot[0]
@@ -43,11 +45,11 @@ export const getCommonRotCombined = name => {
 }
 
 /**
- * @param {string} name 
+ * @param {string} rotationName 
  * @returns {[number,number]}
  */
-export const getCommonRotByName = name => {
-  return commonCameras[name] || commonCameras.top //TODO Check .top this looks like a bug
+export const getCommonRotByName = rotationName => {
+  return commonCameras[rotationName] || commonCameras.T
 }
 
 export const commonCameras = {

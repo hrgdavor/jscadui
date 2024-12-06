@@ -171,7 +171,7 @@ export class OrbitControl extends OrbitState {
     this.currentAnimation = {
       startTime: Date.now(),
       stateStart: new OrbitState(this, true),
-      stateEnd: new OrbitState({ target: target || this.target, rx, rz, len: this.len }),
+      stateEnd: new OrbitState({ target: target ?? this.target, rx, rz, len: this.len }),
     }
   }
 

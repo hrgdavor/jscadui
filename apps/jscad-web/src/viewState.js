@@ -11,8 +11,8 @@ export const byId = id => /** @type {HTMLElement} */(document.getElementById(id)
 
 /**
  * @typedef {object} ViewStateCamera
- * @param {[number,number,number]} position
- * @param {[number,number,number]} [target]
+ * @property {[number,number,number]} position
+ * @property {[number,number,number]} [target]
  */
 
 

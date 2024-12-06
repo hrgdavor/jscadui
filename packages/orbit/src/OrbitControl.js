@@ -161,7 +161,7 @@ export class OrbitControl extends OrbitState {
   }
 
   /**
-   * @param {{target:[number,number,number],rx:number,rz:number}} options
+   * @param {{target?:[number,number,number],rx:number,rz:number}} options
    */
   animateToCamera({ target, rx, rz }) {
     // normalize angle to avoid crazy spinning if scene was rotated a lot

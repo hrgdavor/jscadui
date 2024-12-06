@@ -76,7 +76,7 @@ updateFromCtrl(ctrl)
 ctrl.onchange = (/** @type {OrbitState} */ state) => viewState.saveCamera(state)
 ctrl.oninput = (/** @type {OrbitState} */ state) => updateFromCtrl(state)
 
-gizmo.oncam = (/** @type {string} */ cam) => ctrl.animateToCommonCamera(cam)
+gizmo.onRotationRequested = (/** @type {string} */ cam) => ctrl.animateToCommonCamera(cam)
 
 /** @type {import('@jscadui/fs-provider').SwHandler} */
 let sw

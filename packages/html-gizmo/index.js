@@ -45,8 +45,8 @@ export class Gizmo extends HTMLElement {
 
   names
 
-  /** @type {((cam:string)=>void) | undefined} */
-  oncam
+  /** @type {((rotation:string)=>void) | undefined} */
+  onRotationRequested
 
   constructor(_names = names) {
     super()
@@ -120,7 +120,7 @@ export class Gizmo extends HTMLElement {
         i.addEventListener('click', e => {
           e.preventDefault()
           e.stopPropagation()
-          this.oncam?.(c)
+          this.onRotationRequested?.(c)
         })
         i.addEventListener('pointerover', (e) => this.#mouseover(c, true))
         i.addEventListener('pointerout', (e) => this.#mouseover(c, false))

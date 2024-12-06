@@ -16,6 +16,9 @@ export class OrbitControl extends OrbitState {
   el
   animDuration = 200
 
+  /** @type {{startTime:number,stateStart:OrbitState,stateEnd:OrbitState} | undefined} */
+  currentAnimation = undefined;
+
   /**
    * @param {HTMLElement|Array<HTMLElement>} el
    * @param {import('../cameraState.js').OrbitControlInit} options
@@ -133,25 +136,27 @@ export class OrbitControl extends OrbitState {
 
     if (el instanceof Array) el.forEach(doListen)
     else doListen(el)
+
+    requestAnimationFrame(() => this.doAnim())
   }
 
   doAnim() {
-    let percent = Math.min(1, (Date.now() - this.startTime) / this.animDuration)
-    const newState = this.stateStart.calcAnim(this.stateEnd, percent)
-    this.setRotate(newState.rx, newState.rz, newState.target, false)
-    // update orbit control so it can continue working during or after anim
-    if (percent < 1) {
-      this.animTimer = requestAnimationFrame(() => this.doAnim())
+    if (this.currentAnimation !== undefined) {
+      const { stateStart, stateEnd, startTime } = this.currentAnimation;
+      const progress = Math.min(1, (Date.now() - startTime) / this.animDuration)
+      const newState = stateStart.calcAnim(stateEnd, progress)
+      this.setRotate(newState.rx, newState.rz, newState.target, false)
+      // update orbit control so it can continue working during or after anim
       this.fireInput()
-    } else {
-      this.stopAnim()
+      if (progress >= 1) {
+        this.stopAnim()
+      }
     }
+    requestAnimationFrame(() => this.doAnim())
   }
 
   stopAnim() {
-    cancelAnimationFrame(this.animTimer)
-    this.animTimer = null
-    this.startTime = 0
+    this.currentAnimation = undefined
     this.fireChange()
   }
 
@@ -163,10 +168,11 @@ export class OrbitControl extends OrbitState {
     // rx does not need this fix as it only operates inside one half of a rotation
     this.rz = closerAngle(this.rz, rz)
 
-    this.startTime = Date.now()
-    this.stateStart = new OrbitState(this, true)
-    this.stateEnd = new OrbitState({ target: target || this.target, rx, rz, len: this.len })
-    this.animTimer = requestAnimationFrame(() => this.doAnim())
+    this.currentAnimation = {
+      startTime: Date.now(),
+      stateStart: new OrbitState(this, true),
+      stateEnd: new OrbitState({ target: target || this.target, rx, rz, len: this.len }),
+    }
   }
 
   /**

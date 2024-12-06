@@ -138,7 +138,7 @@ export class OrbitControl extends OrbitState {
   doAnim() {
     let percent = Math.min(1, (Date.now() - this.startTime) / this.animDuration)
     const newState = this.stateStart.calcAnim(this.stateEnd, percent)
-    ctrl.setRotate(newState.rx, newState.rz, newState.target, false)
+    this.setRotate(newState.rx, newState.rz, newState.target, false)
     // update orbit control so it can continue working during or after anim
     if (percent < 1) {
       this.animTimer = requestAnimationFrame(() => this.doAnim())
@@ -164,8 +164,8 @@ export class OrbitControl extends OrbitState {
     this.rz = closerAngle(this.rz, rz)
 
     this.startTime = Date.now()
-    this.stateStart = new OrbitState(ctrl, true)
-    this.stateEnd = new OrbitState({ target: target || ctrl.target, rx, rz, len: ctrl.len })
+    this.stateStart = new OrbitState(this, true)
+    this.stateEnd = new OrbitState({ target: target || this.target, rx, rz, len: this.len })
     this.animTimer = requestAnimationFrame(() => this.doAnim())
   }
 
@@ -174,7 +174,7 @@ export class OrbitControl extends OrbitState {
    */
   animateToCommonCamera(targetRotation) {
     const [rx, rz] = getCommonRotCombined(targetRotation)
-    ctrl.animateToCamera({ rx, rz, target: [0, 0, 0] })
+    this.animateToCamera({ rx, rz, target: [0, 0, 0] })
   }
 }
 

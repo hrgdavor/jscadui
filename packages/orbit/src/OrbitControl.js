@@ -155,8 +155,8 @@ export class OrbitControl extends OrbitState {
     this.fireChange()
   }
 
-/**
-   * @param {import('../cameraState.js').CameraState} camera 
+  /**
+   * @param {{target:[number,number,number],rx:number,rz:number}} options
    */
   animateToCamera({ target, rx, rz }) {
     // normalize angle to avoid crazy spinning if scene was rotated a lot

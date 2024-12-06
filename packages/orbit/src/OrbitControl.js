@@ -12,7 +12,7 @@ import { closerAngle } from './normalizeAngle.js'
 
 const { PI } = Math
 
-export class OrbitControl extends OrbitState {  
+export class OrbitControl extends OrbitState {
   el
   animDuration = 200
 
@@ -20,7 +20,7 @@ export class OrbitControl extends OrbitState {
    * @param {HTMLElement|Array<HTMLElement>} el
    * @param {import('../cameraState.js').OrbitControlInit} options
    */
-  constructor(el, { position, target = [0, 0, 0], rx=PI/4, rz=PI/4, len=200, panRatio = 800, rxRatio = 0.01, rzRatio = 0.01, zoomRatio = 0.05 } = {}) {
+  constructor(el, { position, target = [0, 0, 0], rx = PI / 4, rz = PI / 4, len = 200, panRatio = 800, rxRatio = 0.01, rzRatio = 0.01, zoomRatio = 0.05 }) {
     super({ position, target, rx, rz, len })
 
     this.el = el
@@ -37,7 +37,7 @@ export class OrbitControl extends OrbitState {
     let ly = 0
 
     // Pinch to zoom gesture
-/** @type {Map<number,[number,number]>} */
+    /** @type {Map<number,[number,number]>} */
     const pointers = new Map();
 
     /** @type {Pinch | undefined} */
@@ -45,7 +45,7 @@ export class OrbitControl extends OrbitState {
 
     /**
      * Calculate distance and midpoint of two pointers
-* @returns {Pinch}
+     * @returns {Pinch}
      */
     const calculatePinch = () => {
       const [p1, p2] = pointers.values();
@@ -59,7 +59,7 @@ export class OrbitControl extends OrbitState {
       }
     }
 
-/**
+    /**
      * @param {HTMLElement} el 
      */
     const doListen = el => {

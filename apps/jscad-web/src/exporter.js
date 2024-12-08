@@ -13,6 +13,7 @@ import * as editor from './editor.js'
 
 /** @type {ExportFormat[]} */
 const exportFormats = [
+  { name: '3mf', label: '3MF', execute: () => exportAsFile('3mf') },
   { name: 'stla', label: 'STL (ascii)', execute: () => exportAsFile('stla', 'stl') },
   { name: 'stlb', label: 'STL (binary)', execute: () => exportAsFile('stlb', 'stl') },
   { name: 'amf', label: 'AMF', execute: () => exportAsFile('amf') },
@@ -21,7 +22,6 @@ const exportFormats = [
   { name: 'obj', label: 'OBJ', execute: () => exportAsFile('obj') },
   { name: 'x3d', label: 'X3D', execute: () => exportAsFile('x3b') },
   { name: 'svg', label: 'SVG', execute: () => exportAsFile('svg') },
-  { name: '3mf', label: '3MF', execute: () => exportAsFile('3mf') },
   { name: 'scriptUrl', label: 'Copy to clipboard script url', execute: () => exportToScriptUrl() },
 ]
 
@@ -44,7 +44,7 @@ export const init = (newWorkerApi) => {
 
   // Bind export buttons
   exportButton.addEventListener('click', async () => {
-  // Export model in selected format    
+    // Export model in selected format    
     const format = /** @type {ExportFormat} */ (exportFormats.find((f) => f.name === exportFormatSelect.value))
     await format.execute()
   })
@@ -86,7 +86,8 @@ const exportToScriptUrl = async () => {
  * @param {string} formatExtension
  */
 const exportAsFile = async (formatName, formatExtension = formatName) => {
-  let { data } = (await workerApi.jscadExportData({ format: formatName })) || {}
+  let thumb = canvasToPngA8()
+  let { data } = (await workerApi.jscadExportData({ format: formatName, thumb })) || {}
   if (data) {
     if (!(data instanceof Array)) data = [data]
     console.log('save', `${exportConfig.projectName}.${formatExtension}`, data)
@@ -95,6 +96,18 @@ const exportAsFile = async (formatName, formatExtension = formatName) => {
 
     sendAsDownload(new Blob(data, { type }), `${exportConfig.projectName}.${formatExtension}`)
   }
+}
+
+function canvasToPngA8() {
+  const canvas = /** @type{HTMLCanvasElement} */ (document.body.querySelector('canvas'))
+  let url = canvas.toDataURL('image/png')
+  url = url.substring(url.indexOf(',') + 1)
+  // string to Uint8Array taken from stackoverflow, and should work in browser
+  return new Uint8Array(
+    atob(url)
+      .split('')
+      .map(c => c.charCodeAt(0)),
+  )
 }
 
 export const exportConfig = {

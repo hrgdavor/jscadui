@@ -22,6 +22,18 @@ export interface SealedFloat32Array<N extends number> extends Float32Array {
 
 export type Vec2 = [number, number];
 export type Vec3 = [number, number, number];
+// 3x3 matrix stored in column-major order
+export type Mat3 = [
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+];
 // 4x4 matrix stored in column-major order
 export type Mat4 = [
   number,
@@ -54,10 +66,6 @@ export type Box = {
 export type Smoothness = {
   halfedge: number,
   smoothness: number
-};
-export type Properties = {
-  surfaceArea: number,
-  volume: number
 };
 export type FillRule = 'EvenOdd'|'NonZero'|'Positive'|'Negative'
 export type JoinType = 'Square'|'Round'|'Miter'

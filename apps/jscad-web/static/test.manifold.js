@@ -19,14 +19,12 @@ async function mainManifold({segments = 32, radius = 60}){
     const { cube, sphere } = await ManifoldModule.get()
     const box = cube([100, 100, 100], true)
     const ball = sphere(radius, segments)
-    const ball2 = sphere(radius-20, segments)
     let result = box.subtract(ball)
     try {
-      return [toMesh(result),toMesh(ball2)]
+      return [toMesh(result)]
     } finally {
       box.delete()
       ball.delete()
-      ball2.delete()
       result.delete()
     }  
 }

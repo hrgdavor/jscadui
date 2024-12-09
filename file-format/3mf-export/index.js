@@ -39,7 +39,7 @@ export * from './src/staticFiles.js'
 
 /**
  * @param {To3MF} options
- * @returns string
+ * @returns {string}
  */
 export function to3dmodel({ meshes = [], components = [], items = [], precision = 17, header }) {
   // items to be placed on the scene (build section of 3mf)
@@ -81,7 +81,7 @@ export function to3dmodel({ meshes = [], components = [], items = [], precision 
  * @param {Array<Mesh3MFSimple>} meshes
  * @param {import('./src/pushHeader.js').Header} [header]
  * @param {number} [precision]
- * @returns string
+ * @returns {string}
  */
 export function to3dmodelSimple(meshes, header, precision) {
   /** @type {Child3MF[]} */

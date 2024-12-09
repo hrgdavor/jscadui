@@ -1,6 +1,6 @@
 /**
  *
- * @param {Arrray<string>} out
+ * @param {Array<string>} out
  * @param {string} id
  * @param {Float32Array} vertices
  * @param {Uint32Array} indices

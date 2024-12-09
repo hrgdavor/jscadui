@@ -1,5 +1,5 @@
 
-/** transform for attribute as specifiend in 3mf format
+/** transform for attribute as specified in 3mf format
  * 
  * When objects need to be transformed for rotation, scaling, or translation purposes, 
  * row-major affine 3D matrices (4x4) are used. The matrix SHOULD NOT be singular or nearly singular.

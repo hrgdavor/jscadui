@@ -56,9 +56,9 @@ function addToZip(zip, name, content) {
 /** //example how to generate thumb from canvas and add it in fflate
 const pngPreviewFile = new fflate.ZipPassThrough('Metadata/thumbnail.png');
 zip.add(pngPreviewFile);
-pngPreviewFile.push(cavassToPngA8(canvas), true);
+pngPreviewFile.push(canvasToPngA8(canvas), true);
 */
-function cavassToPngA8(canvas) {
+function canvasToPngA8(canvas) {
   let url = canvas.toDataURL('image/png')
   url = url.substring(url.indexOf(',') + 1)
   // strToU8 function from fflate

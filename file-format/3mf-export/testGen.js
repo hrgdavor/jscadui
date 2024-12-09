@@ -7,16 +7,16 @@ import { fileForContentTypes, FileForRelThumbnail, to3dmodel, to3dmodelSimple } 
 
 const fileForRelThumbnail = new FileForRelThumbnail()
 //#region hardcoded cube data
-let vertices = [
+let vertices = new Float32Array([
   -1, -1, -1, -1, -1, 1, -1, 1, 1, -1, 1, -1, 1, -1, -1, 1, 1, -1, 1, 1, 1, 1, -1, 1, -1, -1, -1, 1, -1, -1, 1, -1, 1,
   -1, -1, 1, -1, 1, -1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, 1, 1, -1, 1, 1,
   1, 1, -1, 1, 1,
-]
+])
 
-let indices = [
+let indices = new Uint32Array([
   0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22,
   20, 22, 23,
-]
+])
 //#endregion
 
 const zipParts = []
@@ -32,7 +32,7 @@ const zip = new Zip(async (err, dat, final) => {
   }
 })
 
-let modelStr = to3dmodelSimple([{ vertices, indices, id: '1' }])
+let modelStr = to3dmodelSimple([{ vertices, indices, id: 1 }])
 addToZip(zip, '3D/3dmodel.model', modelStr)
 fileForRelThumbnail.add3dModel('3D/3dmodel.model')
 
@@ -47,6 +47,11 @@ staticFiles.forEach(({ name, content }) => addToZip(zip, name, content))
 
 zip.end()
 
+/**
+ * @param {Zip} zip
+ * @param {string} name
+ * @param {string} content
+ */
 function addToZip(zip, name, content) {
   const zf = new ZipDeflate(name, { level: 9 })
   zip.add(zf)
@@ -57,6 +62,7 @@ function addToZip(zip, name, content) {
 const pngPreviewFile = new fflate.ZipPassThrough('Metadata/thumbnail.png');
 zip.add(pngPreviewFile);
 pngPreviewFile.push(canvasToPngA8(canvas), true);
+@param {HTMLCanvasElement} canvas
 */
 function canvasToPngA8(canvas) {
   let url = canvas.toDataURL('image/png')
@@ -71,7 +77,9 @@ function canvasToPngA8(canvas) {
   )
 }
 
-/** intentionally not part of the lib, you may or may not need it in your export code */
+/** intentionally not part of the lib, you may or may not need it in your export code 
+ * @param {*} blob 
+*/
 async function blobToArrayBuffer(blob) {
   if ('arrayBuffer' in blob) return await blob.arrayBuffer()
 

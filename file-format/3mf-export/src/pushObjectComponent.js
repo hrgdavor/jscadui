@@ -2,10 +2,9 @@ import {defMatrix} from './defMatrix.js'
 import {matrix2str} from './matrix2str.js'
 
 /**
- * 
  * @param {Array<String>} out 
- * @param {string} id 
- * @param {Array<import('../index.js').Component3MF>} children 
+ * @param {number} id 
+ * @param {Array<import('../index.js').Child3MF>} children 
  * @param {string} name 
  */
 export function pushObjectWithComponents(out, id, children, name) {
@@ -19,10 +18,9 @@ export function pushObjectWithComponents(out, id, children, name) {
 }
 
 /**
- * 
- * @param {*} out 
- * @param {*} id - must start with 1, can not be zero by spec 
- * @param {*} matrix 
+ * @param {Array<String>} out 
+ * @param {number} id - must start with 1, can not be zero by spec 
+ * @param {import('./defMatrix.js').mat4} matrix 
  */
 const addComp = (out, id = 1, matrix = defMatrix) => {
   out.push(

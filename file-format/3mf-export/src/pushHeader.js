@@ -2,18 +2,18 @@ import { toDate3mf } from './toDate3mf.js'
 
 /**
  * @typedef Header
- * @prop {'micron'|'millimeter'|'centimeter'|'inch'|'foot'|'meter'} unit
+ * @prop {'micron'|'millimeter'|'centimeter'|'inch'|'foot'|'meter'} [unit]
  * @prop {string} [title]
  * @prop {string} [author]
  * @prop {string} [description]
  * @prop {string} [application]
- * @prop {string} [creationDate]
+ * @prop {Date} [creationDate]
  * @prop {string} [license]
- * @prop {string} [modificationDate] 
+ * @prop {Date} [modificationDate] 
  * 
  * 
  * @param {Array<string>} out 
- * @param {Header} param1 
+ * @param {Header} [param1]
  */
 export function pushHeader(out,{
   unit = 'millimeter',
@@ -31,12 +31,12 @@ export function pushHeader(out,{
   <metadata name="slic3rpe:Version3mf">1</metadata>
   <metadata name="Title">${title}</metadata>
   <metadata name="Designer">${author}</metadata>
-  <metadata name="Description">${description || title}</metadata>
+  <metadata name="Description">${description ?? title}</metadata>
   <metadata name="Copyright"></metadata>
   <metadata name="LicenseTerms">${license}</metadata>
   <metadata name="Rating"></metadata>
   <metadata name="CreationDate">${toDate3mf(creationDate)}</metadata>
-  <metadata name="ModificationDate">${toDate3mf(modificationDate || creationDate)}</metadata>
+  <metadata name="ModificationDate">${toDate3mf(modificationDate ?? creationDate)}</metadata>
   <metadata name="Application">${application}</metadata>
    `,
   )

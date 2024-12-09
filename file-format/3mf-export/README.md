@@ -1,7 +1,7 @@
 # 3mf export MVP
 [![npm version](https://badge.fury.io/js/@jscadui%2F3mf-export.svg)](https://www.npmjs.com/package/@jscadui%2F3mf-export) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-This is a set of functions to generate 3mf content for exporting 3d models and optionally embeding a thumbnail.
+This is a set of functions to generate 3mf content for exporting 3d models and optionally embedding a thumbnail.
 
 reference: https://github.com/3MFConsortium/spec_core/blob/master/3MF%20Core%20Specification.md
 

@@ -85,10 +85,8 @@ export function to3dmodel({ meshes = [], components = [], items = [], precision 
  */
 export function to3dmodelSimple(meshes, header, precision) {
   /** @type {Child3MF[]} */
-  const items = []
-  meshes.forEach(({ id, transform }) => {
-    items.push({ objectID: id, transform })
-  })
+  const items = meshes.map(({ id, transform }) => ({ objectID: id, transform }))
+
   return to3dmodel({ meshes, items, header, precision })
 }
 

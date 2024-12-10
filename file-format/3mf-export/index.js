@@ -1,10 +1,8 @@
-// this implementation exports to 3mf by filling array of strings and doing join
-// at the encoding tests for large files have shown significant speedup related
-// to using string concatenation
-import { makeItem } from './src/makeItem.js'
-import { pushHeader } from './src/pushHeader.js'
-import { pushObjectWithComponents } from './src/pushObjectComponent.js'
-import { pushObjectWithMesh } from './src/pushObjectMesh.js'
+import { XMLBuilder } from 'fast-xml-parser'
+import { genItem } from './src/makeItem.js'
+import { genModel } from './src/pushHeader.js'
+import { genObjectWithComponents } from './src/pushObjectComponent.js'
+import { genObjectWithMesh } from './src/pushObjectMesh.js'
 
 export * from './src/staticFiles.js'
 
@@ -42,42 +40,40 @@ export * from './src/staticFiles.js'
  * @returns {string}
  */
 export function to3dmodel({ meshes = [], components = [], items = [], precision = 17, header }) {
-  // items to be placed on the scene (build section of 3mf)
-  /** @type {string[]} */
-  const out = []
+  /** @type {import('./xml-schema-3mf.js').Xml3mf} */
+  const data = {
+    '?xml': {
+      '@_version': '1.0',
+      '@_encoding': 'UTF-8',
+    },
+    model: genModel(
+      header ?? {},
+      [
+        //Mesh objects
+        ...meshes.map(({ id, vertices, indices, name }) => ({
+          object: genObjectWithMesh(id, vertices, indices, precision, name)
+        })),
+        //Component objects
+        ...components.map(({ id, children, name }) => ({
+          object: genObjectWithComponents(id, children, name)
+        })),
+      ],
+      { item: items.map(v => genItem(v.objectID, v.transform)) },
+    )
+  };
 
-  // <model> tag is opened here
-  pushHeader(out, header)
+  const builder = new XMLBuilder({
+    ignoreAttributes: false,
+    format: true,
+    suppressEmptyNode: true
+  });
 
-  // #region resources
-  out.push('  <resources>\n')
-
-  if (items.length == 0) {
-    console.error('3MF empty build! Include items or simple.')
-  }
-
-  meshes.forEach(({ id, vertices, indices, name }) => pushObjectWithMesh(out, id, vertices, indices, precision, name))
-
-  components.forEach(({ id, children, name }) => {
-    pushObjectWithComponents(out, id, children, name)
-  })
-
-  out.push('  </resources>\n')
-  // #endregion
-
-  out.push(`<build>\n`)
-  items.forEach(({ objectID, transform }) => {
-    out.push(makeItem(objectID, transform))
-  })
-  out.push('</build>\n')
-
-  out.push('</model>\n') // model tag was opened in the pushHeader()
-
-  return out.join('')
+  const out = builder.build(data);
+  return out;
 }
 
-/** Simple export provided meshes that have transform attached to them and autocreate items and pass to to3dmodel.
- *
+/**
+ * Simple export provided meshes that have transform attached to them and autocreate items and pass to to3dmodel.
  * @param {Array<Mesh3MFSimple>} meshes
  * @param {import('./src/pushHeader.js').Header} [header]
  * @param {number} [precision]

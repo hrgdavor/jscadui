@@ -35,17 +35,3 @@ To demonstrate that it is simple to include a thumbnail, I am using one already 
 where this 3mf code is from. Final usage will of course be to take a snapshot from canvas while exporting the mesh.
 Sample of such code is left in [testGen.js] but unused.
 ![testThumbnail.png](testThumbnail.png)
-
-# PERFORMANCE: array of strings and `Array.join('')`
-
-`Array.join('')`
-
-After multiple explorations and tests it looks like  is the best choice to combine large number of strings. It can calculate size of final string in advance. It is faster or at least very similar to other, and can handle more than 65536 strings.
-
-`String.concat()` 
-
-Also can calculate size of new string in advance. At the time of writing this library it had similar performance in Chrome but was much slower than `Array.join('')`. It has one big drawback because it is limited to 65536 elements due to using varargs input.
-
-` str +=` 
-
-is slowest as it has to copy old data again and again for each step.

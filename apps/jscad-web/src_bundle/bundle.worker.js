@@ -72,7 +72,7 @@ function export3mf(solids, thumb){
      zipParts.push(dat)
     }
   })
-  let modelStr = to3dmodelSimple(solids)
+  let modelStr = to3dmodelSimple(solids, { application: 'jscad.app', title: 'jscad model' })
   console.log('modelStr', modelStr)
   addToZip(zip, '3D/3dmodel.model', modelStr)
   fileForRelThumbnail.add3dModel('3D/3dmodel.model')

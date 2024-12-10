@@ -1,41 +1,39 @@
 /**
- *
- * @param {Array<string>} out
  * @param {number} id
  * @param {Float32Array} vertices
  * @param {Uint32Array} indices
  * @param {number} precision
  * @param {string} [name]
- * @returns
+ * @return {import("../xml-schema-3mf").Xml3mfMeshObject}
  */
-export function pushObjectWithMesh(
-    out, id, vertices, indices, precision, name) {
-  out.push(`  <object id="${id}" type="model"${
-      !name ? '' : ' name="' + name + '"'}>
-   <mesh>
-    <vertices>
-`)
-
+export const genObjectWithMesh = (id, vertices, indices, precision, name) => {
+  /** @type { import("../xml-schema-3mf").Xml3mfVertex[]} */
+  const xmlVertex = []
   for (let i = 0; i < vertices.length; i += 3) {
-    out.push(`     <vertex x="${vertices[i].toPrecision(precision)}" y="${
-        vertices[i + 1].toPrecision(
-            precision)}" z="${vertices[i + 2].toPrecision(precision)}" />\n`)
+    xmlVertex.push({
+      "@_x": vertices[i].toPrecision(precision),
+      "@_y": vertices[i + 1].toPrecision(precision),
+      "@_z": vertices[i + 2].toPrecision(precision),
+    })
   }
 
-  out.push(`    </vertices>
-    <triangles>
-`)
-
+  /** @type { import("../xml-schema-3mf").Xml3mfTriangle[]} */
+  const xmlTriangles = []
   for (let i = 0; i < indices.length; i += 3) {
-    out.push(`     <triangle v1="${indices[i]}" v2="${indices[i + 1]}" v3="${
-        indices[i + 2]}" />\n`)
+    xmlTriangles.push({
+      "@_v1": indices[i],
+      "@_v2": indices[i + 1],
+      "@_v3": indices[i + 2],
+    })
   }
 
-
-  out.push(`    </triangles>
-   </mesh>
-  </object>
-`)
-
-  return out
+  return {
+    "@_id": id,
+    "@_type": "model",
+    "@_name": name,
+    mesh: {
+      vertices: { vertex: xmlVertex },
+      triangles: { triangle: xmlTriangles },
+    },
+  }
 }

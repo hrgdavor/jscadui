@@ -32,7 +32,7 @@ const zip = new Zip(async (err, dat, final) => {
   }
 })
 
-let modelStr = to3dmodelSimple([{ vertices, indices, id: 1 }])
+const modelStr = to3dmodelSimple([{ vertices, indices, id: 1 }], { application: 'jscad.app', title: 'jscad model' })
 addToZip(zip, '3D/3dmodel.model', modelStr)
 fileForRelThumbnail.add3dModel('3D/3dmodel.model')
 

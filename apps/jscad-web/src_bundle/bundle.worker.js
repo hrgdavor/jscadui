@@ -4,12 +4,12 @@ importScripts('./bundle.jscadui.transform-babel.js')
 const {transformcjs} = jscadui_transform_babel
 // import {transformcjs} from '@jscadui/transform-babel'
 
-import { Zip, ZipDeflate, ZipPassThrough, strToU8 } from 'fflate'
+import { Zip, ZipDeflate, ZipPassThrough } from 'fflate'
 import {currentSolids, initWorker} from '@jscadui/worker'
 import {readFileWeb, require} from '@jscadui/require'
 
 import { withTransferable } from '@jscadui/postmessage'
-import { fileForContentTypes, FileForRelThumbnail, to3dmodel, to3dmodelSimple } from '@jscadui/3mf-export'
+import { to3mfZipContentSimple } from '@jscadui/3mf-export'
 import { currentMeshes } from '@jscadui/worker'
 
 const serializerMap ={
@@ -57,14 +57,8 @@ const importData = {
 }
 
 function export3mf(solids, thumb){
-  // collects rels used
-  const fileForRelThumbnail = new FileForRelThumbnail()
-
+  /** @type {Uint8Array[]} */
   const zipParts = []
-  let resolve
-  let promise =  new Promise((res)=>{
-    resolve = res
-  })
 
   const zip = new Zip((err, dat, final) => {
     if (!err) {
@@ -72,25 +66,16 @@ function export3mf(solids, thumb){
      zipParts.push(dat)
     }
   })
-  let modelStr = to3dmodelSimple(solids, { application: 'jscad.app', title: 'jscad model' })
-  console.log('modelStr', modelStr)
-  addToZip(zip, '3D/3dmodel.model', modelStr)
-  fileForRelThumbnail.add3dModel('3D/3dmodel.model')
 
-  if(thumb){
-    const pngPreviewFile = new ZipPassThrough('Metadata/thumbnail.png')
-    zip.add(pngPreviewFile)
-    pngPreviewFile.push(thumb, true)
-    fileForRelThumbnail.addThumbnail('Metadata/thumbnail.png')    
-  }
+  const zipContents = to3mfZipContentSimple({
+    meshes: solids,
+    header: { application: 'jscad.app', title: 'jscad model' }
+  }, thumb)
 
-  let staticFiles = [fileForContentTypes, fileForRelThumbnail]
-  staticFiles.forEach(({ name, content }) => addToZip(zip, name, content))
-  
-  function addToZip(zip, name, content) {
-    const zf = new ZipDeflate(name, { level: 9 })
-    zip.add(zf)
-    zf.push(strToU8(content), true)
+  for (const [fileName, fileContent, canBeCompressed] of zipContents) {
+    const fileStream = canBeCompressed ? new ZipDeflate(fileName, { level: 9 }) : new ZipPassThrough(fileName)
+    zip.add(fileStream)
+    fileStream.push(fileContent, true)
   }
 
   zip.end()

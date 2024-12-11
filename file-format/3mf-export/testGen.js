@@ -52,14 +52,8 @@ zip.end()
 function canvasToPngA8(canvas) {
   let url = canvas.toDataURL('image/png')
   url = url.substring(url.indexOf(',') + 1)
-  // strToU8 function from fflate
-  return strToU8(url)
-  // string to Uint8Array taken from stackoverflow, and should work in browser
-  return new Uint8Array(
-    atob(url)
-      .split('')
-      .map(c => c.charCodeAt(0)),
-  )
+  //Convert to utf8 Uint8Array
+  return new TextEncoder().encode(url)
 }
 
 /** intentionally not part of the lib, you may or may not need it in your export code 

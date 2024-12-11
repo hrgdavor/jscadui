@@ -23,13 +23,13 @@ const serializerMap ={
   'svg': ['svgSerializer', {}],
 }
 
-const exportData = async ({format, thumb, options={}})=>{
+const exportData = ({ format, thumb, options = {} }) => {
   const solids = currentSolids()
   console.log('solids', solids, 'thumb',thumb)
   let data 
   if(format == '3mf'){
     // we can use mesh data to export
-    data = await export3mf(currentMeshes().map((s,id)=>({...s,id:id+1})), thumb)
+    data = export3mf(currentMeshes().map((s, id) => ({ ...s, id: id + 1 })), thumb)
   }else{
     const jscad_io = require('./bundle.jscad_io.js', null, readFileWeb)
     const [key, defaults] = serializerMap[format]

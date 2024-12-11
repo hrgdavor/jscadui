@@ -1,11 +1,10 @@
 // if not in browser
 import { Blob } from 'buffer'
-import { Zip, ZipDeflate, ZipPassThrough, strToU8 } from 'fflate'
+import { Zip, ZipDeflate, ZipPassThrough } from 'fflate'
 import { readFileSync, writeFileSync } from 'fs'
 
-import { fileForContentTypes, FileForRelThumbnail, to3dmodel, to3dmodelSimple } from './index.js'
+import { to3mfZipContentSimple } from './index.js'
 
-const fileForRelThumbnail = new FileForRelThumbnail()
 //#region hardcoded cube data
 let vertices = new Float32Array([
   -1, -1, -1, -1, -1, 1, -1, 1, 1, -1, 1, -1, 1, -1, -1, 1, 1, -1, 1, 1, 1, 1, -1, 1, -1, -1, -1, 1, -1, -1, 1, -1, 1,
@@ -32,37 +31,23 @@ const zip = new Zip(async (err, dat, final) => {
   }
 })
 
-const modelStr = to3dmodelSimple([{ vertices, indices, id: 1 }], { application: 'jscad.app', title: 'jscad model' })
-addToZip(zip, '3D/3dmodel.model', modelStr)
-fileForRelThumbnail.add3dModel('3D/3dmodel.model')
 
-let thumb = readFileSync('testThumbnail.png')
-const pngPreviewFile = new ZipPassThrough('Metadata/thumbnail.png')
-zip.add(pngPreviewFile)
-pngPreviewFile.push(thumb, true)
-fileForRelThumbnail.addThumbnail('Metadata/thumbnail.png')
+const thumb = readFileSync('testThumbnail.png')
+const zipContents = to3mfZipContentSimple({
+  meshes: [{ vertices, indices, id: 1 }],
+  header: { application: 'jscad.app', title: 'jscad model' }
+}, thumb)
 
-let staticFiles = [fileForContentTypes, fileForRelThumbnail]
-staticFiles.forEach(({ name, content }) => addToZip(zip, name, content))
+for (const [fileName, fileContent, canBeCompressed] of zipContents) {
+  const fileStream = canBeCompressed ? new ZipDeflate(fileName, { level: 9 }) : new ZipPassThrough(fileName)
+  zip.add(fileStream)
+  fileStream.push(fileContent, true)
+}
 
 zip.end()
 
-/**
- * @param {Zip} zip
- * @param {string} name
- * @param {string} content
- */
-function addToZip(zip, name, content) {
-  const zf = new ZipDeflate(name, { level: 9 })
-  zip.add(zf)
-  zf.push(strToU8(content), true)
-}
-
-/** //example how to generate thumb from canvas and add it in fflate
-const pngPreviewFile = new fflate.ZipPassThrough('Metadata/thumbnail.png');
-zip.add(pngPreviewFile);
-pngPreviewFile.push(canvasToPngA8(canvas), true);
-@param {HTMLCanvasElement} canvas
+/** example how to generate thumb from canvas
+* @param {HTMLCanvasElement} canvas
 */
 function canvasToPngA8(canvas) {
   let url = canvas.toDataURL('image/png')

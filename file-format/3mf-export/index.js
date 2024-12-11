@@ -3,6 +3,7 @@ import { genItem } from './src/makeItem.js'
 import { genModel } from './src/pushHeader.js'
 import { genObjectWithComponents } from './src/pushObjectComponent.js'
 import { genObjectWithMesh } from './src/pushObjectMesh.js'
+import { fileForContentTypes } from './src/staticFiles.js'
 
 export * from './src/staticFiles.js'
 
@@ -84,6 +85,47 @@ export function to3dmodelSimple(meshes, header, precision) {
   const items = meshes.map(({ id, transform }) => ({ objectID: id, transform }))
 
   return to3dmodel({ meshes, items, header, precision })
+}
+
+/**
+ * @typedef {[string,Uint8Array,boolean]} ZipContent  FileName, FileContent, CanBeCompressed
+ */
+
+/**
+ * @param {To3MF} options
+ * @param {Uint8Array | undefined} [thumbnailPng]
+ * @returns {ZipContent[]}
+ */
+export function to3mfZipContent(options, thumbnailPng) {
+  /** @type {ZipContent[]} */
+  const result = []
+  const utf8Encoder = new TextEncoder()
+
+  result.push([fileForContentTypes.name, utf8Encoder.encode(fileForContentTypes.content), true])
+
+  const fileForRelThumbnail = new FileForRelThumbnail()
+  fileForRelThumbnail.add3dModel('3D/3dmodel.model')
+
+  if (thumbnailPng !== undefined) {
+    result.push(['Metadata/thumbnail.png', thumbnailPng, false])
+    fileForRelThumbnail.addThumbnail('Metadata/thumbnail.png')
+  }
+
+  result.push(['3D/3dmodel.model', utf8Encoder.encode(to3dmodel(options)), true])
+  result.push([fileForRelThumbnail.name, utf8Encoder.encode(fileForRelThumbnail.content), true])
+
+  return result
+}
+
+/**
+ * @param {{meshes:Array<Mesh3MFSimple>,header?:import('./src/pushHeader.js').Header,precision?:number}} options
+ * @param {Uint8Array | undefined} [thumbnailPng]
+ * @returns {ZipContent[]}
+ */
+export function to3mfZipContentSimple({ meshes, header, precision }, thumbnailPng) {
+  const items = meshes.map(({ id, transform }) => ({ objectID: id, transform }))
+
+  return to3mfZipContent({ meshes, items, header, precision }, thumbnailPng)
 }
 
 /** File that describes file relationships inside a 3mf  */

@@ -11,7 +11,7 @@ export interface Xml3mfModel {
     '@_xml:lang': 'en-US'
     '@_xmlns': 'http://schemas.microsoft.com/3dmanufacturing/core/2015/02'
     '@_xmlns:slic3rpe': 'http://schemas.slic3r.org/3mf/2017/06'
-    metadata: { '@_name': string, '#text': string }[],
+    metadata: { '@_name': string, '#text': string }[]
     resources: Xml3mfResource[]
     build: Xml3mfBuild
 }
@@ -61,7 +61,7 @@ export interface Xml3mfItem {
 }
 
 export interface Xml3mfComponent {
-    '@_objectid': number,
+    '@_objectid': number
     '@_transform'?: string
 }
 

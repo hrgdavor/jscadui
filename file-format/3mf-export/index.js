@@ -130,36 +130,36 @@ export function to3mfZipContentSimple({ meshes, header, precision }, thumbnailPn
 
 /** File that describes file relationships inside a 3mf  */
 export class FileForRelThumbnail {
-  constructor() {
-    this.idSeq = 0
-    this.lines = [
-      `<?xml version="1.0" encoding="UTF-8"?>`,
-      `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">`,
-    ]
-  }
-  get name() {
-    return '_rels/.rels'
-  }
+  idSeq = 0
+  name = '_rels/.rels'
 
-    /**
+  /** @type {import('./xml-schema-3mf.js').Xml3mfRelationFile} */
+  data = {
+    '?xml': { '@_version': '1.0', '@_encoding': 'UTF-8' },
+    Relationships: {
+      '@_xmlns': 'http://schemas.openxmlformats.org/package/2006/relationships',
+      Relationship: []
+    },
+  }  
+
+   /**
    * @param {string} target file path
    * @param {string} xmlType xml schema url
    */
   addRel(target, xmlType) {
-    this.lines.push(`  <Relationship Target="${target}" Id="rel-${++this.idSeq}" Type="${xmlType}" />`)
+    this.data.Relationships.Relationship.push(
+      { '@_Target': target, "@_Id": `rel-${++this.idSeq}`, '@_Type': xmlType }
+    )
   }
 
   /** @param {string} path */
-  add3dModel(path) {
-    this.addRel(path, 'http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel')
-  }
+  add3dModel = (path) => this.addRel(path, 'http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel')
 
   /** @param {string} path */
-  addThumbnail(path) {
-    this.addRel(path, 'http://schemas.openxmlformats.org/package/2006/relationships/metadata/thumbnail')
-  }
+  addThumbnail = (path) => this.addRel(path, 'http://schemas.openxmlformats.org/package/2006/relationships/metadata/thumbnail')
 
   get content() {
-    return this.lines.join('\n') + `\n</Relationships>`
+    const builder = new XMLBuilder({ ignoreAttributes: false, format: true, suppressEmptyNode: true })
+    return builder.build(this.data)
   }
 }

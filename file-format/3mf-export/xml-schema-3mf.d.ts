@@ -65,4 +65,19 @@ export interface Xml3mfComponent {
     '@_transform'?: string
 }
 
-export type Xml3mfUnit = 'micron' | 'millimeter' | 'centimeter' | 'inch' | 'foot' | 'meter';
+export type Xml3mfUnit = 'micron' | 'millimeter' | 'centimeter' | 'inch' | 'foot' | 'meter'
+
+export interface Xml3mfRelationFile {
+    '?xml': {
+        '@_version': '1.0'
+        '@_encoding': 'UTF-8'
+    }
+    Relationships: {
+        '@_xmlns': 'http://schemas.openxmlformats.org/package/2006/relationships'
+        Relationship: {
+            '@_Target': string
+            '@_Id': string
+            '@_Type': string
+        }[]
+    }
+}

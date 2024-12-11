@@ -43,10 +43,7 @@ export * from './src/staticFiles.js'
 export function to3dmodel({ meshes = [], components = [], items = [], precision = 17, header }) {
   /** @type {import('./xml-schema-3mf.js').Xml3mf} */
   const data = {
-    '?xml': {
-      '@_version': '1.0',
-      '@_encoding': 'UTF-8',
-    },
+    '?xml': { '@_version': '1.0', '@_encoding': 'UTF-8' },
     model: genModel(
       header ?? {},
       [
@@ -61,16 +58,15 @@ export function to3dmodel({ meshes = [], components = [], items = [], precision 
       ],
       { item: items.map(v => genItem(v.objectID, v.transform)) },
     )
-  };
+  }
 
   const builder = new XMLBuilder({
     ignoreAttributes: false,
     format: true,
     suppressEmptyNode: true
-  });
+  })
 
-  const out = builder.build(data);
-  return out;
+  return builder.build(data)
 }
 
 /**

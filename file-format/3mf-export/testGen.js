@@ -63,7 +63,7 @@ function canvasToPngA8(canvas) {
 }
 
 /** intentionally not part of the lib, you may or may not need it in your export code 
- * @param {*} blob 
+* @param {*} blob 
 */
 async function blobToArrayBuffer(blob) {
   if ('arrayBuffer' in blob) return await blob.arrayBuffer()
@@ -71,7 +71,7 @@ async function blobToArrayBuffer(blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = () => resolve(reader.result)
-    reader.onerror = () => reject
+    reader.onerror = (e) => reject(e)
     reader.readAsArrayBuffer(blob)
   })
 }

@@ -1,4 +1,8 @@
-import { XMLBuilder } from 'fast-xml-parser'
+// This import should be 
+// import {XMLBuilder} from 'fast-xml-parser'
+// but then tree shaking is not working correctly. Therefore this hack is required.
+import XMLBuilder from 'fast-xml-parser/src/xmlbuilder/json2xml.js'
+
 import { genItem } from './src/makeItem.js'
 import { genModel } from './src/pushHeader.js'
 import { genObjectWithComponents } from './src/pushObjectComponent.js'

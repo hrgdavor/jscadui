@@ -1,5 +1,5 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-If you want to discuss jscad or jscadui you can also join us on discord: https://discord.gg/AaqGskur93
+If you want to discuss jscad or jscadui you can also join us on discord: https://discord.gg/6PB7qZ4HC7
 
 
 # usable bits

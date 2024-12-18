@@ -26,5 +26,8 @@
     "@types/node": "18.11.9",
     "@trivago/prettier-plugin-sort-imports": "~3.3.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "fast-xml-parser": "^4.5.0"
+  }
 }

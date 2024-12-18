@@ -36,7 +36,7 @@ where this 3mf code is from. Final usage will of course be to tak a snapshot fro
 Sample of such code is left in [testGen.js] but unused.
 ![testThumbnail.png](testThumbnail.png)
 
-# array of strings and `Array.join('')`
+# PERFORMANCE: array of strings and `Array.join('')`
 
 `Array.join('')`
 

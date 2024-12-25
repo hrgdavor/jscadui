@@ -1,5 +1,5 @@
 
-/** transform for attribute as specifiend in 3mf format
+/** transform for attribute as specified in 3mf format
  * 
  * When objects need to be transformed for rotation, scaling, or translation purposes, 
  * row-major affine 3D matrices (4x4) are used. The matrix SHOULD NOT be singular or nearly singular.
@@ -9,8 +9,8 @@
  * matrices have the form "m00 m01 m02 m10 m11 m12 m20 m21 m22 m30 m31 m32" 
  * where each value is a decimal number of arbitrary precision.
  * 
- * @param {mat4} matrix
- * @return string tarnsform attribute value
+ * @param {import("./defMatrix").mat4} m
+ * @return string transform attribute value
 */
 export const matrix2str = m=>{
     let str = ''

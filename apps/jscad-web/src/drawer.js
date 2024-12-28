@@ -1,16 +1,19 @@
 let isMouseDown = false
 let isDragging = false
-let dragStartX
-let dragStartWidth
-let dragStartTime
+let dragStartX = 0
+let dragStartWidth = 0
+let dragStartTime = 0
 
 // Initialize drawer action
 // Initial open/closed state is in index.html to prevent flash of content
 export const init = () => {
-  const editor = document.getElementById('editor')
-  const toggle = document.getElementById('editor-toggle')
+  const editor = /** @type {HTMLElement} */ (document.getElementById('editor'))
+  const toggle = /** @type {HTMLElement} */ (document.getElementById('editor-toggle'))
 
-  // Set editor width and handle open/closed state
+  /**
+   * Set editor width and handle open/closed state
+   * @param {number} w 
+   */
   const setEditorWidth = (w) => {
     if (w > 0) {
       editor.style.width = `${w}px`
@@ -24,9 +27,9 @@ export const init = () => {
     if (!isDragging) {
       editor.classList.add('transition') // animate
       const isClosed = editor.classList.contains('closed')
-      localStorage.setItem('editor.closed', !isClosed)
+      localStorage.setItem('editor.closed', String(!isClosed))
       if (isClosed) {
-        setEditorWidth(localStorage.getItem('editor.width') || 400)
+        setEditorWidth(parseInt(localStorage.getItem('editor.width') ?? "400"))
       } else {
         setEditorWidth(0)
       }
@@ -65,10 +68,10 @@ export const init = () => {
       const width = editor.offsetWidth
       // Minimum width, otherwise snap to closed
       if (width > 50) {
-        localStorage.setItem('editor.width', width)
-        localStorage.setItem('editor.closed', false)
+        localStorage.setItem('editor.width', String(width))
+        localStorage.setItem('editor.closed', "false")
       } else {
-        localStorage.setItem('editor.closed', true)
+        localStorage.setItem('editor.closed', "true")
         editor.classList.add('transition') // snap closed
         setEditorWidth(0)
       }

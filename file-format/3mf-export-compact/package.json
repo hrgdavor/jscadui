@@ -1,7 +1,7 @@
 {
   "type": "module",
   "sideEffects": false,
-  "name": "@jscadui/3mf-export",
+  "name": "@jscadui/3mf-export-compact",
   "version": "0.5.0",
   "description": "3mf export",
   "main": "index.js",

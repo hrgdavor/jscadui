@@ -1,5 +1,16 @@
 # 3mf export MVP
-[![npm version](https://badge.fury.io/js/@jscadui%2F3mf-export.svg)](https://www.npmjs.com/package/@jscadui%2F3mf-export) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+This is a fork from `3mf-export` to allow it to move forward with a robust XML library.
+
+`3mf-export-comapct`
+
+- is less robust for XML (may break xml if some attribute velues are not sanitised)
+- has no dependencies
+- could be preferred by some people because of small footprint
+- I want to keep it as proud example of using arrays and join to gain nice performance.
+
+
+[![npm version](https://badge.fury.io/js/@jscadui%2F3mf-export-compact.svg)](https://www.npmjs.com/package/@jscadui%2F3mf-export-compact) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 This is a set of functions to generate 3mf content for exporting 3d models and optionally embedding a thumbnail.
 

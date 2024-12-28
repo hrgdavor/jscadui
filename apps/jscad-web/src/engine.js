@@ -5,7 +5,7 @@ import { RenderThreejs } from '@jscadui/render-threejs'
 export const init = async () => {
   await addScript('build/bundle.threejs.js')
   const JscadThreeViewer = RenderThreejs(THREE)
-  const el = document.getElementById('viewer')
+  const el = /** @type {HTMLDivElement} */ (document.getElementById('viewer'))
   const viewer = JscadThreeViewer(el)
 
   observeResize(el, evt => viewer.resize(evt.contentRect))
@@ -13,6 +13,10 @@ export const init = async () => {
   return viewer
 }
 
+/**
+ * @param {HTMLElement} el 
+ * @param {(entry:ResizeObserverEntry)=>void} listener 
+ */
 const observeResize = (el, listener) => {
   // ResizeObserver is better than window resize as it can be used on any element
   // this is a short/compact/simple implementation that uses a new ResizeObserver each time.
@@ -24,9 +28,14 @@ const observeResize = (el, listener) => {
   resizeObserver.observe(el)
 }
 
+/**
+ * @param {string} source 
+ * @param {boolean} [module]
+ * @returns {Promise<void>}
+ */
 const addScript = async (source, module = false) => {
   return new Promise((resolve, reject) => {
-    var tag = document.createElement('script')
+    const tag = document.createElement('script')
     tag.type = module ? 'module' : 'text/javascript'
     tag.src = source
     tag.onload = () => resolve()

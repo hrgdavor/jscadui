@@ -2,7 +2,7 @@
 
 This is the JSCAD web application hosted at https://jscad.app
 
-If you want to discuss jscad or jscadui, please join us on discord: https://discord.gg/AaqGskur93
+If you want to discuss jscad or jscadui, please join us on discord: https://discord.gg/6PB7qZ4HC7
 
 ## Running Locally
 

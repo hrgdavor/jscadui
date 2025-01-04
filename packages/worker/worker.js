@@ -167,7 +167,7 @@ const jscadExportData = async (params) => {
   let entities = JscadToCommon(solids, [], false)
 
   const arr = exportStlText(entities)
-  data = [await new Blob(arr).arrayBuffer()]
+  const data = [await new Blob(arr).arrayBuffer()]
   return withTransferable({ data }, data)
 }
 

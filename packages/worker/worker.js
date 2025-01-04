@@ -21,44 +21,48 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
  @typedef ExportDataOptions
  @prop {string} format
 
-@typedef {import('@jscadui/require').ClearFileCacheOptions} ClearFileCacheOptions
-@typedef {import('./src/parameterDefinition.js').ParameterDefinition} ParameterDefinition
-
  @typedef RunMainOptions
- @prop {UserParameters} params
+ @prop {import('@jscadui/format-common').UserParameters} params
  @prop {boolean} [skipLog]
 
  @typedef InitOptions
  @prop {string} [baseURI] - to resolve initial relative path
  @prop {Array<Alias>} [alias] - 
  @prop {Object.<string,string>} [bundles] - bundle alias {name:path} 
- 
- @typedef ScriptResponse
- @prop {Array<unknown>} entities  
- @prop {number} mainTime  - script run time
- @prop {number} convertTime  - tim converting script output to gl data
- @prop {UserParameters} params  - tim converting script output to gl data
- @prop {Array<ParameterDefinition>} def
-
- @typedef {Object.<string,unknown>} UserParameters
+ @prop {boolean} [userInstances] called useInstances at other places
 
 
 @typedef JscadWorker
 @prop {(options:InitOptions)=>Promise<void>} jscadInit
-@prop {(options:RunMainOptions)=>Promise<ScriptResponse>} jscadMain - run the main method of the loaded script
-@prop {(options:RunScriptOptions)=>Promise<ScriptResponse>} jscadScript - run a jscad script
+@prop {(options:RunMainOptions)=>Promise<import('@jscadui/format-common').JscadMainResult>} jscadMain - run the main method of the loaded script
+@prop {(options:RunScriptOptions)=>Promise<import('@jscadui/format-common').JscadMainResultWithParams>} jscadScript - run a jscad script
 @prop {(options:ExportDataOptions)=>Promise<unknown>} jscadExportData
-@prop {(options:ClearFileCacheOptions)=>Promise<void>} jscadClearFileCache
+@prop {(options:import('@jscadui/require').ClearFileCacheOptions)=>Promise<void>} jscadClearFileCache
 @prop {()=>Promise<void>} jscadClearTempCache
 
+@typedef ImportData
+@prop {(ext:string) => boolean } isBinaryExt
+@prop {(options:{url:string, filename:string, ext:string}, fileContent:string | ArrayBuffer ) => unknown} deserialize //TODO
+
+@typedef {(script:string,url:string)=>string} TransformFunction
 */
 
+/** @type {import('@jscadui/format-common').JscadMainFunction | undefined} */
 let main
+
+/** @type {import('@jscadui/format-common').JscadModule} */
 let scriptModule = {}
+
 globalThis.JSCAD_WORKER_ENV = {}
+
+/** @type {TransformFunction} */
 let transformFunc = x => x
+
 let globalBase = location.origin
+/** @type {boolean | undefined } */
 let userInstances
+
+/** @type {ImportData | undefined} */
 let importData
 
 /**
@@ -83,6 +87,9 @@ export const flatten = arr=>{
   return out
 }
 
+/**
+ * @param {InitOptions} options 
+ */
 export const jscadInit = options => {
   let { baseURI, alias = [], bundles = {} } = options
   if (baseURI) globalBase = baseURI
@@ -95,13 +102,23 @@ export const jscadInit = options => {
   console.log('init alias', alias, 'bundles',bundles)
   userInstances = options.userInstances
 }
-
+/**
+ * @param {import('../fs-provider/fs-provider.js').FSFileEntry | Blob} file 
+ * @param {{bin?:boolean}} options 
+ * @returns {Promise<ArrayBuffer | string>}
+ */
 async function readFileFile(file, {bin=false}={}){
   if(bin) return await readAsArrayBuffer(file)
   else return readAsText(file)
 }
 
+/** @type {import('@jscadui/format-common').JscadSolid[]} */
 let solids = []
+
+/**
+ * @param {{params?:import('@jscadui/format-common').UserParameters,skipLog?:boolean}} options
+ * @returns {Promise<import('@jscadui/format-common').JscadMainResult>}
+ */
 export async function jscadMain({ params, skipLog } = {}) {
   params = {...params}
   for(let p in params){
@@ -132,6 +149,10 @@ export async function jscadMain({ params, skipLog } = {}) {
 const importReg = /import(?:(?:(?:[ \n\t]+([^ *\n\t\{\},]+)[ \n\t]*(?:,|[ \n\t]+))?([ \n\t]*\{(?:[ \n\t]*[^ \n\t"'\{\}]+[ \n\t]*,?)+\})?[ \n\t]*)|[ \n\t]*\*[ \n\t]*as[ \n\t]+([^ \n\t\{\}]+)[ \n\t]+)from[ \n\t]*(?:['"])([^'"\n]+)(['"])/
 const exportReg = /export.*from/
 
+/**
+ * @param {{script:string,url?:string,base?:string,root?:string}} param0 
+ * @returns {Promise<import('@jscadui/format-common').JscadMainResultWithParams>}
+ */
 const jscadScript = async ({ script, url='jscad.js', base=globalBase, root=base }) => {
   console.log('run script with base:', base)
   if(!script) script = readFileWeb(resolveUrl(url, base, root).url)
@@ -154,16 +175,22 @@ const jscadScript = async ({ script, url='jscad.js', base=globalBase, root=base 
   // if the main function is the default export
   if(!main && typeof scriptModule == 'function') main = scriptModule
   let params = extractDefaults(def)
-  let out = await jscadMain({ params })
-  out.def = def
-  out.params = params
-  return out
+  const out = await jscadMain({ params })
+  return {
+    def,
+    params,
+    ...out,
+  }
 }
 
 // TODO remove, or move to another package, along with exportStlText
 // this is interesting in regards to exporting to stl, and 3mf which actually need vertex data, 
 // and not jcad geometry polygons. So it will be interesting to can give back transferable buffers
 // instead of re-running conversion. or move export to main thread where the data already is, as it is needed for rendering
+/**
+ * @param {ExportDataOptions} params 
+ * @returns {Promise<unknown>} //TODO
+ */
 const jscadExportData = async (params) => {
   if(self.exportData) return self.exportData(params)
 
@@ -187,6 +214,12 @@ const handlersProxy = new Proxy(handlers, {
     return target[prop] || scriptModule[prop]
   }
 })
+
+/**
+ * @param {TransformFunction | undefined} transform 
+ * @param {unknown} jscadExportData 
+ * @param {ImportData | undefined} _importData 
+ */
 export const initWorker = (transform, jscadExportData, _importData) => {
   if (transform) transformFunc = transform
   if(jscadExportData) handlers.jscadExportData = jscadExportData

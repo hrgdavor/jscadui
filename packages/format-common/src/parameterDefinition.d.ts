@@ -96,7 +96,6 @@ export interface PasswordParameterDefinition extends BaseParameterDefinition, Ca
     readonly type: 'password'
 }
 
-
 export type ParameterDefinition = GroupParameterDefinition | TextParameterDefinition | NumberBasedParameterDefinition | SliderParameterDefinition | DateParameterDefinition | CheckboxParameterDefinition | ChoiceParameterDefinition | RadioButtonParameterDefinition | EMailParameterDefinition | UrlParameterDefinition | ColorParameterDefinition | PasswordParameterDefinition
 
 /*

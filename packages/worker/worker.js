@@ -159,7 +159,6 @@ const jscadScript = async ({ script, url='jscad.js', base=globalBase, root=base 
 const jscadExportData = async (params) => {
   if(self.exportData) return self.exportData(params)
 
-  const { format } = params
   // todo check if it is ok to give back transferables after webgl has used the buffers
   // then we would not need to clone the data
   // other option is to clone data before sending transferable

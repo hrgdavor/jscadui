@@ -61,17 +61,25 @@ let globalBase = location.origin
 let userInstances
 let importData
 
+/**
+ * @template T
+ * @param {T | T[]} arr 
+ * @returns {T[]}
+ */
 export const flatten = arr=>{
-  const doFlatten = (_in, out)=>{
+  /** @type {T[]} */
+  const out = []
+
+  /** @param {T |T[]} _in */
+  const doFlatten = (_in) => {
     if(_in instanceof Array){
-      _in.forEach(el=>doFlatten(el,out))
+      _in.forEach(el => doFlatten(el))
     }else{
       out.push(_in)
     }
   }
 
-  const out = []
-  doFlatten(arr,out)
+  doFlatten(arr)
   return out
 }
 

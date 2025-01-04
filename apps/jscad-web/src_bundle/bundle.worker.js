@@ -37,7 +37,7 @@ const importData = {
       let deserializer = jscad_io.deserializers[ext]
 
       if(deserializer) return deserializer({output:'geometry', filename}, fileContent)
-      throw new Error('unsupportd format in '+url)
+      throw new Error('unsupported format in ' + url)
     } catch (error) {
       console.error(error)
       throw error

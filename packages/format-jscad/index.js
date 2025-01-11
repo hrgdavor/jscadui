@@ -176,7 +176,7 @@ function CSGCached (func, data, cacheKey, transferable, unique, options) {
   return geo
 }
 
-/** Prepare lists of geometries gouped by type with format suitable for webgl if possible or type:unknown.
+/** Prepare lists of geometries grouped by type with format suitable for webgl if possible or type:unknown.
  *
  * @returns object separating converted geometries by type: line,lines,mesh,instance,unknown
  * */

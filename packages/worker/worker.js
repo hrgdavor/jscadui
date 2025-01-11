@@ -185,7 +185,7 @@ const jscadScript = async ({ script, url='jscad.js', base=globalBase, root=base 
 
 // TODO remove, or move to another package, along with exportStlText
 // this is interesting in regards to exporting to stl, and 3mf which actually need vertex data, 
-// and not jcad geometry polygons. So it will be interesting to can give back transferable buffers
+// and not jscad geometry polygons. So it will be interesting to can give back transferable buffers
 // instead of re-running conversion. or move export to main thread where the data already is, as it is needed for rendering
 /**
  * @param {ExportDataOptions} params 

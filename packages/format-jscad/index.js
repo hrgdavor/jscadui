@@ -170,7 +170,7 @@ function CSGCached (func, data, cacheKey, transferable, unique, options) {
 
     JscadToCommon.cache.set(cacheKey, geo)
   }
-  // flll unique map for exports that reuse stuff like 3mf
+  // fill unique map for exports that reuse stuff like 3mf
   if (unique) unique.set(geo.id, geo)
 
   return geo

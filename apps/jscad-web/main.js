@@ -221,7 +221,7 @@ const handlers = {
       let {min,max} = boundingBox(entities)
       console.warn('min', min, 'max', max, viewState.viewer.getCamera())
       let { fov, aspect } = viewState.viewer.getCamera()
-      ctrl.fit(min,max, fov,aspect,1.8)
+      ctrl.fit(min,max, fov,aspect,1.2)
     }
     if (!skipLog) console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2), entities)
     setError(undefined)

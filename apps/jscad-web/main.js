@@ -11,6 +11,7 @@ import {
 } from '@jscadui/fs-provider'
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl, OrbitState } from '@jscadui/orbit'
+import { boundingBox } from '@jscadui/format-common'
 import { genParams, getParams } from '@jscadui/params'
 import { messageProxy } from '@jscadui/postmessage'
 
@@ -216,6 +217,12 @@ const handlers = {
   entities: ({ entities, mainTime, convertTime }, { skipLog } = {}) => {
     if (!(entities instanceof Array)) entities = [entities]
     viewState.setModel(entities)
+    if(viewState.zoomToFit){
+      let {min,max} = boundingBox(entities)
+      console.warn('min', min, 'max', max, viewState.viewer.getCamera())
+      let { fov, aspect } = viewState.viewer.getCamera()
+      ctrl.fit(min,max, fov,aspect,1.8)
+    }
     if (!skipLog) console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2), entities)
     setError(undefined)
     onProgress(undefined, mainTime?.toFixed(2) + ' ms')

@@ -14,6 +14,7 @@
     "@jscad/modeling": "2.12.2",
     "@jscadui/format-jscad": "*",
     "@jscadui/format-threejs": "*",
+    "@jscadui/format-common": "*",
     "@jscadui/fs-provider": "*",
     "@jscadui/fs-serviceworker": "*",
     "@jscadui/html-gizmo": "*",

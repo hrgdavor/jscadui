@@ -126,12 +126,37 @@ export class OrbitState {
     this.target = vec3.add([], this.target, vec)
     this.fireChange()
   }
+  
+  /**
+   * @param {number} boxMin 
+   * @param {number} boxMax 
+   * @param {number} fov 
+   * @param {number} aspect 
+   * @param {number} fitOffset 
+   */
+  fit(boxMin, boxMax, fov, aspect, fitOffset = 1.2){
+    const sizex = boxMax.x - boxMin.x
+    const sizey = boxMax.y - boxMin.y
+    const sizez = boxMax.z - boxMin.z
+    const maxSize = Math.max( sizex, sizey, sizez );
+    const fitHeightDistance = maxSize / ( 2 * Math.atan( Math.PI * fov / 360 ) );
+    const fitWidthDistance = fitHeightDistance / aspect;
+    const distance = fitOffset * Math.max( fitHeightDistance, fitWidthDistance );
+    // look at center
+    this.target = [boxMin.x + sizex/2, boxMin.y + sizey /2, boxMin.z + sizez/2]
+    this.setLen(distance)
+  }
 
-/** @param {number} amount */
-  zoomBy(amount) {
-    this.len *= 1 + amount
+  /** @param {number} len */
+  setLen(len) {
+    this.len = len
     this.position = calcCamPos(this)
     this.fireChange()
+  }
+
+  /** @param {number} amount */
+  zoomBy(amount) {
+    this.setLen(this.len * (1 + amount))
   }
 
   clone() {

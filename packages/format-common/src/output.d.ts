@@ -1,5 +1,5 @@
-import { ParameterDefinition } from './parameterDefinition'
-import { Matrix4x4 } from './utils'
+import { ParameterDefinition } from './parameterDefinition.d.ts'
+import { Matrix4x4 } from './utils.d.ts'
 
 export interface JscadMainResult {
     /** script run time */

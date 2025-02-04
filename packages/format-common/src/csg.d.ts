@@ -1,4 +1,4 @@
-import { Matrix4x4 } from "./utils";
+import { Matrix4x4 } from "./utils.d.ts";
 
 interface CSGBase {
     transforms?: Matrix4x4,

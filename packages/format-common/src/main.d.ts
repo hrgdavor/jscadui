@@ -1,6 +1,6 @@
-import { CSGItem } from './csg'
-import { JscadMainResult, JscadMeshEntity } from './output'
-import { ParameterDefinition } from './parameterDefinition'
+import { CSGItem } from './csg.d.ts'
+import { JscadMainResult, JscadMeshEntity } from './output.d.ts'
+import { ParameterDefinition } from './parameterDefinition.d.ts'
 
 export type JscadMainResultRaw = CSGItem | JscadMeshEntity
 

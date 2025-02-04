@@ -28,6 +28,10 @@ to start dev server that also has docs run
 npm run start:full
 ```
 
+NOTICE! - there is issue with nodejs 18 on linux `TypeError [ERR_FEATURE_UNAVAILABLE_ON_PLATFORM]: The feature watch recursively ` ... we did not investigate in detail, but using version 21+ should work
+
+
+
 ## External editor
 
 You can edit your jscad scripts/projects in editor of your own choice and have jscad.app preview result when you save.

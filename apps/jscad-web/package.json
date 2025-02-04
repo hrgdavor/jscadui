@@ -32,7 +32,7 @@
     "three": "^0.147.0"
   },
   "devDependencies": {
-    "@jsx6/build": "0.2.0",
+    "@jsx6/build": "0.2.4",
     "@trivago/prettier-plugin-sort-imports": "~3.3.0",
     "esbuild": "^0.17.11",
     "live-server": "^1.2.2",

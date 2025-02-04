@@ -35,7 +35,7 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
 @typedef JscadWorker
 @prop {(options:InitOptions)=>Promise<void>} jscadInit
 @prop {(options:RunMainOptions)=>Promise<import('@jscadui/format-common').JscadMainResult>} jscadMain - run the main method of the loaded script
-@prop {(options:RunScriptOptions)=>Promise<import('@jscadui/format-common').JscadMainResultWithParams>} jscadScript - run a jscad script
+@prop {(options:RunScriptOptions)=>Promise<import('@jscadui/format-common').JscadScriptResultWithParams>} jscadScript - run a jscad script
 @prop {(options:ExportDataOptions)=>Promise<unknown>} jscadExportData
 @prop {(options:import('@jscadui/require').ClearFileCacheOptions)=>Promise<void>} jscadClearFileCache
 @prop {()=>Promise<void>} jscadClearTempCache
@@ -47,7 +47,7 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
 @typedef {(script:string,url:string)=>string} TransformFunction
 */
 
-/** @type {import('@jscadui/format-common').JscadMainFunction | undefined} */
+/** @type {import('@jscadui/format-common').JscadMainFunctionRaw | undefined} */
 let main
 
 /** @type {import('@jscadui/format-common').JscadModule} */
@@ -112,7 +112,7 @@ async function readFileFile(file, {bin=false}={}){
   else return readAsText(file)
 }
 
-/** @type {import('@jscadui/format-common').JscadSolid[]} */
+/** @type {import('@jscadui/format-common').JscadMainResultRaw[]} */
 let solids = []
 
 /**
@@ -128,8 +128,8 @@ export async function jscadMain({ params, skipLog } = {}) {
       params[p] = importData.deserialize(info, content)
     }
   }
-  if(!skipLog) console.log('jscadMain with params', params)
-  let entities = []
+  if (!skipLog) console.log('jscadMain with params', params)
+  /** @type {import('@jscadui/format-common').JscadTransferable []} */
   const transferable = []
 
   if (!main) throw new Error('no main function exported')
@@ -140,8 +140,7 @@ export async function jscadMain({ params, skipLog } = {}) {
 
   time = performance.now()
   JscadToCommon.clearCache()
-  entities = JscadToCommon.prepare(solids, transferable, userInstances)
-  entities = entities.all
+  const entities = JscadToCommon.prepare(solids, transferable, userInstances).all
   return withTransferable({entities, mainTime, convertTime: performance.now() - time}, transferable)
 }
 
@@ -151,7 +150,7 @@ const exportReg = /export.*from/
 
 /**
  * @param {{script:string,url?:string,base?:string,root?:string}} param0 
- * @returns {Promise<import('@jscadui/format-common').JscadMainResultWithParams>}
+ * @returns {Promise<import('@jscadui/format-common').JscadScriptResultWithParams>}
  */
 const jscadScript = async ({ script, url='jscad.js', base=globalBase, root=base }) => {
   console.log('run script with base:', base)
@@ -189,7 +188,7 @@ const jscadScript = async ({ script, url='jscad.js', base=globalBase, root=base 
 // instead of re-running conversion. or move export to main thread where the data already is, as it is needed for rendering
 /**
  * @param {ExportDataOptions} params 
- * @returns {Promise<unknown>} //TODO
+ * @returns {Promise<{data:ArrayBuffer[]}>}
  */
 const jscadExportData = async (params) => {
   if(self.exportData) return self.exportData(params)
@@ -198,7 +197,7 @@ const jscadExportData = async (params) => {
   // then we would not need to clone the data
   // other option is to clone data before sending transferable
   JscadToCommon.clearCache()
-  let entities = JscadToCommon(solids, [], false)
+  let entities = JscadToCommon.ConvertMulti(solids, [], false)
 
   const arr = exportStlText(entities)
   const data = [await new Blob(arr).arrayBuffer()]
@@ -217,8 +216,8 @@ const handlersProxy = new Proxy(handlers, {
 
 /**
  * @param {TransformFunction | undefined} transform 
- * @param {unknown} jscadExportData 
- * @param {ImportData | undefined} _importData 
+ * @param {(options:ExportDataOptions)=>Promise<{data:ArrayBuffer[]}>} [jscadExportData ]
+ * @param {ImportData} [_importData]
  */
 export const initWorker = (transform, jscadExportData, _importData) => {
   if (transform) transformFunc = transform

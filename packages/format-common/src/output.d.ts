@@ -9,41 +9,64 @@ export interface JscadMainResult {
     entities: JscadMainEntity[],
 }
 
-export type JscadCSG = unknown //TODO
-
 interface JscadBaseEntity {
     id: number,
-    transforms: Matrix4x4,
-    csg: JscadCSG,
+    transforms?: Matrix4x4,
+    color?: [number, number, number, number?],
+    csg?: unknown,
 }
 
-export interface JscadLineEntity extends JscadBaseEntity {
+export interface JscadLineEntityRaw {
     type: 'line',
     vertices: Float32Array,
 }
 
-export interface JscadLinesEntity extends JscadBaseEntity {
+export interface JscadLineEntity extends JscadBaseEntity, JscadLineEntityRaw { }
+
+export interface JscadLinesEntityRaw {
     type: 'lines',
     vertices: Float32Array,
 }
 
-export interface JscadMeshEntity extends JscadBaseEntity {
+export interface JscadLinesEntity extends JscadBaseEntity, JscadLineEntityRaw { }
+
+export interface JscadMeshEntityRaw {
     type: 'mesh',
     /** length = vert count * 3 */
     vertices: Float32Array,
     /**if not provided can be assumed: [0,1,2,3....] that vertices are sequential */
-    indices?: Uint16Array | Uint32Array,
-    colors: unknown //TODO
+    indices: Uint16Array | Uint32Array,
+    colors?: Float32Array
     isTransparent?: boolean,
-    normals?: Float32Array,
-    opacity?: unknown,
+    normals: Float32Array,
+    opacity?: unknown, //TODO
 }
 
-export type JscadMainEntity = JscadLineEntity | JscadLinesEntity | JscadMeshEntity
+export interface JscadMeshEntity extends JscadBaseEntity, JscadMeshEntityRaw { }
 
-export interface JscadMainResultWithParams extends JscadMainResult {
+export interface JscadUnknownEntity extends JscadBaseEntity {
+    type: 'unknown',
+    id: number,
+}
+
+export type JscadMainEntity = JscadLineEntity | JscadLinesEntity | JscadMeshEntity | JscadUnknownEntity
+export type JscadMainEntityRaw = JscadLineEntityRaw | JscadLinesEntityRaw | JscadMeshEntityRaw
+
+export interface JscadScriptResultWithParams extends JscadMainResult {
     params: UserParameters,
     def: ParameterDefinition[],
 }
 
 export type UserParameters = Record<string, unknown> //TODO
+
+export type JscadTransferable = Float32Array | Uint16Array | Uint32Array
+
+export interface JscadResultsByType {
+    line: JscadLineEntity[]
+    lines: JscadLinesEntity[],
+    mesh: JscadMeshEntity[],
+    instance: unknown[],
+    unknown: unknown[],
+    all: JscadMainEntity[],
+    unique: Map<number, JscadMainEntity>,
+}

@@ -1,9 +1,18 @@
+/**
+ * @param {Float32Array} points 
+ * @param {[number,number,number?]} p 
+ * @param {number} i 
+ */
 const setPoints = (points, p, i) => {
   points[i++] = p[0]
   points[i++] = p[1]
   points[i++] = p[2] || 0
 }
 
+/**
+ * @param {import("@jscadui/format-common").CSGPolygons} csg 
+ * @returns {import("@jscadui/format-common").JscadMeshEntityRaw}
+ */
 function CSG2Vertices (csg) {
   let vLen = 0; let iLen = 0
 
@@ -54,14 +63,23 @@ function CSG2Vertices (csg) {
   	}
   }
 
-  vertOffset = 0
-  for (const poly of csg.polygons) {
-    let arr = poly.vertices
-    if(arr[0].pos){// v1 polygon with pos:{x,y,z} support, bu converting to array
-      arr = arr.map(({pos})=>{
+  /**
+   * @param {import("@jscadui/format-common").CSGPolygons['polygons'][0]['vertices']} vertices 
+   * @returns { [number,number,number][]}
+   */
+  const normalizeVertexFormat = (vertices) => {
+    if ('pos' in vertices[0]) {//converting v1 polygon with pos:{x,y,z} to number array      
+      return (/** @type {import("@jscadui/format-common").CSGPolygonOldVertices} */ (vertices)).map(({ pos }) => {
         return [pos.x, pos.y, pos.z]
       })
+    } else {
+      return (/** @type {[number,number,number][]} */ (vertices))
     }
+  }
+
+  vertOffset = 0
+  for (const poly of csg.polygons) {
+    const arr = normalizeVertexFormat(poly.vertices)    
     const normal = calculateNormal(arr)
     const len = arr.length
     first = posOffset
@@ -87,6 +105,10 @@ function CSG2Vertices (csg) {
   return { type: 'mesh', vertices, indices, normals, colors, isTransparent:hasVertexColors }
 }
 
+/**
+ * @param {[number,number,number][]} vertices 
+ * @returns {[number,number,number]}
+ */
 const calculateNormal = (vertices) => {
   const v0 = vertices[0]
   const v1 = vertices[1]
@@ -108,6 +130,10 @@ const calculateNormal = (vertices) => {
   return [Nx / len, Ny / len, Nz / len]
 }
 
+/**
+ * @param {import("@jscadui/format-common").CSGLine} csg 
+ * @returns {import("@jscadui/format-common").JscadLineEntityRaw}
+ */
 function CSG2LineVertices (csg) {
   let vLen = csg.points.length * 3
   if (csg.isClosed) vLen += 3
@@ -122,6 +148,10 @@ function CSG2LineVertices (csg) {
   return { type: 'line', vertices }
 }
 
+/**
+ * @param {import("@jscadui/format-common").CSGItem & import("@jscadui/format-common").CSGLineSegments} csg 
+ * @returns {import("@jscadui/format-common").JscadLinesEntityRaw}
+ */
 function CSGSides2LineSegmentsVertices (csg) {
   const vLen = csg.sides.length * 6
 
@@ -134,13 +164,17 @@ function CSGSides2LineSegmentsVertices (csg) {
   return { type: 'lines', vertices }
 }
 
-const CSGOutlines2LineSegmentsVertices = (key) => (csg) => {
-  const numPoints = csg[key].reduce((acc, outline) => acc + outline.length, 0)
+/**
+ * @param {import("@jscadui/format-common").CsgContourOrOutlineValue} values  
+ * @returns {import("@jscadui/format-common").JscadLinesEntityRaw}
+ */
+const CSGOutlines2LineSegmentsVertices = (values) => {
+  const numPoints = values.reduce((acc, outline) => acc + outline.length, 0)
   const vLen = numPoints * 6
 
   const vertices = new Float32Array(vLen)
   let idx = 0
-  csg[key].forEach((outline) => {
+  values.forEach((outline) => {
     let prev = outline[outline.length - 1]
     outline.forEach((vert) => {
       setPoints(vertices, prev, idx * 6)
@@ -152,20 +186,30 @@ const CSGOutlines2LineSegmentsVertices = (key) => (csg) => {
   return { type: 'lines', vertices }
 }
 
+/**
+ * @template TData
+ * @template TOptions
+ * @param {(data:TData,options:TOptions)=>import("@jscadui/format-common").JscadMainEntityRaw} func 
+ * @param {TData} data 
+ * @param {Object} cacheKey 
+ * @param {import("@jscadui/format-common").JscadTransferable[]} transferable 
+ * @param {Map<number,import("@jscadui/format-common").JscadMainEntity> | false | undefined} unique 
+ * @param {TOptions} options 
+ * @returns {import("@jscadui/format-common").JscadMainEntity}
+ */
 function CSGCached (func, data, cacheKey, transferable, unique, options) {
   cacheKey = cacheKey || data
 
   let geo = JscadToCommon.cache.get(cacheKey)
   if (!geo) {
-    geo = func(data, options)
+    geo = (/** @type {import("@jscadui/format-common").JscadMainEntity} */(func(data, options)))
     geo.id = JscadToCommon.sequence++
 
     // fill transferable array for postMessage optimization
     if (transferable) {
-      const { vertices, indices, normals } = geo
-      transferable.push(vertices)
-      if (indices) transferable.push(indices)
-      if (normals) transferable.push(normals)
+      if ('vertices' in geo) transferable.push(geo.vertices)
+      if ('indices' in geo && geo.indices !== undefined) transferable.push(geo.indices)
+      if ('normals' in geo && geo.normals !== undefined) transferable.push(geo.normals)
     }
 
     JscadToCommon.cache.set(cacheKey, geo)
@@ -177,18 +221,27 @@ function CSGCached (func, data, cacheKey, transferable, unique, options) {
 }
 
 /** Prepare lists of geometries grouped by type with format suitable for webgl if possible or type:unknown.
- *
- * @returns object separating converted geometries by type: line,lines,mesh,instance,unknown
- * */
+ * @param {(import("@jscadui/format-common").CSGItem | import("@jscadui/format-common").JscadMeshEntity)[] | undefined} list
+ * @param {import("@jscadui/format-common").JscadTransferable[]} transferable
+ * @param {boolean | undefined} useInstances
+ * @returns {import("@jscadui/format-common").JscadResultsByType} object separating converted geometries by type: line,lines,mesh,instance,unknown
+ */
 JscadToCommon.prepare = (list, transferable, useInstances) => {
+  /** @type {import("@jscadui/format-common").JscadResultsByType} */
   const map = { line: [], lines: [], mesh: [], instance: [], unknown: [], all: [], unique: new Map() }
 
   const instanceMap = new Map()
+  /**
+   * @param {import("@jscadui/format-common").JscadMainEntity} data 
+   */
   const add = data => {
     map[data.type].push(data)
     map.all.push(data)
   }
 
+  /**
+   * @param {(import("@jscadui/format-common").CSGItem | import("@jscadui/format-common").JscadMeshEntity)[] } list 
+   */
   const extract = list => {
     list.forEach(csg => {
       if (!csg) return
@@ -225,17 +278,26 @@ JscadToCommon.prepare = (list, transferable, useInstances) => {
   return map
 }
 
+/**
+ * @param {import("@jscadui/format-common").CSGItem | import("@jscadui/format-common").JscadMeshEntity} csg 
+ * @param {import("@jscadui/format-common").JscadTransferable[]} transferable 
+ * @param {Map<number,import("@jscadui/format-common").JscadMainEntity> | false | undefined} unique 
+ * @param {unknown} [options]
+ * @returns {import("@jscadui/format-common").JscadMainEntity}
+ */
 export function JscadToCommon (csg, transferable, unique, options) {
   if (csg instanceof Array) return csg.map(csg2 => JscadToCommon(csg2, transferable, unique, options))
   if (typeof csg !== 'object') throw new Error('invalid jscad geometry, not an object')
+
+  /** @type {import("@jscadui/format-common").JscadMainEntity} */
   let obj
 
-  if (csg.polygons) obj = CSGCached(CSG2Vertices, csg, csg.polygons, transferable, unique, options)
-  if (csg.sides && !csg.points) obj = CSGCached(CSGSides2LineSegmentsVertices, csg, csg.sides, transferable, unique, options)
-  if (csg.outlines) obj = CSGCached(CSGOutlines2LineSegmentsVertices('outlines'), csg, csg.outlines, transferable, unique, options)
-  if (csg.contours) obj = CSGCached(CSGOutlines2LineSegmentsVertices('contours'), csg, csg.contours, transferable, unique, options)
-  if (csg.points) obj = CSGCached(CSG2LineVertices, csg, csg.points, transferable, unique, options)
-  if (csg.vertices) { // cover a case where the object already has the format
+  if ('polygons' in csg) obj = CSGCached(CSG2Vertices, csg, csg.polygons, transferable, unique, options)
+  if ('sides' in csg && !('points' in csg)) obj = CSGCached(CSGSides2LineSegmentsVertices, csg, csg.sides, transferable, unique, options)
+  if ('outlines' in csg) obj = CSGCached(CSGOutlines2LineSegmentsVertices, csg.outlines, csg.outlines, transferable, unique, options)
+  if ('contours' in csg) obj = CSGCached(CSGOutlines2LineSegmentsVertices, csg.contours, csg.contours, transferable, unique, options)
+  if ('points' in csg) obj = CSGCached(CSG2LineVertices, csg, csg.points, transferable, unique, options)
+  if ('vertices' in csg) { // cover a case where the object already has the format
     obj = csg
     // avoid filling transferable multiple times
     if (!JscadToCommon.cache.get(obj)) {
@@ -246,7 +308,7 @@ export function JscadToCommon (csg, transferable, unique, options) {
       }
     }
   }
-  if(csg.color || csg.transforms) obj = {...obj}
+  if ('color' in csg || csg.transforms) obj = { ...obj }
   if(csg.color) obj.color = csg.color 
   if(csg.transforms) obj.transforms = csg.transforms
 
@@ -258,9 +320,23 @@ export function JscadToCommon (csg, transferable, unique, options) {
   return obj
 }
 
+/**
+ * @param {(import("@jscadui/format-common").CSGItem | import("@jscadui/format-common").JscadMeshEntity)[]} csg 
+ * @param {import("@jscadui/format-common").JscadTransferable[]} transferable 
+ * @param {Map<number,import("@jscadui/format-common").JscadMainEntity> | false |  undefined} unique 
+ * @param {unknown} [options]
+ * @returns {import("@jscadui/format-common").JscadMainEntity[]}
+ */
+JscadToCommon.ConvertMulti = (csg, transferable, unique, options) => {
+  return csg.map(csg2 => JscadToCommon(csg2, transferable, unique, options))
+}
+
+
+/** @type {WeakMap<Object,import("@jscadui/format-common").JscadMainEntity> } */
+JscadToCommon.cache = new WeakMap()
+JscadToCommon.sequence = 1
+
 JscadToCommon.clearCache = () => {
   JscadToCommon.cache = new WeakMap()
   JscadToCommon.sequence = 1
 }
-
-JscadToCommon.clearCache()

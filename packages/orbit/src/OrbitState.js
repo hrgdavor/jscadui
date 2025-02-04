@@ -107,10 +107,27 @@ export class OrbitState {
     this.fireChange()
   }
 
-  zoomBy(amount) {
-    this.len *= 1 + amount
+  fit(boxMin, boxMax, fov, aspect, fitOffset = 1.2){
+    const sizex = boxMax.x - boxMin.x
+    const sizey = boxMax.y - boxMin.y
+    const sizez = boxMax.z - boxMin.z
+    const maxSize = Math.max( sizex, sizey, sizez );
+    const fitHeightDistance = maxSize / ( 2 * Math.atan( Math.PI * fov / 360 ) );
+    const fitWidthDistance = fitHeightDistance / aspect;
+    const distance = fitOffset * Math.max( fitHeightDistance, fitWidthDistance );
+    // look at center
+    this.target = [boxMin.x + sizex/2, boxMin.y + sizey /2, boxMin.z + sizez/2]
+    this.setLen(distance)
+  }
+
+  setLen(len) {
+    this.len = len
     this.position = calcCamPos(this)
     this.fireChange()
+  }
+
+  zoomBy(amount) {
+    this.setLen(this.len * (1 + amount))
   }
 
   clone() {

@@ -1,9 +1,8 @@
-/** Produce directly a 4x4 matrix theat does the rotation based on the rotation angles provided for X and Z
- *
- * @param {mat4} out mat4 receiving operation result
+/** 
+ * Produce directly a 4x4 matrix that does the rotation based on the rotation angles provided for X and Z
  * @param {Number} rx - rotation on X axis
  * @param {Number} rz  - rotation on Z axis
- * @returns {mat4}
+ * @returns {import('gl-matrix').mat4}
  */
 export const fromXZRotation = (rx, rz) => {
   var zs = Math.sin(rz)

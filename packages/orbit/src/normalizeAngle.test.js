@@ -1,10 +1,11 @@
 import { expect, it } from 'vitest'
 
-import { TAU } from './commonCamera.js'
 import './normalizeAngle.js'
 import { closerAngle } from './normalizeAngle.js'
 
 const { PI } = Math
+const TAU = PI * 2
+
 
 it('anlges', () => {
   expect(closerAngle(1, 1)).toEqual(1)

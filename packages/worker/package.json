@@ -22,7 +22,8 @@
   },
   "dependencies": {
     "@jscadui/postmessage": "*",
-    "@jscadui/require": "*"
+    "@jscadui/require": "*",
+    "@jscadui/format-common": "*"
   },
   "devDependencies": {
     "esbuild": "^0.16.7",

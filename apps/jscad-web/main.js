@@ -64,8 +64,7 @@ let setAnimStatus
 // load default model unless another model was already loaded
 let loadDefault = true
 
-const ctrl = new OrbitControl([byId('viewer')], { ...viewState.camera, alwaysRotate: false })
-window.ctrl = ctrl //The gizmo clicks breaks without this
+const ctrl = new OrbitControl([byId('viewer')], { ...viewState.camera })
 
 /** @param {OrbitState} change */
 const updateFromCtrl = change => {
@@ -78,7 +77,7 @@ updateFromCtrl(ctrl)
 ctrl.onchange = (/** @type {OrbitState} */ state) => viewState.saveCamera(state)
 ctrl.oninput = (/** @type {OrbitState} */ state) => updateFromCtrl(state)
 
-gizmo.oncam = (/** @type {string} */ cam) => ctrl.animateToCommonCamera(cam)
+gizmo.onRotationRequested = (/** @type {string} */ cam) => ctrl.animateToCommonCamera(cam)
 
 /** @type {import('@jscadui/fs-provider').SwHandler} */
 let sw

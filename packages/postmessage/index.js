@@ -3,6 +3,12 @@ let reqMap = new Map()
 const RESPONSE = '__RESPONSE__'
 const TRANSFERABLE = Symbol.for('__transferable__')
 
+/**
+ * @template T
+ * @param {T & {}} params 
+ * @param {unknown} trans 
+ * @returns T
+ */
 export const withTransferable = (params, trans) => {
   params[TRANSFERABLE] = trans
   return params
@@ -12,13 +18,18 @@ const fixTransfer = trans => (trans ? trans.map(a => a.buffer || a) : [])
 
 /**
  *
- * @param {*} _self reference to self of the main window (self) or reference to a worker
+ * @param {globalThis | Worker} _self reference to self of the main window (self) or reference to a worker
  * @param {*} handlers - object where key if method name, and value ih handler
  * @returns
  */
 export const initMessaging = (_self, handlers, { onJobCount, debug } = {}) => {
   // on service worker, postMessage is on the controller
   const ___self = _self.postMessage ? _self : _self.controller
+
+  /**
+   * @param {unknown} result 
+   * @param {number} id 
+   */
   const sendResponse = (result, id) => {
     if (debug) console.log(debug, 'sendResponse', id, result)
     let trans = result?.[TRANSFERABLE]
@@ -49,7 +60,7 @@ export const initMessaging = (_self, handlers, { onJobCount, debug } = {}) => {
    * Send a message with no response
    *
    * @param {string} method
-   * @param {object} params
+   * @param {unknown[]} params //TODO
    * @param {Array} trans
    */
   const sendNotify = (method, params = [], trans = []) => {

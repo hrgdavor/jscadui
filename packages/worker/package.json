@@ -1,5 +1,5 @@
 {
-  "type":"module",
+  "type": "module",
   "sideEffects": false,
   "name": "@jscadui/worker",
   "version": "0.1.0",
@@ -22,8 +22,8 @@
   },
   "dependencies": {
     "@jscadui/postmessage": "*",
-    "@jscadui/format-jscad": "*",
-    "@jscadui/require": "*"
+    "@jscadui/require": "*",
+    "@jscadui/format-common": "*"
   },
   "devDependencies": {
     "esbuild": "^0.16.7",

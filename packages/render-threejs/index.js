@@ -8,6 +8,8 @@ export function RenderThreejs({
   DirectionalLight,
   Scene,
   Group,
+  Box3,
+  BoxGeometry,
   Vector3,
   Color, // used by both
   // used by CommonToThree
@@ -158,6 +160,8 @@ export function RenderThreejs({
     target.applyQuaternion(_camera.quaternion)
     return {
       position: _camera.position.toArray(),
+      fov: _camera.fov,
+      aspect: _camera.aspect,
       target: target.toArray(),
     }
   }
@@ -198,7 +202,8 @@ export function RenderThreejs({
     }
   }
 
-  function setScene(scene,{smooth}={}) {
+  function setScene(scene,{smooth, prepFit}={}) {
+    console.log('setScene', scene)
     groups.forEach(group => {
       _scene.remove(group)
     })
@@ -208,13 +213,18 @@ export function RenderThreejs({
     setTimeout(()=>{
       old.forEach(ent => ent.geometry?.dispose?.())
     },0)
+
+    let box = new Box3()
     scene.items.forEach(item => {
       const group = new Group()
+      group.jscadId = item.id
+      group.ignoreBB = item.ignoreBB
       groups.push(group)
       item.items.forEach(obj => {
         const obj3d = csgConvert(obj, { smooth, scene, meshColor})
         if (obj3d) {
           entities.push(obj3d)
+          if(!group.ignoreBB) box.expandByObject(obj3d)
           group.add(obj3d)
         } else {
           console.error('could not convert to obj3d', obj)
@@ -222,6 +232,56 @@ export function RenderThreejs({
       })
       _scene.add(group)
     })
+    // console.warn('box', box, _camera.position, _camera)
+    let {x,y,z} = box.max
+    let min = box.min
+    let wx = x-min.x, wy=y-min.y,wz=z-min.z
+    let boxGeom = new BoxGeometry(wx,wy,wz)
+    // boxGeom.position.x = min.x + wx/2
+    // boxGeom.position.y = min.y + wy/2
+    // boxGeom.position.z = min.z + wz/2
+    // console.log('BoxGeometry(wx,wy,wz)', wx,wy,wz, boxGeom)
+    let mesh = new Mesh(boxGeom, new MeshPhongMaterial({color:'#909090',opacity:0.5, transparent:true}))
+    // mesh.position.x = min.x + wx/2
+    // mesh.position.y = min.y + wy/2
+    // mesh.position.z = min.z + wz/2
+    // console.log('Mesh', min, mesh)
+    // groups[0].add(mesh)
+    // zoomCameraToSelection(_camera, controls, entities)
+
     updateView()
   }
+}
+
+// example from threejs
+// https://github.com/mrdoob/three.js/pull/14526#issuecomment-497254491
+function zoomCameraToSelection( camera, controls, selection, fitOffset = 1.2 ) {
+  const box = new THREE.Box3();
+  
+  for( const object of selection ) box.expandByObject( object );
+  
+  const size = box.getSize( new THREE.Vector3() );
+  const center = box.getCenter( new THREE.Vector3() );
+  
+  const maxSize = Math.max( size.x, size.y, size.z );
+  const fitHeightDistance = maxSize / ( 2 * Math.atan( Math.PI * camera.fov / 360 ) );
+  const fitWidthDistance = fitHeightDistance / camera.aspect;
+  const distance = fitOffset * Math.max( fitHeightDistance, fitWidthDistance );
+  
+  const direction = controls.target.clone()
+    .sub( camera.position )
+    .normalize()
+    .multiplyScalar( distance );
+
+  controls.maxDistance = distance * 10;
+  controls.target.copy( center );
+  
+  camera.near = distance / 100;
+  camera.far = distance * 100;
+  camera.updateProjectionMatrix();
+
+  camera.position.copy( controls.target ).sub(direction);
+  
+  controls.update();
+  
 }

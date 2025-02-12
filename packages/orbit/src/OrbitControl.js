@@ -12,15 +12,18 @@ import { closerAngle } from './normalizeAngle.js'
 
 const { PI } = Math
 
-export class OrbitControl extends OrbitState {  
+export class OrbitControl extends OrbitState {
   el
   animDuration = 200
 
+  /** @type {{startTime:number,stateStart:OrbitState,stateEnd:OrbitState} | undefined} */
+  currentAnimation = undefined;
+
   /**
-   * @param {Element|Array<Element>} el
-   * @param {Object} options
+   * @param {HTMLElement|Array<HTMLElement>} el
+   * @param {import('../cameraState.js').OrbitControlInit} options
    */
-  constructor(el, { position, target = [0, 0, 0], rx=PI/4, rz=PI/4, len=200, panRatio = 800, rxRatio = 0.01, rzRatio = 0.01, zoomRatio = 0.05 } = {}) {
+  constructor(el, { position, target = [0, 0, 0], rx = PI / 4, rz = PI / 4, len = 200, panRatio = 800, rxRatio = 0.01, rzRatio = 0.01, zoomRatio = 0.05 }) {
     super({ position, target, rx, rz, len })
 
     this.el = el
@@ -37,14 +40,20 @@ export class OrbitControl extends OrbitState {
     let ly = 0
 
     // Pinch to zoom gesture
-    const pointers = {}
+    /** @type {Map<number,[number,number]>} */
+    const pointers = new Map();
+
+    /** @type {Pinch | undefined} */
     let lastPinch
 
-    // Calculate distance and midpoint of two pointers
+    /**
+     * Calculate distance and midpoint of two pointers
+     * @returns {Pinch}
+     */
     const calculatePinch = () => {
-      const ids = Object.keys(pointers)
-      const [x1, y1] = pointers[ids[0]]
-      const [x2, y2] = pointers[ids[1]]
+      const [p1, p2] = pointers.values();
+      const [x1, y1] = p1
+      const [x2, y2] = p2
       const dx = x2 - x1
       const dy = y2 - y1
       return {
@@ -53,22 +62,25 @@ export class OrbitControl extends OrbitState {
       }
     }
 
+    /**
+     * @param {HTMLElement} el 
+     */
     const doListen = el => {
       el.addEventListener('pointerdown', e => {
         theButton = e.button
         lx = e.clientX
         ly = e.clientY
         isDown = true
-        pointers[e.pointerId] = [e.clientX, e.clientY]
-        if (Object.keys(pointers).length === 2) doubleDown = true
+        pointers.set(e.pointerId, [e.clientX, e.clientY])
+        if (pointers.size === 2) doubleDown = true
       })
 
       el.addEventListener('pointerup', e => {
         isDown = false
         if (isMoving) el.releasePointerCapture(e.pointerId)
         isMoving = false
-        delete pointers[e.pointerId]
-        if (Object.keys(pointers).length < 2) {
+        pointers.delete(e.pointerId)
+        if (pointers.size < 2) {
           doubleDown = false
           lastPinch = undefined
         }
@@ -93,7 +105,7 @@ export class OrbitControl extends OrbitState {
         isZoom = e.ctrlKey
         let dx = lx - e.clientX
         let dy = ly - e.clientY
-        pointers[e.pointerId] = [e.clientX, e.clientY]
+        pointers.set(e.pointerId, [e.clientX, e.clientY])
 
         if (isPan) {
           const ratio = this.len / panRatio
@@ -124,37 +136,43 @@ export class OrbitControl extends OrbitState {
 
     if (el instanceof Array) el.forEach(doListen)
     else doListen(el)
+
+    requestAnimationFrame(() => this.doAnim())
   }
 
   doAnim() {
-    let percent = Math.min(1, (Date.now() - this.startTime) / this.animDuration)
-    const newState = this.stateStart.calcAnim(this.stateEnd, percent)
-    ctrl.setRotate(newState.rx, newState.rz, newState.target, false)
-    // update orbit control so it can continue working during or after anim
-    if (percent < 1) {
-      this.animTimer = requestAnimationFrame(() => this.doAnim())
+    if (this.currentAnimation !== undefined) {
+      const { stateStart, stateEnd, startTime } = this.currentAnimation;
+      const progress = Math.min(1, (Date.now() - startTime) / this.animDuration)
+      const newState = stateStart.calcAnim(stateEnd, progress)
+      this.setRotate(newState.rx, newState.rz, newState.target, false)
+      // update orbit control so it can continue working during or after anim
       this.fireInput()
-    } else {
-      this.stopAnim()
+      if (progress >= 1) {
+        this.stopAnim()
+      }
     }
+    requestAnimationFrame(() => this.doAnim())
   }
 
   stopAnim() {
-    cancelAnimationFrame(this.animTimer)
-    this.animTimer = null
-    this.startTime = 0
+    this.currentAnimation = undefined
     this.fireChange()
   }
 
+  /**
+   * @param {{target?:[number,number,number],rx:number,rz:number}} options
+   */
   animateToCamera({ target, rx, rz }) {
     // normalize angle to avoid crazy spinning if scene was rotated a lot
     // rx does not need this fix as it only operates inside one half of a rotation
     this.rz = closerAngle(this.rz, rz)
 
-    this.startTime = Date.now()
-    this.stateStart = new OrbitState(ctrl, true)
-    this.stateEnd = new OrbitState({ target: target || ctrl.target, rx, rz, len: ctrl.len })
-    this.animTimer = requestAnimationFrame(() => this.doAnim())
+    this.currentAnimation = {
+      startTime: Date.now(),
+      stateStart: new OrbitState(this, true),
+      stateEnd: new OrbitState({ target: target ?? this.target, rx, rz, len: this.len }),
+    }
   }
 
   /**
@@ -162,6 +180,12 @@ export class OrbitControl extends OrbitState {
    */
   animateToCommonCamera(targetRotation) {
     const [rx, rz] = getCommonRotCombined(targetRotation)
-    ctrl.animateToCamera({ rx, rz, target: [0, 0, 0] })
+    this.animateToCamera({ rx, rz, target: [0, 0, 0] })
   }
 }
+
+/**
+ * @typedef {object} Pinch
+ * @property {number} distance
+ * @property {[number,number]} midpoint
+ */

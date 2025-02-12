@@ -1,4 +1,9 @@
-export function extractDefaults(def){
+/**
+ * @param {import("@jscadui/format-common").ParameterDefinition[]} def
+ * @returns {import("@jscadui/format-common").UserParameters}
+ */
+export function extractDefaults(def) {
+/** @type {import("@jscadui/format-common").UserParameters} */
   const params = {}
   def.forEach(({ name, initial, default: def, type, values, captions }) =>{
     let val = def === undefined ? initial : def

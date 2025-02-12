@@ -11,6 +11,7 @@ import {
 } from '@jscadui/fs-provider'
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl, OrbitState } from '@jscadui/orbit'
+import { boundingBox } from '@jscadui/format-common'
 import { genParams, getParams } from '@jscadui/params'
 import { messageProxy, withTransferable } from '@jscadui/postmessage'
 
@@ -63,8 +64,7 @@ let setAnimStatus
 // load default model unless another model was already loaded
 let loadDefault = true
 
-const ctrl = new OrbitControl([byId('viewer')], { ...viewState.camera, alwaysRotate: false })
-window.ctrl = ctrl //The gizmo clicks breaks without this
+const ctrl = new OrbitControl([byId('viewer')], { ...viewState.camera })
 
 /** @param {OrbitState} change */
 const updateFromCtrl = change => {
@@ -77,7 +77,7 @@ updateFromCtrl(ctrl)
 ctrl.onchange = (/** @type {OrbitState} */ state) => viewState.saveCamera(state)
 ctrl.oninput = (/** @type {OrbitState} */ state) => updateFromCtrl(state)
 
-gizmo.oncam = (/** @type {string} */ cam) => ctrl.animateToCommonCamera(cam)
+gizmo.onRotationRequested = (/** @type {string} */ cam) => ctrl.animateToCommonCamera(cam)
 
 /** @type {import('@jscadui/fs-provider').SwHandler} */
 let sw
@@ -218,6 +218,12 @@ const handlers = {
     console.log('result.transferable', transferable)
     viewState.setModel(entities)
     workerApi.restoreTransferable(withTransferable(entities, transferable))
+    if (viewState.zoomToFit) {
+      let { min, max } = boundingBox(entities)
+      console.warn('min', min, 'max', max, viewState.viewer.getCamera())
+      let { fov, aspect } = viewState.viewer.getCamera()
+      ctrl.fit(min, max, fov, aspect, 1.2)
+    }
     if (!skipLog) console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2), entities)
     setError(undefined)
     onProgress(undefined, mainTime?.toFixed(2) + ' ms')

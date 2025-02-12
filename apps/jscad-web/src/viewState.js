@@ -11,8 +11,8 @@ export const byId = id => /** @type {HTMLElement} */(document.getElementById(id)
 
 /**
  * @typedef {object} ViewStateCamera
- * @param {[number,number,number]} position
- * @param {[number,number,number]} [target]
+ * @property {[number,number,number]} position
+ * @property {[number,number,number]} [target]
  */
 
 
@@ -25,6 +25,7 @@ export class ViewState {
   camera = {}
 
   smoothRender
+  zoomToFit
   showAxis
   showGrid
 
@@ -36,6 +37,7 @@ export class ViewState {
   showAxisInput = /** @type {HTMLInputElement} */ (byId('show-axis'))
   showGridInput = /** @type {HTMLInputElement} */ (byId('show-grid'))
   smoothRenderInput = /** @type {HTMLInputElement} */ (byId('smooth-render'))
+  zoomToFitInput = /** @type {HTMLInputElement} */ (byId('zoom-to-fit'))
 
   constructor() {
     this.themeName = localStorage.getItem('engine.theme') || 'light'
@@ -50,6 +52,8 @@ export class ViewState {
     this.showGridInput.checked = this.showGrid
     this.smoothRender = localStorage.getItem('engine.smoothRender') === 'true'
     this.smoothRenderInput.checked = this.smoothRender
+    this.zoomToFit = localStorage.getItem('engine.zoomToFit') === 'true'
+    this.zoomToFitInput.checked = this.zoomToFit
     const cameraLocation = localStorage.getItem('camera.location')
     this.camera = cameraLocation ? JSON.parse(cameraLocation) : { position: [180, -180, 220] }
 
@@ -64,6 +68,9 @@ export class ViewState {
     })
     this.smoothRenderInput.addEventListener('change', () => {
       this.setSmoothRender(this.smoothRenderInput.checked)
+    })
+    this.zoomToFitInput.addEventListener('change', () => {
+      this.setZoomToFit(this.zoomToFitInput.checked)
     })
     this.showAxisInput.addEventListener('change', () => this.setAxes(this.showAxisInput.checked))
     this.showGridInput.addEventListener('change', () => this.setGrid(this.showGridInput.checked))
@@ -93,6 +100,16 @@ export class ViewState {
    */
   setSmoothRender(smoothRender, fireEvent = true) {
     this.smoothRender = smoothRender
+    this.saveState()
+    if (fireEvent) this.onRequireReRender()
+  }
+
+  /**
+   * @param {boolean} zoomToFit 
+   * @param {boolean} [fireEvent]
+   */
+  setZoomToFit(zoomToFit, fireEvent = true) {
+    this.zoomToFit = zoomToFit
     this.saveState()
     if (fireEvent) this.onRequireReRender()
   }
@@ -147,9 +164,9 @@ export class ViewState {
   updateScene() {
     const { axes, grid, model } = this
     const items = []
-    if (axes) items.push({ id: 'axes', items: axes })
-    if (grid) items.push({ id: 'grid', items: grid })
-    if (model) items.push({ id: 'model', items: model })
+    if (axes) items.push({ id: 'axes', items: axes, ignoreBB:true })
+    if (grid) items.push({ id: 'grid', items: grid, ignoreBB:true })
+    if (model) items.push({ id: 'model', items: model, ignoreBB:false })
 
     this.viewer?.setScene({ items }, { smooth: this.smoothRender })
   }
@@ -167,6 +184,7 @@ export class ViewState {
     localStorage.setItem('engine.showAxis', String(this.showAxis))
     localStorage.setItem('engine.showGrid', String(this.showGrid))
     localStorage.setItem('engine.smoothRender', String(this.smoothRender))
+    localStorage.setItem('engine.zoomToFit', String(this.zoomToFit))
   }
 
   onRequireReRender() { }

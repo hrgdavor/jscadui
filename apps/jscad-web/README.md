@@ -2,7 +2,7 @@
 
 This is the JSCAD web application hosted at https://jscad.app
 
-If you want to discuss jscad or jscadui, please join us on discord: https://discord.gg/AaqGskur93
+If you want to discuss jscad or jscadui, please join us on discord: https://discord.gg/6PB7qZ4HC7
 
 ## Running Locally
 
@@ -27,6 +27,10 @@ to start dev server that also has docs run
 ```
 npm run start:full
 ```
+
+NOTICE! - there is issue with nodejs 18 on linux `TypeError [ERR_FEATURE_UNAVAILABLE_ON_PLATFORM]: The feature watch recursively ` ... we did not investigate in detail, but using version 21+ should work
+
+
 
 ## External editor
 

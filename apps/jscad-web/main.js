@@ -12,7 +12,6 @@ import {
 import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl, OrbitState } from '@jscadui/orbit'
 import { boundingBox } from '@jscadui/format-common'
-import { boundingBox } from '@jscadui/format-common'
 import { genParams, getParams } from '@jscadui/params'
 import { messageProxy, withTransferable } from '@jscadui/postmessage'
 

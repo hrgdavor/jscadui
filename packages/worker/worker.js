@@ -37,8 +37,6 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
 @prop {(options:InitOptions)=>Promise<void>} jscadInit
 @prop {(options:RunMainOptions)=>Promise<import('@jscadui/format-common').JscadMainResult>} jscadMain - run the main method of the loaded script
 @prop {(options:RunScriptOptions)=>Promise<import('@jscadui/format-common').JscadScriptResultWithParams>} jscadScript - run a jscad script
-@prop {(options:RunMainOptions)=>Promise<import('@jscadui/format-common').JscadMainResult>} jscadMain - run the main method of the loaded script
-@prop {(options:RunScriptOptions)=>Promise<import('@jscadui/format-common').JscadScriptResultWithParams>} jscadScript - run a jscad script
 @prop {(options:ExportDataOptions)=>Promise<unknown>} jscadExportData
 @prop {(options:import('@jscadui/require').ClearFileCacheOptions)=>Promise<void>} jscadClearFileCache
 @prop {(transferable:Array)=>Promise<void>} restoreTransferable
@@ -145,8 +143,7 @@ export async function jscadMain({ params, skipLog } = {}) {
 
   time = performance.now()
   JscadToCommon.clearCache()
-  entities = JscadToCommon.prepare(solids, transferable, userInstances)
-  entities = entities.all
+  const entities = JscadToCommon.prepare(solids, transferable, userInstances).all
   return withTransferable({ entities, mainTime, convertTime: performance.now() - time }, transferable)
 }
 
@@ -154,6 +151,10 @@ export async function jscadMain({ params, skipLog } = {}) {
 const importReg = /import(?:(?:(?:[ \n\t]+([^ *\n\t\{\},]+)[ \n\t]*(?:,|[ \n\t]+))?([ \n\t]*\{(?:[ \n\t]*[^ \n\t"'\{\}]+[ \n\t]*,?)+\})?[ \n\t]*)|[ \n\t]*\*[ \n\t]*as[ \n\t]+([^ \n\t\{\}]+)[ \n\t]+)from[ \n\t]*(?:['"])([^'"\n]+)(['"])/
 const exportReg = /export.*from/
 
+/**
+ * @param {{script:string,url?:string,base?:string,root?:string}} param0 
+ * @returns {Promise<import('@jscadui/format-common').JscadScriptResultWithParams>}
+ */
 const jscadScript = async ({ script, url = 'jscad.js', base = globalBase, root = base }) => {
   console.log('run script with base:', base)
   if (!script) script = readFileWeb(resolveUrl(url, base, root).url)
@@ -167,7 +168,7 @@ const jscadScript = async ({ script, url = 'jscad.js', base = globalBase, root =
     // with syntax error in browser we do not get nice stack trace
     // we then try to parse the script to let transform function generate nice error with nice trace
     if (e.name === 'SyntaxError') transformFunc(script, url)
-    // if error is not SyntaxError or if transform func does not find sysntax err (very unlikely)
+    // if error is not SyntaxError or if transform func does not find syntax err (very unlikely)
     throw e
   }
   const fromSource = getParameterDefinitionsFromSource(script)
@@ -193,7 +194,7 @@ const jscadScript = async ({ script, url = 'jscad.js', base = globalBase, root =
  * @returns {Promise<{data:ArrayBuffer[]}>}
  */
 const jscadExportData = async (params) => {
-  if (self.exportData) return await self.exportData(params)
+  if (self.exportData) return self.exportData(params)
 
   // todo check if it is ok to give back transferables after webgl has used the buffers
   // then we would not need to clone the data
@@ -206,6 +207,7 @@ const jscadExportData = async (params) => {
   return withTransferable({ data }, data)
 }
 
+
 const restoreTransferable = (params) => {
   console.log('restoreTransferable', meshes = params)
 }
@@ -213,7 +215,7 @@ const restoreTransferable = (params) => {
 export const currentSolids = () => solids
 export const currentMeshes = () => meshes
 
-const handlers = { jscadScript, jscadInit, jscadMain, jscadClearTempCache, jscadClearFileCache: clearFileCache, jscadExportData, restoreTransferable }
+const handlers = { jscadScript, jscadInit, jscadMain, jscadClearTempCache, jscadClearFileCache: clearFileCache, jscadExportData }
 // allow main thread to call worker methods and any method from the loaded script
 const handlersProxy = new Proxy(handlers, {
   get(target, prop, receiver) {

@@ -25,6 +25,7 @@
     "@jscadui/scene": "*",
     "@jscadui/transform-babel": "*",
     "@jscadui/worker": "*",
+    "@jscadui/3mf-export": "*",
     "codemirror": "^6.0.1",
     "gl-matrix": "^3.4.0",
     "fflate": "0.8.1",

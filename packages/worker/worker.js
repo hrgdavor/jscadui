@@ -37,6 +37,8 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
 @prop {(options:InitOptions)=>Promise<void>} jscadInit
 @prop {(options:RunMainOptions)=>Promise<import('@jscadui/format-common').JscadMainResult>} jscadMain - run the main method of the loaded script
 @prop {(options:RunScriptOptions)=>Promise<import('@jscadui/format-common').JscadScriptResultWithParams>} jscadScript - run a jscad script
+@prop {(options:RunMainOptions)=>Promise<import('@jscadui/format-common').JscadMainResult>} jscadMain - run the main method of the loaded script
+@prop {(options:RunScriptOptions)=>Promise<import('@jscadui/format-common').JscadScriptResultWithParams>} jscadScript - run a jscad script
 @prop {(options:ExportDataOptions)=>Promise<unknown>} jscadExportData
 @prop {(options:import('@jscadui/require').ClearFileCacheOptions)=>Promise<void>} jscadClearFileCache
 @prop {(transferable:Array)=>Promise<void>} restoreTransferable
@@ -132,6 +134,7 @@ export async function jscadMain({ params, skipLog } = {}) {
     }
   }
   if (!skipLog) console.log('jscadMain with params', params)
+  /** @type {import('@jscadui/format-common').JscadTransferable []} */
   const transferable = []
 
   if (!main) throw new Error('no main function exported')
@@ -142,7 +145,8 @@ export async function jscadMain({ params, skipLog } = {}) {
 
   time = performance.now()
   JscadToCommon.clearCache()
-  const entities = JscadToCommon.prepare(solids, transferable, userInstances).all
+  entities = JscadToCommon.prepare(solids, transferable, userInstances)
+  entities = entities.all
   return withTransferable({ entities, mainTime, convertTime: performance.now() - time }, transferable)
 }
 
@@ -150,10 +154,6 @@ export async function jscadMain({ params, skipLog } = {}) {
 const importReg = /import(?:(?:(?:[ \n\t]+([^ *\n\t\{\},]+)[ \n\t]*(?:,|[ \n\t]+))?([ \n\t]*\{(?:[ \n\t]*[^ \n\t"'\{\}]+[ \n\t]*,?)+\})?[ \n\t]*)|[ \n\t]*\*[ \n\t]*as[ \n\t]+([^ \n\t\{\}]+)[ \n\t]+)from[ \n\t]*(?:['"])([^'"\n]+)(['"])/
 const exportReg = /export.*from/
 
-/**
- * @param {{script:string,url?:string,base?:string,root?:string}} param0 
- * @returns {Promise<import('@jscadui/format-common').JscadScriptResultWithParams>}
- */
 const jscadScript = async ({ script, url = 'jscad.js', base = globalBase, root = base }) => {
   console.log('run script with base:', base)
   if (!script) script = readFileWeb(resolveUrl(url, base, root).url)
@@ -167,7 +167,7 @@ const jscadScript = async ({ script, url = 'jscad.js', base = globalBase, root =
     // with syntax error in browser we do not get nice stack trace
     // we then try to parse the script to let transform function generate nice error with nice trace
     if (e.name === 'SyntaxError') transformFunc(script, url)
-    // if error is not SyntaxError or if transform func does not find syntax err (very unlikely)
+    // if error is not SyntaxError or if transform func does not find sysntax err (very unlikely)
     throw e
   }
   const fromSource = getParameterDefinitionsFromSource(script)

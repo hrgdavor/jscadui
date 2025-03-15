@@ -424,6 +424,7 @@ try{
   hasRemoteScript = await remote.init(
     (script, url) => {
       // run remote script
+      if(url.endsWith('.jscad')) script = addV1Shim(script)
       url = new URL(url, appBase).toString()
       editor.setSource(script, url)
       jscadScript({ script, base: url })

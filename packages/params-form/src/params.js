@@ -1,3 +1,5 @@
+import {h, insert} from './jsx2dom.js'
+
 const GROUP_SELECTOR = 'DIV[type="group"]'
 const INPUT_SELECTOR = 'INPUT, SELECT'
 const BUTTON_SELECTOR = 'BUTTON'
@@ -32,35 +34,53 @@ export const genParams = ({
     radio: inputRadio,
     // TODO radio similar options as choice
     checkbox: function ({ name, value }) {
-      const checkedStr = value === 'checked' || value === true ? 'checked' : ''
-      return `<input type="checkbox" name="${name}" ${checkedStr}/>`
+      // const checkedStr = value === 'checked' || value === true ? 'checked' : ''
+      // return `<input type="checkbox" name="${name}" ${checkedStr}/>`
+      return h('input',{type:'checkbox', name, checked: value})
     }
   }
 
-  function inputRadio({ name, type, captions, value, values }) {
+  function inputRadio({ name, type, captions, value: curValue, values }) {
     if (!captions) captions = values
 
-    let ret = '<div type="radio">'
+    //   let ret = '<div type="radio">'
+    //   for (let i = 0; i < values.length; i++) {
+    //     const checked = value == values[i] || value == captions[i] ? 'checked' : ''
+    //     ret += `<label><input type="radio" _type="${type}" name="${name}" numeric="${
+    //       typeof values[0] == 'number' ? '1' : '0'
+    //     }" value="${values[i]}" ${checked}/>${captions[i]}</label>`
+    //     children.push()
+    //   }
+    //   return ret + '</div>'
+    let labels = values.map((value,i)=>{
+      const checked = curValue == value || curValue == captions[i]
+      const numeric = typeof values[0] == 'number' ? '1' : '0' 
+      return h('label', {}, 
+        h('input',{ type:'radio', _type:type, name, numeric, value, checked}),
+        captions[i],
+      )// /label
+    })
 
-    for (let i = 0; i < values.length; i++) {
-      const checked = value == values[i] || value == captions[i] ? 'checked' : ''
-      ret += `<label><input type="radio" _type="${type}" name="${name}" numeric="${
-        typeof values[0] == 'number' ? '1' : '0'
-      }" value="${values[i]}" ${checked}/>${captions[i]}</label>`
-    }
-    return ret + '</div>'
+    return h('div',{type:'radio'}, ...labels)
   }
 
-  function inputChoice({ name, type, captions, value, values }) {
+  function inputChoice({ name, type, captions, value: curValue, values }) {
     if (!captions) captions = values
 
-    let ret = `<select _type="${type}" name="${name}" numeric="${typeof values[0] == 'number' ? '1' : '0'}">`
+    let options = values.map((value,i)=>{
+      const selected = curValue == value || curValue == captions[i]
+      return h('option', {value, selected},captions[i])
+    })
+    return h('select',{_type:type, name, numeric:typeof values[0] == 'number'}, ...options)
 
-    for (let i = 0; i < values.length; i++) {
-      const checked = value == values[i] || value == captions[i] ? 'selected' : ''
-      ret += `<option value="${values[i]}" ${checked}>${captions[i]}</option>`
-    }
-    return ret + '</select>'
+    // let ret = `<select _type="${type}" name="${name}" numeric="${typeof values[0] == 'number' ? '1' : '0'}">`
+
+    // for (let i = 0; i < values.length; i++) {
+    //   const checked = curValue == values[i] || curValue == captions[i] ? 'selected' : ''
+    //   ret += `<option value="${values[i]}" ${checked}>${captions[i]}</option>`
+    // }
+    // return ret + '</select>'
+
   }
 
   function inputDefault(def) {
@@ -72,14 +92,25 @@ export const genParams = ({
     let inputType = type
     if (type == 'int' || type == 'float') inputType = 'number'
     if (type == 'range' || type == 'slider') inputType = 'range'
-    let str = `<input _type="${type}" type="${inputType}" name="${name}"`
-    if (step !== undefined) str += ` step="${step}"`
-    if (min !== undefined) str += ` min="${min}"`
-    if (max !== undefined) str += ` max="${max}"`
-    if (value !== undefined) str += ` value="${value}"`
-    str += ` live="${live ? 1 : 0}"`
-    if (placeholder !== undefined) str += ` placeholder="${placeholder}"`
-    return str + '/>'
+    let attr = { _type:type, type:inputType, name,
+      step, 
+      min, 
+      max, 
+      value, 
+      live:live ? '1':'0',
+      placeholder, 
+
+    }
+    return h('input', attr)
+
+    // let str = `<input _type="${type}" type="${inputType}" name="${name}"`
+    // if (step !== undefined) str += ` step="${step}"`
+    // if (min !== undefined) str += ` min="${min}"`
+    // if (max !== undefined) str += ` max="${max}"`
+    // if (value !== undefined) str += ` value="${value}"`
+    // str += ` live="${live ? 1 : 0}"`
+    // if (placeholder !== undefined) str += ` placeholder="${placeholder}"`
+    // return str + '/>'
   }
 
   let html = ''

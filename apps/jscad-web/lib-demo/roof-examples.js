@@ -17,7 +17,7 @@ const main = () => {
     }
 
     const defaultRoofOpts = {
-        roofSpanSize: [30, 50],
+        roofSpanSize: [50, 30],
         roofPitch: Math.PI / 5,
         wallThickness: 10,
         trimUnitSize: [1.25, 4],

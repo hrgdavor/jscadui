@@ -45,7 +45,6 @@ const main = () => {
     });
     layout.addToLayout({ name: 'roof4', desc: '...', geom: roof4, layoutOpts });
 
-
     const layoutContent = layout.gridLayout({ layoutOpts });
 
     return layoutContent

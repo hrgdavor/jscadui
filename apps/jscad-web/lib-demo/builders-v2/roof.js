@@ -98,7 +98,7 @@ const roofBuilder = ({ lib, swLib }) => {
         const offHypot = basicSpecs[roofAxis].hypot;
 
         const baseTriangle = triangle({ type: 'SAS', values: [roofSpan, Math.PI / 2, roofHeight] });
-        const basePrism = colorize(swLib.colours.translucentYellow, rotate(
+        const basePrism = colorize(swLib.colors.translucentYellow, rotate(
             [Math.PI / 2, 0, 0],
             extrudeLinear({ height: roofSpanSize[otherAxisIdx] }, baseTriangle)
         ));

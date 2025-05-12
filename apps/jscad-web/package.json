@@ -1,6 +1,6 @@
 {
   "name": "@jscadui/jscad-web",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "type": "module",
   "scripts": {
     "start": "node build.js --dev --skipDocs",
@@ -29,7 +29,8 @@
     "gl-matrix": "^3.4.0",
     "fflate": "0.8.1",
     "@jscad/csg": "0.7.0",
-    "three": "^0.147.0"
+    "three": "^0.147.0",
+    "sw-jscad": "0.5.3-alpha.14"
   },
   "devDependencies": {
     "@jsx6/build": "0.2.4",

@@ -1,7 +1,7 @@
 
 const roofBuilder = ({ lib, swLib }) => {
-    const { union } = lib.booleans;
-    const { triangle } = lib.primitives;
+    const { union, subtract } = lib.booleans;
+    const { triangle, cuboid } = lib.primitives;
     const { rotate, align, translate } = lib.transforms;
     const { extrudeLinear } = lib.extrusions;
     const { colorize } = lib.colors;
@@ -105,6 +105,7 @@ const roofBuilder = ({ lib, swLib }) => {
         const roofSpan = roofSpanSize[mainAxisIdx];
         const roofHeight = basicSpecs[roofAxis].height;
         const roofHypot = basicSpecs[roofAxis].hypot;
+        const roomSize = [roofSpanSize[0] - (2 * wallThickness), roofSpanSize[1] - (2 * wallThickness), roofHeight];
 
         const offSpan = roofSpanSize[otherAxisIdx];
         const offHeight = basicSpecs[otherAxis].height;
@@ -115,6 +116,8 @@ const roofBuilder = ({ lib, swLib }) => {
             [Math.PI / 2, 0, 0],
             extrudeLinear({ height: roofSpanSize[otherAxisIdx] }, baseTriangle)
         ));
+        const roomCutaway = translate([roomSize[0] / 2 + wallThickness, roomSize[1] / -2 - wallThickness, roomSize[2] / 2], cuboid({ size: roomSize }));
+        const cutBasePrism = subtract(basePrism, roomCutaway);
 
         const trFamily = swLib[`trimFamily${trimFamily}`].build({ unitHeight: trimUnitSize[1], unitDepth: trimUnitSize[0] });
         const bottomTrimProfile = trFamily.crown.extraSmall;
@@ -131,7 +134,7 @@ const roofBuilder = ({ lib, swLib }) => {
 
         // return basePrism;
 
-        return union(basePrism, bTrimRafter);
+        return union(cutBasePrism, bTrimRafter);
     }
 
     return {

@@ -28,6 +28,8 @@ mkdirSync(outDir, { recursive: true })
 
 copyTask('static', outDir, { include: [], exclude: [], watch, filters: [] })
 copyTask('examples', outDir+'/examples', { include: [], exclude: [], watch, filters: [] })
+copyTask('lib-demo', outDir+'/lib-demo', { include: [], exclude: [], watch, filters: [] })
+copyTask('projects', outDir+'/projects', { include: [], exclude: [], watch, filters: [] })
 //in dev mode dont try to sync docs, just copy the first time 
 if(!skipDocs && !(dev & existsSync(outDir + "/docs"))){
   // this task is heavy
@@ -40,6 +42,7 @@ await buildBundle(outDir + '/build', 'bundle.jscad_modeling.js', { format: 'cjs'
 await buildBundle(outDir + '/build', 'bundle.jscad_io.js', { format:'cjs', skipExisting: dev })
 await buildBundle(outDir + '/build', 'bundle.V1_api.js', { format:'cjs', skipExisting: dev })
 await buildBundle(outDir + '/build', 'bundle.jscadui.transform-babel.js', { globalName: 'jscadui_transform_babel', skipExisting: dev })
+await buildBundle(outDir + '/build', 'bundle.sw-jscad.js', { format: 'cjs', skipExisting: dev })
 
 /**************************** BUILD JS THAT can change and watch if in dev mode *************/
 await buildOne('src_bundle', outDir + '/build', 'bundle.worker.js', watch, { format: 'iife' })

@@ -1,4 +1,5 @@
 import { examples } from './examples.js'
+import { swLibraryDemos, swModels } from './projects.js'
 
 const menu = /** @type {HTMLElement} */ (document.getElementById('menu'))
 
@@ -33,6 +34,33 @@ export const init = () => {
     const li = document.createElement('li')
     li.appendChild(a)
     exampleDiv.appendChild(li)
+  })
+
+  // Add SW projects to menu
+  const swLibDemosDiv = /** @type {HTMLElement} */ (document.getElementById('sw-projects-1'))
+  swLibraryDemos.forEach(({ name, source }) => {
+    const a = document.createElement('a')
+    a.innerText = name
+    a.addEventListener('click', async () => {
+      console.log(`load project ${name} from ${source}`)
+      document.location.hash = '#' + source
+    })
+    const li = document.createElement('li')
+    li.appendChild(a)
+    swLibDemosDiv.appendChild(li)
+  })
+
+  const swModelsDiv = /** @type {HTMLElement} */ (document.getElementById('sw-projects-2'))
+  swModels.forEach(({ name, source }) => {
+    const a = document.createElement('a')
+    a.innerText = name
+    a.addEventListener('click', async () => {
+      console.log(`load project ${name} from ${source}`)
+      document.location.hash = '#' + source
+    })
+    const li = document.createElement('li')
+    li.appendChild(a)
+    swModelsDiv.appendChild(li)
   })
 }
 

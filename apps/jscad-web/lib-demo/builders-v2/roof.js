@@ -84,7 +84,7 @@ const roofBuilder = ({ lib, swLib }) => {
      */
     const buildShedRoof = ({
         roofSpanSize,
-        roofOverhangSize,
+        roofOverhangSize = [1, 1],
         roofPitch,
         roofAxis = 'x',
         roofOpts = ['solid'],
@@ -112,29 +112,47 @@ const roofBuilder = ({ lib, swLib }) => {
         const offHypot = basicSpecs[otherAxis].hypot;
 
         const baseTriangle = triangle({ type: 'SAS', values: [roofSpan, Math.PI / 2, roofHeight] });
-        const basePrism = colorize(swLib.colors.translucentYellow, rotate(
+        const basePrism = colorize(swLib.colors.translucentYellow, align({ modes: ['center', 'center', 'min'] }, rotate(
             [Math.PI / 2, 0, 0],
             extrudeLinear({ height: roofSpanSize[otherAxisIdx] }, baseTriangle)
-        ));
-        const roomCutaway = translate([roomSize[0] / 2 + wallThickness, roomSize[1] / -2 - wallThickness, roomSize[2] / 2], cuboid({ size: roomSize }));
+        )));
+        const roomCutaway = align({ modes: ['center', 'center', 'min'] }, cuboid({ size: roomSize }));
         const cutBasePrism = subtract(basePrism, roomCutaway);
 
         const trFamily = swLib[`trimFamily${trimFamily}`].build({ unitHeight: trimUnitSize[1], unitDepth: trimUnitSize[0] });
         const bottomTrimProfile = trFamily.crown.extraSmall;
 
         const bTrimRafterSpecs = [2 * trimUnitSize[0] + roofHypot, 2 * trimUnitSize[0] + offSpan];
-        const bTrimRafter = rotate([0, -roofPitch, 0], translate(
-            [-trimUnitSize[0], trimUnitSize[0], 0],
-            align({ modes: ['min', 'max', 'min'] }, bottomTrim({
-                axisLength: bTrimRafterSpecs[1],
-                rafterLength: bTrimRafterSpecs[0],
-                trimProfile: bottomTrimProfile,
-            }))
-        ));
+        const bTrimRafter = align({ modes: ['center', 'center', 'min'] }, bottomTrim({
+            axisLength: bTrimRafterSpecs[otherAxisIdx],
+            rafterLength: bTrimRafterSpecs[mainAxisIdx],
+            trimProfile: bottomTrimProfile,
+        }));
+        const trimProfileDims = measureDimensions(bottomTrimProfile);
+        bTrimRafterSpecs.push(trimProfileDims[1]);
+
+        const sheathingThickness = trimUnitSize[0];
+        const sheathingSize = [2 * roofOverhangSize[mainAxisIdx] + bTrimRafterSpecs[0], 2 * roofOverhangSize[otherAxisIdx] + bTrimRafterSpecs[1], sheathingThickness];
+        const sheathing = translate([0, 0, bTrimRafterSpecs[2]], cuboid({ size: sheathingSize }));
+
+        const roofAssembly = union(bTrimRafter, sheathing);
+        const adjRoofAssembly = translate(
+            [-trimUnitSize[0] - roofOverhangSize[mainAxisIdx], 0, 0],
+            // align({ modes: ['min', 'center', 'min'], relativeTo: [roofSpanSize[mainAxisIdx] / -2, 0, 0] }, roofAssembly)
+            align({ modes: ['min', 'center', 'min'] }, roofAssembly)
+        );
+        const rotatedRoofAssembly = rotate([0, -roofPitch, 0], adjRoofAssembly);
+
+        const adjustedBasePrism = translate([roofSpanSize[mainAxisIdx] / 2, 0, 0], cutBasePrism);
 
         // return basePrism;
 
-        return union(cutBasePrism, bTrimRafter);
+        return union(adjustedBasePrism, rotatedRoofAssembly);
+
+
+        // return rotatedRoofAssembly;
+
+        // return union(cutBasePrism, bTrimRafter);
     }
 
     return {

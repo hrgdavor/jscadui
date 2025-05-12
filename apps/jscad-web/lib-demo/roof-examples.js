@@ -37,6 +37,7 @@ const main = () => {
     const roof3 = roofs.buildShedRoof({
         ...defaultRoofOpts,
         roofPitch: Math.PI / 3.5,
+        roofOverhangSize: [2, 4],
     });
     layout.addToLayout({ name: 'roof3', desc: '...', geom: roof3, layoutOpts });
 

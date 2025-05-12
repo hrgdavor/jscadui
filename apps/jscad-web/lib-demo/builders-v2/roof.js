@@ -2,7 +2,7 @@
 const roofBuilder = ({ lib, swLib }) => {
     const { union, subtract } = lib.booleans;
     const { triangle, cuboid } = lib.primitives;
-    const { rotate, align, translate } = lib.transforms;
+    const { rotate, align, translate, mirror } = lib.transforms;
     const { extrudeLinear } = lib.extrusions;
     const { colorize } = lib.colors;
     const { measureDimensions } = lib.measurements;
@@ -67,12 +67,30 @@ const roofBuilder = ({ lib, swLib }) => {
         console.log(`buildGableRoof() roofSpanSize = ${JSON.stringify(roofSpanSize)}`);
         const basicRoofSpecs = getBasicRoofSpecs({ roofPitch, roofSpanSize });
         const mainAxisIdx = roofAxis === 'x' ? 0 : 1;
+        const otherAxis = roofAxis === 'x' ? 'y' : 'x';
         const otherAxisIdx = mainAxisIdx === 0 ? 1 : 0;
+        const roofSpanHalfSize = [roofSpanSize[mainAxisIdx] / 2, roofSpanSize[otherAxisIdx]];
         console.log(`    roofAxis = ${JSON.stringify(roofAxis)}, roofOpts = ${JSON.stringify(roofOpts)}`);
         console.log(`    basicRoofSpecs = ${JSON.stringify(basicRoofSpecs)}`);
         console.log(`    mainAxisIdx = ${JSON.stringify(mainAxisIdx)}, otherAxisIdx = ${JSON.stringify(otherAxisIdx)}`);
-        
-        return null;
+        console.log(`    roofSpanSize = ${JSON.stringify(roofSpanSize)}, roofSpanHalfSize = ${JSON.stringify(roofSpanHalfSize)}`);
+
+        const halfOffset = roofAxis === 'x' ? [roofSpanHalfSize[0], 0, 0] : [0, -roofSpanHalfSize[1], 0];
+        const halfRoof = translate(halfOffset, buildShedRoof({
+            roofSpanSize: roofSpanHalfSize,
+            roofOverhangSize,
+            roofPitch,
+            roofAxis: otherAxis,
+            roofOpts,
+            wallThickness,
+            trimFamily,
+            trimUnitSize,
+        }));
+        const mirrorNormal = roofAxis === 'x' ? [1, 0, 0] : [0, 1, 0];
+        const mirroredRoof = mirror({ normal: mirrorNormal }, halfRoof);
+        const doubleRoof = union(halfRoof, mirroredRoof);
+
+        return doubleRoof;
     }
 
     /**

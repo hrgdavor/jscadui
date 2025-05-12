@@ -97,7 +97,7 @@ const roofBuilder = ({ lib, swLib }) => {
         const otherAxis = roofAxis === 'x' ? 'y' : 'x';
         const mainAxisIdx = roofAxis === 'x' ? 0 : 1;
         const otherAxisIdx = mainAxisIdx === 0 ? 1 : 0;
-        console.log(`    roofOpts = ${JSON.stringify(roofOpts)}`);
+        console.log(`    roofAxis = ${JSON.stringify(roofAxis)}, roofOpts = ${JSON.stringify(roofOpts)}`);
         console.log(`    basicSpecs = ${JSON.stringify(basicSpecs)}`);
         console.log(`    mainAxisIdx = ${JSON.stringify(mainAxisIdx)}, otherAxisIdx = ${JSON.stringify(otherAxisIdx)}`);
         console.log(swLib.colours);
@@ -105,7 +105,7 @@ const roofBuilder = ({ lib, swLib }) => {
         const roofSpan = roofSpanSize[mainAxisIdx];
         const roofHeight = basicSpecs[roofAxis].height;
         const roofHypot = basicSpecs[roofAxis].hypot;
-        const roomSize = [roofSpanSize[0] - (2 * wallThickness), roofSpanSize[1] - (2 * wallThickness), roofHeight];
+        const roomSize = [roofSpanSize[mainAxisIdx] - (2 * wallThickness), roofSpanSize[otherAxisIdx] - (2 * wallThickness), roofHeight];
 
         const offSpan = roofSpanSize[otherAxisIdx];
         const offHeight = basicSpecs[otherAxis].height;
@@ -124,35 +124,29 @@ const roofBuilder = ({ lib, swLib }) => {
 
         const bTrimRafterSpecs = [2 * trimUnitSize[0] + roofHypot, 2 * trimUnitSize[0] + offSpan];
         const bTrimRafter = align({ modes: ['center', 'center', 'min'] }, bottomTrim({
-            axisLength: bTrimRafterSpecs[otherAxisIdx],
-            rafterLength: bTrimRafterSpecs[mainAxisIdx],
+            axisLength: bTrimRafterSpecs[1],
+            rafterLength: bTrimRafterSpecs[0],
             trimProfile: bottomTrimProfile,
         }));
         const trimProfileDims = measureDimensions(bottomTrimProfile);
         bTrimRafterSpecs.push(trimProfileDims[1]);
 
-        const sheathingThickness = trimUnitSize[0];
-        const sheathingSize = [2 * roofOverhangSize[mainAxisIdx] + bTrimRafterSpecs[0], 2 * roofOverhangSize[otherAxisIdx] + bTrimRafterSpecs[1], sheathingThickness];
-        const sheathing = translate([0, 0, bTrimRafterSpecs[2]], cuboid({ size: sheathingSize }));
+        const sheathingSize = [2 * roofOverhangSize[mainAxisIdx] + bTrimRafterSpecs[0], 2 * roofOverhangSize[otherAxisIdx] + bTrimRafterSpecs[1], trimUnitSize[1]];
+        const sheathing = translate([0, 0, trimUnitSize[1]], cuboid({ size: sheathingSize }));
 
         const roofAssembly = union(bTrimRafter, sheathing);
         const adjRoofAssembly = translate(
-            [-trimUnitSize[0] - roofOverhangSize[mainAxisIdx], 0, 0],
-            // align({ modes: ['min', 'center', 'min'], relativeTo: [roofSpanSize[mainAxisIdx] / -2, 0, 0] }, roofAssembly)
+            [-trimUnitSize[0] - roofOverhangSize[0], 0, 0],
             align({ modes: ['min', 'center', 'min'] }, roofAssembly)
         );
         const rotatedRoofAssembly = rotate([0, -roofPitch, 0], adjRoofAssembly);
 
         const adjustedBasePrism = translate([roofSpanSize[mainAxisIdx] / 2, 0, 0], cutBasePrism);
 
-        // return basePrism;
+        const axisAdj = roofAxis === 'y' ? Math.PI / 2 : 0;
+        let finalShape = rotate([0, 0, axisAdj], union(adjustedBasePrism, rotatedRoofAssembly))
 
-        return union(adjustedBasePrism, rotatedRoofAssembly);
-
-
-        // return rotatedRoofAssembly;
-
-        // return union(cutBasePrism, bTrimRafter);
+        return finalShape;
     }
 
     return {

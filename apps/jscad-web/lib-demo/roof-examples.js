@@ -47,6 +47,14 @@ const main = () => {
     });
     layout.addToLayout({ name: 'roof4', desc: '...', geom: roof4, layoutOpts });
 
+    const roof5 = roofs.buildShedRoof({
+        ...defaultRoofOpts,
+        roofAxis: 'y',
+        roofSpanSize: [25, 60],
+        roofOverhangSize: [2, 4],
+    });
+    layout.addToLayout({ name: 'roof5', desc: '...', geom: roof5, layoutOpts });
+
     const layoutContent = layout.gridLayout({ layoutOpts });
 
     return layoutContent

@@ -27,6 +27,25 @@ const main = () => {
     });
     layout.addToLayout({ name: 'roof1', desc: '...', geom: roof1, layoutOpts });
 
+    const roof2 = roofs.buildShedRoof({
+        ...defaultRoofOpts,
+        roofSpanSize: [25, 60],
+    });
+    layout.addToLayout({ name: 'roof2', desc: '...', geom: roof2, layoutOpts });
+
+    const roof3 = roofs.buildShedRoof({
+        ...defaultRoofOpts,
+        roofPitch: Math.PI / 3.5,
+    });
+    layout.addToLayout({ name: 'roof3', desc: '...', geom: roof3, layoutOpts });
+
+    const roof4 = roofs.buildShedRoof({
+        ...defaultRoofOpts,
+        wallThickness: defaultRoofOpts.wallThickness * 0.6667,
+    });
+    layout.addToLayout({ name: 'roof4', desc: '...', geom: roof4, layoutOpts });
+
+
     const layoutContent = layout.gridLayout({ layoutOpts });
 
     return layoutContent

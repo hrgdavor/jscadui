@@ -3,6 +3,7 @@ const roofBuilder = ({ lib, swLib }) => {
     const { triangle } = lib.primitives;
     const { rotate } = lib.transforms;
     const { extrudeLinear } = lib.extrusions;
+    const { colorize } = lib.colors;
 
     const getBasicSpecs = ({ roofSpanSize, roofPitch }) => {
         const roofHeightX = Math.tan(roofPitch) * roofSpanSize[0];
@@ -87,6 +88,7 @@ const roofBuilder = ({ lib, swLib }) => {
         console.log(`    roofOpts = ${JSON.stringify(roofOpts)}`);
         console.log(`    basicSpecs = ${JSON.stringify(basicSpecs)}`);
         console.log(`    mainAxisIdx = ${JSON.stringify(mainAxisIdx)}, otherAxisIdx = ${JSON.stringify(otherAxisIdx)}`);
+        console.log(swLib.colours);
 
         const roofSpan = roofSpanSize[mainAxisIdx];
         const roofHeight = basicSpecs[roofAxis].height;
@@ -96,10 +98,10 @@ const roofBuilder = ({ lib, swLib }) => {
         const offHypot = basicSpecs[roofAxis].hypot;
 
         const baseTriangle = triangle({ type: 'SAS', values: [roofSpan, Math.PI / 2, roofHeight] });
-        const basePrism = rotate(
+        const basePrism = colorize(swLib.colours.translucentYellow, rotate(
             [Math.PI / 2, 0, 0],
             extrudeLinear({ height: roofSpanSize[otherAxisIdx] }, baseTriangle)
-        );
+        ));
 
         return basePrism;
     }

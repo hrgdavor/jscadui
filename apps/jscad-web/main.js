@@ -459,7 +459,7 @@ try {
 }
 exporter.init(workerApi)
 
-/* uncomment to test fake file tree for running scripts
+//* uncomment to test fake file tree for running scripts
 
 loadDefault = false
 async function setFileTree(sw, files){

@@ -1,0 +1,20 @@
+{
+  "name": "@jscadui/linearcs-app",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node build.js --dev",
+    "build": "node build.js",
+    "preview": "vite preview",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "two.js": "^0.8.18"
+  },
+  "devDependencies": {
+    "@jsx6/build": "0.2.4",
+    "esbuild": "^0.17.11",
+    "live-server": "^1.2.2",
+    "@trivago/prettier-plugin-sort-imports": "~3.3.0"
+  }
+}

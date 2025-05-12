@@ -14,21 +14,31 @@ const roofBuilder = ({ lib, swLib }) => {
         return moulds.cuboidEdge({ size: [rafterLength, axisLength, profileDims[1]], geomProfile: trimProfile });
     }
 
-    const getBasicSpecs = ({ roofSpanSize, roofPitch }) => {
-        const roofHeightX = Math.tan(roofPitch) * roofSpanSize[1];
-        const roofHypotX = Math.hypot(roofSpanSize[1], roofHeightX);
+    const getBasicRoofSpecs = ({ roofSpanSize, roofPitch }) => {
+        const shedRoofHeightX = Math.tan(roofPitch) * roofSpanSize[1];
+        const shedRoofHypotX = Math.hypot(roofSpanSize[1], shedRoofHeightX);
 
-        const roofHeightY = Math.tan(roofPitch) * roofSpanSize[0];
-        const roofHypotY = Math.hypot(roofSpanSize[0], roofHeightY);
+        const gableRoofHeightX = Math.tan(roofPitch) * roofSpanSize[1] / 2;
+        const gableRoofHypotX = Math.hypot(roofSpanSize[1], gableRoofHeightX);
+
+        const shedRoofHeightY = Math.tan(roofPitch) * roofSpanSize[0];
+        const shedRoofHypotY = Math.hypot(roofSpanSize[0], shedRoofHeightY);
+
+        const gableRoofHeightY = Math.tan(roofPitch) * roofSpanSize[0] / 2;
+        const gableRoofHypotY = Math.hypot(roofSpanSize[0], gableRoofHeightY);
 
         return {
             x: {
-                height: roofHeightX,
-                hypot: roofHypotX,
+                shedRoofHeight: shedRoofHeightX,
+                shedRoofHypot: shedRoofHypotX,
+                gableRoofHeight: gableRoofHeightX,
+                gableRoofHypot: gableRoofHypotX,
             },
             y: {
-                height: roofHeightY,
-                hypot: roofHypotY,
+                shedRoofHeight: shedRoofHeightY,
+                shedRoofHypot: shedRoofHypotY,
+                gableRoofHeight: gableRoofHeightY,
+                gableRoofHypot: gableRoofHypotY,
             }
         }
     }
@@ -39,17 +49,29 @@ const roofBuilder = ({ lib, swLib }) => {
      * @param {number[]} opts.roofSpanSize - [x,y] size of area to be spanned
      * @param {number[]} opts.roofOverhangSize - [x,y] size for overhangs
      * @param {number} opts.roofPitch - Roof pitch angle, expressed in radians
+     * @param {string} opts.roofAxis - Main axis of roof
      * @param {string[]} opts.roofOpts - Options like 'solid', 'noWall'
      * @param {number} opts.wallThickness - Wall thickness
      * @returns gable roof
      */
     const buildGableRoof = ({
         roofSpanSize,
-        roofOverhangSize,
+        roofOverhangSize = [1, 1],
         roofPitch,
+        roofAxis = 'x',
         roofOpts = ['solid'],
         wallThickness,
+        trimFamily = 'Aranea',
+        trimUnitSize,
     }) => {
+        console.log(`buildGableRoof() roofSpanSize = ${JSON.stringify(roofSpanSize)}`);
+        const basicRoofSpecs = getBasicRoofSpecs({ roofPitch, roofSpanSize });
+        const mainAxisIdx = roofAxis === 'x' ? 0 : 1;
+        const otherAxisIdx = mainAxisIdx === 0 ? 1 : 0;
+        console.log(`    roofAxis = ${JSON.stringify(roofAxis)}, roofOpts = ${JSON.stringify(roofOpts)}`);
+        console.log(`    basicRoofSpecs = ${JSON.stringify(basicRoofSpecs)}`);
+        console.log(`    mainAxisIdx = ${JSON.stringify(mainAxisIdx)}, otherAxisIdx = ${JSON.stringify(otherAxisIdx)}`);
+        
         return null;
     }
 
@@ -93,18 +115,17 @@ const roofBuilder = ({ lib, swLib }) => {
         trimUnitSize,
     }) => {
         console.log(`buildShedRoof() roofSpanSize = ${JSON.stringify(roofSpanSize)}`);
-        const basicSpecs = getBasicSpecs({ roofPitch, roofSpanSize });
+        const basicRoofSpecs = getBasicRoofSpecs({ roofPitch, roofSpanSize });
         const mainAxisIdx = roofAxis === 'x' ? 0 : 1;
         const otherAxisIdx = mainAxisIdx === 0 ? 1 : 0;
         console.log(`    roofAxis = ${JSON.stringify(roofAxis)}, roofOpts = ${JSON.stringify(roofOpts)}`);
-        console.log(`    basicSpecs = ${JSON.stringify(basicSpecs)}`);
+        console.log(`    basicRoofSpecs = ${JSON.stringify(basicRoofSpecs)}`);
         console.log(`    mainAxisIdx = ${JSON.stringify(mainAxisIdx)}, otherAxisIdx = ${JSON.stringify(otherAxisIdx)}`);
-        console.log(swLib.colours);
 
         const roofSpan = roofSpanSize[otherAxisIdx];
         const axisSpan = roofSpanSize[mainAxisIdx];
-        const roofHeight = basicSpecs[roofAxis].height;
-        const roofHypot = basicSpecs[roofAxis].hypot;
+        const roofHeight = basicRoofSpecs[roofAxis].shedRoofHeight;
+        const roofHypot = basicRoofSpecs[roofAxis].shedRoofHypot;
 
         const roomSize = [roofSpanSize[mainAxisIdx] - (2 * wallThickness), roofSpanSize[otherAxisIdx] - (2 * wallThickness), roofHeight];
 

@@ -1,9 +1,18 @@
 
 const roofBuilder = ({ lib, swLib }) => {
+    const { union } = lib.booleans;
     const { triangle } = lib.primitives;
-    const { rotate } = lib.transforms;
+    const { rotate, align, translate } = lib.transforms;
     const { extrudeLinear } = lib.extrusions;
     const { colorize } = lib.colors;
+    const { measureDimensions } = lib.measurements;
+
+    const { moulds } = swLib;
+
+    const bottomTrim = ({ axisLength, rafterLength, trimProfile }) => {
+        const profileDims = measureDimensions(trimProfile);
+        return moulds.cuboidEdge({ size: [rafterLength, axisLength, profileDims[1]], geomProfile: trimProfile });
+    }
 
     const getBasicSpecs = ({ roofSpanSize, roofPitch }) => {
         const roofHeightX = Math.tan(roofPitch) * roofSpanSize[0];
@@ -80,9 +89,12 @@ const roofBuilder = ({ lib, swLib }) => {
         roofAxis = 'x',
         roofOpts = ['solid'],
         wallThickness,
+        trimFamily = 'Aranea',
+        trimUnitSize,
     }) => {
         console.log(`buildShedRoof() roofSpanSize = ${JSON.stringify(roofSpanSize)}`);
         const basicSpecs = getBasicSpecs({ roofPitch, roofSpanSize })
+        const otherAxis = roofAxis === 'x' ? 'y' : 'x';
         const mainAxisIdx = roofAxis === 'x' ? 0 : 1;
         const otherAxisIdx = mainAxisIdx === 0 ? 1 : 0;
         console.log(`    roofOpts = ${JSON.stringify(roofOpts)}`);
@@ -94,8 +106,9 @@ const roofBuilder = ({ lib, swLib }) => {
         const roofHeight = basicSpecs[roofAxis].height;
         const roofHypot = basicSpecs[roofAxis].hypot;
 
-        const offHeight = basicSpecs[roofAxis].height;
-        const offHypot = basicSpecs[roofAxis].hypot;
+        const offSpan = roofSpanSize[otherAxisIdx];
+        const offHeight = basicSpecs[otherAxis].height;
+        const offHypot = basicSpecs[otherAxis].hypot;
 
         const baseTriangle = triangle({ type: 'SAS', values: [roofSpan, Math.PI / 2, roofHeight] });
         const basePrism = colorize(swLib.colors.translucentYellow, rotate(
@@ -103,7 +116,22 @@ const roofBuilder = ({ lib, swLib }) => {
             extrudeLinear({ height: roofSpanSize[otherAxisIdx] }, baseTriangle)
         ));
 
-        return basePrism;
+        const trFamily = swLib[`trimFamily${trimFamily}`].build({ unitHeight: trimUnitSize[1], unitDepth: trimUnitSize[0] });
+        const bottomTrimProfile = trFamily.crown.extraSmall;
+
+        const bTrimRafterSpecs = [2 * trimUnitSize[0] + roofHypot, 2 * trimUnitSize[0] + offSpan];
+        const bTrimRafter = rotate([0, -roofPitch, 0], translate(
+            [-trimUnitSize[0], trimUnitSize[0], 0],
+            align({ modes: ['min', 'max', 'min'] }, bottomTrim({
+                axisLength: bTrimRafterSpecs[1],
+                rafterLength: bTrimRafterSpecs[0],
+                trimProfile: bottomTrimProfile,
+            }))
+        ));
+
+        // return basePrism;
+
+        return union(basePrism, bTrimRafter);
     }
 
     return {

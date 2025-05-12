@@ -20,6 +20,7 @@ const main = () => {
         roofSpanSize: [30, 50],
         roofPitch: Math.PI / 5,
         wallThickness: 10,
+        trimUnitSize: [1.25, 4],
     }
 
     const roof1 = roofs.buildShedRoof({

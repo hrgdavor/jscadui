@@ -5,7 +5,9 @@ export const swStructureDemos = [
   { name: 'archBuilder', source: './lib-demo/structures/arch-examples.js' },
   { name: 'columnBuilder', source: './lib-demo/structures/column-examples.js' },
   { name: 'entrywayBuilder', source: './lib-demo/structures/entryway-examples.js' },
+  { name: 'roofBuilder', source: './lib-demo/structures/roof-examples.js' },
   { name: 'wallBuilder', source: './lib-demo/structures/wall-examples.js' },
+  { name: 'buttressBuilder', source: './lib-demo/buttress-examples.js' },
 ]
 
 // Ornaments
@@ -18,8 +20,6 @@ export const swOrnamentDemos = [
 
 // Etc
 export const swLibDemos = [
-  { name: 'roofBuilder', source: './lib-demo/roof-examples.js' },
-  { name: 'buttressBuilder', source: './lib-demo/buttress-examples.js' },
 ]
 
 export const swLibraryDemos = [

@@ -20,6 +20,7 @@ const main = () => {
     }
 
     const baseTrim = [
+        tFamilyAranea.base.extraSmall,
         tFamilyAranea.base.small,
         tFamilyAranea.base.medium,
         tFamilyAranea.base.large,
@@ -29,6 +30,7 @@ const main = () => {
     ];
 
     const dadoTrim = [
+        tFamilyAranea.dado.extraSmall,
         tFamilyAranea.dado.small,
         tFamilyAranea.dado.medium,
         tFamilyAranea.dado.large,
@@ -38,6 +40,7 @@ const main = () => {
     ];
 
     const crownTrim = [
+        tFamilyAranea.crown.extraSmall,
         tFamilyAranea.crown.small,
         tFamilyAranea.crown.medium,
         tFamilyAranea.crown.large,

@@ -2,7 +2,6 @@
 
 const jscad = require('@jscad/modeling')
 const swJscad = require('sw-jscad').init({ lib: jscad });
-require('./enhancer').enhanceSwJscad({ lib: jscad, swLib: swJscad });
 
 const { translate } = jscad.transforms;
 const {

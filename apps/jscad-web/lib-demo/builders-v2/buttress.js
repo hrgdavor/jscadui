@@ -1,5 +1,7 @@
 
 const buttressBuilder = ({ lib, swLib }) => {
+    const { cuboid } = lib.primitives;
+
     return {
         /**
          * Builds a buttress/pilaster.
@@ -13,8 +15,16 @@ const buttressBuilder = ({ lib, swLib }) => {
          * @param {number} opts.trimSides - sides where trim is present. Expects an integer between 1-4
          * @returns Buttress geometry
          */
-        build: (opts) => {
-            return null;
+        build: ({
+            height,
+            thickness,
+            bottomWidth,
+            topWidth,
+            buttressOpts,
+            trimOpts,
+            trimSides,
+        }) => {
+            return cuboid({ size: [thickness, bottomWidth, height] });
         }
     };
 }

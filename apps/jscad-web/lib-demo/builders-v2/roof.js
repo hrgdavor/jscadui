@@ -66,29 +66,43 @@ const roofBuilder = ({ lib, swLib }) => {
     }) => {
         console.log(`buildGableRoof() roofSpanSize = ${JSON.stringify(roofSpanSize)}`);
         const basicRoofSpecs = getBasicRoofSpecs({ roofPitch, roofSpanSize });
-        const mainAxisIdx = roofAxis === 'x' ? 0 : 1;
         const otherAxis = roofAxis === 'x' ? 'y' : 'x';
+        const mainAxisIdx = roofAxis === 'x' ? 0 : 1;
         const otherAxisIdx = mainAxisIdx === 0 ? 1 : 0;
-        const roofSpanHalfSize = [roofSpanSize[mainAxisIdx] / 2, roofSpanSize[otherAxisIdx]];
+        let roofSpanHalfSize = [roofSpanSize[0], roofSpanSize[1] / 2];
+        if (roofAxis === 'y') {
+            roofSpanHalfSize = [roofSpanSize[0] / 2, roofSpanSize[1]];
+        }
         console.log(`    roofAxis = ${JSON.stringify(roofAxis)}, roofOpts = ${JSON.stringify(roofOpts)}`);
         console.log(`    basicRoofSpecs = ${JSON.stringify(basicRoofSpecs)}`);
-        console.log(`    mainAxisIdx = ${JSON.stringify(mainAxisIdx)}, otherAxisIdx = ${JSON.stringify(otherAxisIdx)}`);
         console.log(`    roofSpanSize = ${JSON.stringify(roofSpanSize)}, roofSpanHalfSize = ${JSON.stringify(roofSpanHalfSize)}`);
 
-        const halfOffset = roofAxis === 'x' ? [roofSpanHalfSize[0], 0, 0] : [0, -roofSpanHalfSize[1], 0];
+        const halfOffset = roofAxis === 'x' ?
+            [-roofSpanHalfSize[0] / 2, -roofSpanHalfSize[1], basicRoofSpecs[roofAxis].gableRoofHeight / -2] :
+            [roofSpanHalfSize[0], roofSpanHalfSize[1] / -2, basicRoofSpecs[roofAxis].gableRoofHeight / -2];
         const halfRoof = translate(halfOffset, buildShedRoof({
             roofSpanSize: roofSpanHalfSize,
             roofOverhangSize,
             roofPitch,
-            roofAxis: otherAxis,
+            roofAxis,
             roofOpts,
             wallThickness,
             trimFamily,
             trimUnitSize,
         }));
-        const mirrorNormal = roofAxis === 'x' ? [1, 0, 0] : [0, 1, 0];
-        const mirroredRoof = mirror({ normal: mirrorNormal }, halfRoof);
-        const doubleRoof = union(halfRoof, mirroredRoof);
+        const mirrorNormal = roofAxis === 'x' ? [0, 1, 0] : [1, 0, 0];
+        let cutBox = [
+            roofAxis === 'x' ? roofSpanHalfSize[0] + 50 : roofSpanHalfSize[0] + 50,
+            roofAxis === 'x' ? roofSpanHalfSize[1] + 50 : roofSpanHalfSize[1] + 50,
+            basicRoofSpecs[roofAxis].gableRoofHeight + 50
+        ];
+        let adjCutBox = align({ modes: ['center', 'min', 'center'] }, cuboid({ size: cutBox }));
+        if (roofAxis === 'y') {
+            adjCutBox = align({ modes: ['max', 'center', 'center'] }, cuboid({ size: cutBox }));
+        }
+        const cutRoof = subtract(halfRoof, adjCutBox)
+        const mirroredRoof = mirror({ normal: mirrorNormal }, cutRoof);
+        const doubleRoof = union(cutRoof, mirroredRoof);
 
         return doubleRoof;
     }
@@ -131,6 +145,8 @@ const roofBuilder = ({ lib, swLib }) => {
         wallThickness,
         trimFamily = 'Aranea',
         trimUnitSize,
+        shingleLayerThickness,
+        shingleSheathingThickness,
     }) => {
         console.log(`buildShedRoof() roofSpanSize = ${JSON.stringify(roofSpanSize)}`);
         const basicRoofSpecs = getBasicRoofSpecs({ roofPitch, roofSpanSize });
@@ -166,13 +182,25 @@ const roofBuilder = ({ lib, swLib }) => {
             rafterLength: bTrimRafterSpecs[1],
             trimProfile: bottomTrimProfile,
         }));
+        const bTrimDims = measureDimensions(bottomTrimProfile);
 
-        const sheathingSize = [2 * roofOverhangSize[mainAxisIdx] + bTrimRafterSpecs[1], 2 * roofOverhangSize[otherAxisIdx] + bTrimRafterSpecs[0], trimUnitSize[1]];
-        const sheathing = translate([0, 0, trimUnitSize[1]], cuboid({ size: sheathingSize }));
-        const roofAssembly = union(bTrimRafter, sheathing);
+        const sheathingThickness = bTrimDims[1] * 0.6667;
+        const sheathingSize = [2 * roofOverhangSize[mainAxisIdx] + bTrimRafterSpecs[1], 2 * roofOverhangSize[otherAxisIdx] + bTrimRafterSpecs[0], sheathingThickness];
+        const sheathing = translate([0, 0, bTrimDims[1] + sheathingSize[2] / 2], cuboid({ size: sheathingSize }));
+
+        const shingThickness = shingleLayerThickness || bTrimDims[1] * 0.6667
+        const shinglesSize = [3 * trimUnitSize[0] + sheathingSize[0], 3 * trimUnitSize[0] + sheathingSize[1], shingThickness];
+        const shingles = translate([0, 0, bTrimDims[1] + sheathingSize[2] + shinglesSize[2] / 2], cuboid({ size: shinglesSize }));
+
+        const roofAssembly = union(bTrimRafter, sheathing, shingles);
 
         const adjRoofAssembly = translate(
-            [-trimUnitSize[0] - roofOverhangSize[mainAxisIdx], -trimUnitSize[0] - roofOverhangSize[otherAxisIdx], 0],
+            [
+                (shinglesSize[0] - axisSpan) / -2,
+                (shinglesSize[1] - roofHypot) / -2,
+                0,
+                0,
+            ],
             align({ modes: ['min', 'min', 'min'] }, roofAssembly)
         );
         const rotatedRoofAssembly = rotate([roofPitch, 0, 0], adjRoofAssembly);

@@ -174,17 +174,22 @@ const roofBuilder = ({ lib, swLib }) => {
         const roofHeight = basicRoofSpecs[roofAxis].shedRoofHeight;
         const roofHypot = basicRoofSpecs[roofAxis].shedRoofHypot;
 
-        let roomSize = [roofSpanSize[mainAxisIdx] - (2 * wallThickness), roofSpanSize[otherAxisIdx] - (2 * wallThickness), roofHeight];
-        if(roofOpts.includes('gableMode')) {
-            roomSize = [roofSpanSize[mainAxisIdx] - (2 * wallThickness), roofSpanSize[otherAxisIdx] - wallThickness, roofHeight];
-        }
-
         const baseTriangle = triangle({ type: 'SAS', values: [roofSpan, Math.PI / 2, roofHeight] });
         const basePrism = colorize(swLib.colors.translucentYellow, align({ modes: ['center', 'center', 'min'] }, rotate(
             [Math.PI / 2, 0, Math.PI / 2],
             extrudeLinear({ height: roofSpanSize[mainAxisIdx] }, baseTriangle)
         )));
-        const roomCutaway = align({ modes: ['center', 'center', 'min'] }, cuboid({ size: roomSize }));
+
+        const wallThicknessOffset = roofOpts.includes('gableMode') ? 1 : 2;
+        let roomSize = [
+            roofSpanSize[mainAxisIdx] - (2 * wallThickness),
+            roofSpanSize[otherAxisIdx] - (wallThicknessOffset * wallThickness),
+            roofHeight
+        ];
+        let roomCutaway = align({ modes: ['center', 'center', 'min'] }, cuboid({ size: roomSize }));
+        if (roofOpts.includes('gableMode')) {
+            roomCutaway = translate([0, wallThickness / 2, 0], roomCutaway);
+        }
         const cutBasePrism = align({ modes: ['min', 'min', 'min'] }, subtract(basePrism, roomCutaway));
 
         // Roof Assembly

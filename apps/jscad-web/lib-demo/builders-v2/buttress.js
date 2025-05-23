@@ -1,10 +1,11 @@
 
 const buttressBuilder = ({ lib, swLib }) => {
-    const { union } = lib.booleans;
+    const { union, subtract } = lib.booleans;
     const { cuboid } = lib.primitives;
-    const { align } = lib.transforms;
+    const { align, translate } = lib.transforms;
+    const { measureBoundingBox } = lib.measurements;
 
-    const { roofs } = swLib;
+    const { roofs, constants } = swLib;
 
     return {
         /**
@@ -45,7 +46,7 @@ const buttressBuilder = ({ lib, swLib }) => {
             return union(baseShape, rooflet);
         },
         /**
-         * Builds a simple buttress/pilaster.
+         * Builds a two-part buttress/pilaster.
          * @param {Object} opts 
          * @param {number} opts.height
          * @param {number} opts.thickness
@@ -56,11 +57,12 @@ const buttressBuilder = ({ lib, swLib }) => {
          * @param {number} opts.trimSides - sides where trim is present. Expects an integer between 1-4
          * @returns Buttress geometry
          */
-        build: ({
+        buildTwoPart: ({
             height,
             thickness,
             bottomWidth,
             topWidth,
+            midHeight,
             buttressOpts,
             trimOpts,
             trimSides,
@@ -72,19 +74,40 @@ const buttressBuilder = ({ lib, swLib }) => {
                 buttressOpts,
                 trimOpts,
                 trimSides,);
-            const baseShape = cuboid({ size: [thickness, bottomWidth, height] });
-            const roofletBase = [thickness, bottomWidth - topWidth]
-            console.log(roofletBase)
+            const midHt = midHeight || height * constants.PHI_INV;
+            const baseShape = align(
+                { modes: ['min', 'min', 'min'], relativeTo: [0, 0, -midHt] },
+                cuboid({ size: [thickness, bottomWidth, height] })
+            );
 
-            const rooflet = roofs.buildShedRoof({
-                roofSpanSize: roofletBase,
-                roofPitch: Math.PI / 4,
+            const midRoofletBase = [thickness, bottomWidth - topWidth];
+            const topRoofletBase = [thickness, topWidth];
+            const cutaway = align(
+                { modes: ['min', 'min', 'min'] },
+                cuboid({ size: [...midRoofletBase, height - midHt] })
+            );
+            const baseButtress = subtract(baseShape, cutaway);
+
+            const midRooflet = roofs.buildShedRoof({
+                roofSpanSize: midRoofletBase,
+                roofPitch: Math.PI / 8,
                 wallThickness: 3,
                 trimUnitSize: [1.25, 4],
                 roofOpts: ['solid']
             });
 
-            return union(baseShape, rooflet);
+            const topRooflet = translate(
+                [0, midRoofletBase[1], height - midHt],
+                roofs.buildShedRoof({
+                    roofSpanSize: topRoofletBase,
+                    roofPitch: Math.PI / 8,
+                    wallThickness: 3,
+                    trimUnitSize: [1.25, 4],
+                    roofOpts: ['solid']
+                })
+            );
+
+            return union(baseButtress, midRooflet, topRooflet);
         }
     };
 }

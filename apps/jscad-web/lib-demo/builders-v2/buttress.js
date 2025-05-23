@@ -2,6 +2,8 @@
 const buttressBuilder = ({ lib, swLib }) => {
     const { union } = lib.booleans;
     const { cuboid } = lib.primitives;
+    const { align } = lib.transforms;
+
     const { roofs } = swLib;
 
     return {
@@ -30,12 +32,12 @@ const buttressBuilder = ({ lib, swLib }) => {
                 buttressOpts,
                 trimOpts,
                 trimSides,);
-            const baseShape = cuboid({ size: [thickness, width, height] });
+
+            const baseShape = align({ modes: ['min', 'min', 'max'] }, cuboid({ size: [thickness, width, height] }));
 
             const rooflet = roofs.buildShedRoof({
                 roofSpanSize: [thickness, width],
-                roofPitch: Math.PI / 4,
-                wallThickness: 3,
+                roofPitch: Math.PI / 8,
                 trimUnitSize: [1.25, 4],
                 roofOpts: ['solid']
             });

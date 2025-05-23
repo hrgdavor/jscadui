@@ -5,7 +5,6 @@
 //-------------------
 
 const buttressBuilder = require('./builders-v2/buttress');
-const roofsBuilder = require('./builders-v2/roofs');
 
 
 //------------------
@@ -14,7 +13,6 @@ const roofsBuilder = require('./builders-v2/roofs');
 
 const enhanceSwJscad = ({ lib, swLib }) => {
     swLib.buttress = buttressBuilder.init({ lib, swLib });
-    swLib.roofs = roofsBuilder.init({ lib, swLib });
 }
 
 module.exports = {

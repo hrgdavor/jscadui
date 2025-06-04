@@ -54,3 +54,7 @@ export const swLibraryDemos = [
 export const swModels = [
   { name: 'Candle holder', source: './lib-demo/candle-holder/index.js' },
 ]
+
+export const swProjects = [
+  { name: 'Placeholder project', source: './projects/whatever/index.js' },
+]

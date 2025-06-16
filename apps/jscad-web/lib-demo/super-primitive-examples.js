@@ -37,6 +37,45 @@ const main = () => {
         layoutOpts,
     });
 
+    layout.addToLayout({
+        name: 'mesh-cuboid-1',
+        desc: '...',
+        geom: superPrimitives.meshCuboid({
+            size: [40, 30, 20],
+            meshPanelThickness: 2,
+            radius: 2.5,
+            segments: 9
+        }),
+        layoutOpts,
+    });
+
+    layout.addToLayout({
+        name: 'mesh-cuboid-2',
+        desc: '...',
+        geom: superPrimitives.meshCuboid({
+            size: [40, 30, 20],
+            meshPanelThickness: 2,
+            radius: 2.5,
+            segments: 9,
+            openTop: true,
+        }),
+        layoutOpts,
+    });
+
+    layout.addToLayout({
+        name: 'mesh-cylinder-1',
+        desc: '...',
+        geom: superPrimitives.meshCylinder({
+            radius: 12,
+            height: 40,
+            thickness: 1.5,
+            meshRadius: 2.5,
+            meshMinWidth: 2.5,
+            meshSegments: 9,
+        }),
+        layoutOpts,
+    });
+
     const layoutContent = layout.gridLayout({ layoutOpts });
     return layoutContent;
 }

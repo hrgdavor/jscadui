@@ -1,12 +1,11 @@
 {
   "name": "sw-jscad-viewer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "JSCAD viewer leveraging sw-jscad",
   "main": "index.js",
   "workspaces": [
     "packages/*",
-    "file-format/*",
-    "apps/*"
+    "apps/jscad-web"
   ],
   "directories": {
     "doc": "docs"

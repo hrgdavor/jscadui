@@ -38,6 +38,19 @@ const main = () => {
     });
 
     layout.addToLayout({
+        name: 'mesh-panel-3',
+        desc: '...',
+        geom: superPrimitives.meshPanel({
+            size: [45, 35, 2],
+            radius: 3,
+            segments: 8,
+            edgeMargin: 2,
+            patternMode: 'fill'
+        }),
+        layoutOpts,
+    });
+
+    layout.addToLayout({
         name: 'mesh-cuboid-1',
         desc: '...',
         geom: superPrimitives.meshCuboid({
@@ -83,9 +96,25 @@ const main = () => {
             radius: 16,
             height: 45,
             thickness: 1.5,
-            meshRadius: 6,
+            meshRadius: 5,
             meshMinWidth: 2.5,
-            meshSegments: 9,
+            meshSegments: 10,
+            edgeInsets: [2, 3]
+        }),
+        layoutOpts,
+    });
+
+    layout.addToLayout({
+        name: 'mesh-cylinder-3',
+        desc: '...',
+        geom: superPrimitives.meshCylinder({
+            radius: 12,
+            height: 40,
+            thickness: 1.5,
+            meshRadius: 4,
+            meshMinWidth: 2.5,
+            meshSegments: 12,
+            edgeOffsets: [2.5, 3.5],
         }),
         layoutOpts,
     });

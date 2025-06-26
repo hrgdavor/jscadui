@@ -76,6 +76,20 @@ const main = () => {
         layoutOpts,
     });
 
+    layout.addToLayout({
+        name: 'mesh-cylinder-2',
+        desc: '...',
+        geom: superPrimitives.meshCylinder({
+            radius: 16,
+            height: 45,
+            thickness: 1.5,
+            meshRadius: 6,
+            meshMinWidth: 2.5,
+            meshSegments: 9,
+        }),
+        layoutOpts,
+    });
+
     const layoutContent = layout.gridLayout({ layoutOpts });
     return layoutContent;
 }

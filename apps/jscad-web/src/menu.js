@@ -1,6 +1,7 @@
 import { examples } from './examples.js'
 import {
   swLibDemo,
+  swLibCore,
   swBuilders,
   swDetails,
   swFamilies,
@@ -57,7 +58,7 @@ export const init = () => {
 
   // Add SW projects to menu
   const swDemoDiv = /** @type {HTMLElement} */ (document.getElementById('sw-demo'))
-  const firstDemos = [swLibDemo, ...swUx];
+  const firstDemos = [swLibDemo, ...swLibCore, ...swUx];
   firstDemos.forEach(({ name, source }) => {
     generateLink(name, source, swDemoDiv);
   });

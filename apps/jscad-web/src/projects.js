@@ -1,5 +1,11 @@
 export const swLibDemo = { name: 'sw-jscad', source: './lib-demo/index.js' }
 
+export const swLibCore = [
+  { name: 'Area Points', source: './lib-demo/area-point-examples.js' },
+  { name: 'Centroid', source: './lib-demo/centroid-examples.js' },
+  { name: 'Super Primitives', source: './lib-demo/super-primitive-examples.js' },
+]
+
 export const swBuilders = [
   { name: 'Arches', source: './lib-demo/builders/arch-examples.js' },
   { name: 'Buttress', source: './lib-demo/builders/buttress-examples.js' },

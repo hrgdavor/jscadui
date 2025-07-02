@@ -7,7 +7,7 @@ const swjFamilies = require('sw-jscad-families').init({ lib: jscad, swLib: swJsc
 const swjBuilders = require('sw-jscad-builders').init({ lib: jscad, swLib: swJscad, swFamilies: swjFamilies });
 
 const { union } = jscad.booleans
-const { cuboid, sphere } = jscad.primitives
+const { cuboid, rectangle, sphere, circle } = jscad.primitives
 
 const { arches } = swjBuilders;
 const { profiles } = swJscad.details;
@@ -42,6 +42,24 @@ const main = () => {
         box1CtrlPts.i6,
         box1CtrlPts.i7,
         box1CtrlPts.i8,
+        box1CtrlPts.e1,
+        box1CtrlPts.e2,
+        box1CtrlPts.e3,
+        box1CtrlPts.e4,
+        box1CtrlPts.e5,
+        box1CtrlPts.e6,
+        box1CtrlPts.e7,
+        box1CtrlPts.e8,
+        box1CtrlPts.e9,
+        box1CtrlPts.e10,
+        box1CtrlPts.e11,
+        box1CtrlPts.e12,
+        box1CtrlPts.f1,
+        box1CtrlPts.f2,
+        box1CtrlPts.f3,
+        box1CtrlPts.f4,
+        box1CtrlPts.f5,
+        box1CtrlPts.f6,
     ]
     const box1FrameParts = box1FramePts.map(pt => {
         return sphere({ center: pt });
@@ -68,15 +86,57 @@ const main = () => {
         box2CtrlPts.i6,
         box2CtrlPts.i7,
         box2CtrlPts.i8,
+        box2CtrlPts.e1,
+        box2CtrlPts.e2,
+        box2CtrlPts.e3,
+        box2CtrlPts.e4,
+        box2CtrlPts.e5,
+        box2CtrlPts.e6,
+        box2CtrlPts.e7,
+        box2CtrlPts.e8,
+        box2CtrlPts.e9,
+        box2CtrlPts.e10,
+        box2CtrlPts.e11,
+        box2CtrlPts.e12,
+        box2CtrlPts.f1,
+        box2CtrlPts.f2,
+        box2CtrlPts.f3,
+        box2CtrlPts.f4,
+        box2CtrlPts.f5,
+        box2CtrlPts.f6,
     ]
     const box2FrameParts = box2FramePts.map(pt => {
         return sphere({ center: pt });
     })
 
+    const box3 = rectangle({ size: [30, 20] })
+    const box3CtrlPts = geometry.rectangle.getRectangleCtrlPoints(box3)
+    console.log(box3CtrlPts)
+    const box3FramePts = [
+        box3CtrlPts.c1,
+        box3CtrlPts.c2,
+        box3CtrlPts.c3,
+        box3CtrlPts.c4,
+        box3CtrlPts.i0,
+        box3CtrlPts.i1,
+        box3CtrlPts.i2,
+        box3CtrlPts.i3,
+        box3CtrlPts.i4,
+        box3CtrlPts.e1,
+        box3CtrlPts.e2,
+        box3CtrlPts.e3,
+        box3CtrlPts.e4,
+    ]
+    const box3FrameParts = box3FramePts.map(pt => {
+        return circle({ center: pt });
+    })
+
     layout.addToLayout({ name: 'box1', desc: '...', geom: box1, layoutOpts });
     layout.addToLayout({ name: 'box2', desc: '...', geom: box2, layoutOpts });
+    layout.addToLayout({ name: 'box3', desc: '...', geom: box3, layoutOpts });
     layout.addToLayout({ name: 'box1-parts', desc: '...', geom: union(box1FrameParts), layoutOpts });
     layout.addToLayout({ name: 'box2-parts', desc: '...', geom: union(box2FrameParts), layoutOpts });
+    layout.addToLayout({ name: 'box3-parts', desc: '...', geom: union(box3FrameParts), layoutOpts });
 
     const layoutContent = layout.gridLayout({ layoutOpts });
     return layoutContent;

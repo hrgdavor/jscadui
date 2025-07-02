@@ -6,6 +6,7 @@ const swJscad = require('sw-jscad').init({ lib: jscad });
 const swjUi = require('sw-jscad-ui').init({ lib: jscad, swLib: swJscad });
 const swjFamilies = require('sw-jscad-families').init({ lib: jscad, swLib: swJscad });
 
+const { measureDimensions, measureBoundingBox, measureCenter } = jscad.measurements;
 const { trimAranea } = swjFamilies;
 const { layout } = swjUi.ux;
 
@@ -44,7 +45,10 @@ const main = () => {
             const currentCtg = categories[ctgIdx];
             const currentSize = sizes[sIdx];
             const currentGeom = tFamilyAranea[currentCtg][currentSize];
-            console.log(currentCtg, currentSize)
+            // console.log(currentCtg, currentSize)
+            // console.log(measureDimensions(currentGeom));
+            // console.log(measureBoundingBox(currentGeom));
+            // console.log(measureCenter(currentGeom));
             layout.addToLayout({ name: `${currentCtg}-${sizesAbbrev[sIdx]}`, desc: '.', geom: currentGeom, layoutOpts });
         }
     }

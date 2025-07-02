@@ -3,6 +3,7 @@ export const swLibDemo = { name: 'sw-jscad', source: './lib-demo/index.js' }
 export const swLibCore = [
   { name: 'Area Points', source: './lib-demo/area-point-examples.js' },
   { name: 'Centroid', source: './lib-demo/centroid-examples.js' },
+  { name: 'Control Points', source: './lib-demo/control-points-examples.js' },
   { name: 'Super Primitives', source: './lib-demo/super-primitive-examples.js' },
 ]
 

@@ -61,9 +61,8 @@ const main = () => {
         layout.addToLayout({
             name: `point-cloud-${idx}`,
             desc: '...',
-            geom: union(...pointGeoms),
             layoutOpts,
-        });
+        }, union(...pointGeoms));
     })
 
     const layoutContent = layout.gridLayout({ layoutOpts });

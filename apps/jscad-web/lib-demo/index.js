@@ -47,7 +47,7 @@ const main = () => {
         tFamilyBasic.dado.mediumOrn1,
     ];
     dadoTrim.forEach((trim, idx) => {
-        layout.addToLayout({ name: `dado-${idx}`, desc: '...', geom: trim, layoutOpts });
+        layout.addToLayout({ name: `dado-${idx}`, desc: '...', layoutOpts }, trim);
     })
 
 
@@ -55,23 +55,23 @@ const main = () => {
     // Mouldings
 
     const mould3 = moulds.circularMoulding({ radius: 20, height: 5 }, profile1);
-    layout.addToLayout({ name: 'mould3', desc: '...', geom: mould3, layoutOpts });
+    layout.addToLayout({ name: 'mould3', desc: '...', layoutOpts }, mould3);
 
 
     //-----------
     // Foils
 
     const foil1 = foils.trefoil({ radius: 10 });
-    layout.addToLayout({ name: 'foil1', desc: '...', geom: foil1, layoutOpts });
+    layout.addToLayout({ name: 'foil1', desc: '...', layoutOpts }, foil1);
 
     const foil5 = foils.quatrefoil({ radius: 10, lobeRadiusType: 'inSlice' });
-    layout.addToLayout({ name: 'foil5', desc: '...', geom: foil5, layoutOpts });
+    layout.addToLayout({ name: 'foil5', desc: '...', layoutOpts }, foil5);
 
     const foil7 = foils.trefoil({ radius: 15, lobeRadiusType: 'halfRadius', cutCentre: true }, profile1);
-    layout.addToLayout({ name: 'foil7', desc: '...', geom: foil7, layoutOpts });
+    layout.addToLayout({ name: 'foil7', desc: '...', layoutOpts }, foil7);
 
     const foil8 = foils.quatrefoil({ radius: 15, lobeRadiusType: 'mean', cutCentre: true }, profile3);
-    layout.addToLayout({ name: 'foil8', desc: '...', geom: foil8, layoutOpts });
+    layout.addToLayout({ name: 'foil8', desc: '...', layoutOpts }, foil8);
 
 
     //-----------
@@ -83,17 +83,17 @@ const main = () => {
         capital: ['roundCylinder', 2, 3.5],
         height: 20,
     });
-    layout.addToLayout({ name: 'col2', desc: '...', geom: col2, layoutOpts });
+    layout.addToLayout({ name: 'col2', desc: '...', layoutOpts }, col2);
 
 
     //-----------
     // Arches
 
     const arch1 = arches.twoPtArch({ arcRadius: 30, archWidth: 35, profileWidth: 5 }, profile1);
-    layout.addToLayout({ name: 'arch1', desc: '...', geom: arch1, layoutOpts });
+    layout.addToLayout({ name: 'arch1', desc: '...', layoutOpts }, arch1);
 
     const arch2 = arches.twoPtArch({ arcRadius: 30, archWidth: 35 });
-    layout.addToLayout({ name: 'arch2', desc: '...', geom: arch2, layoutOpts });
+    layout.addToLayout({ name: 'arch2', desc: '...', layoutOpts }, arch2);
 
 
     //-----------
@@ -111,7 +111,7 @@ const main = () => {
         trimUnitDepth: 1.25,
         trimSides: 4,
     });
-    layout.addToLayout({ name: 'Wall (2)', desc: '...', geom: wall2, layoutOpts });
+    layout.addToLayout({ name: 'Wall (2)', desc: '...', layoutOpts }, wall2);
 
     const wallDado1 = walls.buildWall({
         height: 100,
@@ -124,7 +124,7 @@ const main = () => {
         trimUnitDepth: 1.25,
         trimSides: 4,
     });
-    layout.addToLayout({ name: 'Dado Wall (1)', desc: '...', geom: wallDado1, layoutOpts });
+    layout.addToLayout({ name: 'Dado Wall (1)', desc: '...', layoutOpts }, wallDado1) 
 
     const layoutContent = layout.gridLayout({ layoutOpts });
     return layoutContent;

@@ -38,9 +38,8 @@ const main = () => {
         layout.addToLayout({
             name: `area-points-${idx}`,
             desc: '...',
-            geom: union(...pointGeoms),
             layoutOpts,
-        });
+        }, union(...pointGeoms));
     })
 
     const layoutContent = layout.gridLayout({ layoutOpts });

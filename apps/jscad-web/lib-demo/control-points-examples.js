@@ -131,12 +131,12 @@ const main = () => {
         return circle({ center: pt });
     })
 
-    layout.addToLayout({ name: 'box1', desc: '...', geom: box1, layoutOpts });
-    layout.addToLayout({ name: 'box2', desc: '...', geom: box2, layoutOpts });
-    layout.addToLayout({ name: 'box3', desc: '...', geom: box3, layoutOpts });
-    layout.addToLayout({ name: 'box1-parts', desc: '...', geom: union(box1FrameParts), layoutOpts });
-    layout.addToLayout({ name: 'box2-parts', desc: '...', geom: union(box2FrameParts), layoutOpts });
-    layout.addToLayout({ name: 'box3-parts', desc: '...', geom: union(box3FrameParts), layoutOpts });
+    layout.addToLayout({ name: 'box1', desc: '...', layoutOpts }, box1);
+    layout.addToLayout({ name: 'box2', desc: '...', layoutOpts }, box2);
+    layout.addToLayout({ name: 'box3', desc: '...', layoutOpts }, box3);
+    layout.addToLayout({ name: 'box1-parts', desc: '...', layoutOpts }, union(box1FrameParts));
+    layout.addToLayout({ name: 'box2-parts', desc: '...', layoutOpts }, union(box2FrameParts));
+    layout.addToLayout({ name: 'box3-parts', desc: '...', layoutOpts }, union(box3FrameParts));
 
     const layoutContent = layout.gridLayout({ layoutOpts });
     return layoutContent;

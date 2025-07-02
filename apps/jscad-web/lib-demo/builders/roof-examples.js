@@ -25,27 +25,27 @@ const main = () => {
     const roof1 = roofs.buildShedRoof({
         ...defaultRoofOpts
     });
-    layout.addToLayout({ name: 'roof1', desc: '...', geom: roof1, layoutOpts });
+    layout.addToLayout({ name: 'roof1', desc: '...', layoutOpts }, roof1);
 
     const roof2 = roofs.buildShedRoof({
         ...defaultRoofOpts,
         roofOpts: ['solid']
     });
-    layout.addToLayout({ name: 'roof2', desc: '...', geom: roof2, layoutOpts });
+    layout.addToLayout({ name: 'roof2', desc: '...', layoutOpts }, roof2);
 
     const roof3 = roofs.buildShedRoof({
         ...defaultRoofOpts,
         roofPitch: Math.PI / 3.5,
         roofOverhangSize: [2, 4],
     });
-    layout.addToLayout({ name: 'roof3', desc: '...', geom: roof3, layoutOpts });
+    layout.addToLayout({ name: 'roof3', desc: '...', layoutOpts }, roof3);
 
     const roof4 = roofs.buildShedRoof({
         ...defaultRoofOpts,
         wallThickness: defaultRoofOpts.wallThickness * 0.6667,
         roofOpts: ['solid']
     });
-    layout.addToLayout({ name: 'roof4', desc: '...', geom: roof4, layoutOpts });
+    layout.addToLayout({ name: 'roof4', desc: '...', layoutOpts }, roof4);
 
     const roof5 = roofs.buildShedRoof({
         ...defaultRoofOpts,
@@ -53,14 +53,14 @@ const main = () => {
         roofSpanSize: [25, 60],
         roofOverhangSize: [2, 4],
     });
-    layout.addToLayout({ name: 'roof5', desc: '...', geom: roof5, layoutOpts });
+    layout.addToLayout({ name: 'roof5', desc: '...', layoutOpts }, roof5);
 
     const roof6 = roofs.buildGableRoof({
         ...defaultRoofOpts,
         roofSpanSize: [50, 90],
         roofOverhangSize: [3, 6],
     });
-    layout.addToLayout({ name: 'roof6', desc: '...', geom: roof6, layoutOpts });
+    layout.addToLayout({ name: 'roof6', desc: '...', layoutOpts }, roof6);
 
     const roof7 = roofs.buildGableRoof({
         ...defaultRoofOpts,
@@ -68,7 +68,7 @@ const main = () => {
         roofAxis: 'y',
         roofOverhangSize: [3, 6],
     });
-    layout.addToLayout({ name: 'roof7', desc: '...', geom: roof7, layoutOpts });
+    layout.addToLayout({ name: 'roof7', desc: '...', layoutOpts }, roof7);
 
     const roof8 = roofs.buildGableRoof({
         ...defaultRoofOpts,
@@ -77,7 +77,7 @@ const main = () => {
         roofOverhangSize: [5, 10],
         roofOpts: ['solid']
     });
-    layout.addToLayout({ name: 'roof8', desc: '...', geom: roof8, layoutOpts });
+    layout.addToLayout({ name: 'roof8', desc: '...', layoutOpts }, roof8);
 
     const layoutContent = layout.gridLayout({ layoutOpts });
 

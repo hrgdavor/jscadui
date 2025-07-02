@@ -25,7 +25,7 @@ const main = () => {
         capital: ['extrude', 6, null, profile3],
         height: 40,
     })
-    layout.addToLayout({ name: 'col1', desc: '...', geom: col1, layoutOpts });
+    layout.addToLayout({ name: 'col1', desc: '...', layoutOpts }, col1);
 
     const col2 = columns.threePtColumn({
         base: ['roundCylinder', 2, 3.5],
@@ -33,7 +33,7 @@ const main = () => {
         capital: ['roundCylinder', 2, 3.5],
         height: 20,
     });
-    layout.addToLayout({ name: 'col2', desc: '...', geom: col2, layoutOpts });
+    layout.addToLayout({ name: 'col2', desc: '...', layoutOpts }, col2);
 
     const layoutContent = layout.gridLayout({ layoutOpts });
     return layoutContent

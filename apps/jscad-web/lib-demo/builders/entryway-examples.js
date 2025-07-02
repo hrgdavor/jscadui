@@ -27,7 +27,7 @@ const main = () => {
         trimUnitHeight: 4,
         trimUnitDepth: 1.25,
     });
-    layout.addToLayout({ name: 'entryway1', desc: '...', geom: entryway1, layoutOpts });
+    layout.addToLayout({ name: 'entryway1', desc: '...', layoutOpts }, entryway1);
 
     const entryway2 = entryways.buildGothicEntryway({
         wallLength: 100,
@@ -42,7 +42,7 @@ const main = () => {
         trimUnitHeight: 4,
         trimUnitDepth: 1.25,
     });
-    layout.addToLayout({ name: 'entryway2', desc: '...', geom: entryway2, layoutOpts });
+    layout.addToLayout({ name: 'entryway2', desc: '...', layoutOpts }, entryway2);
 
     const entryway3 = entryways.buildGothicEntryway({
         wallLength: 100,
@@ -58,7 +58,7 @@ const main = () => {
         trimUnitDepth: 1.25,
         archRadFactor: 0.667,
     });
-    layout.addToLayout({ name: 'entryway3', desc: '...', geom: entryway3, layoutOpts });
+    layout.addToLayout({ name: 'entryway3', desc: '...', layoutOpts }, entryway3);
 
     const layoutContent = layout.gridLayout({ layoutOpts });
 

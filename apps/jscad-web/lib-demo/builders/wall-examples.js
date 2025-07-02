@@ -27,7 +27,7 @@ const main = () => {
         trimUnitHeight: 4,
         trimUnitDepth: 1.25,
     });
-    layout.addToLayout({ name: 'Base Wall', desc: 'No trim', geom: baseWall, layoutOpts });
+    layout.addToLayout({ name: 'Base Wall', desc: 'No trim', layoutOpts }, baseWall);
 
     const wall1 = walls.buildWall({
         height: 100,
@@ -39,7 +39,7 @@ const main = () => {
         trimUnitHeight: 4,
         trimUnitDepth: 1.25,
     });
-    layout.addToLayout({ name: 'Wall (1)', desc: 'Base + dado trim', geom: wall1, layoutOpts });
+    layout.addToLayout({ name: 'Wall (1)', desc: 'Base + dado trim', layoutOpts }, wall1);
 
     const wallDado2 = walls.buildWall({
         height: 100,
@@ -51,7 +51,7 @@ const main = () => {
         trimUnitHeight: 4,
         trimUnitDepth: 1.25,
     });
-    layout.addToLayout({ name: 'Dado Wall (2)', desc: '2 trim units thicker', geom: wallDado2, layoutOpts });
+    layout.addToLayout({ name: 'Dado Wall (2)', desc: '2 trim units thicker', layoutOpts }, wallDado2);
 
     const wallDado4 = walls.buildWall({
         height: 100,
@@ -65,7 +65,7 @@ const main = () => {
         trimUnitHeight: 4,
         trimUnitDepth: 1.25,
     });
-    layout.addToLayout({ name: 'Dado Wall (4)', desc: '1 trim units thicker, ornate', geom: wallDado4, layoutOpts });
+    layout.addToLayout({ name: 'Dado Wall (4)', desc: '1 trim units thicker, ornate', layoutOpts }, wallDado4);
 
     const halfWall1 = walls.buildWall({
         height: 100,
@@ -80,7 +80,7 @@ const main = () => {
         trimUnitHeight: 4,
         trimUnitDepth: 1.25,
     });
-    layout.addToLayout({ name: 'Half Wall (1)', desc: '...', geom: halfWall1, layoutOpts });
+    layout.addToLayout({ name: 'Half Wall (1)', desc: '...', layoutOpts }, halfWall1);
 
     const halfWall2 = walls.buildWall({
         height: 100,
@@ -95,7 +95,7 @@ const main = () => {
         trimUnitHeight: 4,
         trimUnitDepth: 1.25,
     });
-    layout.addToLayout({ name: 'Half Wall (2)', desc: '...', geom: halfWall2, layoutOpts });
+    layout.addToLayout({ name: 'Half Wall (2)', desc: '...', layoutOpts }, halfWall2);
 
     const layoutContent = layout.gridLayout({ layoutOpts });
     return layoutContent;

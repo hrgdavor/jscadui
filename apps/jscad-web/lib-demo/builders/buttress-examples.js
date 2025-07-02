@@ -21,14 +21,14 @@ const main = () => {
         thickness: 10,
         width: 25,
     });
-    layout.addToLayout({ name: 'buttress1', desc: '...', geom: buttress1, layoutOpts });
+    layout.addToLayout({ name: 'buttress1', desc: '...', layoutOpts }, buttress1);
 
     const buttress2 = buttress.buildSimpleButtress({
         height: 45,
         thickness: 5,
         width: 25,
     });
-    layout.addToLayout({ name: 'buttress2', desc: '...', geom: buttress2, layoutOpts });
+    layout.addToLayout({ name: 'buttress2', desc: '...', layoutOpts }, buttress2);
 
     const buttress3 = buttress.buildTwoPartButtress({
         height: 60,
@@ -36,7 +36,7 @@ const main = () => {
         bottomWidth: 25,
         topWidth: 15,
     });
-    layout.addToLayout({ name: 'buttress3', desc: '...', geom: buttress3, layoutOpts });
+    layout.addToLayout({ name: 'buttress3', desc: '...', layoutOpts }, buttress3);
 
     const buttress5 = buttress.buildTwoPartButtress({
         height: 60,
@@ -45,7 +45,7 @@ const main = () => {
         topWidth: 15,
         midHeight: 20,
     });
-    layout.addToLayout({ name: 'buttress5', desc: '...', geom: buttress5, layoutOpts });
+    layout.addToLayout({ name: 'buttress5', desc: '...', layoutOpts }, buttress5);
 
     const layoutContent = layout.gridLayout({ layoutOpts });
 

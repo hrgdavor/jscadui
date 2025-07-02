@@ -49,7 +49,7 @@ const main = () => {
             // console.log(measureDimensions(currentGeom));
             // console.log(measureBoundingBox(currentGeom));
             // console.log(measureCenter(currentGeom));
-            layout.addToLayout({ name: `${currentCtg}-${sizesAbbrev[sIdx]}`, desc: '.', geom: currentGeom, layoutOpts });
+            layout.addToLayout({ name: `${currentCtg}-${sizesAbbrev[sIdx]}`, desc: '.', layoutOpts }, currentGeom);
         }
     }
 

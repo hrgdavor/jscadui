@@ -4,7 +4,9 @@ export const swLibCore = [
   { name: 'Area Points', source: './lib-demo/area-point-examples.js' },
   { name: 'Centroid', source: './lib-demo/centroid-examples.js' },
   { name: 'Control Points', source: './lib-demo/control-points-examples.js' },
-  { name: 'Std Construction Mats', source: './lib-demo/standard-construction-examples.js' },
+  { name: 'Standard Brick', source: './lib-demo/standard-brick-examples.js' },
+  { name: 'Standard Lumber', source: './lib-demo/standard-lumber-examples.js' },
+  { name: 'Standard Tile', source: './lib-demo/standard-tile-examples.js' },
   { name: 'Super Primitives', source: './lib-demo/super-primitive-examples.js' },
 ]
 

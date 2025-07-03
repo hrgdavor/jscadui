@@ -11,7 +11,7 @@ const { sphere } = jscad.primitives;
 const { geometry } = swJscad.utils;
 const { maths } = swJscad.core;
 const { layout } = swjUi.ux;
-const { brick, lumber, tile } = swjFamilies;
+const { lumber } = swjFamilies;
 
 const main = () => {
     const layoutOpts = {
@@ -20,9 +20,7 @@ const main = () => {
         layoutSpace: 20,
     }
 
-    // console.log(brick)
     console.log(lumber)
-    // console.log(tile)
 
     lumber.northAmerica.dimensional.forEach((lumberProfileData, idx) => {
         layout.addToLayout({

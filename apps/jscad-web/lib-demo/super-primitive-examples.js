@@ -72,7 +72,7 @@ const main = () => {
 
     layout.addToLayout(
         {
-            name: 'mesh-cuboid-2',
+            name: 'mesh-cuboid-2.0',
             desc: '...',
             layoutOpts,
         },
@@ -82,6 +82,71 @@ const main = () => {
             radius: 2.5,
             segments: 9,
             openTop: true,
+        })
+    );
+
+    layout.addToLayout(
+        {
+            name: 'mesh-cuboid-2.1',
+            desc: 'tube-like',
+            layoutOpts,
+        },
+        superPrimitives.meshCuboid({
+            size: [40, 30, 20],
+            meshPanelThickness: 2,
+            radius: 2.5,
+            segments: 9,
+            openTop: true,
+            openBottom: true,
+        })
+    );
+    layout.addToLayout(
+        {
+            name: 'mesh-cuboid-2.2',
+            desc: 'offsets',
+            layoutOpts,
+        },
+        superPrimitives.meshCuboid({
+            size: [40, 30, 20],
+            meshPanelThickness: 2,
+            radius: 2.5,
+            segments: 9,
+            openTop: true,
+            openBottom: true,
+            edgeOffsets: [2, 2]
+        })
+    );
+    layout.addToLayout(
+        {
+            name: 'mesh-cuboid-2.3',
+            desc: 'insets',
+            layoutOpts,
+        },
+        superPrimitives.meshCuboid({
+            size: [40, 30, 20],
+            meshPanelThickness: 2,
+            radius: 2.5,
+            segments: 9,
+            openTop: true,
+            openBottom: true,
+            edgeInsets: [2, 2]
+        })
+    );
+    layout.addToLayout(
+        {
+            name: 'mesh-cuboid-2.4',
+            desc: 'both',
+            layoutOpts,
+        },
+        superPrimitives.meshCuboid({
+            size: [40, 30, 20],
+            meshPanelThickness: 2,
+            radius: 2.5,
+            segments: 9,
+            openTop: true,
+            openBottom: true,
+            edgeInsets: [2, 2],
+            edgeOffsets: [2, 2]
         })
     );
 

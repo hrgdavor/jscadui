@@ -15,20 +15,20 @@ const { tile } = swjFamilies;
 
 const main = () => {
     const layoutOpts = {
-        layoutMargin: 25,
+        layoutMargin: 30,
         noFrame: false,
         layoutSpace: 20,
     }
 
     console.log(tile)
 
-    // lumber.northAmerica.dimensional.forEach((lumberProfileData, idx) => {
-    //     layout.addToLayout({
-    //         name: `lumber-profile-${idx}`,
-    //         desc: lumberProfileData.id,
-    //         layoutOpts,
-    //     }, lumberProfileData.geom);
-    // })
+    Object.entries(tile.northAmerica).forEach(([tKey, tileVal], idx) => {
+        layout.addToLayout({
+            name: tKey,
+            desc: '...',
+            layoutOpts,
+        }, tileVal.geom);
+    })
 
     const layoutContent = layout.gridLayout({ layoutOpts });
     return layoutContent;

@@ -22,13 +22,13 @@ const main = () => {
 
     console.log(brick)
 
-    // lumber.northAmerica.dimensional.forEach((lumberProfileData, idx) => {
-    //     layout.addToLayout({
-    //         name: `lumber-profile-${idx}`,
-    //         desc: lumberProfileData.id,
-    //         layoutOpts,
-    //     }, lumberProfileData.geom);
-    // })
+    Object.entries(brick.northAmerica).forEach(([brickKey, brickVal], idx) => {
+        layout.addToLayout({
+            name: `brick-${idx}`,
+            desc: `northAmerica.${brickKey}`,
+            layoutOpts,
+        }, brickVal);
+    })
 
     const layoutContent = layout.gridLayout({ layoutOpts });
     return layoutContent;

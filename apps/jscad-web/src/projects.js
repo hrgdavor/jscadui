@@ -4,10 +4,12 @@ export const swLibCore = [
   { name: 'Area Points', source: './lib-demo/area-point-examples.js' },
   { name: 'Centroid', source: './lib-demo/centroid-examples.js' },
   { name: 'Control Points', source: './lib-demo/control-points-examples.js' },
+  { name: 'Mesh Cuboid', source: './lib-demo/mesh-cuboid-examples.js' },
+  { name: 'Mesh Cylinder', source: './lib-demo/mesh-cylinder-examples.js' },
+  { name: 'Mesh Panel', source: './lib-demo/mesh-panel-examples.js' },
   { name: 'Standard Brick', source: './lib-demo/standard-brick-examples.js' },
   { name: 'Standard Lumber', source: './lib-demo/standard-lumber-examples.js' },
   { name: 'Standard Tile', source: './lib-demo/standard-tile-examples.js' },
-  { name: 'Super Primitives', source: './lib-demo/super-primitive-examples.js' },
 ]
 
 export const swBuilders = [

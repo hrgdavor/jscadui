@@ -16,8 +16,8 @@ const main = () => {
 
     layout.addToLayout(
         {
-            name: 'mesh-cylinder-1',
-            desc: '...',
+            name: 'm-cyl-1',
+            desc: 'base',
             layoutOpts,
         },
         superPrimitives.meshCylinder({
@@ -32,8 +32,8 @@ const main = () => {
 
     layout.addToLayout(
         {
-            name: 'mesh-cylinder-2',
-            desc: '...',
+            name: 'm-cyl-2',
+            desc: 'inset',
             layoutOpts,
         },
         superPrimitives.meshCylinder({
@@ -49,8 +49,8 @@ const main = () => {
 
     layout.addToLayout(
         {
-            name: 'mesh-cylinder-3',
-            desc: '...',
+            name: 'm-cyl-3',
+            desc: 'offset',
             layoutOpts,
         },
         superPrimitives.meshCylinder({
@@ -60,6 +60,24 @@ const main = () => {
             meshRadius: 4,
             meshMinWidth: 2.5,
             meshSegments: 12,
+            edgeOffsets: [2.5, 3.5],
+        })
+    );
+
+    layout.addToLayout(
+        {
+            name: 'm-cyl-4',
+            desc: 'in+offset',
+            layoutOpts,
+        },
+        superPrimitives.meshCylinder({
+            radius: 12,
+            height: 40,
+            thickness: 1.5,
+            meshRadius: 4,
+            meshMinWidth: 2.5,
+            meshSegments: 12,
+            edgeInsets: [2, 3],
             edgeOffsets: [2.5, 3.5],
         })
     );

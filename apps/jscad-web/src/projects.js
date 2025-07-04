@@ -26,6 +26,7 @@ export const swDetails = [
 ]
 
 export const swFamilies = [
+  { name: 'Dowel Couplers', source: './lib-demo/families/dowel-coupler-examples.js' },
   { name: 'Dowel Jigs', source: './lib-demo/families/dowel-jig-examples.js' },
   { name: 'Standard Brick', source: './lib-demo/families/standard-brick-examples.js' },
   { name: 'Standard Lumber', source: './lib-demo/families/standard-lumber-examples.js' },

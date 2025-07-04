@@ -15,7 +15,7 @@ const { dowelFittings } = swjFamilies;
 
 const main = () => {
     const layoutOpts = {
-        layoutMargin: 25,
+        layoutMargin: 35,
         noFrame: false,
         layoutSpace: 20,
     }
@@ -30,24 +30,24 @@ const main = () => {
 
     Object.entries(singleJigs.jigHolders).forEach(([jigKey, jigVal], idx) => {
         layout.addToLayout({
-            name: `jig-single-${idx}`,
-            desc: `jigHolders.${jigKey}`,
+            name: `single-${idx}`,
+            desc: jigKey,
             layoutOpts,
         }, jigVal);
     })
 
     Object.entries(triangularJigs.jigHolders).forEach(([jigKey, jigVal], idx) => {
         layout.addToLayout({
-            name: `jig-tri-${idx}`,
-            desc: `jigHolders.${jigKey}`,
+            name: `tri-${idx}`,
+            desc: jigKey,
             layoutOpts,
         }, jigVal);
     })
 
     Object.entries(twoByTwoJigs.jigHolders).forEach(([jigKey, jigVal], idx) => {
         layout.addToLayout({
-            name: `jig-2x2-${idx}`,
-            desc: `jigHolders.${jigKey}`,
+            name: `2x2-${idx}`,
+            desc: jigKey,
             layoutOpts,
         }, jigVal);
     })

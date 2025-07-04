@@ -7,9 +7,6 @@ export const swLibCore = [
   { name: 'Mesh Cuboid', source: './lib-demo/mesh-cuboid-examples.js' },
   { name: 'Mesh Cylinder', source: './lib-demo/mesh-cylinder-examples.js' },
   { name: 'Mesh Panel', source: './lib-demo/mesh-panel-examples.js' },
-  { name: 'Standard Brick', source: './lib-demo/standard-brick-examples.js' },
-  { name: 'Standard Lumber', source: './lib-demo/standard-lumber-examples.js' },
-  { name: 'Standard Tile', source: './lib-demo/standard-tile-examples.js' },
   { name: 'Transforms', source: './lib-demo/transform-examples.js' },
 ]
 
@@ -29,6 +26,11 @@ export const swDetails = [
 ]
 
 export const swFamilies = [
+  { name: 'Dowel Couplers', source: './lib-demo/families/dowel-coupler-examples.js' },
+  { name: 'Dowel Jigs', source: './lib-demo/families/dowel-jig-examples.js' },
+  { name: 'Standard Brick', source: './lib-demo/families/standard-brick-examples.js' },
+  { name: 'Standard Lumber', source: './lib-demo/families/standard-lumber-examples.js' },
+  { name: 'Standard Tile', source: './lib-demo/families/standard-tile-examples.js' },
   { name: 'Trim family: Aranea', source: './lib-demo/families/trim-family-examples.js' },
 ]
 

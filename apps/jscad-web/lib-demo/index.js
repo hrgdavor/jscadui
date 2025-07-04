@@ -19,8 +19,8 @@ const {
 } = swJscad.details
 
 const {
-    trimAranea,
-} = swjFamilies
+    aranea,
+} = swjFamilies.trim
 
 const {
     layout,
@@ -39,7 +39,7 @@ const main = () => {
     const profile1 = profiles.sqCornerCircNotch({ sqLength: 5 });
     const profile3 = profiles.octagonal({ sqLength: 5 });
 
-    const tFamilyBasic = trimAranea.buildTrimFamily({ unitHeight: 20, unitDepth: 10 });
+    const tFamilyBasic = aranea.buildTrimFamily({ unitHeight: 20, unitDepth: 10 });
     const dadoTrim = [
         tFamilyBasic.dado.small,
         tFamilyBasic.dado.medium,

@@ -12,7 +12,6 @@ const { cuboid, rectangle, sphere, circle } = jscad.primitives
 const { arches } = swjBuilders;
 const { profiles } = swJscad.details;
 const { geometry } = swJscad.utils;
-const { superPrimitives } = swJscad.utils;
 const { layout } = swjUi.ux;
 
 const main = () => {
@@ -138,39 +137,6 @@ const main = () => {
     layout.addToLayout({ name: 'box1-parts', desc: '...', layoutOpts }, union(box1FrameParts));
     layout.addToLayout({ name: 'box2-parts', desc: '...', layoutOpts }, union(box2FrameParts));
     layout.addToLayout({ name: 'box3-parts', desc: '...', layoutOpts }, union(box3FrameParts));
-
-    layout.addToLayout(
-        {
-            name: 'flange-profile-1',
-            desc: '...',
-            layoutOpts,
-        },
-        superPrimitives.edgeFlangeProfile('inset', 5, 0.5)
-    );
-    layout.addToLayout(
-        {
-            name: 'flange-profile-2',
-            desc: '...',
-            layoutOpts,
-        },
-        superPrimitives.edgeFlangeProfile('inset', 5, 0.5, 'vertical')
-    );
-    layout.addToLayout(
-        {
-            name: 'flange-profile-3',
-            desc: '...',
-            layoutOpts,
-        },
-        superPrimitives.edgeFlangeProfile('offset', 5, 0.5)
-    );
-    layout.addToLayout(
-        {
-            name: 'flange-profile-4',
-            desc: '...',
-            layoutOpts,
-        },
-        superPrimitives.edgeFlangeProfile('offset', 5, 0.5, 'vertical')
-    );
 
     const layoutContent = layout.gridLayout({ layoutOpts });
     return layoutContent;

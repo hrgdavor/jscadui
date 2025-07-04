@@ -10,6 +10,7 @@ export const swLibCore = [
   { name: 'Standard Brick', source: './lib-demo/standard-brick-examples.js' },
   { name: 'Standard Lumber', source: './lib-demo/standard-lumber-examples.js' },
   { name: 'Standard Tile', source: './lib-demo/standard-tile-examples.js' },
+  { name: 'Transforms', source: './lib-demo/transform-examples.js' },
 ]
 
 export const swBuilders = [

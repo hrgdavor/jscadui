@@ -24,9 +24,16 @@ const main = () => {
 
     const dowelRadius = maths.inchesToMm(1 / 8)
 
+    const xsCoupler = dowelFittings.couplers.extraSmallDowelCoupler({ dowelRadius })
     const smCoupler = dowelFittings.couplers.smallDowelCoupler({ dowelRadius })
     const mdCoupler = dowelFittings.couplers.mediumDowelCoupler({ dowelRadius })
     const lgCoupler = dowelFittings.couplers.largeDowelCoupler({ dowelRadius })
+
+    layout.addToLayout({
+        name: 'xsCoupler',
+        desc: '...',
+        layoutOpts,
+    }, xsCoupler);
 
     layout.addToLayout({
         name: 'smCoupler',

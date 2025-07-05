@@ -15,7 +15,7 @@ const { dowelFittings } = swjFamilies;
 
 const main = () => {
     const layoutOpts = {
-        layoutMargin: 20,
+        layoutMargin: 30,
         noFrame: false,
         layoutSpace: 20,
     }
@@ -24,27 +24,33 @@ const main = () => {
 
     const dowelRadius = maths.inchesToMm(1 / 16)
 
-    const iJoist = dowelFittings.joists.iJoist({ dowelRadius, height: maths.inchesToMm(3 / 4) }).joist
-    const triJoist = dowelFittings.joists.triJoist({ dowelRadius, height: maths.inchesToMm(3 / 4) }).joist
-    const rectJoist = dowelFittings.joists.rectJoist({ dowelRadius, size: [maths.inchesToMm(3 / 4), maths.inchesToMm(3 / 4)] }).joist
+    const dowelJoists = {
+        iJoist: dowelFittings.joists.iJoist({ dowelRadius, height: maths.inchesToMm(3 / 4) }),
+        triJoist: dowelFittings.joists.triJoist({ dowelRadius, height: maths.inchesToMm(3 / 4) }),
+        squareJoist: dowelFittings.joists.squareJoist({ dowelRadius, height: maths.inchesToMm(3 / 4) }),
+        rectJoist1: dowelFittings.joists.rectJoist({ dowelRadius, size: [maths.inchesToMm(1), maths.inchesToMm(3 / 4)] }),
+        rectJoist2: dowelFittings.joists.rectJoist({ dowelRadius, size: [maths.inchesToMm(3 / 2), maths.inchesToMm(3 / 4)] }),
+    }
 
-    layout.addToLayout({
-        name: 'iJoist',
-        desc: '...',
-        layoutOpts,
-    }, iJoist);
+    Object.entries(dowelJoists).forEach(([dgKey, dgVal], idx) => {
+        layout.addToLayout({
+            name: `${dgKey}-1`,
+            desc: 'joist',
+            layoutOpts,
+        }, dgVal.joist);
 
-    layout.addToLayout({
-        name: 'triJoist',
-        desc: '...',
-        layoutOpts,
-    }, triJoist);
+        layout.addToLayout({
+            name: `${dgKey}-2`,
+            desc: 'upper',
+            layoutOpts,
+        }, dgVal.upperJig);
 
-    layout.addToLayout({
-        name: 'rectJoist',
-        desc: '...',
-        layoutOpts,
-    }, rectJoist);
+        layout.addToLayout({
+            name: `${dgKey}-3`,
+            desc: 'lower',
+            layoutOpts,
+        }, dgVal.lowerJig);
+    })
 
     const layoutContent = layout.gridLayout({ layoutOpts });
     return layoutContent;

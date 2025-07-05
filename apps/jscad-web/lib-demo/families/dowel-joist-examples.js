@@ -24,9 +24,9 @@ const main = () => {
 
     const dowelRadius = maths.inchesToMm(1 / 16)
 
-    const iJoist = dowelFittings.joists.iJoist({ dowelRadius, height: maths.inchesToMm(3 / 4) })
-    const triJoist = dowelFittings.joists.triJoist({ dowelRadius, height: maths.inchesToMm(3 / 4) })
-    const rectJoist = dowelFittings.joists.rectJoist({ dowelRadius, size: [maths.inchesToMm(3 / 4), maths.inchesToMm(3 / 4)] })
+    const iJoist = dowelFittings.joists.iJoist({ dowelRadius, height: maths.inchesToMm(3 / 4) }).joist
+    const triJoist = dowelFittings.joists.triJoist({ dowelRadius, height: maths.inchesToMm(3 / 4) }).joist
+    const rectJoist = dowelFittings.joists.rectJoist({ dowelRadius, size: [maths.inchesToMm(3 / 4), maths.inchesToMm(3 / 4)] }).joist
 
     layout.addToLayout({
         name: 'iJoist',

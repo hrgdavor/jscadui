@@ -17,7 +17,7 @@ const main = () => {
     const layoutOpts = {
         layoutMargin: 30,
         noFrame: false,
-        layoutSpace: 20,
+        layoutSpace: 10,
     }
 
     console.log(dowelFittings)

@@ -15,7 +15,7 @@ const { dowelFittings } = swjFamilies;
 
 const main = () => {
     const layoutOpts = {
-        layoutMargin: 35,
+        layoutMargin: 20,
         noFrame: false,
         layoutSpace: 20,
     }

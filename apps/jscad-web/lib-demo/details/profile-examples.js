@@ -70,6 +70,10 @@ const main = () => {
             name: 'curves-rtGolden',
             geom: profiles.curves.rightCorner.golden({ width: 25 }),
         },
+        {
+            name: 'curves-rtSilver',
+            geom: profiles.curves.rightCorner.silver({ width: 25 }),
+        },
         // {
         //     name: 'curves-smTrGolden',
         //     geom: profiles.curves.smoothTriangle.golden({ width: 25 }),

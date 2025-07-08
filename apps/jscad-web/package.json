@@ -32,7 +32,7 @@
     "sw-jscad": "0.6.8",
     "sw-jscad-builders": "0.0.3",
     "sw-jscad-families": "0.0.7",
-    "sw-jscad-ui": "0.1.0",
+    "sw-jscad-ui": "0.1.1",
     "three": "^0.147.0"
   },
   "devDependencies": {

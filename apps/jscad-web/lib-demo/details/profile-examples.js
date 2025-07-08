@@ -52,14 +52,6 @@ const main = () => {
             name: 'tri-rtSilver',
             geom: profiles.triangle.rightSilver({ base: 25 }),
         },
-        {
-            name: 'tri-rtBronze',
-            geom: profiles.triangle.rightBronze({ base: 25 }),
-        },
-        {
-            name: 'tri-rtCopper',
-            geom: profiles.triangle.rightCopper({ base: 25 }),
-        },
     ]
 
     const rectProfiles = [
@@ -71,25 +63,31 @@ const main = () => {
             name: 'rect-silver',
             geom: profiles.rectangle.silver({ width: 25 }),
         },
+    ]
+
+    const curveProfiles = [
         {
-            name: 'rect-bronze',
-            geom: profiles.rectangle.bronze({ width: 25 }),
+            name: 'curves-rtGolden',
+            geom: profiles.curves.rightCorner.golden({ width: 25 }),
+        },
+        // {
+        //     name: 'curves-smTrGolden',
+        //     geom: profiles.curves.smoothTriangle.golden({ width: 25 }),
+        // },
+    ]
+
+    const ellipseProfiles = [
+        {
+            name: 'ellipse-golden',
+            geom: profiles.ellipse.golden({ width: 25 }),
         },
         {
-            name: 'rect-copper',
-            geom: profiles.rectangle.copper({ width: 25 }),
-        },
-        {
-            name: 'rect-superGolden',
-            geom: profiles.rectangle.superGolden({ width: 25 }),
-        },
-        {
-            name: 'rect-plastic',
-            geom: profiles.rectangle.plastic({ width: 25 }),
+            name: 'ellipse-silver',
+            geom: profiles.ellipse.silver({ width: 25 }),
         },
     ]
 
-    const profiles2ndGen = [...triProfiles, ...rectProfiles]
+    const profiles2ndGen = [...triProfiles, ...rectProfiles, ...curveProfiles, ...ellipseProfiles]
     profiles2ndGen.forEach((prof) => {
         layout.addToLayout({ name: prof.name, desc: '..', layoutOpts }, prof.geom);
     })

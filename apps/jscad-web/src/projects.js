@@ -23,6 +23,7 @@ export const swDetails = [
   { name: 'Foils', source: './lib-demo/details/foil-examples.js' },
   { name: 'Moulds', source: './lib-demo/details/mould-examples.js' },
   { name: 'Profiles', source: './lib-demo/details/profile-examples.js' },
+  { name: 'Profiles (advanced)', source: './lib-demo/details/profile-advanced-examples.js' },
 ]
 
 export const swFamilies = [

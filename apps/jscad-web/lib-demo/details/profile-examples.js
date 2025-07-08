@@ -9,8 +9,8 @@ const { layout } = swjUi.ux;
 
 const main = () => {
     const layoutOpts = {
-        layoutMargin: 20,
-        layoutSpace: 8,
+        layoutMargin: 15,
+        layoutSpace: 5,
     }
 
     const profile1 = profiles.sqCornerCircNotch({ sqLength: 5 });
@@ -30,6 +30,69 @@ const main = () => {
 
     const profile6 = profiles.edge.circPortrusion({ totalThickness: 8, topThickness: 4, smallOffset: 1 });
     layout.addToLayout({ name: 'profile6', desc: '...', layoutOpts }, profile6);
+
+    const triProfiles = [
+        {
+            name: 'tri-equilateral',
+            geom: profiles.triangle.equilateral({ base: 25 }),
+        },
+        {
+            name: 'tri-rt45',
+            geom: profiles.triangle.right45({ base: 25 }),
+        },
+        {
+            name: 'tri-rt30',
+            geom: profiles.triangle.right30({ base: 25 }),
+        },
+        {
+            name: 'tri-rtGolden',
+            geom: profiles.triangle.rightGolden({ base: 25 }),
+        },
+        {
+            name: 'tri-rtSilver',
+            geom: profiles.triangle.rightSilver({ base: 25 }),
+        },
+        {
+            name: 'tri-rtBronze',
+            geom: profiles.triangle.rightBronze({ base: 25 }),
+        },
+        {
+            name: 'tri-rtCopper',
+            geom: profiles.triangle.rightCopper({ base: 25 }),
+        },
+    ]
+
+    const rectProfiles = [
+        {
+            name: 'rect-golden',
+            geom: profiles.rectangle.golden({ width: 25 }),
+        },
+        {
+            name: 'rect-silver',
+            geom: profiles.rectangle.silver({ width: 25 }),
+        },
+        {
+            name: 'rect-bronze',
+            geom: profiles.rectangle.bronze({ width: 25 }),
+        },
+        {
+            name: 'rect-copper',
+            geom: profiles.rectangle.copper({ width: 25 }),
+        },
+        {
+            name: 'rect-superGolden',
+            geom: profiles.rectangle.superGolden({ width: 25 }),
+        },
+        {
+            name: 'rect-plastic',
+            geom: profiles.rectangle.plastic({ width: 25 }),
+        },
+    ]
+
+    const profiles2ndGen = [...triProfiles, ...rectProfiles]
+    profiles2ndGen.forEach((prof) => {
+        layout.addToLayout({ name: prof.name, desc: '..', layoutOpts }, prof.geom);
+    })
 
     const layoutContent = layout.gridLayout({ layoutOpts });
     return layoutContent;

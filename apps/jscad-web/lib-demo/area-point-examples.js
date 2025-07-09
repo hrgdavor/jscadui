@@ -18,7 +18,7 @@ const main = () => {
         layoutSpace: 20,
     }
 
-    const areaSize = [30, 50]
+    const areaSize = [15, 25]
     const pointClouds = []
 
     pointClouds.push(geometry.getTriangularPtsInArea(areaSize[0], areaSize[1], 2.5, false));

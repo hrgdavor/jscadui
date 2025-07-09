@@ -24,15 +24,15 @@ const main = () => {
         },
         {
             name: 're-cBeam',
-            geom: profiles.reinforcement.cBeam({ length: 48, depth: 32, thickness: 4, flangeThickness: 1, insetWidth: 4, offsetWidth: 6 }),
+            geom: profiles.reinforcement.cBeam({ length: 48, depth: 32, thickness: 2, flangeThickness: 1, insetWidth: 4, offsetWidth: 6 }),
         },
         {
             name: 're-tBeam',
-            geom: profiles.reinforcement.tBeam({ length: 48, depth: 32, thickness: 4, flangeThickness: 1, insetWidth: 4, offsetWidth: 6 }),
+            geom: profiles.reinforcement.tBeam({ length: 48, depth: 32, thickness: 2, flangeThickness: 1, insetWidth: 4, offsetWidth: 6 }),
         },
         {
             name: 're-doubleTBeam',
-            geom: profiles.reinforcement.doubleTBeam({ length: 48, depth: 32, thickness: 4, insetWidth: 4, offsetWidth: 6 }),
+            geom: profiles.reinforcement.doubleTBeam({ length: 64, depth: 32, thickness: 4, insetWidth: 4, offsetWidth: 6 }),
         },
         {
             name: 're-triBeam',

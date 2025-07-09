@@ -1,8 +1,8 @@
 export const swLibDemo = { name: 'sw-jscad', source: './lib-demo/index.js' }
 
 export const swLibCore = [
-  { name: 'Area Points', source: './lib-demo/area-point-examples.js' },
-  { name: 'Centroid', source: './lib-demo/centroid-examples.js' },
+  // { name: 'Area Points', source: './lib-demo/area-point-examples.js' },
+  // { name: 'Centroid', source: './lib-demo/centroid-examples.js' },
   { name: 'Control Points', source: './lib-demo/control-points-examples.js' },
   { name: 'Mesh Cuboid', source: './lib-demo/mesh-cuboid-examples.js' },
   { name: 'Mesh Cylinder', source: './lib-demo/mesh-cylinder-examples.js' },
@@ -33,6 +33,7 @@ export const swFamilies = [
   { name: 'Standard Brick', source: './lib-demo/families/standard-brick-examples.js' },
   { name: 'Standard Lumber', source: './lib-demo/families/standard-lumber-examples.js' },
   { name: 'Standard Tile', source: './lib-demo/families/standard-tile-examples.js' },
+  { name: 'Standard Crafts', source: './lib-demo/families/standard-crafts-examples.js' },
   { name: 'Trim family: Aranea', source: './lib-demo/families/trim-family-examples.js' },
 ]
 

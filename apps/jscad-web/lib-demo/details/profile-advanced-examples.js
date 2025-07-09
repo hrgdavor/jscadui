@@ -49,10 +49,38 @@ const main = () => {
     ]
 
     const connectionProfiles = [
-        // {
-        //     name: 'conn-pegboard',
-        //     geom: null,
-        // },
+        {
+            name: 'c-pegboard-m',
+            geom: profiles.connections.pegboard({ spacing: 25.4, radius: 6.35 }).male,
+        },
+        {
+            name: 'c-pegboard-f',
+            geom: profiles.connections.pegboard({ spacing: 25.4, radius: 6.35 }).female,
+        },
+        {
+            name: 'c-polygon-m',
+            geom: profiles.connections.polygon({ radius: 12.7, segments: 6 }).male,
+        },
+        {
+            name: 'c-polygon-f',
+            geom: profiles.connections.polygon({ radius: 12.7, segments: 6 }).female,
+        },
+        {
+            name: 'c-tab-m',
+            geom: profiles.connections.tab({ width: 30, depth: 10 }).male,
+        },
+        {
+            name: 'c-tab-f',
+            geom: profiles.connections.tab({ width: 30, depth: 10 }).female,
+        },
+        {
+            name: 'c-dovetail-m',
+            geom: profiles.connections.dovetail({ width: 30, depth: 10 }).male,
+        },
+        {
+            name: 'c-dovetail-f',
+            geom: profiles.connections.dovetail({ width: 30, depth: 10 }).female,
+        },
     ]
 
     const profiles2ndGen = [...reinforcementProfiles, ...connectionProfiles]

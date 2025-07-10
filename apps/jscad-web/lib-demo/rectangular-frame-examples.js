@@ -4,7 +4,7 @@ const jscad = require('@jscad/modeling')
 const swJscad = require('sw-jscad').init({ lib: jscad });
 const swjUi = require('sw-jscad-ui').init({ lib: jscad, swLib: swJscad });
 
-const { superPrimitives } = swJscad.utils;
+const { frameRect } = swJscad.details;
 const { layout } = swjUi.ux;
 
 const main = () => {
@@ -20,12 +20,12 @@ const main = () => {
             desc: '..',
             layoutOpts,
         },
-        superPrimitives.rectangularFrame({
+        frameRect.rectangularFrame({
             size: [40, 50],
             direction: 'in',
             frameWidth: 10,
             cornerOpts: {
-                style: 'rectSixtyThirty',
+                style: 'ellipseSixtyThirty',
                 length: 5,
             },
         })
@@ -37,8 +37,8 @@ const main = () => {
             desc: '..',
             layoutOpts,
         },
-        superPrimitives.rectangularFrame({
-            size: [40, 50],
+        frameRect.rectangularFrame({
+            size: [50, 40],
             direction: 'out',
             frameWidth: 10,
             outCornerOpts: {
@@ -54,17 +54,61 @@ const main = () => {
             desc: '..',
             layoutOpts,
         },
-        superPrimitives.rectangularFrame({
+        frameRect.rectangularFrame({
             size: [40, 50],
             direction: 'both',
             frameWidth: 10,
             cornerOpts: {
-                style: 'rectSixtyThirty',
-                length: 5,
+                style: 'round',
+                radius: 2.5,
             },
             outCornerOpts: {
-                style: 'ellipseSilver',
+                style: 'ellipseBronze',
                 length: 5,
+            },
+        })
+    );
+
+    layout.addToLayout(
+        {
+            name: 'rectFrame-4',
+            desc: '..',
+            layoutOpts,
+        },
+        frameRect.rectangularFrame({
+            size: [40, 50],
+            direction: 'both',
+            frameWidth: 10,
+            cornerOpts: {
+                style: 'triGolden',
+                base: 5,
+                height: 8,
+            },
+            outCornerOpts: {
+                style: 'cornerBezSilver',
+                length: 10,
+            },
+        })
+    );
+
+    layout.addToLayout(
+        {
+            name: 'rectFrame-5',
+            desc: '..',
+            layoutOpts,
+        },
+        frameRect.rectangularFrame({
+            size: [60, 45],
+            direction: 'both',
+            frameWidth: 10,
+            cornerOpts: {
+                style: 'triGolden',
+                base: 5,
+                height: 8,
+            },
+            outCornerOpts: {
+                style: 'cornerBezBronze',
+                length: 10,
             },
         })
     );

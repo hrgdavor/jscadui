@@ -34,6 +34,7 @@ export const swFamilies = [
   { name: 'Standard Lumber', source: './lib-demo/families/standard-lumber-examples.js' },
   { name: 'Standard Tile', source: './lib-demo/families/standard-tile-examples.js' },
   { name: 'Standard Crafts', source: './lib-demo/families/standard-crafts-examples.js' },
+  { name: 'Standard Paper', source: './lib-demo/families/standard-paper-examples.js' },
   { name: 'Trim family: Aranea', source: './lib-demo/families/trim-family-examples.js' },
 ]
 

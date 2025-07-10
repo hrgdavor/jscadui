@@ -15,32 +15,40 @@ const { paper } = swjFamilies;
 
 const main = () => {
     const layoutOpts = {
-        layoutMargin: 25,
+        layoutMargin: 15,
         noFrame: false,
-        layoutSpace: 20,
+        layoutSpace: 5,
     }
 
     console.log(paper)
 
-    Object.entries(paper.ansi).forEach(([key, val], idx) => {
+    Object.entries(paper.metric).slice(-3).forEach(([key, val], idx) => {
         layout.addToLayout({
-            name: `ansi-${key}`,
+            name: `met-${key}`,
             desc: '..',
             layoutOpts,
         }, val);
     })
 
-    Object.entries(paper.imperial).forEach(([key, val], idx) => {
+    Object.entries(paper.photos).slice(0, 3).forEach(([key, val], idx) => {
         layout.addToLayout({
-            name: `imperial-${key}`,
+            name: `ph-${key}`,
             desc: '..',
             layoutOpts,
         }, val);
     })
 
-    Object.entries(paper.cards).forEach(([key, val], idx) => {
+    Object.entries(paper.bookmarks).slice(0, 3).forEach(([key, val], idx) => {
         layout.addToLayout({
-            name: `cards-${key}`,
+            name: `bm-${key}`,
+            desc: '..',
+            layoutOpts,
+        }, val);
+    })
+
+    Object.entries(paper.cards).slice(0, 3).forEach(([key, val], idx) => {
+        layout.addToLayout({
+            name: `cd-${key}`,
             desc: '..',
             layoutOpts,
         }, val);

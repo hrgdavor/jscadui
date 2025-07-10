@@ -30,7 +30,7 @@ export const swFamilies = [
   { name: 'Dowel Couplers', source: './lib-demo/families/dowel-coupler-examples.js' },
   { name: 'Dowel Jigs', source: './lib-demo/families/dowel-jig-examples.js' },
   { name: 'Dowel Joists', source: './lib-demo/families/dowel-joist-examples.js' },
-  { name: 'Standard Brick', source: './lib-demo/families/standard-brick-examples.js' },
+  { name: 'Standard Masonry', source: './lib-demo/families/standard-masonry-examples.js' },
   { name: 'Standard Lumber', source: './lib-demo/families/standard-lumber-examples.js' },
   { name: 'Standard Tile', source: './lib-demo/families/standard-tile-examples.js' },
   { name: 'Standard Crafts', source: './lib-demo/families/standard-crafts-examples.js' },

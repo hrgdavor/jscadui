@@ -31,7 +31,7 @@
     "gl-matrix": "^3.4.0",
     "sw-jscad": "0.6.10",
     "sw-jscad-builders": "0.0.3",
-    "sw-jscad-families": "0.0.7",
+    "sw-jscad-families": "0.0.8",
     "sw-jscad-ui": "0.1.1",
     "three": "^0.147.0"
   },

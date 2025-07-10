@@ -30,9 +30,9 @@
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/hrgdavor/jscadui/issues"
+    "url": "https://github.com/salvador-workshop/sw-jscad-viewer"
   },
-  "homepage": "https://github.com/hrgdavor/jscadui#readme",
+  "homepage": "https://github.com/salvador-workshop/sw-jscad-viewer",
   "devDependencies": {
     "turbo": "1.6.3"
   }

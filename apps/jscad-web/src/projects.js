@@ -7,6 +7,7 @@ export const swLibCore = [
   { name: 'Mesh Cuboid', source: './lib-demo/mesh-cuboid-examples.js' },
   { name: 'Mesh Cylinder', source: './lib-demo/mesh-cylinder-examples.js' },
   { name: 'Mesh Panel', source: './lib-demo/mesh-panel-examples.js' },
+  { name: 'Rectangular Frame', source: './lib-demo/rectangular-frame-examples.js' },
   { name: 'Transforms', source: './lib-demo/transform-examples.js' },
 ]
 

@@ -58,4 +58,5 @@ export const swModels = [
 export const swProjects = [
   { name: 'Connectors', source: './projects/connectors/index.js' },
   { name: 'Connector Parts', source: './projects/connectors/connector-parts/index.js' },
+  { name: 'Shelf 001', source: './projects/shelf-001/index.js' },
 ]

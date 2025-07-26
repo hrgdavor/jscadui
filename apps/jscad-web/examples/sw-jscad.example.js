@@ -29,6 +29,10 @@ function main() {
     colorize(colors.lightGreen, outer),
     colorize(colors.orange, inner),
   ]
+  // return [
+  //   outer,
+  //   inner,
+  // ]
 }
 
 module.exports = { main }

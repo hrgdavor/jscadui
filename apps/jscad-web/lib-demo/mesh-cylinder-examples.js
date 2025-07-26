@@ -4,7 +4,7 @@ const jscad = require('@jscad/modeling')
 const swJscad = require('sw-jscad').init({ lib: jscad });
 const swjUi = require('sw-jscad-ui').init({ lib: jscad, swLib: swJscad });
 
-const { superPrimitives } = swJscad.utils;
+const { mesh3d } = swJscad.models.prefab;
 const { layout } = swjUi.ux;
 
 const main = () => {
@@ -20,7 +20,7 @@ const main = () => {
             desc: 'base',
             layoutOpts,
         },
-        superPrimitives.meshCylinder({
+        mesh3d.meshCylinder({
             radius: 12,
             height: 40,
             thickness: 1.5,
@@ -36,7 +36,7 @@ const main = () => {
             desc: 'inset',
             layoutOpts,
         },
-        superPrimitives.meshCylinder({
+        mesh3d.meshCylinder({
             radius: 16,
             height: 45,
             thickness: 1.5,
@@ -53,7 +53,7 @@ const main = () => {
             desc: 'offset',
             layoutOpts,
         },
-        superPrimitives.meshCylinder({
+        mesh3d.meshCylinder({
             radius: 12,
             height: 40,
             thickness: 1.5,
@@ -70,7 +70,7 @@ const main = () => {
             desc: 'in+offset',
             layoutOpts,
         },
-        superPrimitives.meshCylinder({
+        mesh3d.meshCylinder({
             radius: 12,
             height: 40,
             thickness: 1.5,

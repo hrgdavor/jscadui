@@ -4,7 +4,7 @@ const jscad = require('@jscad/modeling')
 const swJscad = require('sw-jscad').init({ lib: jscad });
 const swjUi = require('sw-jscad-ui').init({ lib: jscad, swLib: swJscad });
 
-const { superPrimitives } = swJscad.utils;
+const { mesh3d } = swJscad.models.prefab;
 const { layout } = swjUi.ux;
 
 const main = () => {
@@ -20,7 +20,7 @@ const main = () => {
             desc: '...',
             layoutOpts,
         },
-        superPrimitives.meshCuboid({
+        mesh3d.meshCuboid({
             size: [40, 30, 20],
             meshPanelThickness: 2,
             radius: 2.5,
@@ -34,7 +34,7 @@ const main = () => {
             desc: '...',
             layoutOpts,
         },
-        superPrimitives.meshCuboid({
+        mesh3d.meshCuboid({
             size: [40, 30, 20],
             meshPanelThickness: 2,
             radius: 2.5,
@@ -49,7 +49,7 @@ const main = () => {
             desc: 'tube-like',
             layoutOpts,
         },
-        superPrimitives.meshCuboid({
+        mesh3d.meshCuboid({
             size: [40, 30, 20],
             meshPanelThickness: 2,
             radius: 2.5,
@@ -64,7 +64,7 @@ const main = () => {
             desc: 'offsets',
             layoutOpts,
         },
-        superPrimitives.meshCuboid({
+        mesh3d.meshCuboid({
             size: [40, 30, 20],
             meshPanelThickness: 2,
             radius: 2.5,
@@ -80,7 +80,7 @@ const main = () => {
             desc: 'insets',
             layoutOpts,
         },
-        superPrimitives.meshCuboid({
+        mesh3d.meshCuboid({
             size: [40, 30, 20],
             meshPanelThickness: 2,
             radius: 2.5,
@@ -96,7 +96,7 @@ const main = () => {
             desc: 'both',
             layoutOpts,
         },
-        superPrimitives.meshCuboid({
+        mesh3d.meshCuboid({
             size: [40, 30, 20],
             meshPanelThickness: 2,
             radius: 2.5,

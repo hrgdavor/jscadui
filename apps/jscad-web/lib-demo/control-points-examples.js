@@ -10,8 +10,8 @@ const { union } = jscad.booleans
 const { cuboid, rectangle, sphere, circle } = jscad.primitives
 
 const { arches } = swjBuilders;
-const { profiles } = swJscad.details;
-const { geometry } = swJscad.utils;
+const { profiles } = swJscad.models;
+const { geometry } = swJscad.core;
 const { layout } = swjUi.ux;
 
 const main = () => {

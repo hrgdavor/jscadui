@@ -12,11 +12,7 @@ const {
     walls,
 } = swjBuilders
 
-const {
-    foils,
-    moulds,
-    profiles,
-} = swJscad.details
+const { profiles, prefab } = swJscad.models
 
 const {
     aranea,
@@ -124,7 +120,7 @@ const main = () => {
         trimUnitDepth: 1.25,
         trimSides: 4,
     });
-    layout.addToLayout({ name: 'Dado Wall (1)', desc: '...', layoutOpts }, wallDado1) 
+    layout.addToLayout({ name: 'Dado Wall (1)', desc: '...', layoutOpts }, wallDado1)
 
     const layoutContent = layout.gridLayout({ layoutOpts });
     return layoutContent;

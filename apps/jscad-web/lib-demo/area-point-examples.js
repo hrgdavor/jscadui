@@ -7,8 +7,7 @@ const swjUi = require('sw-jscad-ui').init({ lib: jscad, swLib: swJscad });
 const { union } = jscad.booleans;
 const { translate } = jscad.transforms;
 const { sphere } = jscad.primitives;
-const { maths } = swJscad.core;
-const { geometry } = swJscad.utils;
+const { geometry } = swJscad.core;
 const { layout } = swjUi.ux;
 
 const main = () => {

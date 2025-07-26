@@ -7,7 +7,7 @@ const swjFamilies = require('sw-jscad-families').init({ lib: jscad, swLib: swJsc
 const swjBuilders = require('sw-jscad-builders').init({ lib: jscad, swLib: swJscad, swFamilies: swjFamilies });
 
 const { arches } = swjBuilders;
-const { profiles } = swJscad.details;
+const { profiles } = swJscad.models;
 const { layout } = swjUi.ux;
 
 const main = () => {

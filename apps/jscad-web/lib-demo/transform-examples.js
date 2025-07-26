@@ -9,9 +9,7 @@ const swjBuilders = require('sw-jscad-builders').init({ lib: jscad, swLib: swJsc
 
 const { cuboid, sphere, cylinder } = jscad.primitives
 const { union } = jscad.booleans
-const { arches } = swjBuilders;
 const { transform } = swJscad.utils;
-const { profiles } = swJscad.details;
 const { layout } = swjUi.ux;
 
 const main = () => {

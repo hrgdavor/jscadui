@@ -4,6 +4,10 @@ const jscad = require('@jscad/modeling')
 const swJscad = require('sw-jscad').init({ lib: jscad });
 const swjUi = require('sw-jscad-ui').init({ lib: jscad, swLib: swJscad });
 
+console.log(swJscad)
+
+console.log(swjUi)
+
 const { intersect, subtract } = jscad.booleans
 const { colorize } = jscad.colors
 const { cube, sphere } = jscad.primitives

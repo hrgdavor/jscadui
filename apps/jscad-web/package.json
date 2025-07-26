@@ -29,7 +29,7 @@
     "codemirror": "^6.0.1",
     "fflate": "0.8.1",
     "gl-matrix": "^3.4.0",
-    "sw-jscad": "0.6.11",
+    "sw-jscad": "0.7.0-alpha.0",
     "sw-jscad-builders": "0.0.3",
     "sw-jscad-families": "0.0.8",
     "sw-jscad-ui": "0.1.1",

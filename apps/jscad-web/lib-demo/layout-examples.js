@@ -3,11 +3,8 @@ const jscad = require('@jscad/modeling')
 
 const swJscad = require('sw-jscad').init({ lib: jscad });
 const swjUi = require('sw-jscad-ui').init({ lib: jscad, swLib: swJscad });
-const swjFamilies = require('sw-jscad-families').init({ lib: jscad, swLib: swJscad });
-const swjBuilders = require('sw-jscad-builders').init({ lib: jscad, swLib: swJscad, swFamilies: swjFamilies });
 
-const { arches } = swjBuilders;
-const { profiles } = swJscad.models;
+const { cuboid, sphere, cylinder, rectangle } = jscad.primitives
 const { layout } = swjUi.ux;
 
 const main = () => {
@@ -17,18 +14,21 @@ const main = () => {
         layoutSpace: 0,
     }
 
-    const profile1 = profiles.sqCornerCircNotch({ sqLength: 5 });
+    const shape1 = cuboid({ size: [15, 30, 15] })
+    const shape2 = cylinder({ radius: 6, height: 15 })
+    const shape3 = sphere({ radius: 10 })
+    const shape4 = rectangle({ size: [15, 30] })
 
-    const arch1 = arches.twoPtArch({ arcRadius: 30, archWidth: 35 }, profile1);
+    const arch1 = shape1
     layout.addToLayout({ name: 'arch1', desc: '...', layoutOpts }, arch1);
 
-    const arch2 = arches.onePtArch({ arcRadius: 40 }, profile1);
+    const arch2 = shape2
     layout.addToLayout({ name: 'arch2', desc: '...', layoutOpts }, arch2);
 
-    const arch3 = arches.twoPtArch({ arcRadius: 30, archWidth: 35 });
+    const arch3 = shape3
     layout.addToLayout({ name: 'arch3', desc: '...', layoutOpts }, arch3);
 
-    const arch4 = arches.onePtArch({ arcRadius: 40 });
+    const arch4 = shape4;
     layout.addToLayout({ name: 'arch4', desc: '...', layoutOpts }, arch4);
 
     const layoutContent = layout.gridLayout({ layoutOpts });

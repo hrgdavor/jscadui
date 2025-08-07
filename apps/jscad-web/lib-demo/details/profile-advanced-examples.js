@@ -4,7 +4,7 @@ const jscad = require('@jscad/modeling')
 const swJscad = require('sw-jscad').init({ lib: jscad });
 const swjUi = require('sw-jscad-ui').init({ lib: jscad, swLib: swJscad });
 
-const { profiles } = swJscad.details;
+const { profiles } = swJscad.models;
 const { layout } = swjUi.ux;
 
 const main = () => {

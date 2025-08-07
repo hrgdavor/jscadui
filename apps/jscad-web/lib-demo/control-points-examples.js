@@ -3,15 +3,11 @@ const jscad = require('@jscad/modeling');
 
 const swJscad = require('sw-jscad').init({ lib: jscad });
 const swjUi = require('sw-jscad-ui').init({ lib: jscad, swLib: swJscad });
-const swjFamilies = require('sw-jscad-families').init({ lib: jscad, swLib: swJscad });
-const swjBuilders = require('sw-jscad-builders').init({ lib: jscad, swLib: swJscad, swFamilies: swjFamilies });
 
 const { union } = jscad.booleans
 const { cuboid, rectangle, sphere, circle } = jscad.primitives
 
-const { arches } = swjBuilders;
-const { profiles } = swJscad.details;
-const { geometry } = swJscad.utils;
+const { position } = swJscad.core;
 const { layout } = swjUi.ux;
 
 const main = () => {
@@ -22,7 +18,7 @@ const main = () => {
     }
 
     const box1 = cuboid({ size: [30, 40, 20] })
-    const box1CtrlPts = geometry.cuboid.getCuboidCtrlPoints(box1)
+    const box1CtrlPts = position.cuboid.getCuboidCtrlPoints(box1)
     console.log(box1CtrlPts)
     const box1FramePts = [
         box1CtrlPts.c1,
@@ -66,7 +62,7 @@ const main = () => {
     })
 
     const box2 = cuboid({ size: [60, 40, 30] })
-    const box2CtrlPts = geometry.cuboid.getCuboidCtrlPoints(box2)
+    const box2CtrlPts = position.cuboid.getCuboidCtrlPoints(box2)
     console.log(box2CtrlPts)
     const box2FramePts = [
         box2CtrlPts.c1,
@@ -110,7 +106,7 @@ const main = () => {
     })
 
     const box3 = rectangle({ size: [30, 20] })
-    const box3CtrlPts = geometry.rectangle.getRectangleCtrlPoints(box3)
+    const box3CtrlPts = position.rectangle.getRectangleCtrlPoints(box3)
     console.log(box3CtrlPts)
     const box3FramePts = [
         box3CtrlPts.c1,

@@ -6,6 +6,7 @@ import {
   swDetails,
   swFamilies,
   swUx,
+  swProjects,
 } from './projects.js'
 
 const menu = /** @type {HTMLElement} */ (document.getElementById('menu'))
@@ -76,6 +77,11 @@ export const init = () => {
   const swFamiliesDiv = /** @type {HTMLElement} */ (document.getElementById('sw-demo-families'))
   swFamilies.forEach(({ name, source }) => {
     generateLink(name, source, swFamiliesDiv);
+  })
+
+  const swProjectsDiv = /** @type {HTMLElement} */ (document.getElementById('sw-projects'))
+  swProjects.forEach(({ name, source }) => {
+    generateLink(name, source, swProjectsDiv);
   })
 }
 

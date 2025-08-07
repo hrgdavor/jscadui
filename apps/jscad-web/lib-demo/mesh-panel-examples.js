@@ -4,7 +4,7 @@ const jscad = require('@jscad/modeling')
 const swJscad = require('sw-jscad').init({ lib: jscad });
 const swjUi = require('sw-jscad-ui').init({ lib: jscad, swLib: swJscad });
 
-const { superPrimitives } = swJscad.utils;
+const { mesh3d } = swJscad.models.prefab;
 const { layout } = swjUi.ux;
 
 const main = () => {
@@ -20,7 +20,7 @@ const main = () => {
             desc: '...',
             layoutOpts,
         },
-        superPrimitives.meshPanel({
+        mesh3d.meshPanel({
             size: [50, 30, 2.5],
             radius: 2.5,
             segments: 9,
@@ -32,7 +32,7 @@ const main = () => {
             desc: '...',
             layoutOpts,
         },
-        superPrimitives.meshPanel({
+        mesh3d.meshPanel({
             size: [50, 30, 2.5],
             radius: 2.5,
             segments: 9,
@@ -45,7 +45,7 @@ const main = () => {
             desc: '...',
             layoutOpts,
         },
-        superPrimitives.meshPanel({
+        mesh3d.meshPanel({
             size: [50, 30, 2.5],
             radius: 2.5,
             segments: 9,
@@ -58,7 +58,7 @@ const main = () => {
             desc: '...',
             layoutOpts,
         },
-        superPrimitives.meshPanel({
+        mesh3d.meshPanel({
             size: [50, 30, 2.5],
             radius: 2.5,
             segments: 9,
@@ -73,7 +73,7 @@ const main = () => {
             desc: '...',
             layoutOpts,
         },
-        superPrimitives.meshPanel({
+        mesh3d.meshPanel({
             size: [40, 30, 2.5],
             radius: 2.5,
             segments: 8,
@@ -87,7 +87,7 @@ const main = () => {
             desc: '...',
             layoutOpts,
         },
-        superPrimitives.meshPanel({
+        mesh3d.meshPanel({
             size: [45, 35, 2],
             radius: 3,
             segments: 8,

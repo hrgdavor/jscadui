@@ -29,6 +29,7 @@ mkdirSync(outDir, { recursive: true })
 copyTask('static', outDir, { include: [], exclude: [], watch, filters: [] })
 copyTask('examples', outDir+'/examples', { include: [], exclude: [], watch, filters: [] })
 copyTask('lib-demo', outDir+'/lib-demo', { include: [], exclude: [], watch, filters: [] })
+copyTask('projects', outDir+'/projects', { include: [], exclude: [], watch, filters: [] })
 //in dev mode dont try to sync docs, just copy the first time 
 if(!skipDocs && !(dev & existsSync(outDir + "/docs"))){
   // this task is heavy

@@ -12,11 +12,7 @@ const {
     walls,
 } = swjBuilders
 
-const {
-    foils,
-    moulds,
-    profiles,
-} = swJscad.details
+const { profiles, prefab } = swJscad.models
 
 const {
     aranea,
@@ -54,23 +50,23 @@ const main = () => {
     //-----------
     // Mouldings
 
-    const mould3 = moulds.circularMoulding({ radius: 20, height: 5 }, profile1);
+    const mould3 = prefab.mouldings.circularMoulding({ radius: 20, height: 5 }, profile1);
     layout.addToLayout({ name: 'mould3', desc: '...', layoutOpts }, mould3);
 
 
     //-----------
     // Foils
 
-    const foil1 = foils.trefoil({ radius: 10 });
+    const foil1 = profiles.foils2d.trefoil({ radius: 10 });
     layout.addToLayout({ name: 'foil1', desc: '...', layoutOpts }, foil1);
 
-    const foil5 = foils.quatrefoil({ radius: 10, lobeRadiusType: 'inSlice' });
+    const foil5 = profiles.foils2d.quatrefoil({ radius: 10, lobeRadiusType: 'inSlice' });
     layout.addToLayout({ name: 'foil5', desc: '...', layoutOpts }, foil5);
 
-    const foil7 = foils.trefoil({ radius: 15, lobeRadiusType: 'halfRadius', cutCentre: true }, profile1);
+    const foil7 = prefab.foils3d.trefoil({ radius: 15, lobeRadiusType: 'halfRadius', cutCentre: true }, profile1);
     layout.addToLayout({ name: 'foil7', desc: '...', layoutOpts }, foil7);
 
-    const foil8 = foils.quatrefoil({ radius: 15, lobeRadiusType: 'mean', cutCentre: true }, profile3);
+    const foil8 = prefab.foils3d.quatrefoil({ radius: 15, lobeRadiusType: 'mean', cutCentre: true }, profile3);
     layout.addToLayout({ name: 'foil8', desc: '...', layoutOpts }, foil8);
 
 
@@ -124,7 +120,7 @@ const main = () => {
         trimUnitDepth: 1.25,
         trimSides: 4,
     });
-    layout.addToLayout({ name: 'Dado Wall (1)', desc: '...', layoutOpts }, wallDado1) 
+    layout.addToLayout({ name: 'Dado Wall (1)', desc: '...', layoutOpts }, wallDado1)
 
     const layoutContent = layout.gridLayout({ layoutOpts });
     return layoutContent;

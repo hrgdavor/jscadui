@@ -32,7 +32,7 @@ export function addZUI(domElement, stage) {
     var touches = {};
     var distance = 0;
     var dragging = false;
-
+  
     zui.addLimits(0.06, 8);
 
     domElement.addEventListener('mousedown', mousedown, false);

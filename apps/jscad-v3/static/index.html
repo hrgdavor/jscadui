@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="./favicon.png">
+    <meta name="theme-color" content="#fff">
+    <link rel="manifest" href="./jscadui.manifest">
+    <link rel="apple-touch-icon" href="./icon_192.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="JSCAD is an open source set of modular, browser and command line tools for creating parametric 2D and 3D CAD designs with JavaScript code.">
+    <meta name="keywords" content="jscad, openjscad, javascript, typescript, cad, svg, stl, obj, csg, 3mf, 3d-design, 2d-design">
+    <link rel="stylesheet" href="main.css">
+    <title>JSCAD - JavaScript CAD</title>
+  </head>
+  <body>
+    <div class="container">
+      <div id="welcome">
+        <h1>JSCAD</h1>
+        <p>
+          JSCAD is a tool for creating parametric 2D and 3D CAD designs using JavaScript code.
+        </p>
+        <p>
+          Code CAD offers more precise control over designs, enables parameterized customization of models, and integrates seamlessly with the web.
+          With an open-source, functional API, complex models can be created with just a few lines of code.
+        </p>
+        <p>
+          Create designs in the editor, or drag and drop local files.
+        </p>
+
+        <ul>
+          <li><a href="/docs/tutorial-01_gettingStarted.html" target="_blank">Getting Started</a></li>
+          <li><a href="/docs/" target="_blank">API Reference</a></li>
+          <li><a href="https://github.com/hrgdavor/jscadui/issues" target="_blank">GitHub (this app)</a> - for issues wth app itself</li>
+          <li><a href="https://github.com/jscad/OpenJSCAD.org" target="_blank">GitHub (JSCAD)</a> - for issues with @jscad/modeling</li>
+        </ul>
+
+        <label for="welcome-dismiss" class="welcome-dismiss">
+          Don't show again
+          <input type="checkbox" id="welcome-dismiss" />
+        </label>
+      </div>
+
+      <div class="layout" id="layout">
+        <div id="root">
+          <div id="viewer"></div>
+        </div>
+
+        <div id="overlay">
+          <div class="above-error">
+            <div id="progress">
+              <div id="progressText">....</div>
+              <progress title="Processing..."></progress>
+            </div>
+
+            <div id="model-options">
+              <div id="paramsDiv"></div>
+              <div class="export-panel">
+                <select id="export-format"></select>
+                <button id="export-button">Export</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="error-bar">
+            <label id="error-name">Error:</label>
+            <span id="error-message"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="editor">
+        <div id="editor-drawer">
+          <nav id="editor-nav">
+            <button id="editor-file"></button>
+            <ul id="editor-files"></ul>
+          </nav>
+          <div id="editor-container"></div>
+          <a id="editor-hint">Shift-enter to update</a>
+          <a id="editor-hint2">CTRL+S to save and update</a>
+        </div>
+        <div id="editor-toggle"></div>
+      </div>
+
+      <div id="menu">
+        <button id="menu-button">JSCAD</button>
+        <div id="menu-content">
+          <h2>Options</h2>
+          <ul>
+            <li><label for="dark-mode">Dark Mode</label><input type="checkbox" id="dark-mode"></li>
+            <li><label for="show-axis">Show Axis</label><input type="checkbox" id="show-axis" checked></li>
+            <li><label for="show-grid">Show Grid</label><input type="checkbox" id="show-grid" checked></li>
+            <li><label for="smooth-render">Smooth Render</label><input type="checkbox" id="smooth-render" checked></li>
+            <li><label for="zoom-to-fit">Zoom To Fit</label><input type="checkbox" id="zoom-to-fit" checked></li>
+          </ul>
+
+          <h2>Documentation</h2>
+          <ul>
+            <li><a href="https://openjscad.xyz/dokuwiki/doku.php" target="_blank">User Guide</a></li>
+            <li><a href="/docs/" target="_blank">API Reference</a></li>
+            <li><a href="https://github.com/hrgdavor/jscadui/issues" target="_blank">GitHub Issues (this app)</a></li>
+            <li><a href="https://github.com/jscad/OpenJSCAD.org/issues" target="_blank">GitHub Issues (JSCAD)</a></li>
+            <li><a href="https://openjscad.nodebb.com/" target="_blank">User Group</a></li>
+            <li><a href="https://discord.gg/6PB7qZ4HC7" target="_blank">Discord Community</a></li>
+          </ul>
+
+          <h2>Examples</h2>
+          <ul id="examples"></ul>
+        </div>
+      </div>
+    </div>
+    <div id="dropModal">drop jscad script to execute it</div>
+
+    <script>
+      // load visible preferences immediately to prevent flash of content
+      if (localStorage.getItem('engine.theme') === 'dark') {
+        document.body.classList.add('dark')
+      }
+      if (localStorage.getItem('welcome.dismissed')) {
+        document.getElementById('welcome').remove()
+      }
+      if (localStorage.getItem('editor.closed') === 'true' || window.innerWidth < 768) {
+        document.getElementById('editor').classList.add('closed')
+      } else if (localStorage.getItem('editor.width')) {
+        const editorWidth = localStorage.getItem('editor.width')
+        document.getElementById('editor').style.width = `${editorWidth}px`
+      }
+    </script>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

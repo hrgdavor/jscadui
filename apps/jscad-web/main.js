@@ -485,6 +485,7 @@ const virtualTree = [
   },
 ];
 if (!sw) await initFs()
+/*
 setFileTree(sw, virtualTree)
 jscadScript({ url: '/index.js', base: sw.base })
 editor.setSource(virtualTree[0].fileContent, '/index.js')

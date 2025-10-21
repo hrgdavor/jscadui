@@ -16,10 +16,10 @@ const gzipPrefix = 'data:application/gzip;base64,'
  * @param {ErrorFn} setError 
  * @returns {unknown}
  */
-export const init = (compileFn, setError) => {
+export const init = async (compileFn, setError) => {
   const load = loadFromUrl(compileFn, setError)
   window.addEventListener('hashchange', load) // on change
-  return load() // on load
+  return await load() // on load
 }
 
 /**
@@ -34,7 +34,7 @@ export const loadFromUrl = (compileFn, setError) => async () => {
     // load from /remote
     try {
       const script = await fetchUrl(url)
-      compileFn(script, url)
+      await compileFn(script, url)
       return true
     } catch (err) {
       setError(err)

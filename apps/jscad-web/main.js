@@ -459,7 +459,7 @@ try {
 }
 exporter.init(workerApi)
 
-//* uncomment to test fake file tree for running scripts
+/* uncomment to test fake file tree for running scripts
 
 loadDefault = false
 async function setFileTree(sw, files){
@@ -485,7 +485,6 @@ const virtualTree = [
   },
 ];
 if (!sw) await initFs()
-/*
 setFileTree(sw, virtualTree)
 jscadScript({ url: '/index.js', base: sw.base })
 editor.setSource(virtualTree[0].fileContent, '/index.js')

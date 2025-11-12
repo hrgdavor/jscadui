@@ -16,3 +16,10 @@ This is a naming pattern that is forced because bad IDE support. Instead of cryi
 worker re-read dir if cached listing, but file/folder not found, ot make sure it was not added in the meantime
 
 https://fonts.bunny.net
+
+
+# branch: feature-manifold-3d
+ - added option for main thread to return back transferable data (after giving it to gup, returning them, allows export without re-evaluating script)
+ - main sends thumbnail for export if export supports it
+ 
+

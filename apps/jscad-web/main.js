@@ -13,7 +13,7 @@ import { Gizmo } from '@jscadui/html-gizmo'
 import { OrbitControl, OrbitState } from '@jscadui/orbit'
 import { boundingBox } from '@jscadui/format-common'
 import { genParams, getParams } from '@jscadui/params'
-import { messageProxy } from '@jscadui/postmessage'
+import { messageProxy, withTransferable } from '@jscadui/postmessage'
 
 import defaultCode from './examples/jscad.example.js'
 import { addV1Shim } from './src/addV1Shim.js'
@@ -213,14 +213,16 @@ const handlers = {
    * @param {{entities:unknown | Array<unknown>,mainTime:number,convertTime:number}} options1 
    * @param {{skipLog?:boolean }} options2
    */
-  entities: ({ entities, mainTime, convertTime }, { skipLog } = {}) => {
+  entities: ({ entities, mainTime, convertTime, transferable }, { skipLog } = {}) => {
     if (!(entities instanceof Array)) entities = [entities]
+    console.log('result.transferable', transferable)
     viewState.setModel(entities)
-    if(viewState.zoomToFit){
-      let {min,max} = boundingBox(entities)
+    workerApi.restoreTransferable(withTransferable(entities, transferable))
+    if (viewState.zoomToFit) {
+      let { min, max } = boundingBox(entities)
       console.warn('min', min, 'max', max, viewState.viewer.getCamera())
       let { fov, aspect } = viewState.viewer.getCamera()
-      ctrl.fit(min,max, fov,aspect,1.2)
+      ctrl.fit(min, max, fov, aspect, 1.2)
     }
     if (!skipLog) console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2), entities)
     setError(undefined)
@@ -284,6 +286,7 @@ const bundles = {
   // local bundled alias for common libs.
   '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
   '@jscad/io': toUrl('./build/bundle.jscad_io.js'),
+  'manifold-3d': toUrl('./manifold/manifold.js'),
   '@jscad/csg': toUrl('./build/bundle.V1_api.js'),
 }
 

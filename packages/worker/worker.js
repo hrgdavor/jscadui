@@ -20,6 +20,7 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
 
  @typedef ExportDataOptions
  @prop {string} format
+ @prop {ArrayBuffer} [thumb]
 
  @typedef RunMainOptions
  @prop {import('@jscadui/format-common').UserParameters} params
@@ -38,6 +39,7 @@ import { extractPathInfo, readAsArrayBuffer, readAsText } from '../fs-provider/f
 @prop {(options:RunScriptOptions)=>Promise<import('@jscadui/format-common').JscadScriptResultWithParams>} jscadScript - run a jscad script
 @prop {(options:ExportDataOptions)=>Promise<unknown>} jscadExportData
 @prop {(options:import('@jscadui/require').ClearFileCacheOptions)=>Promise<void>} jscadClearFileCache
+@prop {(transferable:Array)=>Promise<void>} restoreTransferable
 @prop {()=>Promise<void>} jscadClearTempCache
 
 @typedef ImportData
@@ -64,21 +66,22 @@ let userInstances
 
 /** @type {ImportData | undefined} */
 let importData
+let meshes
 
 /**
  * @template T
  * @param {T | T[]} arr 
  * @returns {T[]}
  */
-export const flatten = arr=>{
+export const flatten = arr => {
   /** @type {T[]} */
   const out = []
 
   /** @param {T |T[]} _in */
   const doFlatten = (_in) => {
-    if(_in instanceof Array){
+    if (_in instanceof Array) {
       _in.forEach(el => doFlatten(el))
-    }else{
+    } else {
       out.push(_in)
     }
   }
@@ -99,7 +102,7 @@ export const jscadInit = options => {
   alias.forEach(({ name, path }) => {
     requireCache.alias[name] = path
   })
-  console.log('init alias', alias, 'bundles',bundles)
+  console.log('init alias', alias, 'bundles', bundles)
   userInstances = options.userInstances
 }
 /**
@@ -107,8 +110,8 @@ export const jscadInit = options => {
  * @param {{bin?:boolean}} options 
  * @returns {Promise<ArrayBuffer | string>}
  */
-async function readFileFile(file, {bin=false}={}){
-  if(bin) return await readAsArrayBuffer(file)
+async function readFileFile(file, { bin = false } = {}) {
+  if (bin) return await readAsArrayBuffer(file)
   else return readAsText(file)
 }
 
@@ -120,11 +123,11 @@ let solids = []
  * @returns {Promise<import('@jscadui/format-common').JscadMainResult>}
  */
 export async function jscadMain({ params, skipLog } = {}) {
-  params = {...params}
-  for(let p in params){
-    if(params[p] instanceof File && importData){
+  params = { ...params }
+  for (let p in params) {
+    if (params[p] instanceof File && importData) {
       const info = extractPathInfo(params[p].name)
-      let content = await readFileFile(params[p],{bin: importData.isBinaryExt(info.ext)})
+      let content = await readFileFile(params[p], { bin: importData.isBinaryExt(info.ext) })
       params[p] = importData.deserialize(info, content)
     }
   }
@@ -141,7 +144,7 @@ export async function jscadMain({ params, skipLog } = {}) {
   time = performance.now()
   JscadToCommon.clearCache()
   const entities = JscadToCommon.prepare(solids, transferable, userInstances).all
-  return withTransferable({entities, mainTime, convertTime: performance.now() - time}, transferable)
+  return withTransferable({ entities, mainTime, convertTime: performance.now() - time }, transferable)
 }
 
 // https://stackoverflow.com/questions/52086611/regex-for-matching-js-import-statements
@@ -152,19 +155,19 @@ const exportReg = /export.*from/
  * @param {{script:string,url?:string,base?:string,root?:string}} param0 
  * @returns {Promise<import('@jscadui/format-common').JscadScriptResultWithParams>}
  */
-const jscadScript = async ({ script, url='jscad.js', base=globalBase, root=base }) => {
+const jscadScript = async ({ script, url = 'jscad.js', base = globalBase, root = base }) => {
   console.log('run script with base:', base)
-  if(!script) script = readFileWeb(resolveUrl(url, base, root).url)
+  if (!script) script = readFileWeb(resolveUrl(url, base, root).url)
 
   const shouldTransform = url.endsWith('.ts') || script.includes('import') && (importReg.test(script) || exportReg.test(script))
   let def = []
-  
-  try{
-    scriptModule = require({url,script}, shouldTransform ? transformFunc : undefined, readFileWeb, base, root, importData)
-  }catch(e){
+
+  try {
+    scriptModule = require({ url, script }, shouldTransform ? transformFunc : undefined, readFileWeb, base, root, importData)
+  } catch (e) {
     // with syntax error in browser we do not get nice stack trace
     // we then try to parse the script to let transform function generate nice error with nice trace
-    if(e.name === 'SyntaxError') transformFunc(script, url)
+    if (e.name === 'SyntaxError') transformFunc(script, url)
     // if error is not SyntaxError or if transform func does not find syntax err (very unlikely)
     throw e
   }
@@ -172,7 +175,7 @@ const jscadScript = async ({ script, url='jscad.js', base=globalBase, root=base 
   def = combineParameterDefinitions(fromSource, await scriptModule.getParameterDefinitions?.())
   main = scriptModule.main
   // if the main function is the default export
-  if(!main && typeof scriptModule == 'function') main = scriptModule
+  if (!main && typeof scriptModule == 'function') main = scriptModule
   let params = extractDefaults(def)
   const out = await jscadMain({ params })
   return {
@@ -191,7 +194,7 @@ const jscadScript = async ({ script, url='jscad.js', base=globalBase, root=base 
  * @returns {Promise<{data:ArrayBuffer[]}>}
  */
 const jscadExportData = async (params) => {
-  if(self.exportData) return self.exportData(params)
+  if (self.exportData) return self.exportData(params)
 
   // todo check if it is ok to give back transferables after webgl has used the buffers
   // then we would not need to clone the data
@@ -204,9 +207,15 @@ const jscadExportData = async (params) => {
   return withTransferable({ data }, data)
 }
 
-export const currentSolids = ()=>solids
 
-const handlers = { jscadScript, jscadInit, jscadMain, jscadClearTempCache, jscadClearFileCache:clearFileCache, jscadExportData }
+const restoreTransferable = (params) => {
+  console.log('restoreTransferable', meshes = params)
+}
+
+export const currentSolids = () => solids
+export const currentMeshes = () => meshes
+
+const handlers = { jscadScript, jscadInit, jscadMain, jscadClearTempCache, jscadClearFileCache: clearFileCache, jscadExportData }
 // allow main thread to call worker methods and any method from the loaded script
 const handlersProxy = new Proxy(handlers, {
   get(target, prop, receiver) {
@@ -221,7 +230,7 @@ const handlersProxy = new Proxy(handlers, {
  */
 export const initWorker = (transform, jscadExportData, _importData) => {
   if (transform) transformFunc = transform
-  if(jscadExportData) handlers.jscadExportData = jscadExportData
+  if (jscadExportData) handlers.jscadExportData = jscadExportData
   importData = _importData
 
   JSCAD_WORKER_ENV.client = messageProxy(self, handlersProxy)

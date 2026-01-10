@@ -1,5 +1,5 @@
 {
-  "type":"module",
+  "type": "module",
   "sideEffects": false,
   "name": "@jscadui/worker",
   "version": "0.1.0",

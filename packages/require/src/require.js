@@ -20,7 +20,11 @@ export { resolveUrl } from './resolveUrl'
 // we need eval to do the same without prefix
 // https://esbuild.github.io/content-types/#direct-eval
 // to be nice to bundlers we need indirect eval
+// when calling runModule, add '\n//# sourceURL='+url to the script to get nice filename and line numbers
 export const runModule = globalThis.eval('(require, exports, module, source)=>eval(source)')
+
+const jsExtensions = new Set(['js','ts','cjs','mjs'])
+const lastOf = arr=>arr?.length ? arr[arr.length-1] : '' 
 
 /**
  * @typedef SourceWithUrl
@@ -57,17 +61,19 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
   }
   let exports
   let resolvedUrl = url
-
+  if(urlOrSource == './colors') debugger
   if (source === undefined) {
     bundleAlias = requireCache.bundleAlias[url]
     const aliasedUrl = bundleAlias ?? requireCache.alias[url] ?? url
 
     const resolved = resolveUrl(aliasedUrl, base, root, moduleBase)
     const resolvedStr = resolved.url.toString()
-    const urlComponents = resolvedStr.split('/')
     // no file ext is usually module from CDN
-    const isJs = !urlComponents[urlComponents.length - 1].includes('.') || resolvedStr.endsWith('.ts') || resolvedStr.endsWith('.js')
-    if (!isJs && importData) {
+    let fileName = lastOf(resolvedStr.split('/'))  
+    let ext = lastOf(fileName.split('.'))  
+    const isJs = ext == fileName || jsExtensions.has(ext)
+    const urlComponents = resolvedStr.split('/')
+    if(!isJs && importData){
       const info = extractPathInfo(resolvedStr)
       const content = readFile(resolvedStr, { output: importData.isBinaryExt(info.ext) })
       return importData.deserialize(info, content)
@@ -86,15 +92,21 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
       //Clear the known dependencies of the old version this module      
       requireCache.knownDependencies.set(cacheUrl, new Set())
       try {
+        const fromCdn = resolvedUrl.includes('jsdelivr.net')
+        console.warn('readFile', readFile, resolvedUrl)
         source = readFile(resolvedUrl)
-        if (resolvedUrl.includes('jsdelivr.net')) {
-          // jsdelivr will read package.json and tell us what the main file is
-          const srch = ' * Original file: '
-          let idx = source.indexOf(srch)
-          if (idx != -1) {
-            const idx2 = source.indexOf('\n', idx + srch.length + 1)
-            const realFile = new URL(source.substring(idx + srch.length, idx2), resolvedUrl).toString()
-            resolvedUrl = base = realFile
+        
+        if (fromCdn && ext == fileName) {
+          try{
+            let pkg = JSON.parse(readFile(resolvedUrl+'/package.json'))
+            let alias = pkg.unpkg || pkg.main
+            if(alias){
+              const realFile = new URL(alias, resolvedUrl+'/').toString()
+              source = readFile(realFile)
+              resolvedUrl = base = realFile
+            }
+          }catch(e){
+            console.log(e)
           }
         }
       } catch (e) {
@@ -119,14 +131,19 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
       exports = JSON.parse(source)
     } else {
       // do not transform bundles that are already cjs ( requireCache.bundleAlias.*)
-      if (transform && !bundleAlias) source = transform(source, resolvedUrl).code
+      if (transform && !bundleAlias){
+        source = transform(source, resolvedUrl).code
+        if(source.includes('import.meta.url')){
+          source = source.replaceAll('import.meta.url','module.meta.url')
+        } 
+      }
       // construct require function relative to resolvedUrl
       const requireFunc = newUrl => require(newUrl, transform, readFile, resolvedUrl, root, importData, moduleBase)
       const module = requireModule(url, resolvedUrl, source, requireFunc)
       module.local = isRelativeFile
       exports = module.exports
-      // import jscad from "@jscad/modeling"; 
-      // will be effectively transformed to 
+      // import jscad from "@jscad/modeling";
+      // will be effectively transformed to
       // const jscad = require('@jscad/modeling').default
       // we need to plug-in default if missing
       if (!('default' in exports)) exports.default = exports
@@ -141,7 +158,7 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
 const requireModule = (id, url, source, _require) => {
   try {
     const exports = {}
-    const module = { id, uri: url, exports, source } // according to node.js modules
+    const module = { id, uri: url, url, exports, source, meta:{url, uri:url} } // according to node.js modules
     //module.require = _require
     source += '\n//# sourceURL=' + url
     runModule(_require, exports, module, source)

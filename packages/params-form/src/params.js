@@ -10,6 +10,26 @@ export const forEachButton = (el, cb) => forQS(el, BUTTON_SELECTOR, cb)
 
 const numeric = { number: 1, float: 1, int: 1, range: 1, slider: 1 }
 
+/** (This function provided by Google's Gemini)
+ * Sets or updates a URL query parameter without reloading the page.
+ * 
+ * @param {string} key The parameter name.
+ * @param {string} value The parameter value.
+ */
+function updateUrlParam(key, value) {
+  // 1. Get the current URL and convert it to a URL object
+  const url = new URL(window.location.href);
+
+  // 2. Access the searchParams object and set/update the key-value pair
+  // The .set() method handles both adding new parameters and updating existing ones
+  url.searchParams.set(key, value);
+
+  // 3. Update the browser's address bar using the History API without reloading the page
+  // replaceState is used to avoid adding a new entry to the browser history for simple updates
+  // history.pushState() would add a new history entry, allowing the back button to cycle through changes
+  window.history.replaceState({}, '', url);
+}
+
 function applyRange(inp) {
   forEachInput(inp.parentNode,inp2=>{
     if(inp != inp2) inp2.value = inp.value
@@ -22,7 +42,7 @@ export const genParams = ({
   callback,
   startAnim,
   pauseAnim,
-  storedValues = {},
+  storedValues = null,
   buttons = ['reset', 'save', 'load', 'edit', 'link'],
 }) => {
   let initialValues = {}
@@ -36,6 +56,11 @@ export const genParams = ({
       return `<input type="checkbox" name="${name}" ${checkedStr}/>`
     }
   }
+    
+    const urlValues = new URLSearchParams(window.location.search);
+    if (!storedValues) {
+	storedValues = Object.fromEntries(urlValues);
+    }
 
   function inputRadio({ name, type, captions, value, values }) {
     if (!captions) captions = values
@@ -96,7 +121,7 @@ export const genParams = ({
     if (def['default'] !== undefined) value = def['default']
     if (type == 'checkbox' && def.checked !== undefined) value = def.checked
     def.value = initialValues[name] = value
-    if (storedValues[name] !== undefined) {
+    if (storedValues?.[name] !== undefined) {
       def.value = storedValues[name]
     }
 
@@ -145,6 +170,11 @@ export const genParams = ({
     if(name == 'fps' && target.anims?.length && parseFloat(inp.value) <=0){
       inp.value = inp.step || '1'
     }
+
+    // Show/update any parameters changed from the default in the URL for future reference
+    if (name)
+	updateUrlParam(name, inp.value);
+      
     let out = getParams(target)
     if(out.fps && target.anims?.length){
       target.anims.forEach(inp=>inp.setAttribute('step', 1/out.fps))
@@ -237,6 +267,13 @@ export const genParams = ({
   forEachGroup(target, div => {
     div.onclick = groupClick
   })
+
+
+    // Force recalculation as if user made a change if urlParams
+    // defined (specifying initialValues only updates form)
+    if (urlValues.size > 0) {
+	_callback();
+    }
 
   return {animStatus, setValue, setSomeValues}
 }

@@ -107,3 +107,16 @@ you can also use gzip to minimize the length of the url.
 - max-age=300 for raw gist cannot be lowered
 - publish change, wait for 5 minutes before sharing with ppls that gist was changed
 
+# neutralino
+
+!! IMPORTANT ... you neeed to include script calling neutralino.js yourself
+
+If you are on Windows, you might get a blank white screen. The reason for this is, accessing localhost from a UWP context is disabled by default. Run the following command with administrative privileges on the command prompt to fix this.
+
+```
+CheckNetIsolation.exe LoopbackExempt -a -n="Microsoft.Win32WebViewHost_cw5n1h2txyewy"
+```
+
+You may include this in your Windows setup files (with the user's consent) because users also may get an empty white screen on Windows.
+
+For better developer experience, we recommend you to install the WebView2 runtime on Windows.

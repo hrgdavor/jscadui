@@ -51,14 +51,15 @@ export const genParams = ({
     return ret + '</div>'
   }
 
-  function inputChoice({ name, type, captions, value, values }) {
+  function inputChoice({ name, type, captions, value, values, initial }) {
     if (!captions) captions = values
 
     let ret = `<select _type="${type}" name="${name}" numeric="${typeof values[0] == 'number' ? '1' : '0'}">`
 
+    let selected = ''
     for (let i = 0; i < values.length; i++) {
-      const checked = value == values[i] || value == captions[i] ? 'selected' : ''
-      ret += `<option value="${values[i]}" ${checked}>${captions[i]}</option>`
+      if (initial && initial == values[i]) selected = 'true'
+      ret += `<option value=${values[i]} ${selected}>${captions[i]}</option>`
     }
     return ret + '</select>'
   }
@@ -126,9 +127,6 @@ export const genParams = ({
       valHtml += `<input name="${name}" value="${value}" live="${live ? 1 : 0}"/>`
     }
 
-    //
-    //console.log(type)
-    //
     html += valHtml
 
     const inputFunc = funcs[type] || inputDefault

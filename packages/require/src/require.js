@@ -66,7 +66,7 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
     const resolvedStr = resolved.url.toString()
     const urlComponents = resolvedStr.split('/')
     // no file ext is usually module from CDN
-    const isJs = !urlComponents[urlComponents.length - 1].includes('.') || resolvedStr.endsWith('.ts') || resolvedStr.endsWith('.js')
+    const isJs = !urlComponents[urlComponents.length - 1].includes('.') || resolvedStr.endsWith('.ts') || resolvedStr.endsWith('.js') || resolvedStr.endsWith('.mjs')
     if (!isJs && importData) {
       const info = extractPathInfo(resolvedStr)
       const content = readFile(resolvedStr, { output: importData.isBinaryExt(info.ext) })
@@ -87,7 +87,7 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
       requireCache.knownDependencies.set(cacheUrl, new Set())
       try {
         source = readFile(resolvedUrl)
-        if (resolvedUrl.includes('jsdelivr.net')) {
+        if (resolvedUrl.includes('jsdelivr.net') || resolvedUrl.includes('/esm.sh')) {
           // jsdelivr will read package.json and tell us what the main file is
           const srch = ' * Original file: '
           let idx = source.indexOf(srch)
@@ -95,7 +95,10 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
             const idx2 = source.indexOf('\n', idx + srch.length + 1)
             const realFile = new URL(source.substring(idx + srch.length, idx2), resolvedUrl).toString()
             resolvedUrl = base = realFile
+          }else{
+            base = resolvedUrl
           }
+          root = base
         }
       } catch (e) {
         if (resolvedUrl.endsWith('.js')) {

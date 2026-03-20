@@ -2,6 +2,7 @@ import { messageProxy } from '@jscadui/postmessage'
 
 import { toFSEntry, entryCheckPromise } from './src/FSEntry.js'
 import { readAsArrayBuffer, readAsText } from './src/FileReader.js'
+import { safariGetAsHandle } from './src/safariFileHandles.js'
 
 /**
  * @typedef {import('./src/FSEntry.js').FSEntry} FSEntry
@@ -268,7 +269,13 @@ export const extractEntries = async dt => {
     // If dropped items aren't files or directories, reject them
     // Directories also have kind === 'file'
     if (item.kind === 'file') {
-      const handle = await item.getAsFileSystemHandle()
+      var handle
+      try {
+        handle = await item.getAsFileSystemHandle()
+      }
+      catch {
+        handle = await safariGetAsHandle(item)
+      }
       const fsEntry = toFSEntry(handle, root)
       fsEntries.push(fsEntry)
     }

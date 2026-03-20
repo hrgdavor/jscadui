@@ -1,11 +1,10 @@
-"use strict"
 /*
  if you do not see the shape, it couldbe that it is out os view, so zoom out to check
  if you have a single shape svg that is red, it is inverted
  just call .points.reverse() before extruding
 */
 
-const jscad = require('@jscad/modeling')
+import * as jscad from '@jscad/modeling'
 
 /** Adds color to paths based on direction (that also determines how it is extruded later)
 - green: solid (outer) shell
@@ -30,7 +29,7 @@ function analyzeSvg(svg) {
   })
 }
 
-const main = ({
+export const main = ({
   //@jscad-params
   svg = [], // SVG to test {type:'file', hint:'0,2'}
   // Fix: index of shapes to invert
@@ -82,5 +81,3 @@ const main = ({
     return analyzed
   }
 }
-
-module.exports = { main }

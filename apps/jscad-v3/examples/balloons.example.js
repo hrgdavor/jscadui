@@ -1,22 +1,20 @@
-"use strict"
 /**
  * Birthday Balloons with interactive parameters
  * @authors Z3 Dev, Simon Clark
  */
 
-const jscad = require('@jscad/modeling')
-const { subtract, union } = jscad.booleans
-const { colorize, hexToRgb } = jscad.colors
-const { extrudeFromSlices, extrudeLinear, slice } = jscad.extrusions
-const { geom2 } = jscad.geometries
-const { hullChain } = jscad.hulls
-const { mat4 } = jscad.maths
-const { measureBoundingBox } = jscad.measurements
-const { circle, ellipsoid } = jscad.primitives
-const { vectorText } = jscad.text
-const { translate, scale, rotateX, center } = jscad.transforms
+import { subtract, union } from '@jscad/modeling'
+import { colorize, hexToRgb } from '@jscad/modeling'
+import { extrudeFromSlices, extrudeLinear, slice } from '@jscad/modeling'
+import { geom2 } from '@jscad/modeling'
+import { hullChain } from '@jscad/modeling'
+import { mat4 } from '@jscad/modeling'
+import { measureBoundingBox } from '@jscad/modeling'
+import { circle, ellipsoid } from '@jscad/modeling'
+import { vectorText } from '@jscad/modeling'
+import { translate, scale, rotateX, center } from '@jscad/modeling'
 
-const getParameterDefinitions = () => [
+export const getParameterDefinitions = () => [
   { name: 'balloon', type: 'group', caption: 'Balloons' },
   { name: 'isBig', type: 'checkbox', checked: true, initial: '20', caption: 'Big?' },
   { name: 'color', type: 'color', initial: '#ffb431', caption: 'Color?' },
@@ -27,7 +25,7 @@ const getParameterDefinitions = () => [
   { name: 'age', type: 'int', initial: 20, min: 1, max: 100, step: 1, caption: 'Age?' }
 ]
 
-const main = (params) => {
+export const main = (params) => {
   // use the checkbox to determine the size of the sphere
   params.bRadius = (params.isBig === true) ? 16 : 10
   // use the color chooser to determine the color of the sphere
@@ -122,4 +120,3 @@ const createBirthDate = (birthDate) => {
   return birthDate3D
 }
 
-module.exports = { main, getParameterDefinitions }

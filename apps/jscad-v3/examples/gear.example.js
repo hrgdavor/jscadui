@@ -1,19 +1,17 @@
-"use strict"
 /**
  * Build a Parametric Involute Gear as a parametric design.
  * @authors Joost Nieuwenhuijse, Simon Clark
  */
 
-const jscad = require('@jscad/modeling')
-const { cylinder, polygon } = jscad.primitives
-const { rotateZ } = jscad.transforms
-const { extrudeLinear } = jscad.extrusions
-const { union, subtract } = jscad.booleans
-const { vec2 } = jscad.maths
-const { degToRad } = jscad.utils
+import { cylinder, polygon } from '@jscad/modeling'
+import { rotateZ } from '@jscad/modeling'
+import { extrudeLinear } from '@jscad/modeling'
+import { union, subtract } from '@jscad/modeling'
+import { vec2 } from '@jscad/modeling'
+import { degToRad } from '@jscad/modeling'
 
 // Here we define the user editable parameters:
-const getParameterDefinitions = () => [
+export const getParameterDefinitions = () => [
   { name: 'numTeeth', caption: 'Number of teeth:', type: 'int', initial: 10, min: 5, max: 20 },
   { name: 'circularPitch', caption: 'Circular pitch:', type: 'float', initial: 5 },
   { name: 'pressureAngle', caption: 'Pressure angle:', type: 'float', initial: 20 },
@@ -23,7 +21,7 @@ const getParameterDefinitions = () => [
 ]
 
 // Main entry point; here we construct our solid:
-const main = (params) => {
+export const main = (params) => {
   let gear = involuteGear(
     params.numTeeth,
     params.circularPitch,
@@ -127,4 +125,3 @@ const involuteGear = (numTeeth, circularPitch, pressureAngle, clearance, thickne
   return union(rootcircle, allTeeth)
 }
 
-module.exports = { main, getParameterDefinitions }

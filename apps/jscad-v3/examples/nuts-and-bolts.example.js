@@ -1,17 +1,15 @@
-"use strict"
 /**
  * Nuts and Bolts
  * Demonstrates advanced extrusion using slices to generate screw threads.
  */
 
-const jscad = require('@jscad/modeling')
-const { cylinder } = jscad.primitives
-const { subtract, union } = jscad.booleans
-const { colorize } = jscad.colors
-const { extrudeFromSlices, slice } = jscad.extrusions
-const { translate } = jscad.transforms
+import { cylinder } from '@jscad/modeling'
+import { subtract, union } from '@jscad/modeling'
+import { colorize } from '@jscad/modeling'
+import { extrudeFromSlices, slice } from '@jscad/modeling'
+import { translate } from '@jscad/modeling'
 
-const getParameterDefinitions = () => [
+export const getParameterDefinitions = () => [
   { name: 'hexWidth', type: 'number', initial: 4, min: 0 },
   { name: 'hexHeight', type: 'number', initial: 3, min: 0 },
   { name: 'threadLength', type: 'number', initial: 12, min: 0 },
@@ -22,7 +20,7 @@ const getParameterDefinitions = () => [
   { name: 'segments', type: 'int', initial: 16, min: 3 },
 ]
 
-const main = (params) => {
+export const main = (params) => {
   return [
     colorize([0.9, 0.6, 0.2], bolt(params)),
     colorize([0.4, 0.4, 0.4], translate([15, 0, 0], nut(params)))
@@ -30,7 +28,7 @@ const main = (params) => {
 }
 
 // generate bolt by attaching threads to a hex head
-const bolt = (params) => {
+export const bolt = (params) => {
   return union(
     translate([0, 0, params.threadLength], hex(params)),
     threads(params)
@@ -38,7 +36,7 @@ const bolt = (params) => {
 }
 
 // generate nut by subtracting threads from a hex block
-const nut = (params) => {
+export const nut = (params) => {
   return subtract(
     hex(params),
     threads({ ...params, threadLength: params.hexHeight })
@@ -80,7 +78,7 @@ const threads = (params) => {
         const y = radius * Math.sin(pointAngle)
         points.push([x, y, threadLength * progress])
       }
-      return slice.fromPoints(points)
+      return slice.fromVertices(points)
     }
   }, {})
 }
@@ -92,5 +90,3 @@ const angleDiff = (angle1, angle2) => {
   const diff = Math.abs((angle1 - angle2) % (Math.PI * 2))
   return diff > Math.PI ? Math.PI * 2 - diff : diff
 }
-
-module.exports = { main, getParameterDefinitions }

@@ -1,15 +1,13 @@
-"use strict"
 /**
  * Demonstrates a multipart project with part select input.
  * 
  * https://github.com/jscad/OpenJSCAD.org/discussions/1141
  */
-const jscad = require('@jscad/modeling')
-const { sphere, cube } = jscad.primitives
-const { translate } = jscad.transforms
+import { sphere, cube } from '@jscad/modeling'
+import { translate } from '@jscad/modeling'
 
 // all of the functions that generate parts will see the parameters without declaring them explicitly
-const main = ({//@jscad-params
+export const main = ({//@jscad-params
   size = 10, // {type: 'slider'}
   part,
 }, getParams) => {
@@ -44,8 +42,6 @@ const main = ({//@jscad-params
   return parts[part]()
 }
 
-const getParameterDefinitions = () => [
+export const getParameterDefinitions = () => [
   { name: 'part', caption: 'Part', type: 'choice', ...main({}, true)}
 ]
-
-module.exports = {main, getParameterDefinitions}

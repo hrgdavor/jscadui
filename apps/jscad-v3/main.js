@@ -278,7 +278,6 @@ const bundles = {
   // local bundled alias for common libs.
   '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
   '@jscad/io': toUrl('./build/bundle.jscad_io.js'),
-  '@jscad/csg': toUrl('./build/bundle.V1_api.js'),
 }
 
 await workerApi.jscadInit({ bundles })

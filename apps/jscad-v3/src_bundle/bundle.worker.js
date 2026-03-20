@@ -9,23 +9,31 @@ import {readFileWeb, require} from '@jscadui/require'
 
 import { withTransferable } from '@jscadui/postmessage'
 
+// NOTE: This list should match the list in src/exporter.js
 const serializerMap ={
+  '3mf': ['m3fSerializer', {}],
   'stla': ['stlSerializer', {binary:false}],
   'stlb': ['stlSerializer', {binary:true}],
-  'amf': ['amfSerializer', {}],
   'obj': ['objSerializer', {}],
   'x3d': ['x3dSerializer', {}],
-  '3mf': ['m3fSerializer', {}],
+  'dxf': ['x3dSerializer', {}],
   'json': ['jsonSerializer', {}],
   'svg': ['svgSerializer', {}],
 }
 
 const exportData = ({format, options={}})=>{
   const jscad_io = require('./bundle.jscad_io.js', null, readFileWeb)
+
+  const supportedFormats = jscad_io.supportedFormats
+  const supportedFormat = supportedFormats[format]
+  if (!supportedFormat) throw new Error(`INTERNAL ERROR: missing IO format for (${format})`)
+
+  const serializer = jscad_io.serializers[supportedFormat.mimetype]
+
+  const defaults = format == 'stlb' ? {binary: true} : {binary: false}
   const solids = currentSolids()
-  const [key, defaults] = serializerMap[format]
-  const serializer = jscad_io[key]
-  const data = serializer.serialize({...defaults, ...options}, solids)
+  options = Object.assign({}, defaults, options)
+  const data = serializer(options, solids)
   return withTransferable({ data }, data.filter(v=>typeof v !== 'string'))
 }
 
@@ -34,12 +42,13 @@ const importData = {
   deserialize: ({url, filename, ext}, fileContent)=>{
     try {
       const jscad_io = require('./bundle.jscad_io.js', null, readFileWeb)
-      let deserializer = jscad_io.deserializers[ext]
 
-      if(deserializer) return deserializer({output:'geometry', filename}, fileContent)
-      throw new Error('unsupported format in ' + url)
+      const mimetype = jscad_io.getMimeType(ext)
+      if (!mimetype) throw new Error(`unsupported file format (${ext}) in ${url}`)
+
+      const deserializer = jscad_io.deserializers[mimetype]
+      return deserializer({output:'geometry', filename}, fileContent)
     } catch (error) {
-      console.error(error)
       throw error
     }
   }

@@ -161,6 +161,7 @@ const parseDef = (code, line) => {
     if (initial === 'true' || initial === 'false') {
       ret.type = 'checkbox'
       ret.checked = initial === 'true'
+      ret.initial = initial
     } else if (/^[0-9]+$/.test(initial)) {
       ret.type = 'int'
       ret.initial = parseFloat(initial)
@@ -168,11 +169,7 @@ const parseDef = (code, line) => {
       ret.type = 'number'
       ret.initial = parseFloat(initial)
     } else {
-      try {
-        ret.initial = JSON5.parse(initial)
-      } catch (e) {
-        throw new EvalError(`Error in the initial value definition for ${code}  ${e.message}, line:${line}`, 'code', line)
-      }
+      ret.initial = initial
     }
 
     return ret

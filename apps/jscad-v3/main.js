@@ -16,7 +16,6 @@ import { genParams, getParams } from '@jscadui/params'
 import { messageProxy } from '@jscadui/postmessage'
 
 import defaultCode from './examples/jscad.example.js'
-import { addV1Shim } from './src/addV1Shim.js'
 import * as editor from './src/editor.js'
 import * as engine from './src/engine.js'
 import * as exporter from './src/exporter.js'
@@ -31,6 +30,7 @@ import * as welcome from './src/welcome.js'
  * @typedef {import('@jscadui/worker').UserParameters} UserParameters
  */
 
+const bundleDir = 'javascript'
 
 /** 
  * @param {string} id
@@ -167,12 +167,6 @@ async function reloadProject() {
     workerApi.jscadInit({ alias })
   }
   let url = sw.fileToRun
-  // inject jscad v1 shim, and also inject changed script to cache
-  // so worker and editor have the same code
-  if (sw.fileToRun?.endsWith('.jscad')) {
-    script = addV1Shim(script)
-    addToCache(sw.cache, sw.fileToRun, script)
-  }
   jscadScript({ url, base: sw.base })
   editor.setSource(script, url)
   editor.setFiles(sw.filesToCheck)
@@ -207,7 +201,7 @@ const onProgress = (value, note) => {
   progressText.innerText = note ?? ''
 }
 
-const worker = new Worker('./build/bundle.worker.js')
+const worker = new Worker(`./${bundleDir}/bundle.worker.js`)
 const handlers = {
   /**
    * @param {{entities:unknown | Array<unknown>,mainTime:number,convertTime:number}} options1 
@@ -218,11 +212,11 @@ const handlers = {
     viewState.setModel(entities)
     if(viewState.zoomToFit){
       let {min,max} = boundingBox(entities)
-      console.warn('min', min, 'max', max, viewState.viewer.getCamera())
+      // console.warn('min', min, 'max', max, viewState.viewer.getCamera())
       let { fov, aspect } = viewState.viewer.getCamera()
       ctrl.fit(min,max, fov,aspect,1.2)
     }
-    if (!skipLog) console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2), entities)
+    if (!skipLog) console.log('Main execution:', mainTime?.toFixed(2), ', jscad mesh -> gl:', convertTime?.toFixed(2))
     setError(undefined)
     onProgress(undefined, mainTime?.toFixed(2) + ' ms')
   },
@@ -262,7 +256,8 @@ const jscadScript = async ({ script, url = './jscad.model.js', base = currentBas
   loadDefault = false // don't load default model if something else was loaded
   try {
     const result = await workerApi.jscadScript({ script, url, base, root })
-    let tmp = genParams({ target: byId('paramsDiv'), params: result.def || [], callback: paramChangeCallback, pauseAnim: pauseAnimCallback, startAnim: startAnimCallback })
+    const params = result.def ? result.def : []
+    let tmp = genParams({ target: byId('paramsDiv'), params, callback: paramChangeCallback, pauseAnim: pauseAnimCallback, startAnim: startAnimCallback })
     setParamValues = tmp.setValue
     setAnimStatus = tmp.animStatus
     lastRunParams = result.params
@@ -282,20 +277,19 @@ const jscadScript = async ({ script, url = './jscad.model.js', base = currentBas
 
 const bundles = {
   // local bundled alias for common libs.
-  '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
-  '@jscad/io': toUrl('./build/bundle.jscad_io.js'),
-  '@jscad/csg': toUrl('./build/bundle.V1_api.js'),
+  '@jscad/modeling': toUrl(`./${bundleDir}/bundle.jscad_modeling.js`),
+  '@jscad/io': toUrl(`./${bundleDir}/bundle.jscad_io.js`),
 }
 
 await workerApi.jscadInit({ bundles })
 
 /** @type {boolean} */
-let working
+let working = false
 
 /** @type {UserParameters | null} */
-let lastParams
+let lastParams = {}
 /** @type {UserParameters} */
-let lastRunParams
+let lastRunParams = {}
 
 /**
  * @param {UserParameters} params 
@@ -324,8 +318,8 @@ const paramChangeCallback = async (params, source) => {
     working = false
   }
   handlers.entities(result, {})
-  if (lastParams && lastParams != params) paramChangeCallback(lastParams)
 }
+
 /** @type {AnimRunner | null} */
 let currentAnim
 
@@ -376,7 +370,7 @@ const pauseAnimCallback = async (def, value) => {
 }
 
 // Initialize three engine
-viewState.setEngine(await engine.init())
+viewState.setEngine(await engine.init(bundleDir))
 
 /** @type {Object.<string,FileSystemFileHandle>} */
 let saveMap = {}

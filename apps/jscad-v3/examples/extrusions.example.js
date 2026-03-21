@@ -1,17 +1,15 @@
-"use strict"
 /**
  * Demonstrates the types of extrusions, and the variety of objects they can create.
  */
 
-const jscad = require('@jscad/modeling')
-const { bezier } = jscad.curves
-const { circle, line, polygon, rectangle, roundedRectangle, star } = jscad.primitives
-const { extrudeLinear, extrudeRotate, extrudeFromSlices, slice } = jscad.extrusions
-const { translate } = jscad.transforms
-const { expand } = jscad.expansions
-const { mat4 } = jscad.maths
+import { bezier } from '@jscad/modeling'
+import { circle, line, polygon, rectangle, roundedRectangle, star } from '@jscad/modeling'
+import { extrudeLinear, extrudeRotate, extrudeFromSlices, slice } from '@jscad/modeling'
+import { translate } from '@jscad/modeling'
+import { offset } from '@jscad/modeling'
+import { mat4 } from '@jscad/modeling'
 
-function main() {
+export function main() {
   const shapes = []
 
   // rounded box
@@ -23,8 +21,8 @@ function main() {
   // expanded lines
   const aLine = line([[-3, 0], [0, 0], [2, 2], [3, 4]])
   shapes.push(aLine)
-  shapes.push(extrudeLinear({ height: 1 }, expand({ delta: 1, corners: 'edge' }, aLine)))
-  shapes.push(extrudeLinear({ height: 1 }, expand({ delta: 1, corners: 'round', segments: 32 }, aLine)))
+  shapes.push(extrudeLinear({ height: 1 }, offset({ delta: 1, corners: 'edge' }, aLine)))
+  shapes.push(extrudeLinear({ height: 1 }, offset({ delta: 1, corners: 'round', segments: 32 }, aLine)))
 
   // polygon twist
   const poly = polygon({ points: [[-2, -1], [2, -1], [2.5, 2], [1, 1], [0, 2], [-1, 1], [-2, 2]] })
@@ -46,7 +44,7 @@ function main() {
 
 // Extrude a slice while varying the x and y dimensions using a bezier curve
 const extrudeBezier = (height) => {
-  const squareSlice = slice.fromPoints([[2, 2], [-2, 2], [-2, -2], [2, -2]])
+  const squareSlice = slice.fromVertices([[2, 2, 0], [-2, 2, 0], [-2, -2, 0], [2, -2, 0]])
 
   const xCurve = bezier.create([1, 1.8, 0.4, 1])
   const yCurve = bezier.create([1, 1.8, 0.5])
@@ -67,4 +65,3 @@ const extrudeBezier = (height) => {
   }, squareSlice)
 }
 
-module.exports = { main }

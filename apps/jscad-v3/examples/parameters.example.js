@@ -1,16 +1,14 @@
-"use strict"
 /**
  * Demonstrate all available parameter types
  */
 
-const jscad = require('@jscad/modeling')
-const { colorize, hexToRgb } = jscad.colors
-const { sphere } = jscad.primitives
+import { colorize, hexToRgb } from '@jscad/modeling'
+import { sphere } from '@jscad/modeling'
 
 const values = [3, 4, 5, 6]
 const captions = ['three', 'four', 'five', 'six']
 
-const getParameterDefinitions = () => [
+export const getParameterDefinitions = () => [
   { name: 'group1', type: 'group', caption: 'Group 1: Text Entry' },
   { name: 'text', type: 'text', initial: '', size: 20, maxLength: 20, caption: 'Plain Text:', placeholder: '20 characters' },
   { name: 'int', type: 'int', initial: 20, min: 1, max: 100, step: 1, caption: 'Integer:' },
@@ -31,8 +29,6 @@ const getParameterDefinitions = () => [
   { name: 'checkbox2', type: 'checkbox', checked: false, caption: 'Optional Checkbox:' }
 ]
 
-const main = (params) => {
+export const main = (params) => {
   return colorize(hexToRgb(params.color), sphere({ radius: params.slider }))
 }
-
-module.exports = { main, getParameterDefinitions }

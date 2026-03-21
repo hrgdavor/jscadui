@@ -99,7 +99,6 @@ export const jscadInit = options => {
   alias.forEach(({ name, path }) => {
     requireCache.alias[name] = path
   })
-  console.log('init alias', alias, 'bundles',bundles)
   userInstances = options.userInstances
 }
 /**

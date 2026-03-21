@@ -1,10 +1,6 @@
-"use strict"
-const jscad = require('@jscad/modeling')
-const { intersect, subtract } = jscad.booleans
-const { colorize } = jscad.colors
-const { cube, sphere } = jscad.primitives
+import { intersect, subtract, colorize, cube, sphere } from '@jscad/modeling'
 
-function main() {
+export function main() {
   const outer = subtract(
     cube({ size: 10 }),
     sphere({ radius: 6.8 })
@@ -19,4 +15,3 @@ function main() {
   ]
 }
 
-module.exports = { main }

@@ -12,17 +12,17 @@ import * as editor from './editor.js'
  */
 
 /** @type {ExportFormat[]} */
+// NOTE: This list should match the list in src_bundle/bundle.worker.js
 const exportFormats = [
+  { name: '3mf', label: '3MF', execute: () => exportAsFile('3mf') },
   { name: 'stla', label: 'STL (ascii)', execute: () => exportAsFile('stla', 'stl') },
   { name: 'stlb', label: 'STL (binary)', execute: () => exportAsFile('stlb', 'stl') },
-  { name: 'amf', label: 'AMF', execute: () => exportAsFile('amf') },
+  { name: 'obj', label: 'OBJ', execute: () => exportAsFile('obj') },
+  { name: 'x3d', label: 'X3D', execute: () => exportAsFile('x3d') },
   { name: 'dxf', label: 'DXF', execute: () => exportAsFile('dxf') },
   { name: 'json', label: 'JSON', execute: () => exportAsFile('json') },
-  { name: 'obj', label: 'OBJ', execute: () => exportAsFile('obj') },
-  { name: 'x3d', label: 'X3D', execute: () => exportAsFile('x3b') },
   { name: 'svg', label: 'SVG', execute: () => exportAsFile('svg') },
-  { name: '3mf', label: '3MF', execute: () => exportAsFile('3mf') },
-  { name: 'scriptUrl', label: 'Copy to clipboard script url', execute: () => exportToScriptUrl() },
+  { name: 'URL', label: 'Copy JSCAD script (URL) to clipboard', execute: () => exportToScriptUrl() },
 ]
 
 const exportButton = /** @type {HTMLButtonElement} */ (document.getElementById('export-button'))
@@ -71,13 +71,12 @@ const exportToScriptUrl = async () => {
   const gzipped = gzipSync(str2ab(src))
   const str = String.fromCharCode(...gzipped)
   const url = document.location.origin + '#data:application/gzip;base64,' + btoa(str)
-  console.log('url\n', url)
   try {
     await navigator.clipboard.writeText(url)
     alert('URL with gzipped script was successfully copied to clipboard')
   } catch (err) {
-    console.error('Failed to copy: ', err)
-    alert(`failed to copy to clipboard\n${err}`)
+    console.error(`FAILED to create URL\n${err}`)
+    alert(`FAILED to create URL\n${err}`)
   }
 }
 
@@ -89,7 +88,6 @@ const exportAsFile = async (formatName, formatExtension = formatName) => {
   let { data } = (await workerApi.jscadExportData({ format: formatName })) || {}
   if (data) {
     if (!(data instanceof Array)) data = [data]
-    console.log('save', `${exportConfig.projectName}.${formatExtension}`, data)
     let type = 'text/plain'
     if (formatName === '3mf') type = 'application/zip'
 

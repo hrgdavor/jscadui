@@ -1,5 +1,6 @@
 
-export const MODULE_BASE = 'https://cdn.jsdelivr.net/npm/'
+//export const MODULE_BASE = 'https://cdn.jsdelivr.net/npm/'
+export const MODULE_BASE = 'https://esm.sh/'
 
 export const getExtension = (url) => {
   let arr = url.split('/')
@@ -43,6 +44,7 @@ export const resolveUrl = (url, base, root, moduleBase=MODULE_BASE) => {
         url = moduleFile
         isRelativeFile = true
       } else {
+        base = root = moduleUrl
         isModule = true
         url = moduleUrl
       }

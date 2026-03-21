@@ -30,6 +30,7 @@ import * as welcome from './src/welcome.js'
  * @typedef {import('@jscadui/worker').UserParameters} UserParameters
  */
 
+const bundleDir = 'javascript'
 
 /** 
  * @param {string} id
@@ -200,7 +201,7 @@ const onProgress = (value, note) => {
   progressText.innerText = note ?? ''
 }
 
-const worker = new Worker('./build/bundle.worker.js')
+const worker = new Worker(`./${bundleDir}/bundle.worker.js`)
 const handlers = {
   /**
    * @param {{entities:unknown | Array<unknown>,mainTime:number,convertTime:number}} options1 
@@ -276,8 +277,8 @@ const jscadScript = async ({ script, url = './jscad.model.js', base = currentBas
 
 const bundles = {
   // local bundled alias for common libs.
-  '@jscad/modeling': toUrl('./build/bundle.jscad_modeling.js'),
-  '@jscad/io': toUrl('./build/bundle.jscad_io.js'),
+  '@jscad/modeling': toUrl(`./${bundleDir}/bundle.jscad_modeling.js`),
+  '@jscad/io': toUrl(`./${bundleDir}/bundle.jscad_io.js`),
 }
 
 await workerApi.jscadInit({ bundles })
@@ -369,7 +370,7 @@ const pauseAnimCallback = async (def, value) => {
 }
 
 // Initialize three engine
-viewState.setEngine(await engine.init())
+viewState.setEngine(await engine.init(bundleDir))
 
 /** @type {Object.<string,FileSystemFileHandle>} */
 let saveMap = {}

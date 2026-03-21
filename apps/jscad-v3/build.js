@@ -20,15 +20,16 @@ copyTask('static', outDir, { include: [], exclude: [], watch, filters: [] })
 copyTask('examples', outDir+'/examples', { include: [], exclude: [], watch, filters: [] })
 
 /**************************** BUILD JS that is static *************/
-await buildBundle(outDir + '/build', 'bundle.threejs.js', { globalName: 'THREE', skipExisting: dev })
-await buildBundle(outDir + '/build', 'bundle.jscad_modeling.js', { format: 'cjs', skipExisting: dev })
-await buildBundle(outDir + '/build', 'bundle.jscad_io.js', { format:'cjs', skipExisting: dev })
-await buildBundle(outDir + '/build', 'bundle.jscadui.transform-babel.js', { globalName: 'jscadui_transform_babel', skipExisting: dev })
+const bundleDir = '/javascript' // also see main.js and src/engine.js for bundleDir
+await buildBundle(outDir + bundleDir, 'bundle.threejs.js', { globalName: 'THREE', skipExisting: dev })
+await buildBundle(outDir + bundleDir, 'bundle.jscad_modeling.js', { format: 'cjs', skipExisting: dev })
+await buildBundle(outDir + bundleDir, 'bundle.jscad_io.js', { format:'cjs', skipExisting: dev })
+await buildBundle(outDir + bundleDir, 'bundle.jscadui.transform-babel.js', { globalName: 'jscadui_transform_babel', skipExisting: dev })
 
 /**************************** BUILD JS THAT can change and watch if in dev mode *************/
-await buildOne('src_bundle', outDir + '/build', 'bundle.worker.js', watch, { format: 'iife' })
+await buildOne('src_bundle', outDir + bundleDir, 'bundle.worker.js', watch, { format: 'iife' })
 
-await buildOne('src_bundle', outDir, 'bundle.fs-serviceworker.js', watch, { format: 'iife' })
+await buildOne('src_bundle', outDir + '', 'bundle.fs-serviceworker.js', watch, { format: 'iife' })
 
 
 /**************************** BUILD MAIN JS and watch if in dev mode *************/

@@ -180,6 +180,7 @@ const combineParameterDefinitions = (paramDefFromSource, extraDef) => {
   const def = [...paramDefFromSource]
   if (extraDef) {
     extraDef.forEach((param) => {
+      param.initial = param.initial ? param.initial : param.default
       const idx = def.findIndex((p) => p.name === param.name)
       if (idx !== -1) def[idx] = param
       else def.push(param)

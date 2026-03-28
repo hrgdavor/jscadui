@@ -102,18 +102,16 @@ async function initFs() {
     file.then(() => editor.setFiles(sw.filesToCheck))
     return file
   }
+
   let scope = document.location.pathname
   try {
     sw = await registerServiceWorker(`bundle.fs-serviceworker.js?prefix=${scope}swfs/`, getFileWrapper, {
       scope,
       prefix: scope + 'swfs/',
     })
-  } catch (e) {
-    const lastReload = localStorage.getItem('lastReload')
-    if (lastReload === null || Date.now() - parseInt(lastReload) > 3000) {
-      localStorage.setItem('lastReload', Date.now().toString())
-      //location.reload()
-    }
+  } catch (error) {
+    console.log(error)
+    throw new Error('failed to initialize file system')
   }
   sw.defProjectName = 'jscad'
   sw.onfileschange = files => {
@@ -151,8 +149,8 @@ document.body.addEventListener('drop', async ev => {
 
     reloadProject()
   } catch (error) {
-    setError(error)
     console.error(error)
+    setError(error)
   }
 })
 
@@ -490,8 +488,9 @@ if (loadDefault && !hasRemoteScript) {
 
 try {
   if(!sw) await initFs()
-} catch (err) {
-  setError(err)
+} catch (error) {
+  console.error(error)
+  setError(error)
 }
 
 if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {

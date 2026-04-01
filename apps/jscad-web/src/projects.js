@@ -56,7 +56,7 @@ export const swModels = [
 ]
 
 export const swProjects = [
-  { name: 'Connectors', source: './projects/connectors/index.js' },
-  { name: 'Connector Parts', source: './projects/connectors/connector-parts/index.js' },
-  { name: 'Small shelf (Alectoria)', source: './projects/shelf-alectoria/index.js' },
+  // { name: 'Connectors', source: './projects/connectors/index.js' },
+  // { name: 'Connector Parts', source: './projects/connectors/connector-parts/index.js' },
+  // { name: 'Small shelf (Alectoria)', source: './projects/shelf-alectoria/index.js' },
 ]

@@ -29,7 +29,7 @@ mkdirSync(outDir, { recursive: true })
 copyTask('static', outDir, { include: [], exclude: [], watch, filters: [] })
 copyTask('examples', outDir+'/examples', { include: [], exclude: [], watch, filters: [] })
 copyTask('lib-demo', outDir+'/lib-demo', { include: [], exclude: [], watch, filters: [] })
-copyTask('projects', outDir+'/projects', { include: [], exclude: [], watch, filters: [] })
+// copyTask('projects', outDir+'/projects', { include: [], exclude: [], watch, filters: [] })
 //in dev mode dont try to sync docs, just copy the first time 
 if(!skipDocs && !(dev & existsSync(outDir + "/docs"))){
   // this task is heavy
@@ -46,6 +46,7 @@ await buildBundle(outDir + '/build', 'bundle.sw-jscad.js', { format: 'cjs', skip
 await buildBundle(outDir + '/build', 'bundle.sw-jscad-ui.js', { format: 'cjs', skipExisting: dev })
 await buildBundle(outDir + '/build', 'bundle.sw-jscad-families.js', { format: 'cjs', skipExisting: dev })
 await buildBundle(outDir + '/build', 'bundle.sw-jscad-builders.js', { format: 'cjs', skipExisting: dev })
+await buildBundle(outDir + '/build', 'bundle.swcad-js.js', { format: 'cjs', skipExisting: dev })
 
 /**************************** BUILD JS THAT can change and watch if in dev mode *************/
 await buildOne('src_bundle', outDir + '/build', 'bundle.worker.js', watch, { format: 'iife' })

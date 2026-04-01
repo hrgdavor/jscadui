@@ -3,10 +3,16 @@ const jscad = require('@jscad/modeling')
 
 const swJscad = require('sw-jscad').init({ lib: jscad });
 const swjUi = require('sw-jscad-ui').init({ lib: jscad, swLib: swJscad });
+const swjFamilies = require('sw-jscad-families').init({ lib: jscad, swLib: swJscad });
+const swjBuilders = require('sw-jscad-builders').init({ lib: jscad, swLib: swJscad, swFamilies: swjFamilies });
+
 const swCadJs = require('swcad-js').init({ lib: jscad });
 
 console.log(swJscad)
 console.log(swjUi)
+console.log(swjFamilies)
+console.log(swjBuilders)
+
 console.log(swCadJs)
 
 const { intersect, subtract } = jscad.booleans

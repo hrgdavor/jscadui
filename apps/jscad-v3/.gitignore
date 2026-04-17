@@ -6,3 +6,4 @@ deploy
 bin
 .tmp
 *.swp
+.DS_Store

@@ -12,9 +12,10 @@ export const esbDef = {
     '.jsx': 'tsx',
   },
   bundle: true,
-  minify: false,
+  minify: true,
   skipExisting: true,
-  sourcemap: false,
+  sourcemap: true,
+  target: ['es2022']
 }
 
 const bundleDef = {

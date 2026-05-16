@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.1.9",
-    "@jscad/io": "^3.0.4-alpha.0",
-    "@jscad/modeling": "^3.0.4-alpha.0",
+    "@jscad/io": "^3.0.5-alpha.0",
+    "@jscad/modeling": "^3.0.5-alpha.0",
     "@jscadui/format-jscad": "*",
     "@jscadui/format-threejs": "*",
     "@jscadui/format-common": "*",

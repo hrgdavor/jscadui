@@ -1,0 +1,9 @@
+node_modules
+build
+build_dev
+jscad
+deploy
+bin
+.tmp
+*.swp
+.DS_Store

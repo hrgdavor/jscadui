@@ -65,7 +65,7 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
     const resolved = resolveUrl(aliasedUrl, base, root, moduleBase)
     const resolvedStr = resolved.url.toString()
     const resolvedExt = getExtension(resolvedStr)
-    const isJs = (resolvedExt === 'ts' || resolvedExt === 'js' || resolvedExt === '.mjs')
+    const isJs = (resolvedExt === 'ts' || resolvedExt === 'js' || resolvedExt === 'mjs')
 
     if (!resolved.isModule && !isJs && importData) {
       // try to import the contents of the file, i.e. STL, etc

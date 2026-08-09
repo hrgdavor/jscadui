@@ -1,4 +1,3 @@
-import { defaultKeymap } from '@codemirror/commands'
 import { javascript } from '@codemirror/lang-javascript'
 import { keymap } from '@codemirror/view'
 import { EditorView, basicSetup } from 'codemirror'
@@ -46,8 +45,6 @@ let editorFile
 const compile = (code, path) => {
   if (compileFn) {
     compileFn(code, path)
-  } else {
-    console.log('not ready to compile')
   }
 }
 
@@ -56,8 +53,8 @@ const compile = (code, path) => {
 * @param {string} path 
 */
 const save = (code, path) => {
-  compileFn(code, path)
   saveFn(code, path)
+  compileFn(code, path)
 }
 
 export const runScript = () => compile(view.state.doc.toString(), currentFile)
@@ -80,23 +77,16 @@ export const init = (defaultCode, fn, _saveFn, _getFileFn) => {
   getFileFn = _getFileFn
   // Initialize codemirror
   const editorDiv = document.getElementById('editor-container')
+  const customKeymap = [
+    // does not work due to autocompletion { key: 'Shift-Enter', run: runScript, preventDefault: true, },
+    { key: 'Ctrl-r', run: runScript, preventDefault: true, },
+    { key: 'Ctrl-s', run: () => save(view.state.doc.toString(), currentFile), preventDefault: true, },
+  ]
   view = new EditorView({
     extensions: [
       basicSetup,
       javascript(),
-      keymap.of([
-        {
-          key: 'Shift-Enter',
-          run: runScript,
-          preventDefault: true,
-        },
-        {
-          key: 'Mod-s',
-          run: () => save(view.state.doc.toString(), currentFile),
-          preventDefault: true,
-        },
-        ...defaultKeymap,
-      ]),
+      keymap.of(customKeymap),
     ],
     parent: editorDiv,
   })

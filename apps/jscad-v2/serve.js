@@ -17,6 +17,7 @@ const mimeTypes = {
   '.txt': 'text/plain',
   '.ttf': 'font/ttf',
   '.woff2': 'font/woff2',
+  '.manifest': 'application/manifest+json',
 }
 
 /**

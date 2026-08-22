@@ -70,7 +70,8 @@ const exportToScriptUrl = async () => {
   const src = editor.getSource()
   const gzipped = gzipSync(str2ab(src))
   const str = String.fromCharCode(...gzipped)
-  const url = document.location.origin + '#data:application/gzip;base64,' + btoa(str)
+  const baseUrl = document.location.origin + document.location.pathname
+  const url = baseUrl + '#data:application/gzip;base64,' + btoa(str)
   try {
     await navigator.clipboard.writeText(url)
     alert('URL with gzipped script was successfully copied to clipboard')

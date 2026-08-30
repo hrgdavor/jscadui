@@ -64,10 +64,11 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
 
     const resolved = resolveUrl(aliasedUrl, base, root, moduleBase)
     const resolvedStr = resolved.url.toString()
-    const urlComponents = resolvedStr.split('/')
-    // no file ext is usually module from CDN
-    const isJs = !urlComponents[urlComponents.length - 1].includes('.') || resolvedStr.endsWith('.ts') || resolvedStr.endsWith('.js') || resolvedStr.endsWith('.mjs')
-    if (!isJs && importData) {
+    const resolvedExt = getExtension(resolvedStr)
+    const isJs = (resolvedExt === 'ts' || resolvedExt === 'js' || resolvedExt === 'mjs')
+
+    if (!resolved.isModule && !isJs && importData) {
+      // try to import the contents of the file, i.e. STL, etc
       const info = extractPathInfo(resolvedStr)
       const content = readFile(resolvedStr, { output: importData.isBinaryExt(info.ext) })
       return importData.deserialize(info, content)
@@ -76,18 +77,18 @@ export const require = (urlOrSource, transform, readFile, base, root, importData
     isRelativeFile = resolved.isRelativeFile
     resolvedUrl = resolved.url
     cacheUrl = resolved.url
-    requireCache.knownDependencies.get(base)?.add(cacheUrl)//Mark this module as a dependency of the base module
+    requireCache.knownDependencies.get(base)?.add(cacheUrl) // Mark this module as a dependency of the base module
 
     cache = requireCache[isRelativeFile ? 'local' : 'module']
     exports = cache[cacheUrl] // get from cache
     if (!exports) {
       // not cached
 
-      //Clear the known dependencies of the old version this module      
+      // Clear the known dependencies of the old version this module
       requireCache.knownDependencies.set(cacheUrl, new Set())
       try {
         source = readFile(resolvedUrl)
-        if (resolvedUrl.includes('jsdelivr.net') || resolvedUrl.includes('/esm.sh')) {
+        if (resolvedUrl.includes(moduleBase)) {
           // jsdelivr will read package.json and tell us what the main file is
           const srch = ' * Original file: '
           let idx = source.indexOf(srch)

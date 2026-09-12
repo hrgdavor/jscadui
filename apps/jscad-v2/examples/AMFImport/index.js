@@ -1,4 +1,3 @@
-"use strict"
 /**
  * AMF Import Demonstration
  * @category Imports

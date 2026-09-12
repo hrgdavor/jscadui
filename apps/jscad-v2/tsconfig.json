@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "skipLibCheck": true,
+    "outDir": "build_dev",
+    "moduleResolution": "node16",
+    "module": "node16"
+  },
+  "include": [
+"src",
+    "main.js"
+],
+  "exclude": ["node_modules", "build_dev", "build", "dist","build.js","jscad"]
+}

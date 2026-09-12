@@ -170,7 +170,8 @@ export const registerServiceWorker = async (
         })
       }
     } catch (error) {
-      console.error(`service worker registration failed with ${error}`)
+      console.error(error)
+      throw new Error('failed to register service worker')
     }
 
     // this code handle app first load, when the serviceWorker is still activating
@@ -222,7 +223,8 @@ export const registerServiceWorker = async (
 
     return sw
   } else {
-    throw new Error('service worker unavailable')
+    console.error(`Service worker unavailable on ${window.location.protocol}`)
+    throw new Error(`Service worker unavailable on ${window.location.protocol}`)
   }
 }
 

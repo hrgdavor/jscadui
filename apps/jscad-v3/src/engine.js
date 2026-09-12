@@ -1,9 +1,11 @@
 import { RenderThreejs } from '@jscadui/render-threejs'
 
-// import * as THREE from 'three'
+/**
+ * Initialize the engine (viewer)
+ */
+export const init = (bundleDir) => {
+  // NOTE: See index.html for the importing of the bundle; bundle.threejs.js
 
-export const init = async (bundleDir) => {
-  await addScript(`${bundleDir}/bundle.threejs.js`)
   const JscadThreeViewer = RenderThreejs(THREE)
   const el = /** @type {HTMLDivElement} */ (document.getElementById('viewer'))
   const viewer = JscadThreeViewer(el)

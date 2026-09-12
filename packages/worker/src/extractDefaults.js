@@ -2,15 +2,20 @@
  * @param {import("@jscadui/format-common").ParameterDefinition[]} def
  * @returns {import("@jscadui/format-common").UserParameters}
  */
-export function extractDefaults(defs) {
+export function extractDefaults(definitions) {
 /** @type {import("@jscadui/format-common").UserParameters} */
-  const params = {}
-  defs.forEach(({ name, initial, type, values, captions, checked }) =>{
-    let val = initial
-    if (type === 'checkbox' && initial === undefined) {
+  const parameters = {}
+  definitions.forEach((def) => {
+    const { name, type, values, captions, checked } = def
+
+    let val = def.initial !== undefined ? def.initial : def.default
+
+    if (type === 'checkbox' && !val) {
+      // set a default for checkbox parameters
       val = checked
     }
-    if(type === 'choice' && values.indexOf(v=>v === val) === -1){
+
+    if (type === 'choice' && values.indexOf(v=>v === val) === -1) {
       // it is supported for choice to use default value from captions also
       // but script will need the matching value
       if (captions) {
@@ -23,7 +28,7 @@ export function extractDefaults(defs) {
       }
       if (val === undefined) val = values[0]
     }
-    if (name) params[name] = val
+    if (name) parameters[name] = val
   })
-  return params
+  return parameters
 }

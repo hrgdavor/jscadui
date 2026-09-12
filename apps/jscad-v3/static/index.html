@@ -10,12 +10,14 @@
     <meta name="description" content="JSCAD is an open source set of modular, browser and command line tools for creating parametric 2D and 3D CAD designs with JavaScript code.">
     <meta name="keywords" content="jscad, openjscad, javascript, typescript, cad, svg, stl, obj, csg, 3mf, 3d-design, 2d-design">
     <link rel="stylesheet" href="main.css">
-    <title>JSCAD - JavaScript CAD</title>
+    <title>JSCAD V3 - JavaScript CAD</title>
+    <script type="text/javascript" src="javascript/bundle.threejs.js"></script>
   </head>
   <body>
     <div class="container">
       <div id="welcome">
-        <h1>JSCAD</h1>
+        <h1>JSCAD V3 Design UI</h1>
+        <h1>Beta Version</h1>
         <p>
           JSCAD is a tool for creating parametric 2D and 3D CAD designs using JavaScript code.
         </p>
@@ -68,14 +70,14 @@
             <ul id="editor-files"></ul>
           </nav>
           <div id="editor-container"></div>
-          <a id="editor-hint">Shift-enter to update</a>
-          <a id="editor-hint2">CTRL+S to save and update</a>
+          <a id="editor-hint">CTRL+r to render</a>
+          <a id="editor-hint2">CTRL+s to save and render</a>
         </div>
         <div id="editor-toggle"></div>
       </div>
 
       <div id="menu">
-        <button id="menu-button">JSCAD</button>
+        <button id="menu-button">JSCAD V3</button>
         <div id="menu-content">
           <h2>Options</h2>
           <ul>
@@ -88,12 +90,12 @@
 
           <h2>Documentation</h2>
           <ul>
-            <li><a href="https://openjscad.xyz/guilde.html" target="_blank">User Guide</a></li>
-            <li><a href="https://openjscad.xyz/v3/docs/" target="_blank">API Reference</a></li>
+            <li><a href="./guide.html" target="_blank">User Guide</a></li>
+            <li><a href="./docs.html" target="_blank">API Reference</a></li>
             <li><a href="https://github.com/hrgdavor/jscadui/issues" target="_blank">GitHub Issues (App)</a></li>
             <li><a href="https://github.com/jscad/OpenJSCAD.org/issues" target="_blank">GitHub Issues (Designs)</a></li>
-            <li><a href="https://openjscad.xyz/forum.html" target="_blank">User Group</a></li>
-            <li><a href="https://openjscad.xyz/discord.html" target="_blank">Discord Community</a></li>
+            <li><a href="./forum.html" target="_blank">User Group</a></li>
+            <li><a href="./discord.html" target="_blank">Discord Community</a></li>
           </ul>
 
           <h2>Examples</h2>

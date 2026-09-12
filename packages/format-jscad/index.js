@@ -134,7 +134,7 @@ const calculateNormal = (vertices) => {
  * @param {import("@jscadui/format-common").CSGLine} csg 
  * @returns {import("@jscadui/format-common").JscadLineEntityRaw}
  */
-function CSG2LineVertices (csg) {
+function CSG2LinePoints (csg) {
   let vLen = csg.points.length * 3
   if (csg.isClosed) vLen += 3
 
@@ -144,6 +144,25 @@ function CSG2LineVertices (csg) {
 
   if (csg.isClosed) {
     setPoints(vertices, csg.points[0], vertices.length - 3)
+  }
+  return { type: 'line', vertices }
+}
+
+/*
+ * Convert path3 or poly3 to rendering line
+ */
+function CSG2LineVertices (csg) {
+  const isClosed = ('isClosed' in csg) ? csg.isClosed : true
+
+  let vLen = csg.vertices.length * 3
+  if (isClosed) vLen += 3
+
+  const vertices = new Float32Array(vLen)
+
+  csg.vertices.forEach((p, idx) => setPoints(vertices, p, idx * 3))
+
+  if (isClosed) {
+    setPoints(vertices, csg.vertices[0], vertices.length - 3)
   }
   return { type: 'line', vertices }
 }
@@ -292,31 +311,42 @@ export function JscadToCommon (csg, transferable, unique, options) {
   /** @type {import("@jscadui/format-common").JscadMainEntity} */
   let obj
 
+  // geom3 V2 / V3
   if ('polygons' in csg) obj = CSGCached(CSG2Vertices, csg, csg.polygons, transferable, unique, options)
+  // geom2 V2
   if ('sides' in csg && !('points' in csg)) obj = CSGCached(CSGSides2LineSegmentsVertices, csg, csg.sides, transferable, unique, options)
+  // geom2 V3
   if ('outlines' in csg) obj = CSGCached(CSGOutlines2LineSegmentsVertices, csg.outlines, csg.outlines, transferable, unique, options)
+  // slice V3
   if ('contours' in csg) obj = CSGCached(CSGOutlines2LineSegmentsVertices, csg.contours, csg.contours, transferable, unique, options)
-  if ('points' in csg) obj = CSGCached(CSG2LineVertices, csg, csg.points, transferable, unique, options)
-  if ('vertices' in csg) { // cover a case where the object already has the format
-    obj = csg
-    // avoid filling transferable multiple times
-    if (!JscadToCommon.cache.get(obj)) {
-      JscadToCommon.cache.set(obj, obj)
-      if (transferable) {
-        transferable.push(obj.vertices)
-        if (obj.indices) transferable.push(obj.indices)
-      }
-    }
-  }
-  if ('color' in csg || csg.transforms) obj = { ...obj }
-  if(csg.color) obj.color = csg.color 
-  if(csg.transforms) obj.transforms = csg.transforms
+  // path2 V2 / V3
+  if ('points' in csg) obj = CSGCached(CSG2LinePoints, csg, csg.points, transferable, unique, options)
+  // path3 V3 or poly3 V2 / V3
+  if ('vertices' in csg) obj = CSGCached(CSG2LineVertices, csg, csg.vertices, transferable, unique, options)
 
-  if (!obj || !obj.type) {
+  //if ('vertices' in csg) { // cover a case where the object already has the format
+  //  obj = csg
+  //  // avoid filling transferable multiple times
+  //  if (!JscadToCommon.cache.get(obj)) {
+  //    JscadToCommon.cache.set(obj, obj)
+  //    if (transferable) {
+  //      transferable.push(obj.vertices)
+  //      if (obj.indices) transferable.push(obj.indices)
+  //    }
+  //  }
+  //}
+
+  if (!obj) {
     // throw new Error('invalid jscad geometry')
     console.error('invalid jscad geometry', csg)
-    obj = { ...obj, csg, type: 'unknown' }
+    obj = { csg, type: 'unknown' }
   }
+
+  // transfer transforms to rendering object
+  if(csg.transforms) obj.transforms = csg.transforms
+  // transfer color to rendering object
+  if(csg.color) obj.color = csg.color
+
   return obj
 }
 

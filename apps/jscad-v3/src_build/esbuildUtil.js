@@ -15,6 +15,7 @@ export const esbDef = {
   minify: true,
   skipExisting: true,
   sourcemap: true,
+  target: ['es2022']
 }
 
 const bundleDef = {

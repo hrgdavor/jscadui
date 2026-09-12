@@ -1,5 +1,5 @@
 {
-  "type":"module",
+  "type": "module",
   "sideEffects": false,
   "name": "@jscadui/worker",
   "version": "0.1.0",
@@ -14,21 +14,21 @@
     "cjs"
   ],
   "scripts": {
-    "test": "vitest",
+    "test": "vitest run --dir tests",
     "coverage": "vitest run --coverage",
     "build": "esbuild worker.js --outdir=esm --bundle --sourcemap --minify --loader:.js=jsx --format=esm",
     "build-cjs": "esbuild worker.js --outdir=cjs --bundle --sourcemap --minify --loader:.js=jsx --format=cjs",
     "prepublishOnly": "npm run build && npm run build-cjs"
   },
   "dependencies": {
+    "@jscadui/format-common": "*",
     "@jscadui/postmessage": "*",
-    "@jscadui/require": "*",
-    "@jscadui/format-common": "*"
+    "@jscadui/require": "*"
   },
   "devDependencies": {
-    "esbuild": "^0.16.7",
-    "@types/node": "18.11.9",
     "@trivago/prettier-plugin-sort-imports": "~3.3.0",
+    "@types/node": "18.11.9",
+    "esbuild": "^0.16.7",
     "vitest": "0.24.5"
   },
   "license": "MIT"

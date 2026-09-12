@@ -102,18 +102,16 @@ async function initFs() {
     file.then(() => editor.setFiles(sw.filesToCheck))
     return file
   }
+
   let scope = document.location.pathname
   try {
     sw = await registerServiceWorker(`bundle.fs-serviceworker.js?prefix=${scope}swfs/`, getFileWrapper, {
       scope,
       prefix: scope + 'swfs/',
     })
-  } catch (e) {
-    const lastReload = localStorage.getItem('lastReload')
-    if (lastReload === null || Date.now() - parseInt(lastReload) > 3000) {
-      localStorage.setItem('lastReload', Date.now().toString())
-      //location.reload()
-    }
+  } catch (error) {
+    console.log(error)
+    throw new Error('failed to initialize file system')
   }
   sw.defProjectName = 'jscad'
   sw.onfileschange = files => {
@@ -151,8 +149,8 @@ document.body.addEventListener('drop', async ev => {
 
     reloadProject()
   } catch (error) {
-    setError(error)
     console.error(error)
+    setError(error)
   }
 })
 
@@ -281,7 +279,7 @@ const bundles = {
   '@jscad/io': toUrl(`./${bundleDir}/bundle.jscad_io.js`),
 }
 
-await workerApi.jscadInit({ bundles })
+workerApi.jscadInit({ bundles })
 
 /** @type {boolean} */
 let working = false
@@ -369,8 +367,8 @@ const pauseAnimCallback = async (def, value) => {
   stopCurrentAnim()
 }
 
-// Initialize three engine
-viewState.setEngine(await engine.init(bundleDir))
+// Initialize the viewer engine
+viewState.setEngine(engine.init(bundleDir))
 
 /** @type {Object.<string,FileSystemFileHandle>} */
 let saveMap = {}
@@ -431,6 +429,7 @@ editor.init(
 )
 menu.init()
 welcome.init()
+
 let hasRemoteScript
 try {
   hasRemoteScript = await remote.init(
@@ -451,47 +450,11 @@ try {
 } catch (e) {
   console.error(e)
 }
+
 exporter.init(workerApi)
-
-/* uncomment to test fake file tree for running scripts
-
-loadDefault = false
-async function setFileTree(sw, files){
-  clearCache(sw.cache)
-  files.forEach(f=>addToCache(sw.cache, f.path, f.fileContent))
-}
-
-const virtualTree = [
-  {
-      "filename": "index.js",
-      "path": "/index.js",
-      "fileContent": "const {subtract} = require('@jscad/modeling'); \n\nfunction main(){\n  const childShape = require('/component/childShape.js');\n  const childShape2 = require('/childShape2.js');\n  return subtract(childShape.main(),childShape2.main())\n}\n\nmodule.exports= {main}",
-  },
-  {
-      "path": "/component/childShape.js",
-      "filename": "childShape.js",
-      "fileContent": "const {cube} = require('@jscad/modeling').primitives; \n function main(){ return cube({size:5})}\n module.exports= {main}",
-  },
-  {
-      "path": "/childShape2.js",
-      "filename": "childShape2.js",
-      "fileContent": "const {sphere} = require('@jscad/modeling').primitives; \n function main(){ return sphere({radius:3})}\n module.exports= {main}",
-  },
-];
-if (!sw) await initFs()
-setFileTree(sw, virtualTree)
-jscadScript({ url: '/index.js', base: sw.base })
-editor.setSource(virtualTree[0].fileContent, '/index.js')
-// */
 
 if (loadDefault && !hasRemoteScript) {
   jscadScript({ script: defaultCode })
-}
-
-try {
-  if(!sw) await initFs()
-} catch (err) {
-  setError(err)
 }
 
 if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {

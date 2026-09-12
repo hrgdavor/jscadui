@@ -245,7 +245,7 @@ export const getParams = target => {
 
   forEachGroup(target, elem => {
     const name = elem.getAttribute('name')
-    params[name] = elem.getAttribute('closed') == '1' ? 'closed' : ''
+    params[name] = elem.getAttribute('closed') == '1' ? 'closed' : 'open'
   })
 
   forEachInput(target, elem => {
